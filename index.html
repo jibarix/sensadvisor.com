@@ -175,6 +175,18 @@
             }
         }
 
+
+        @keyframes slideDownCentered {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
         /* Panel System */
         .panel {
             background: var(--primary-bg);
@@ -253,7 +265,7 @@
             box-shadow: 0 4px 16px rgba(0, 170, 0, 0.2);
             z-index: 10;
             display: none;
-            animation: slideDown 0.3s ease;
+            animation: slideDownCentered 0.3s ease;
             text-align: center;
         }
 
@@ -992,7 +1004,6 @@
                 <p>Jorge A. Arroyo - xP&A Consultant & AI Research Enthusiast</p>
             `;
             
-            nameElement.style.position = 'relative';
             nameElement.appendChild(popup);
             
             // Close when clicking elsewhere
