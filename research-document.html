@@ -199,6 +199,57 @@
             overflow-x: auto;
         }
 
+        /* Critical Warning Box */
+        .critical-warning {
+            background: #ffffff;
+            border: 3px solid #000000;
+            padding: 20px;
+            margin: 25px 0;
+            position: relative;
+        }
+
+        .critical-warning::before {
+            content: "CRITICAL IMPLEMENTATION WARNING";
+            position: absolute;
+            top: -12px;
+            left: 15px;
+            background: #000000;
+            color: #ffffff;
+            padding: 4px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .critical-warning h4 {
+            color: #000000;
+            font-size: 14px;
+            margin: 0 0 10px 0;
+            font-weight: 700;
+        }
+
+        .critical-warning p {
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+
+        .warning-code {
+            background: #f0f0f0;
+            border: 2px solid #000000;
+            padding: 10px;
+            font-family: 'Source Code Pro', monospace;
+            font-size: 12px;
+            margin: 10px 0;
+        }
+
+        .incorrect-code {
+            border-left: 6px solid #000000;
+        }
+
+        .correct-code {
+            border-left: 6px solid #000000;
+        }
+
         /* Special Sections */
         .abstract {
             border: 2px solid #000000;
@@ -287,6 +338,16 @@
                 gap: 10px;
                 text-align: center;
             }
+
+            .critical-warning {
+                padding: 15px;
+                margin: 20px 0;
+            }
+
+            .critical-warning::before {
+                font-size: 11px;
+                padding: 3px 8px;
+            }
         }
     </style>
 </head>
@@ -300,7 +361,7 @@
             <div class="document-meta">
                 <div class="meta-item">
                     <strong>DOCUMENT ID:</strong><br>
-                    TDM_DEV_GUIDE_v0.2
+                    TDM_DEV_GUIDE_v0.3
                 </div>
                 <div class="meta-item">
                     <strong>AUTHOR:</strong><br>
@@ -440,6 +501,25 @@
             
             <p>This is the mathematical formulation of the training goal, defining the loss that the denoising network minimizes.</p>
 
+            <!-- CRITICAL WARNING SECTION -->
+            <div class="critical-warning">
+                <h4>Recent research has identified a fundamental error in loss function implementation that appears in multiple high-profile papers, including "Diffusion Beats Autoregressive in Data-Constrained Settings" (Prabhudesai et al., 2025).</h4>
+                
+                <p><strong>INCORRECT (commonly used but wrong):</strong></p>
+                <div class="warning-code incorrect-code">
+L = E[∑ -log p_θ(x_0^i | x_t)]
+    {i|x_i=m}
+                </div>
+                
+                <p><strong>CORRECT (theoretically grounded, Austin et al. 2021):</strong></p>
+                <div class="warning-code correct-code">
+L = E[α_t'/(1-α_t) ∑ -log p_θ(x_0^i | x_t)]
+    {i|x_i=m}
+                </div>
+                
+                <p><strong>Why This Matters:</strong> The incorrect formulation does not faithfully represent the model likelihood, makes comparisons with AR models fundamentally unfair, and breaks research reproducibility. <span class="emphasis">Always implement the time-dependent reweighting factor α_t'/(1-α_t)</span>.</p>
+            </div>
+
             <h3>Discrete Diffusion</h3>
             <ul>
                 <li><span class="emphasis">Purpose:</span> To train the denoising network to accurately predict the masked tokens. The theoretical goal is to maximize the log-likelihood of the data, which is intractable.</li>
@@ -478,6 +558,8 @@
                 
                 <div class="reference-item">Chen, J., Zhang, A., Li, M., Smola, A., & Yang, D. (2023). A cheaper and better diffusion language model with soft-masked noise. <em>arXiv preprint arXiv:2304.04746</em>.</div>
                 
+                <div class="reference-item">Diffusion Language Models are Super Data Learners (2025). A Critical Analysis of "Diffusion Beats Autoregressive in Data-Constrained Settings." Retrieved from https://jinjieni.notion.site/Diffusion-Language-Models-are-Super-Data-Learners</div>
+                
                 <div class="reference-item">Gladstone, A., Nanduru, G., Islam, M. M., Han, P., Ha, H., Chadha, A., Du, Y., Ji, H., Li, J., & Iqbal, T. (2025). Energy-Based Transformers are Scalable Learners and Thinkers. <em>arXiv preprint arXiv:2507.02092</em>.</div>
                 
                 <div class="reference-item">Gong, S., Li, M., Feng, J., Wu, Z., & Kong, L. (2023). DiffuSeq-v2: Bridging discrete and continuous text spaces for accelerated Seq2Seq diffusion models. In <em>Findings of the Association for Computational Linguistics: EMNLP 2023</em> (pp. 9868-9875).</div>
@@ -509,7 +591,7 @@
             <div class="footer-grid">
                 <div>
                     <strong>DOCUMENT ID:</strong><br>
-                    TDM_DEV_GUIDE_v0.2
+                    TDM_DEV_GUIDE_v0.3
                 </div>
                 <div>
                     <strong>CLASSIFICATION:</strong><br>
