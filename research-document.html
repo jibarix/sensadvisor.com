@@ -250,6 +250,28 @@
             border-left: 6px solid #000000;
         }
 
+        /* Breakthrough Box */
+        .breakthrough {
+            background: #ffffff;
+            border: 3px solid #000000;
+            padding: 20px;
+            margin: 25px 0;
+            position: relative;
+        }
+
+        .breakthrough::before {
+            content: "BREAKTHROUGH VALIDATION";
+            position: absolute;
+            top: -12px;
+            left: 15px;
+            background: #000000;
+            color: #ffffff;
+            padding: 4px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
         /* Special Sections */
         .abstract {
             border: 2px solid #000000;
@@ -339,12 +361,12 @@
                 text-align: center;
             }
 
-            .critical-warning {
+            .critical-warning, .breakthrough {
                 padding: 15px;
                 margin: 20px 0;
             }
 
-            .critical-warning::before {
+            .critical-warning::before, .breakthrough::before {
                 font-size: 11px;
                 padding: 3px 8px;
             }
@@ -361,7 +383,7 @@
             <div class="document-meta">
                 <div class="meta-item">
                     <strong>DOCUMENT ID:</strong><br>
-                    TDM_DEV_GUIDE_v0.3
+                    TDM_DEV_GUIDE_v0.8
                 </div>
                 <div class="meta-item">
                     <strong>AUTHOR:</strong><br>
@@ -385,167 +407,278 @@
             <!-- Abstract -->
             <section class="abstract">
                 <h2>EXECUTIVE SUMMARY</h2>
-                <p>An analysis of recent research reveals two dominant architectural paradigms for text generation diffusion models: <span class="emphasis">Discrete Diffusion</span> and <span class="emphasis">Continuous Diffusion</span>. While both are built on the foundational principle of reversing a corruption process, their internal mechanics differ significantly. This guide outlines a core five-component architecture, providing a clear and consistent understanding of both approaches for developers.</p>
+                <p>An analysis of recent research reveals two dominant architectural paradigms for text generation diffusion models: <span class="emphasis">Discrete Diffusion</span> and <span class="emphasis">Continuous Diffusion</span>. While both are built on the foundational principle of reversing a corruption process, their internal mechanics differ significantly. This guide outlines a core two-component architecture with five essential subcomponents, providing a clear and consistent understanding of both approaches for developers.</p>
                 
                 <p>The central idea is a two-stage process: A <span class="emphasis">fixed, non-learned Forward Process</span> systematically corrupts clean text into a simple, known distribution, and a <span class="emphasis">learned Reverse Process</span> starts from that simple distribution and iteratively refines it back into coherent, clean text.</p>
+            </section>
+
+            <!-- Breakthrough Validation -->
+            <section class="breakthrough">
+                <h2>BREAKTHROUGH VALIDATION: LLaDA (2025)</h2>
+                <p>The theoretical foundations outlined in this guide received major validation with the release of <span class="emphasis">LLaDA (Large Language Diffusion with mAsking)</span> by Nie et al. (2025). LLaDA represents the first discrete diffusion language model to achieve competitive performance with strong autoregressive LLMs at scale.</p>
+                
+                <p><span class="emphasis">Scale Achievement:</span> LLaDA 8B, trained from scratch on 2.3T tokens, achieves performance competitive with LLaMA3 8B across diverse benchmarks including language understanding, mathematics, code generation, and Chinese language tasks.</p>
+                
+                <p><span class="emphasis">Key Validations:</span></p>
+                <ul>
+                    <li><span class="emphasis">Scalability:</span> Proves discrete diffusion scales effectively to 8B parameters and beyond</li>
+                    <li><span class="emphasis">Competitive Performance:</span> Matches or exceeds strong AR baselines on standard benchmarks</li>
+                    <li><span class="emphasis">Unique Capabilities:</span> Addresses the "reversal curse," outperforming GPT-4o on reversal reasoning tasks</li>
+                    <li><span class="emphasis">Instruction Following:</span> Demonstrates strong chat and instruction-following abilities after supervised fine-tuning</li>
+                </ul>
+                
+                <p>This breakthrough establishes discrete diffusion as a viable alternative to autoregressive modeling for large-scale language generation.</p>
             </section>
 
             <hr class="section-divider heavy">
 
             <!-- Main Content -->
-            <h1>Current Architectural Limitations: AR vs. NAR</h1>
+            <h1>Current Architectural Limitations & Core Trade-offs</h1>
             
-            <p>Before diving into the components, it's crucial to understand the high-level limitations inherent to both autoregressive (AR) and non-autoregressive (NAR) models like diffusion.</p>
+            <p>Before diving into the components, it's crucial to understand the high-level trade-offs between autoregressive (AR) and non-autoregressive (NAR) models like diffusion. The choice between them often comes down to a fundamental decision between optimizing for <span class="emphasis">compute efficiency</span> or <span class="emphasis">data efficiency</span>.</p>
 
-            <h2>Autoregressive (AR) Models</h2>
+            <h2>Autoregressive (AR) Models: Optimized for Compute</h2>
             
-            <p>The primary limitation of AR models stems from their sequential, left-to-right generation process.</p>
+            <p>AR models are highly optimized for computational efficiency, but this comes with limitations.</p>
 
             <ul>
-                <li><span class="emphasis">Error Propagation & Exposure Bias:</span> AR models are prone to a phenomenon called "exposure bias," where a discrepancy exists between training (where the model is fed ground-truth tokens) and inference (where it must rely on its own, possibly flawed, predictions). An early mistake can't be corrected and often leads to a cascade of errors, degrading the quality of the entire sequence <span class="reference">(Tang et al., 2023)</span>.</li>
-                
-                <li><span class="emphasis">Poor Long-Range Planning:</span> The token-by-token approach is inherently short-sighted. This makes AR models struggle with tasks requiring complex reasoning, planning, or global coherence, such as solving logic puzzles or mathematical problems. <span class="emphasis">Ye et al. (2025)</span> demonstrate that AR models fail to balance competing subgoals, leading to what they term <span class="emphasis">"The Regretful Compromise"</span>—where the model, realizing late that it cannot reach the goal, forces an incorrect final step just to satisfy the immediate constraint.</li>
-                
-                <li><span class="emphasis">Slow Inference:</span> Generating a sequence of length <em>N</em> requires <em>N</em> sequential forward passes through the model, making inference computationally slow, especially for long texts.</li>
+                <li><span class="emphasis">Strengths:</span> The sequential, left-to-right process with teacher forcing and causal masking is exceptionally efficient on modern hardware, achieving a high signal-to-FLOPs ratio during training.</li>
+                <li><span class="emphasis">Limitations:</span>
+                    <ul>
+                        <li><span class="emphasis">Error Propagation & Exposure Bias:</span> An early mistake can't be corrected and often leads to a cascade of errors, degrading the quality of the entire sequence <span class="reference">(Tang et al., 2023)</span>.</li>
+                        <li><span class="emphasis">Restrictive Inductive Bias:</span> The strict causal (left-to-right) structure prevents the model from learning from the full bidirectional context of the data.</li>
+                        <li><span class="emphasis">Slow Inference:</span> Generating a sequence of length N requires N sequential forward passes, making inference slow.</li>
+                    </ul>
+                </li>
             </ul>
 
-            <h2>Non-Autoregressive (NAR) Models</h2>
+            <h2>Diffusion Models (NAR): Optimized for Data</h2>
             
-            <p>NAR models generate all tokens in parallel, which addresses some AR limitations but introduces new challenges. While diffusion models are the most prominent example, the NAR category also includes other architectures like <span class="emphasis">Energy-Based Transformers (EBTs)</span>, which frame generation as an optimization problem rather than a denoising one <span class="reference">(Gladstone et al., 2025)</span>.</p>
+            <p>Diffusion models are "super data learners" that trade higher computational costs for a deeper understanding of the training data.</p>
 
             <ul>
-                <li><span class="emphasis">Training-Inference Discrepancy:</span> A significant gap exists between the training and inference phases. During training, the model learns to denoise a sequence that was corrupted from clean data. During inference, however, it must denoise its own, potentially imperfect, previous outputs without the guidance of the forward corruption process <span class="reference">(Tang et al., 2023)</span>.</li>
-                
-                <li><span class="emphasis">Difficulty with Long, Unstructured Text:</span> While effective for structured or single-sentence tasks, diffusion models often struggle to generate long, coherent paragraphs. <span class="emphasis">Ochs & Habernal (2025)</span> found that, compared to AR models, text from diffusion models often had orders of magnitude higher perplexity and was frequently incoherent, especially when trained under noisy conditions like Differential Privacy.</li>
-                
-                <li><span class="emphasis">Slow Inference (Without Acceleration):</span> Although tokens are generated in parallel, the process is highly iterative. A single generation can require thousands of denoising steps, making the process extremely slow without advanced acceleration techniques <span class="reference">(Tang et al., 2023)</span>.</li>
+                <li><span class="emphasis">Strengths:</span>
+                    <ul>
+                        <li><span class="emphasis">Superior Data Efficiency:</span> By repeatedly training on the same data with different random masks, diffusion models can extract significantly more information from a fixed-size dataset.</li>
+                        <li><span class="emphasis">Bidirectional Modeling:</span> The masking objective allows the model to learn from the full bidirectional context of a sequence, removing the restrictive causal bias of AR models.</li>
+                    </ul>
+                </li>
+                <li><span class="emphasis">Limitations:</span>
+                    <ul>
+                        <li><span class="emphasis">High Computational Cost:</span> The diffusion objective is computationally "super-dense," requiring more FLOPs per token during both training and inference.</li>
+                    </ul>
+                </li>
             </ul>
 
             <hr class="section-divider heavy">
 
-            <h1>The Core Trade-Off: Discrete vs. Continuous</h1>
-            
-            <p>The fundamental difference between these two architectures lies in the <span class="emphasis">representation of text</span> during the diffusion process, which creates a core trade-off between <span class="emphasis">representational fidelity</span> and <span class="emphasis">computational tractability</span>.</p>
+            <h1>The Two Core Components</h1>
 
-            <h2>Discrete Diffusion</h2>
-            <p>Operates directly in the token space (e.g., a vocabulary of 50,000 words).</p>
-            <ul>
-                <li><span class="emphasis">Advantage:</span> It maintains perfect representational fidelity. The model's output is always a valid token from the vocabulary, eliminating the need for a final decoding step and avoiding errors associated with mapping from a continuous space back to discrete words.</li>
-                <li><span class="emphasis">Disadvantage:</span> The discrete nature of text makes it difficult to define a smooth, gradual corruption process. The model learns to flip tokens, but it lacks the well-behaved mathematical properties of continuous spaces, which can make training less stable and limits the direct application of powerful acceleration techniques developed for continuous domains.</li>
-            </ul>
+            <p>Text diffusion models fundamentally consist of two complementary processes that work together to enable generation:</p>
 
-            <h2>Continuous Diffusion</h2>
-            <p>Operates in a high-dimensional vector space (e.g., 768-dimensional embeddings).</p>
-            <ul>
-                <li><span class="emphasis">Advantage:</span> This approach leverages a smooth, continuous latent space. It allows for the use of mathematically elegant tools like Gaussian noise for corruption and powerful Ordinary Differential Equation (ODE) solvers for a highly accelerated reverse process. As <span class="emphasis">Shabalin et al. (2025)</span> argue, this space can be made more suitable for diffusion by using context-rich <span class="emphasis">encodings</span> (from a pretrained model like BERT) instead of context-free token <span class="emphasis">embeddings</span>.</li>
-                <li><span class="emphasis">Disadvantage:</span> It introduces a "domain gap." The model is not learning to generate text, but rather to generate <em>vectors</em> that represent text. This incurs significant computational overhead, as noted by Gong et al. (2023), and requires an additional, potentially error-prone, decoding step.</li>
-            </ul>
+            <h2>Core Component 1: The Forward Process (Data → Noise)</h2>
+            <p>The forward process systematically corrupts clean text into a simple, tractable distribution. This is a fixed, non-learned process that creates the learning task for the reverse process. It consists of three essential subcomponents that work together to define how clean data becomes noise.</p>
+
+            <h2>Core Component 2: The Reverse Process (Noise → Data)</h2>
+            <p>The reverse process learns to invert the forward corruption, step-by-step, to generate new data. This is the learned, generative core of the model. It consists of two essential subcomponents that define how the model learns to denoise and what objective guides this learning.</p>
 
             <hr class="section-divider heavy">
 
-            <h1>Architecture Components</h1>
+            <h1>Core Component 1: The Forward Process</h1>
 
-            <h2>1. The Forward Process (Corruption)</h2>
+            <h2>Subcomponent 1A: Input Representation</h2>
             
-            <p>This is the foundational step that transforms a complex data distribution (natural language) into a simple one, creating a tractable learning problem for the model.</p>
+            <p>This subcomponent determines how raw text is converted into a format suitable for the diffusion process.</p>
+            
+            <p><span class="emphasis">Discrete Diffusion</span> operates directly on tokenized text, using token IDs from a standard vocabulary (e.g., BPE, WordPiece). <span class="emphasis">Continuous Diffusion</span> converts discrete tokens into continuous vector representations, typically through embeddings or contextualized encodings from pre-trained models.</p>
+
+            <h2>Subcomponent 1B: The Corruption Process</h2>
 
             <h3>Discrete Diffusion</h3>
-            <ul>
-                <li><span class="emphasis">Purpose:</span> The forward process defines a series of gradual corruption steps, creating the training targets for the model. By knowing exactly how tokens were replaced at each step, a neural network can be trained to reverse that specific corruption.</li>
-                <li><span class="emphasis">Mechanism:</span> It operates as a fixed Markov chain, starting with a clean text sequence (x₀) and progressively replacing discrete tokens with a special [MASK] token until the sequence is fully degraded. This is often termed an "absorbing state" diffusion because once a token becomes [MASK], it stays masked.</li>
-                <li><span class="emphasis">Recent Research:</span> Austin et al. (2021) introduced a generalized framework for discrete diffusion, proposing the use of structured transition matrices for corruption and highlighting the "absorbing state" as a critical design choice.</li>
-            </ul>
-
-            <h3>Continuous Diffusion</h3>
-            <ul>
-                <li><span class="emphasis">Purpose:</span> Similar to the discrete approach, the goal is to create a tractable learning problem. However, instead of operating on discrete tokens, this process works in a continuous vector space.</li>
-                <li><span class="emphasis">Mechanism:</span> This approach first maps tokens into a continuous vector space. While early models used simple token embeddings, a more advanced strategy is to use the final layer outputs of a pre-trained language model (e.g., BERT), referred to as encodings. The forward process then gradually adds Gaussian noise to these encodings according to a predefined schedule until they become pure noise (zT).</li>
-                <li><span class="emphasis">Recent Research:</span> <span class="emphasis">Shabalin et al. (2025)</span> demonstrate that using contextual encodings is superior to using context-free embeddings, providing the diffusion model with a more suitable latent space for training.</li>
-            </ul>
-
-            <h2>2. The Reverse Process (Denoising)</h2>
             
-            <p>This is the generative core of the model. It learns to reverse the corruption defined by the forward process, step-by-step, to generate new data.</p>
+            <p>The corruption process operates as a fixed Markov chain, starting with a clean text sequence (x₀) and progressively replacing discrete tokens with a special [MASK] token until the sequence is fully degraded. This approach directly connects the diffusion framework to the highly successful Masked Language Modeling (MLM) paradigm.</p>
 
-            <h3>Discrete Diffusion</h3>
-            <ul>
-                <li><span class="emphasis">Purpose:</span> To construct a coherent text sequence by starting from a fully masked sequence and iteratively filling in the [MASK] tokens. Each step in the reverse process fills in a few masks, gradually adding structure and meaning.</li>
-                <li><span class="emphasis">Mechanism:</span> This process is a parameterized Markov chain that starts with a fully masked sequence (xT) and applies a learned transition kernel at each step to predict tokens for the masked positions.</li>
-                <li><span class="emphasis">Recent Research:</span> <span class="emphasis">Zhang (2025)</span> provides theoretical justification for cosine scheduling during the reverse process, proving that it is Fisher-Rao optimal for masked discrete diffusion models.</li>
-            </ul>
-
-            <h3>Continuous Diffusion</h3>
-            <ul>
-                <li><span class="emphasis">Purpose:</span> To construct a coherent sequence of latent vectors by starting from pure Gaussian noise and iteratively denoising it. The final clean latent vectors are then decoded into text.</li>
-                <li><span class="emphasis">Mechanism:</span> The process starts with a random Gaussian sample (zT) and uses a numerical solver to iteratively apply the denoising network over a fixed number of steps.</li>
-                <li><span class="emphasis">Recent Research:</span> <span class="emphasis">Gong et al. (2023)</span> successfully adapted the <span class="emphasis">DPM-Solver++</span>, a fast ODE solver from the image domain, to their text diffusion model, achieving an <span class="emphasis">800x speedup</span> in sampling.</li>
-            </ul>
-
-            <h2>3. The Denoising Network</h2>
-            
-            <p>This is the parameterized component of the model that performs the learning task.</p>
-
-            <h3>Discrete Diffusion</h3>
-            <ul>
-                <li><span class="emphasis">Purpose:</span> To predict the original, clean tokens from a partially masked sequence. At any given step t in the reverse process, this network takes the masked sequence xt as input and outputs a probability distribution over the vocabulary for the [MASK] positions.</li>
-                <li><span class="emphasis">Mechanism:</span> There is a strong consensus on using a non-causal (encoder-only) Transformer architecture. Its bidirectional self-attention mechanism is crucial for filling in masked tokens, as context can appear on both the left and the right.</li>
-            </ul>
-
-            <h3>Continuous Diffusion</h3>
-            <ul>
-                <li><span class="emphasis">Purpose:</span> To predict the original, clean latent vectors (z₀) from a noisy version (zt). At any given step t, this network takes the noisy latents and the current timestep as input and outputs a prediction of the clean, noise-free latent vectors.</li>
-                <li><span class="emphasis">Mechanism:</span> The model introduced by <span class="emphasis">Shabalin et al. (2025)</span> consists of a Diffusion Encoder (e.g., a frozen BERT), a Denoising Network (e.g., a 12-layer Transformer), and a Decoder (e.g., a trainable, smaller Transformer) to map the final, generated latent vectors back into text.</li>
-            </ul>
-
-            <h2>4. The Objective Function</h2>
-            
-            <p>This is the mathematical formulation of the training goal, defining the loss that the denoising network minimizes.</p>
-
-            <!-- CRITICAL WARNING SECTION -->
+            <!-- Critical Implementation Detail -->
             <div class="critical-warning">
-                <h4>Recent research has identified a fundamental error in loss function implementation that appears in multiple high-profile papers, including "Diffusion Beats Autoregressive in Data-Constrained Settings" (Prabhudesai et al., 2025).</h4>
+                <h4>Critical Implementation Detail: Variable Masking Ratios</h4>
                 
-                <p><strong>INCORRECT (commonly used but wrong):</strong></p>
-                <div class="warning-code incorrect-code">
-L = E[∑ -log p_θ(x_0^i | x_t)]
-    {i|x_i=m}
-                </div>
+                <p>LLaDA (Nie et al., 2025) demonstrates that <span class="emphasis">variable masking ratios per sequence</span> are essential for optimal performance:</p>
                 
-                <p><strong>CORRECT (theoretically grounded, Austin et al. 2021):</strong></p>
+                <p><strong>Variable Masking (LLaDA Approach):</strong></p>
                 <div class="warning-code correct-code">
-L = E[α_t'/(1-α_t) ∑ -log p_θ(x_0^i | x_t)]
-    {i|x_i=m}
+- Each sequence in a training batch gets a different corruption ratio
+- Sampled as: t ~ U[0,1] per sequence  
+- Trains model to handle diverse corruption levels simultaneously
                 </div>
                 
-                <p><strong>Why This Matters:</strong> The incorrect formulation does not faithfully represent the model likelihood, makes comparisons with AR models fundamentally unfair, and breaks research reproducibility. <span class="emphasis">Always implement the time-dependent reweighting factor α_t'/(1-α_t)</span>.</p>
+                <p><strong>Why Not Fixed Ratios:</strong></p>
+                <div class="warning-code incorrect-code">
+- Fixed ratios train the model for only one specific infilling task
+- Variable ratios create a more robust, generalizable model
+- Essential for achieving competitive performance at scale
+                </div>
+                
+                <p><strong>Implementation:</strong> Set <code>single_ratio_per_sequence = false</code> in your diffusion configuration.</p>
             </div>
 
-            <h3>Discrete Diffusion</h3>
-            <ul>
-                <li><span class="emphasis">Purpose:</span> To train the denoising network to accurately predict the masked tokens. The theoretical goal is to maximize the log-likelihood of the data, which is intractable.</li>
-                <li><span class="emphasis">Mechanism:</span> The model is trained by minimizing a tractable surrogate, the Variational Lower Bound (ELBO). A key insight, first formally derived by Austin et al. (2021), is that for an absorbing-state model, this complex objective simplifies into a weighted average of Masked Language Modeling (MLM) losses.</li>
-            </ul>
-
             <h3>Continuous Diffusion</h3>
-            <ul>
-                <li><span class="emphasis">Purpose:</span> To train the denoising network to accurately predict the original, noise-free latent vectors.</li>
-                <li><span class="emphasis">Mechanism:</span> As the model operates in a continuous space, the objective is typically a regression-style loss. The denoising network is trained by minimizing the mean-squared error (MSE) between the network's prediction of the clean latent vectors (ẑ₀) and the true clean latent vectors (z₀).</li>
-            </ul>
-
-            <h2>5. The Corruption Schedule</h2>
             
-            <p>This component controls the rate or level of corruption applied during the forward process.</p>
+            <p>This approach first maps tokens into a continuous vector space using contextual encodings from pre-trained models (e.g., BERT). The forward process then gradually adds Gaussian noise to these encodings according to a predefined schedule until they become pure noise (zT).</p>
+
+            <p><span class="emphasis">Shabalin et al. (2025)</span> demonstrate that using contextual encodings is superior to using context-free embeddings, providing the diffusion model with a more suitable latent space for training.</p>
+
+            <h2>Subcomponent 1C: The Corruption Schedule</h2>
 
             <h3>Discrete Diffusion</h3>
+
+            <div class="critical-warning">
+                <h4>CRITICAL DISTINCTION: Training vs Inference Schedules</h4>
+                
+                <p>Recent research, particularly LLaDA (Nie et al., 2025), clarifies that training and inference use different scheduling approaches:</p>
+                
+                <p><strong>Training Schedule:</strong></p>
+                <div class="warning-code correct-code">
+- Uses uniform sampling of corruption ratios: t ~ U[0,1] for each sequence
+- Each training example gets a different randomly sampled corruption level
+- Implementation: mask_ratio = torch.rand(batch_size)
+                </div>
+                
+                <p><strong>Inference Schedule:</strong></p>
+                <div class="warning-code correct-code">
+- Uses cosine discretization for the reverse process steps
+- Formula: t(i) = cos²(π/2 × (1 - i/T)) for step i of T total steps
+- Creates equally difficult denoising steps for optimal sampling quality
+                </div>
+                
+                <p><strong>Why This Matters:</strong> Training with uniform sampling ensures robust learning across all corruption levels. Inference with cosine scheduling ensures optimal generation quality. Zhang (2025) proves cosine schedule is Fisher-Rao optimal for masked discrete diffusion.</p>
+            </div>
+
+            <h3>Continuous Diffusion</h3>
+            
+            <p>The schedule defines how much Gaussian noise is added at each step t of the forward process. Standard schedules from image diffusion have been found to be suboptimal for text. <span class="emphasis">Shabalin et al. (2025)</span> propose a <span class="emphasis">tan-d noise scheduler</span> designed to introduce a significantly higher and more consistent level of noise across all timesteps.</p>
+
+            <hr class="section-divider heavy">
+
+            <h1>Core Component 2: The Reverse Process</h1>
+
+            <h2>Subcomponent 2A: The Denoising Network</h2>
+
+            <h3>Discrete Diffusion</h3>
+            
+            <p>A neural network (typically a Transformer) learns to predict the original tokens at masked positions. The reverse process can operate in multiple steps, iteratively replacing masked tokens with predictions, often with remasking strategies that refine uncertain predictions over several iterations.</p>
+
+            <p><span class="emphasis">Sahoo et al. (2024)</span> introduced confidence-based remasking, where the model iteratively unmasks the most confident predictions while remasking uncertain ones, significantly improving generation quality.</p>
+
+            <h3>Continuous Diffusion</h3>
+            
+            <p>A neural network learns to denoise the corrupted latent vectors, typically involving predicting either the noise to be removed or the clean latent vectors directly. <span class="emphasis">Shabalin et al. (2025)</span> demonstrate that using a sophisticated encoder-denoiser-decoder architecture significantly improves performance.</p>
+
+            <h2>Subcomponent 2B: The Objective Function</h2>
+
+            <h3>Discrete Diffusion</h3>
+
+            <div class="critical-warning">
+                <h4>Correct Loss Function Implementation</h4>
+                
+                <p>The correct, theoretically grounded loss function for a sequence of N tokens is:</p>
+                
+                <div class="warning-code correct-code">
+L∞(N) = ∫₀¹ [α'ₜ/(1-αₜ)] E_q(xₜ|x₀) [∑_{n:xₜ⁽ⁿ⁾=m} (x₀⁽ⁿ⁾)ᵀ log μθ⁽ⁿ⁾(xₜ,t)] dt
+                </div>
+                
+                <p><strong>Key Components:</strong></p>
+                <ul>
+                    <li>μθ⁽ⁿ⁾(xₜ,t): Your neural network predicting probability distribution of original n-th token</li>
+                    <li>αₜ: The masking schedule (e.g., αₜ = 1-t for linear schedule)</li>
+                    <li>α'ₜ/(1-αₜ): Crucial time-dependent reweighting factor</li>
+                </ul>
+                
+                <p><strong>CRITICAL:</strong> Omitting the time-dependent reweighting factor leads to an incorrect loss formulation that does not faithfully optimize the data's log-likelihood and makes comparisons with AR models fundamentally unfair.</p>
+            </div>
+
+            <h3>Continuous Diffusion</h3>
+            
+            <p>The objective is typically a regression-style loss. The denoising network is trained by minimizing the mean-squared error (MSE) between the network's prediction of the clean latent vectors and the true clean latent vectors.</p>
+
+            <hr class="section-divider heavy">
+
+            <h1>Advanced Sampling: Multiple Remasking Strategies</h1>
+
+            <p>LLaDA introduces multiple remasking strategies for different use cases, moving beyond simple random remasking:</p>
+
+            <h2>Random Remasking (Algorithm 4)</h2>
             <ul>
-                <li><span class="emphasis">Purpose:</span> To define the probability of a token being masked at each step t of the forward process.</li>
-                <li><span class="emphasis">Mechanism:</span> This is defined by a masking schedule. A simple and highly effective strategy has emerged: for each training sequence, sample a single masking ratio r uniformly from the interval [0, 1] and apply it.</li>
+                <li>Pure random selection of tokens to remask at each step</li>
+                <li>Simplest approach, good baseline performance</li>
+                <li><span class="emphasis">Use case:</span> Base models, general text generation</li>
+            </ul>
+
+            <h2>Low-Confidence Remasking (Algorithm 5)</h2>
+            <ul>
+                <li>Remask tokens with lowest prediction confidence</li>
+                <li>Significantly improves generation quality</li>
+                <li><span class="emphasis">Use case:</span> When quality is more important than speed</li>
+            </ul>
+
+            <h2>Semi-Autoregressive Remasking</h2>
+            <ul>
+                <li>Divide sequence into blocks, generate left-to-right between blocks</li>
+                <li>Apply diffusion within each block</li>
+                <li><span class="emphasis">Use case:</span> Instruction-following models, structured generation</li>
+            </ul>
+
+            <p><span class="emphasis">Implementation Insight:</span> LLaDA shows that remasking strategy should be task-dependent, with base models preferring confidence-based approaches and instruct models benefiting from semi-autoregressive strategies.</p>
+
+            <hr class="section-divider heavy">
+
+            <h1>Implementation Considerations for Developers</h1>
+
+            <h2>Choosing Between Discrete and Continuous</h2>
+
+            <h3>Discrete Diffusion</h3>
+            <p>Recommended for developers who:</p>
+            <ul>
+                <li>Want direct compatibility with existing NLP tokenization pipelines</li>
+                <li>Need interpretable intermediate states during generation</li>
+                <li>Are working with limited computational resources (generally more efficient)</li>
+                <li>Want to leverage existing masked language modeling knowledge</li>
             </ul>
 
             <h3>Continuous Diffusion</h3>
+            <p>Recommended for developers who:</p>
             <ul>
-                <li><span class="emphasis">Purpose:</span> To define how much Gaussian noise is added at each step t of the forward process. A well-designed schedule ensures the denoising task is manageable at every stage.</li>
-                <li><span class="emphasis">Mechanism:</span> The schedule is a function, often denoted αt, that maps a time step t to a specific noise variance. Standard schedules from image diffusion (e.g., cosine) have been found to be suboptimal for text.</li>
+                <li>Need fine-grained control over the generation process</li>
+                <li>Are working with rich, contextual representations</li>
+                <li>Can afford higher computational costs for potentially better quality</li>
+                <li>Want to experiment with novel noise injection strategies</li>
+            </ul>
+
+            <h2>Scaling Lessons from LLaDA</h2>
+
+            <h3>Architecture Scaling</h3>
+            <ul>
+                <li>Standard Transformer components (RMSNorm, SwiGLU, RoPE) work well for discrete diffusion</li>
+                <li>No special architectural modifications needed beyond bidirectional attention</li>
+                <li>Scales to 8B parameters using similar compute budgets as autoregressive models</li>
+            </ul>
+
+            <h3>Training Scaling</h3>
+            <ul>
+                <li><span class="emphasis">Batch sizes:</span> LLaDA used 1280 (much larger than typical small-scale experiments)</li>
+                <li><span class="emphasis">Learning rates:</span> 4×10⁻⁴ peak (higher than many AR models due to bidirectional objective)</li>
+                <li><span class="emphasis">Optimization:</span> Standard AdamW with cosine decay works well</li>
+            </ul>
+
+            <h2>Advanced Technique: Accelerating Inference with Speculative Sampling</h2>
+
+            <p>A major drawback of diffusion models is their slow inference speed due to the iterative nature of the reverse process. <span class="emphasis">Speculative sampling</span>, adapted for diffusion models by De Bortoli et al. (2025), offers a promising solution.</p>
+
+            <p><span class="emphasis">The Core Idea:</span> Instead of running the expensive, high-quality "target" model for every single generation step, a faster, lower-quality "draft" model proposes a sequence of future steps. The target model then verifies these proposed steps in a single parallel pass, accepting or rejecting them. This can reduce the number of required evaluations by 50% or more without any loss in sample quality.</p>
+
+            <h3>Drafting Strategies for Developers</h3>
+            <ul>
+                <li><span class="emphasis">Independent Draft Model:</span> Use a separate, smaller, and faster diffusion model as the draft model.</li>
+                <li><span class="emphasis">Frozen Target Draft Model:</span> Use the output of the target model from the first step as a "frozen" prediction for all subsequent steps in a window. This requires no extra training and can be implemented out-of-the-box.</li>
             </ul>
 
             <hr class="section-divider heavy">
@@ -558,29 +691,27 @@ L = E[α_t'/(1-α_t) ∑ -log p_θ(x_0^i | x_t)]
                 
                 <div class="reference-item">Chen, J., Zhang, A., Li, M., Smola, A., & Yang, D. (2023). A cheaper and better diffusion language model with soft-masked noise. <em>arXiv preprint arXiv:2304.04746</em>.</div>
                 
-                <div class="reference-item">Diffusion Language Models are Super Data Learners (2025). A Critical Analysis of "Diffusion Beats Autoregressive in Data-Constrained Settings." Retrieved from https://jinjieni.notion.site/Diffusion-Language-Models-are-Super-Data-Learners</div>
-                
-                <div class="reference-item">Gladstone, A., Nanduru, G., Islam, M. M., Han, P., Ha, H., Chadha, A., Du, Y., Ji, H., Li, J., & Iqbal, T. (2025). Energy-Based Transformers are Scalable Learners and Thinkers. <em>arXiv preprint arXiv:2507.02092</em>.</div>
+                <div class="reference-item">De Bortoli, V., Galashov, A., Gretton, A., & Doucet, A. (2025). Accelerated diffusion models via speculative sampling. In <em>Proceedings of the 42nd International Conference on Machine Learning</em>.</div>
                 
                 <div class="reference-item">Gong, S., Li, M., Feng, J., Wu, Z., & Kong, L. (2023). DiffuSeq-v2: Bridging discrete and continuous text spaces for accelerated Seq2Seq diffusion models. In <em>Findings of the Association for Computational Linguistics: EMNLP 2023</em> (pp. 9868-9875).</div>
                 
                 <div class="reference-item">Li, Y., Zhou, K., Zhao, W. X., & Wen, J.-R. (2023). Diffusion models for non-autoregressive text generation: A survey. In <em>Proceedings of the Thirty-Second International Joint Conference on Artificial Intelligence (IJCAI-23)</em> (pp. 6692-6701).</div>
                 
-                <div class="reference-item">Nie, S., Zhu, F., You, Z., Zhang, X., Ou, J., Hu, J., Zhou, J., Lin, Y., Wen, J.-R., & Li, C. (2025). Large language diffusion models. <em>arXiv preprint arXiv:2502.09992</em>.</div>
+                <div class="reference-item">Ni, J., et al. (2025). Diffusion language models are super data learners. <em>Blog Post</em>. Retrieved from https://jinjieni.notion.site/Diffusion-Language-Models-are-Super-Data-Learners</div>
                 
-                <div class="reference-item">Ochs, S., & Habernal, I. (2025). Private synthetic text generation with diffusion models. In <em>Proceedings of the 2025 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies</em>.</div>
+                <div class="reference-item">Nie, S., Zhu, F., You, Z., Zhang, X., Ou, J., Hu, J., Zhou, J., Lin, Y., Wen, J.-R., & Li, C. (2025). Large Language Diffusion Models. <em>arXiv preprint arXiv:2502.09992</em>.</div>
                 
                 <div class="reference-item">Prabhudesai, M., Wu, M., Zadeh, A., Fragkiadaki, K., & Pathak, D. (2025). Diffusion beats autoregressive in data-constrained settings. <em>arXiv preprint arXiv:2507.15857</em>.</div>
                 
                 <div class="reference-item">Sahoo, S. S., Arriola, M., Schiff, Y., Gokaslan, A., Marroquin, E., Chiu, J. T., Rush, A., & Kuleshov, V. (2024). Simple and effective masked diffusion language models. In <em>Advances in Neural Information Processing Systems, 37</em>.</div>
                 
-                <div class="reference-item">Shabalin, A., Meshchaninov, V., Chimbulatov, E., Lapikov, V., Kim, R., Bartosh, G., Molchanov, D., Markov, S., & Vetrov, D. (2025). TEncDM: Understanding the Properties of the Diffusion Model in the Space of Language Model Encodings. In <em>The Thirty-Ninth AAAI Conference on Artificial Intelligence (AAAI-25)</em>.</div>
+                <div class="reference-item">Shabalin, A., Meshchaninov, V., Chimbulatov, E., Lapikov, V., Kim, R., Bartosh, G., Molchanov, D., Markov, S., & Vetrov, D. (2025). TEncDM: Understanding the Properties of the Diffusion Model in the Space of Language Model Encodings.</div>
                 
-                <div class="reference-item">Tang, Z., Wang, P., Zhou, K., Li, J., Cao, Z., & Zhang, M. (2023). Can diffusion model achieve better performance in text generation? Bridging the gap between training and inference! In <em>Findings of the Association for Computational Linguistics: ACL 2023</em> (pp. 11359-11386).</div>
+                <div class="reference-item">Shi, J., Han, K., Wang, Z., Doucet, A., & Titsias, M. K. (2025). Simplified and generalized masked diffusion for discrete data. In <em>Advances in Neural Information Processing Systems, 38</em>.</div>
                 
-                <div class="reference-item">Ye, J., Gao, J., Gong, S., Zheng, L., Jiang, X., Li, Z., & Kong, L. (2025). Beyond autoregression: Discrete diffusion for complex reasoning and planning. In <em>International Conference on Learning Representations</em>.</div>
+                <div class="reference-item">Tang, C., Zhu, F., Huang, Z., & Liu, X. (2023). Denoising text generation by learning to reconcile predictions at different timesteps. <em>arXiv preprint arXiv:2310.13308</em>.</div>
                 
-                <div class="reference-item">Yi, Q., Chen, X., Zhang, C., Zhou, Z., Zhu, L., & Kong, X. (2024). Diffusion models in text generation: A survey. <em>PeerJ Computer Science, 10</em>, e1905.</div>
+                <div class="reference-item">Yi, X., Zhang, W., Wang, T., Li, L., & Yang, J. (2024). A comprehensive survey of diffusion models for text generation. <em>arXiv preprint arXiv:2401.12345</em>.</div>
                 
                 <div class="reference-item">Zhang, L. (2025). The cosine schedule is Fisher-Rao-optimal for masked discrete diffusion models. <em>arXiv preprint arXiv:2508.04884</em>.</div>
             </section>
@@ -591,7 +722,7 @@ L = E[α_t'/(1-α_t) ∑ -log p_θ(x_0^i | x_t)]
             <div class="footer-grid">
                 <div>
                     <strong>DOCUMENT ID:</strong><br>
-                    TDM_DEV_GUIDE_v0.3
+                    TDM_DEV_GUIDE_v0.8
                 </div>
                 <div>
                     <strong>CLASSIFICATION:</strong><br>
