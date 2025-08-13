@@ -128,7 +128,7 @@
             margin: 30px 0;
         }
 
-        /* Empirical Validation Section */
+        /* Experimental Validation Section */
         .validation-section {
             background: #ffffff;
             border: 2px solid #000000;
@@ -377,13 +377,13 @@
     <div class="document-container">
         <!-- Document Header -->
         <header class="document-header">
-            <div class="classification">EMPIRICAL VALIDATION REPORT</div>
+            <div class="classification">EXPERIMENTAL VALIDATION REPORT</div>
             <h1 class="document-title">ZHANG'S FISHER-RAO OPTIMAL COSINE SCHEDULE</h1>
             <div class="document-subtitle">Theoretical insight meets practical performance: How optimal sampling trajectories deliver 3.6x speedup</div>
             <div class="document-meta">
                 <div class="meta-item">
                     <strong>DOCUMENT ID:</strong><br>
-                    ZHANG_EMPIRICAL_v2.0
+                    ZHANG_EXPERIMENTAL_v2.0
                 </div>
                 <div class="meta-item">
                     <strong>AUTHOR:</strong><br>
@@ -412,7 +412,7 @@
                 <div class="validation-intro">
                     <p><strong>Zhang (2025) Theoretical Contribution:</strong> "The Cosine Schedule is Fisher-Rao-Optimal for Masked Discrete Diffusion Models" proves that the cosine sampling schedule minimizes geometric path length during diffusion sampling under Fisher-Rao geometry. The paper demonstrates that this schedule optimizes computational budget allocation by taking smaller steps where probability distributions change rapidly and larger steps where they change slowly.</p>
                     
-                    <p><strong>Comprehensive Validation Framework:</strong> Empirical validation was conducted using a 6.5M parameter Tiny Diffusion Language Model (TDLM) implementing masked discrete diffusion. The TDLM uses an encoder-only Transformer architecture (2 layers, 64 hidden size, 4 heads) with bidirectional attention, specifically designed for discrete token generation tasks.</p>
+                    <p><strong>Comprehensive Validation Framework:</strong> Experimental validation was conducted using a 6.5M parameter Tiny Diffusion Language Model (TDLM) implementing masked discrete diffusion. The TDLM uses an encoder-only Transformer architecture (2 layers, 64 hidden size, 4 heads) with bidirectional attention, specifically designed for discrete token generation tasks.</p>
                     
                     <p><strong>Three-Stage Validation Methodology:</strong> Our validation framework employs three complementary tests: (1) <span style="background: #f0f0f0; padding: 2px 4px; border-radius: 2px;">Mathematical precision verification</span> of Zhang's cosine formula implementation, (2) <span style="background: #f0f0f0; padding: 2px 4px; border-radius: 2px;">Performance comparison across untrained and trained model states</span> to prove algorithmic efficiency independence, and (3) <span style="background: #f0f0f0; padding: 2px 4px; border-radius: 2px;">Log-likelihood score analysis</span> to validate expected model behavior patterns. This comprehensive approach ensures both theoretical correctness and practical applicability.</p>
                 </div>
@@ -447,9 +447,9 @@
                 </div>
             </section>
 
-            <!-- Empirical Validation Section -->
+            <!-- Experimental Validation Section -->
             <section class="validation-section">
-                <h3>Empirical Validation: Two-Test Methodology</h3>
+                <h3>Experimental Validation: Two-Test Methodology</h3>
                 
                 <div class="validation-intro">
                     <p>Two distinct tests were conducted to validate different aspects of Zhang's theoretical claims using both untrained and trained model states. This dual approach ensures algorithmic efficiency testing independent of training while also validating real-world performance with learned weights. The performance gains demonstrate both pure computational optimization and practical benefits.</p>
@@ -533,11 +533,11 @@
             <div class="footer-grid">
                 <div>
                     <strong>DOCUMENT ID:</strong><br>
-                    ZHANG_EMPIRICAL_v2.0
+                    ZHANG_EXPERIMENTAL_v2.0
                 </div>
                 <div>
                     <strong>CLASSIFICATION:</strong><br>
-                    EMPIRICAL VALIDATION
+                    EXPERIMENTAL VALIDATION
                 </div>
                 <div>
                     <strong>AUTHOR:</strong><br>
