@@ -70,6 +70,20 @@
       text-decoration: none;
     }
 
+    /* NEW: disclaimer link */
+    .header-links {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--secondary-text);
+    }
+
+    .header-links a {
+      font-weight: 600;
+      text-decoration: underline;
+    }
+
     .header h1 {
       font-size: 1.8rem;
       font-weight: 600;
@@ -275,6 +289,32 @@
       color: var(--secondary-text);
     }
 
+    /* NEW: disclaimer section */
+    .disclaimer {
+      margin-top: 40px;
+      padding-top: 30px;
+      border-top: 2px solid var(--border-primary);
+    }
+
+    .disclaimer h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .disclaimer h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-top: 16px;
+      margin-bottom: 6px;
+    }
+
+    .disclaimer p {
+      font-size: 0.85rem;
+      color: var(--secondary-text);
+      margin-bottom: 10px;
+    }
+
     /* Footer */
     .footer {
       border-top: 2px solid var(--border-primary);
@@ -325,9 +365,15 @@
     <header class="header">
       <div class="header-content">
         <a href="/" class="logo">SENS ADVISOR</a>
+
+        <!-- NEW: Disclaimer link -->
+        <div class="header-links">
+          <a href="#disclaimer">Disclaimer</a>
+        </div>
       </div>
-      <h1>Puerto Rico Rental Market Intelligence</h1>
-      <div class="subtitle">Ensemble ML predictions • Municipality-level insights • Opportunity detection</div>
+
+      <h1>San Juan Rental Market Dashboard</h1>
+      <div class="subtitle">Condado/Miramar • Hato Rey • Santurce • Viejo San Juan • Ensemble ML pricing signals</div>
     </header>
 
     <!-- Stats Overview -->
@@ -408,6 +454,42 @@
         <tbody><tr><td colspan="8" class="loading">Loading...</td></tr></tbody>
       </table>
     </div>
+
+    <!-- NEW: Disclaimer Section (appended at end, before footer) -->
+    <section id="disclaimer" class="disclaimer">
+      <h2>Disclaimer</h2>
+
+      <h3>Data Sources</h3>
+      <p>
+        Data is collected from publicly available sources and structured inputs using automated extraction and ingestion processes.
+        The dataset represents snapshots captured at specific points in time and may not reflect the most current state of listings or prices.
+      </p>
+
+      <h3>Data Limitations</h3>
+      <p>
+        The data may contain inaccuracies, missing fields, duplicates, or outdated information originating from source material or automated parsing.
+        Coverage may be uneven across regions, time periods, or listing types. The system does not guarantee correctness, completeness, or timeliness.
+      </p>
+
+      <h3>Data Processing</h3>
+      <p>
+        Raw data is cleaned, normalized, and transformed prior to modeling. This includes deduplication, handling missing or inconsistent values,
+        and deriving structured features used for analysis. Some information may be simplified or discarded during processing.
+      </p>
+
+      <h3>Machine Learning Models</h3>
+      <p>
+        Predictions are generated using a weighted ensemble of supervised regression models: <strong>Ridge Regression</strong>,
+        <strong>Random Forest Regression</strong>, and <strong>Gradient Boosting Regression</strong>.
+      </p>
+
+      <h3>Interpretation and Use of Predictions</h3>
+      <p>
+        Predictions are intended to support analysis and exploration, not to replace human judgment. Outputs represent probabilistic estimates
+        based on historical patterns and should be interpreted as indicative rather than guaranteed. Do not rely on predictions as the sole basis
+        for high-risk decisions.
+      </p>
+    </section>
 
     <!-- Footer -->
     <footer class="footer">
