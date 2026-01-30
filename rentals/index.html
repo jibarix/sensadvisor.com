@@ -4,12 +4,12 @@
   <meta charset="utf-8" />
   <title>Puerto Rico Rent Analytics | SENS ADVISOR</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  
+
   <!-- Google Fonts - Source Code Pro -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
+
   <style>
     /* Design System Variables */
     :root {
@@ -25,13 +25,13 @@
       --info-border: #0066cc;
     }
 
-    * { 
-      box-sizing: border-box; 
-      margin: 0; 
-      padding: 0; 
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
-    
-    body { 
+
+    body {
       font-family: 'Source Code Pro', monospace;
       background: var(--primary-bg);
       color: var(--primary-text);
@@ -44,7 +44,7 @@
       margin: 0 auto;
       padding: 20px;
     }
-    
+
     /* Header */
     .header {
       position: sticky;
@@ -70,7 +70,7 @@
       text-decoration: none;
     }
 
-    /* NEW: disclaimer link */
+    /* Header links */
     .header-links {
       display: flex;
       gap: 14px;
@@ -96,7 +96,7 @@
       margin-top: 5px;
       font-weight: 400;
     }
-    
+
     /* Stats Grid */
     .stats-grid {
       display: grid;
@@ -104,7 +104,7 @@
       gap: 20px;
       margin-bottom: 40px;
     }
-    
+
     .stat-card {
       background: var(--accent-lighter);
       border: 2px solid var(--border-primary);
@@ -117,7 +117,7 @@
       transform: translateY(-2px);
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
     }
-    
+
     .stat-card .label {
       font-size: 0.75rem;
       color: var(--secondary-text);
@@ -126,23 +126,23 @@
       margin-bottom: 10px;
       font-weight: 600;
     }
-    
+
     .stat-card .value {
       font-size: 2rem;
       font-weight: 700;
       color: var(--primary-text);
       margin-bottom: 5px;
     }
-    
+
     .stat-card .change {
       font-size: 0.8rem;
       margin-top: 8px;
       font-weight: 500;
     }
-    
+
     .change.positive { color: #00aa00; }
     .change.negative { color: #cc0000; }
-    
+
     /* Panel System */
     .panel {
       background: var(--primary-bg);
@@ -172,7 +172,7 @@
       font-weight: 400;
       color: var(--secondary-text);
     }
-    
+
     /* Grid Layout */
     .grid {
       display: grid;
@@ -184,21 +184,21 @@
     .grid-full {
       grid-column: 1 / -1;
     }
-    
+
     /* Tables */
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 15px;
     }
-    
+
     th, td {
       padding: 12px 10px;
       text-align: left;
       border-bottom: 1px solid #ddd;
       font-size: 0.85rem;
     }
-    
+
     th {
       background: var(--accent-lighter);
       font-weight: 600;
@@ -207,7 +207,7 @@
       font-size: 0.75rem;
       letter-spacing: 0.5px;
     }
-    
+
     tbody tr {
       transition: background 0.15s ease;
     }
@@ -215,7 +215,7 @@
     tbody tr:hover {
       background: var(--accent-light);
     }
-    
+
     /* Badges */
     .badge {
       display: inline-block;
@@ -227,25 +227,25 @@
       letter-spacing: 0.5px;
       border: 1px solid;
     }
-    
-    .badge.deal { 
-      background: var(--success-bg); 
+
+    .badge.deal {
+      background: var(--success-bg);
       color: #006600;
       border-color: var(--success-border);
     }
-    
-    .badge.overpriced { 
-      background: #ffe6e6; 
+
+    .badge.overpriced {
+      background: #ffe6e6;
       color: #990000;
       border-color: #cc0000;
     }
-    
-    .badge.high { 
-      background: #fff9e6; 
+
+    .badge.high {
+      background: #fff9e6;
       color: #996600;
       border-color: #cc9900;
     }
-    
+
     /* States */
     .loading {
       text-align: center;
@@ -253,7 +253,7 @@
       color: var(--secondary-text);
       font-weight: 500;
     }
-    
+
     .error {
       background: #ffe6e6;
       color: #990000;
@@ -270,7 +270,7 @@
       color: var(--secondary-text);
       font-weight: 400;
     }
-    
+
     /* Charts */
     canvas {
       max-height: 350px;
@@ -289,7 +289,7 @@
       color: var(--secondary-text);
     }
 
-    /* NEW: disclaimer section */
+    /* Disclaimer section */
     .disclaimer {
       margin-top: 40px;
       padding-top: 30px;
@@ -366,7 +366,6 @@
       <div class="header-content">
         <a href="/" class="logo">SENS ADVISOR</a>
 
-        <!-- NEW: Disclaimer link -->
         <div class="header-links">
           <a href="#disclaimer">Disclaimer</a>
         </div>
@@ -399,6 +398,13 @@
       <div class="panel">
         <h2>Inventory by Municipality <span class="panel-note">Active listings</span></h2>
         <canvas id="invChart"></canvas>
+      </div>
+
+      <!-- NEW: Days on Market panel -->
+      <div class="panel">
+        <h2>Days on Market <span class="panel-note">Active listings</span></h2>
+        <div id="daysError"></div>
+        <canvas id="daysChart"></canvas>
       </div>
 
       <div class="panel">
@@ -458,7 +464,7 @@
       </table>
     </div>
 
-    <!-- NEW: Disclaimer Section (appended at end, before footer) -->
+    <!-- Disclaimer Section (appended at end, before footer) -->
     <section id="disclaimer" class="disclaimer">
       <h2>Disclaimer</h2>
 
@@ -502,13 +508,13 @@
 
   <script>
     let charts = {};
-    
+
     // Chart.js default config for consistent styling
     Chart.defaults.font.family = "'Source Code Pro', monospace";
     Chart.defaults.font.size = 11;
     Chart.defaults.color = '#000000';
     Chart.defaults.borderColor = '#dddddd';
-    
+
     // Monochrome color palette
     const colors = [
       'rgba(0, 0, 0, 0.9)',
@@ -521,18 +527,22 @@
     const greenColor = 'rgba(0, 170, 0, 0.7)';
     const redColor = 'rgba(204, 0, 0, 0.7)';
     const grayColor = 'rgba(149, 149, 149, 0.4)';
-    
+
     // Utility functions
     function fmt(n) { return n != null ? n.toLocaleString() : '—'; }
     function fmtUSD(n) { return n != null ? '$' + n.toLocaleString() : '—'; }
     function fmtPct(n) { return n != null ? (n * 100).toFixed(1) + '%' : '—'; }
-    
+
+    /**
+     * Load summary cards from static export (dashboard/data/stats.json).
+     * Updated: includes "Median Days on Market" card.
+     */
     async function loadStats() {
       try {
         const res = await fetch('./data/stats.json');
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        
+
         const grid = document.getElementById('statsGrid');
         grid.innerHTML = `
           <div class="stat-card">
@@ -548,8 +558,9 @@
             </div>
           </div>
           <div class="stat-card">
-            <div class="label">Avg Bedrooms</div>
-            <div class="value">${data.avg_bedrooms?.toFixed(1) || '—'}</div>
+            <div class="label">Median Days on Market</div>
+            <div class="value">${data.median_days_on_market != null ? data.median_days_on_market.toFixed(1) : '—'}</div>
+            <div class="change">Active listings only</div>
           </div>
           <div class="stat-card">
             <div class="label">Model Accuracy</div>
@@ -567,31 +578,31 @@
         document.getElementById('statsGrid').innerHTML = `<div class="error">Error loading stats: ${e.message}</div>`;
       }
     }
-    
+
     async function loadMedianPrices() {
       try {
         const res = await fetch('./data/median_price.json');
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const rows = await res.json();
-        
+
         if (!rows || rows.length === 0) {
           console.warn('No median price data');
           return;
         }
-        
+
         const grouped = {};
         rows.forEach(r => {
           if (!grouped[r.municipio]) grouped[r.municipio] = [];
           grouped[r.municipio].push(r);
         });
-        
+
         const volumes = Object.entries(grouped).map(([m, data]) => ({
           municipio: m,
           total: data.reduce((sum, d) => sum + d.n, 0)
         })).sort((a, b) => b.total - a.total);
-        
+
         const top = volumes.slice(0, 5).map(v => v.municipio);
-        
+
         const datasets = top.map((m, i) => ({
           label: m,
           data: grouped[m].map(d => ({ x: d.day, y: d.median_price })),
@@ -603,9 +614,9 @@
           pointRadius: 3,
           pointHoverRadius: 5,
         }));
-        
+
         const days = [...new Set(rows.map(r => r.day))].sort();
-        
+
         destroyChart('medianChart');
         const ctx = document.getElementById('medianChart').getContext('2d');
         charts.medianChart = new Chart(ctx, {
@@ -615,7 +626,7 @@
             responsive: true,
             maintainAspectRatio: true,
             plugins: {
-              legend: { 
+              legend: {
                 position: 'bottom',
                 labels: {
                   boxWidth: 12,
@@ -644,18 +655,18 @@
         console.error('loadMedianPrices error:', e);
       }
     }
-    
+
     async function loadDistribution() {
       try {
         const res = await fetch('./data/distribution.json');
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        
+
         if (!data || !data.bins || data.bins.length === 0) {
           console.warn('No distribution data');
           return;
         }
-        
+
         destroyChart('distChart');
         const ctx = document.getElementById('distChart').getContext('2d');
         charts.distChart = new Chart(ctx, {
@@ -676,7 +687,7 @@
               legend: { display: false }
             },
             scales: {
-              y: { 
+              y: {
                 beginAtZero: true,
                 grid: { color: '#f0f0f0' }
               },
@@ -690,18 +701,18 @@
         console.error('loadDistribution error:', e);
       }
     }
-    
+
     async function loadInventory() {
       try {
         const res = await fetch('./data/inventory.json');
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        
+
         if (!data || data.length === 0) {
           console.warn('No inventory data');
           return;
         }
-        
+
         destroyChart('invChart');
         const ctx = document.getElementById('invChart').getContext('2d');
         charts.invChart = new Chart(ctx, {
@@ -736,18 +747,76 @@
         console.error('loadInventory error:', e);
       }
     }
-    
+
+    /**
+     * Days-on-market distribution (static export: dashboard/data/days_on_market.json).
+     */
+    async function loadDaysOnMarket() {
+      try {
+        const res = await fetch('./data/days_on_market.json');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        if (!data || data.length === 0) {
+          document.getElementById('daysError').innerHTML = '<div class="empty-state">No days-on-market data yet.</div>';
+          return;
+        }
+
+        document.getElementById('daysError').innerHTML = '';
+        destroyChart('daysChart');
+        const ctx = document.getElementById('daysChart').getContext('2d');
+        charts.daysChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: data.map(d => d.bucket),
+            datasets: [{
+              label: 'Listings',
+              data: data.map(d => d.count),
+              backgroundColor: colors[3],
+              borderColor: '#000000',
+              borderWidth: 1,
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: ctx => `${ctx.parsed.y} listings`
+                }
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                grid: { color: '#f0f0f0' },
+                title: { display: true, text: 'Number of Listings' }
+              },
+              x: {
+                grid: { display: false },
+                title: { display: true, text: 'Time on Market' }
+              }
+            }
+          }
+        });
+      } catch (e) {
+        console.error('loadDaysOnMarket error:', e);
+        document.getElementById('daysError').innerHTML = `<div class="error">Error: ${e.message}</div>`;
+      }
+    }
+
     async function loadFeatureImportance() {
       try {
         const res = await fetch('./data/feature_importance.json');
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        
+
         if (!data || data.length === 0) {
           document.getElementById('featureError').innerHTML = '<div class="empty-state">No feature importance data yet. Run ml_v2.py first.</div>';
           return;
         }
-        
+
         document.getElementById('featureError').innerHTML = '';
         destroyChart('featureChart');
         const ctx = document.getElementById('featureChart').getContext('2d');
@@ -770,7 +839,7 @@
               legend: { display: false }
             },
             scales: {
-              x: { 
+              x: {
                 beginAtZero: true,
                 grid: { color: '#f0f0f0' }
               },
@@ -785,32 +854,32 @@
         document.getElementById('featureError').innerHTML = `<div class="error">Error: ${e.message}</div>`;
       }
     }
-    
+
     async function loadScatter() {
       try {
         const res = await fetch('./data/scatter.json');
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const rows = await res.json();
-        
+
         console.log('Scatter data received:', rows.length, 'rows');
-        
+
         if (!rows || rows.length === 0) {
           document.getElementById('scatterError').innerHTML = '<div class="empty-state">No prediction data yet. Run ml_v2.py first.</div>';
           return;
         }
-        
+
         document.getElementById('scatterError').innerHTML = '';
         destroyChart('scatterChart');
         const ctx = document.getElementById('scatterChart').getContext('2d');
-        
+
         charts.scatterChart = new Chart(ctx, {
           type: 'scatter',
           data: {
             datasets: [
               {
                 label: 'Underpriced',
-                data: rows.filter(r => r.residual < -200).map(r => ({ 
-                  x: r.price, 
+                data: rows.filter(r => r.residual < -200).map(r => ({
+                  x: r.price,
                   y: r.predicted_price,
                   ad_id: r.ad_id,
                   municipio: r.municipio
@@ -823,8 +892,8 @@
               },
               {
                 label: 'Fair Price',
-                data: rows.filter(r => Math.abs(r.residual) <= 200).map(r => ({ 
-                  x: r.price, 
+                data: rows.filter(r => Math.abs(r.residual) <= 200).map(r => ({
+                  x: r.price,
                   y: r.predicted_price,
                   ad_id: r.ad_id,
                   municipio: r.municipio
@@ -837,8 +906,8 @@
               },
               {
                 label: 'Overpriced',
-                data: rows.filter(r => r.residual > 200).map(r => ({ 
-                  x: r.price, 
+                data: rows.filter(r => r.residual > 200).map(r => ({
+                  x: r.price,
                   y: r.predicted_price,
                   ad_id: r.ad_id,
                   municipio: r.municipio
@@ -877,12 +946,12 @@
               }
             },
             scales: {
-              x: { 
+              x: {
                 title: { display: true, text: 'Actual Price' },
                 ticks: { callback: v => fmtUSD(v) },
                 grid: { color: '#f0f0f0' }
               },
-              y: { 
+              y: {
                 title: { display: true, text: 'Predicted Price' },
                 ticks: { callback: v => fmtUSD(v) },
                 grid: { color: '#f0f0f0' }
@@ -895,25 +964,25 @@
         document.getElementById('scatterError').innerHTML = `<div class="error">Error: ${e.message}</div>`;
       }
     }
-    
+
     async function loadDeals() {
       try {
         const res = await fetch('./data/deals.json');
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const rows = await res.json();
-        
+
         console.log('Deals data received:', rows.length, 'rows');
-        
+
         const tbody = document.querySelector('#dealsTable tbody');
-        
+
         if (!rows || rows.length === 0) {
           tbody.innerHTML = '<tr><td colspan="9" class="empty-state">No deals found yet. More data needed.</td></tr>';
           return;
         }
-        
+
         document.getElementById('dealsError').innerHTML = '';
         tbody.innerHTML = '';
-        
+
         rows.forEach(r => {
           const discount = ((r.price - r.predicted_price) / r.predicted_price * 100).toFixed(1);
           const features = [];
@@ -921,7 +990,7 @@
           if (r.internet) features.push('Internet');
           if (r.parking) features.push('Parking');
           if (r.plan8_accepted) features.push('Plan 8');
-          
+
           tbody.innerHTML += `
             <tr>
               <td><span class="badge deal">DEAL</span></td>
@@ -941,30 +1010,30 @@
         document.getElementById('dealsError').innerHTML = `<div class="error">Error: ${e.message}</div>`;
       }
     }
-    
+
     async function loadAnomalies() {
       try {
         const res = await fetch('./data/anomalies.json');
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const rows = await res.json();
-        
+
         console.log('Anomalies data received:', rows.length, 'rows');
-        
+
         const tbody = document.querySelector('#anomTable tbody');
-        
+
         if (!rows || rows.length === 0) {
           tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No anomalies detected yet.</td></tr>';
           return;
         }
-        
+
         document.getElementById('anomError').innerHTML = '';
         tbody.innerHTML = '';
-        
+
         rows.forEach(r => {
           const type = r.residual < 0 ? 'Underpriced' : 'Overpriced';
           const badgeClass = r.residual < 0 ? 'deal' : 'overpriced';
           const diff = Math.abs(r.residual);
-          
+
           tbody.innerHTML += `
             <tr>
               <td><span class="badge ${badgeClass}">${type}</span></td>
@@ -983,14 +1052,14 @@
         document.getElementById('anomError').innerHTML = `<div class="error">Error: ${e.message}</div>`;
       }
     }
-    
+
     function destroyChart(id) {
       if (charts[id]) {
         charts[id].destroy();
         delete charts[id];
       }
     }
-    
+
     async function refreshAll() {
       try {
         console.log('Loading dashboard...');
@@ -999,6 +1068,7 @@
           loadMedianPrices(),
           loadDistribution(),
           loadInventory(),
+          loadDaysOnMarket(),     // NEW
           loadFeatureImportance(),
           loadScatter(),
           loadDeals(),
@@ -1009,7 +1079,7 @@
         console.error('Error loading dashboard:', e);
       }
     }
-    
+
     // Initialize on page load
     console.log('Initializing dashboard...');
     refreshAll();
