@@ -109,6 +109,63 @@
             border-bottom-color: var(--border-primary);
         }
 
+        /* Analytics Dropdown */
+        .nav-dropdown {
+            position: relative;
+        }
+
+        .nav-dropdown-trigger {
+            color: var(--primary-text);
+            font-weight: 500;
+            padding: 8px 0;
+            border-bottom: 2px solid transparent;
+            transition: border-color 0.2s ease;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .nav-dropdown-trigger:hover {
+            border-bottom-color: var(--border-primary);
+        }
+
+        .nav-dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: var(--primary-bg);
+            border: 2px solid var(--border-primary);
+            border-radius: 4px;
+            margin-top: 8px;
+            min-width: 220px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            z-index: 1000;
+        }
+
+        .nav-dropdown:hover .nav-dropdown-menu {
+            display: block;
+        }
+
+        .nav-dropdown-menu a {
+            display: block;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--accent-light);
+            text-decoration: none;
+            border-left: none;
+            border-right: none;
+            border-top: none;
+            transition: all 0.2s ease;
+        }
+
+        .nav-dropdown-menu a:last-child {
+            border-bottom: none;
+        }
+
+        .nav-dropdown-menu a:hover {
+            background: var(--accent-light);
+            border-bottom-color: var(--accent-light);
+        }
+
         /* Token-Based Diffusion Animation */
         .bio-token {
             display: inline;
@@ -678,6 +735,12 @@
                 justify-content: center;
             }
             
+            .nav-dropdown-menu {
+                left: 50%;
+                transform: translateX(-50%);
+                min-width: 200px;
+            }
+            
             .about-content {
                 grid-template-columns: 1fr;
                 gap: 20px;
@@ -759,7 +822,13 @@
                 <nav class="nav">
                     <a href="#research">Research</a>
                     <a href="#services">Services</a>
-                    <a href="rentals/">Analytics</a>
+                    <div class="nav-dropdown">
+                        <span class="nav-dropdown-trigger">Analytics ▾</span>
+                        <div class="nav-dropdown-menu">
+                            <a href="rentals/">Puerto Rico Rentals</a>
+                            <a href="recession/">US Recession Probability</a>
+                        </div>
+                    </div>
                     <a href="#about">About</a>
                     <a href="https://github.com/jibarix" target="_blank">Code</a>
                     <a href="https://x.com/jorgearroyox" target="_blank">Insights</a>
