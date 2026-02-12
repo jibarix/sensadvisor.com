@@ -1,0 +1,398 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recession Probability Monitoring | SENS ADVISOR</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --primary-bg: #ffffff;
+    --primary-text: #000000;
+    --secondary-text: #333333;
+    --border-primary: #000000;
+    --accent-light: #f0f0f0;
+    --accent-lighter: #f9f9f9;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Source Code Pro', monospace;
+    background: var(--primary-bg);
+    color: var(--primary-text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .header {
+    position: sticky;
+    top: 0;
+    background: var(--primary-bg);
+    border-bottom: 2px solid var(--border-primary);
+    margin-bottom: 30px;
+    padding-bottom: 16px;
+    z-index: 100;
+  }
+
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    gap: 12px;
+  }
+
+  .logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-text);
+    text-decoration: none;
+  }
+
+  .header-links {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    font-size: 0.85rem;
+    color: var(--secondary-text);
+    flex-wrap: wrap;
+  }
+
+  .header-links a {
+    font-weight: 600;
+    text-decoration: underline;
+    color: var(--primary-text);
+    transition: color 0.2s ease;
+  }
+
+  .header-links a:hover { color: var(--secondary-text); }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-top: 10px;
+  }
+
+  .header .subtitle {
+    font-size: 0.9rem;
+    color: var(--secondary-text);
+    margin-top: 4px;
+    font-weight: 400;
+  }
+
+  .meta {
+    margin-top: 8px;
+    font-size: 0.85rem;
+    color: var(--secondary-text);
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .panel {
+    background: var(--primary-bg);
+    border: 2px solid var(--border-primary);
+    border-radius: 8px;
+    padding: 26px;
+    margin-bottom: 34px;
+    transition: all 0.2s ease;
+  }
+
+  .panel:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  }
+
+  .panel h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .panel-note {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--secondary-text);
+  }
+
+  img {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    margin-top: 14px;
+    background: var(--accent-lighter);
+    border: 1px solid var(--accent-light);
+  }
+
+  code {
+    background: #f6f6f6;
+    padding: 0.15rem 0.35rem;
+    border-radius: 4px;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.9em;
+  }
+
+  .explain {
+    color: var(--secondary-text);
+    font-size: 0.95rem;
+  }
+
+  .explain p { margin: 10px 0; }
+
+  .callout {
+    margin-top: 14px;
+    padding: 16px;
+    border: 2px solid var(--border-primary);
+    border-radius: 8px;
+    background: var(--accent-lighter);
+  }
+
+  .callout-title {
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .callout-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .label {
+    font-size: 0.75rem;
+    color: var(--secondary-text);
+    margin-bottom: 4px;
+  }
+
+  .value {
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+
+  .muted {
+    font-weight: 500;
+    color: var(--secondary-text);
+    font-size: 0.9rem;
+  }
+
+  .callout-text {
+    margin-top: 12px;
+    color: var(--secondary-text);
+    font-size: 0.95rem;
+  }
+
+  .fineprint {
+    margin-top: 10px;
+    font-size: 0.82rem;
+    color: var(--secondary-text);
+  }
+
+  .missing {
+    margin-top: 14px;
+    padding: 14px;
+    border-radius: 8px;
+    border: 1px dashed var(--border-primary);
+    background: #fff;
+    color: var(--secondary-text);
+    font-size: 0.92rem;
+  }
+
+  .table-wrap {
+    margin-top: 10px;
+    overflow-x: auto;
+  }
+
+  table.mini {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+    margin-top: 8px;
+  }
+
+  table.mini th, table.mini td {
+    border: 1px solid var(--accent-light);
+    padding: 10px 10px;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  table.mini thead th {
+    background: var(--accent-lighter);
+    font-weight: 700;
+  }
+
+  .footer {
+    border-top: 2px solid var(--border-primary);
+    margin-top: 50px;
+    padding-top: 18px;
+    text-align: center;
+    color: var(--secondary-text);
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 900px) {
+    .callout-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 768px) {
+    .header-content {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .panel {
+      padding: 18px;
+    }
+    .callout-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+
+<body>
+<div class="container">
+
+  <header class="header">
+    <div class="header-content">
+      <a href="/" class="logo">SENS ADVISOR</a>
+      <div class="header-links">
+        <a href="#shortterm">Short-term view</a>
+      </div>
+    </div>
+    <h1>Recession Probability Monitoring</h1>
+    <div class="subtitle">
+      Baseline: yield-curve probit • Augmented: macro-finance model • Hybrid: reliability-weighted mixture
+    </div>
+    <div class="meta">
+      <span><strong>Last updated (UTC):</strong> 2026-02-12 06:13 UTC</span>
+      <span><strong>Time window:</strong> next 12 months</span>
+    </div>
+  </header>
+
+  
+    <div class="panel" id="main">
+      <h2>Recession Probability <span class="panel-note">How risk evolves over time</span></h2>
+      
+      <div class="explain">
+        <p><strong>Why it matters:</strong> This chart is the main “risk thermometer.” It shows the system’s recession probability through time.</p>
+        <p><strong>How to read:</strong> Higher values mean the model sees conditions that historically preceded recessions at this horizon.
+        Shaded bands mark past recessions. A rising line means risk is increasing; a falling line means risk is easing.</p>
+        <p><strong>Important:</strong> A high probability does not mean a recession is guaranteed, and a low probability does not mean one is impossible.
+        This is a monitoring signal based on history, not a calendar prediction.</p>
+      </div>
+    
+    <div class="callout">
+      <div class="callout-title">Latest update</div>
+      <div class="fineprint" style="margin-top:6px;">
+        <strong>What this probability refers to:</strong> Probability that the U.S. enters a recession at least once in the next <strong>12 months</strong> (through <strong>2026-12-31</strong>).
+      </div>
+
+      <div class="callout-grid" style="margin-top:12px;">
+        <div>
+          <div class="label">As-of date</div>
+          <div class="value">2026-01-01</div>
+        </div>
+        <div>
+          <div class="label">Hybrid probability (preferred)</div>
+          <div class="value">
+            7.1% <span class="muted">(Elevated)</span>
+            <span class="muted"> • computed</span>
+          </div>
+        </div>
+        <div>
+          <div class="label">Yield-curve model</div>
+          <div class="value">11.0%</div>
+        </div>
+        <div>
+          <div class="label">Macro-finance model</div>
+          <div class="value">5.3%</div>
+        </div>
+        <div>
+          <div class="label">Which model we trust more (w)</div>
+          <div class="value">0.69</div>
+          <div class="muted" style="margin-top:4px;">0 = mostly yield curve • 1 = mostly macro-finance</div>
+          <div class="muted" style="margin-top:2px;">Blending both models</div>
+        </div>
+        <div>
+          <div class="label">Sensitivity (w ± 0.1)</div>
+          <div class="value">7.6% → 6.5%</div>
+          <div class="muted" style="margin-top:4px;">
+            If we slightly change how much weight we give each model, the headline probability would move within this range.
+          </div>
+        </div>
+      </div>
+
+      <div class="callout-text">
+        <strong>Current reading:<strong> Elevated recession risk over the next 12 months (computed from the yield-curve and macro-finance components using the reliability weight). This is a probability estimate based on historical relationships; it is not a guarantee and it does not predict exact timing. Blending both models.
+      </div>
+
+      <div class="fineprint">
+        <strong>What this is:</strong> a monitoring probability derived from historical patterns in financial & macro data.<br>
+        <strong>What this is not:</strong> a guarantee, a trading signal, or a prediction of exact recession timing.
+      </div>
+    </div>
+    
+      <img src="fig1_probability.png" alt="Recession Probability">
+    </div>
+    
+  
+    <div class="panel" id="shortterm">
+      <h2>Short-term vs Medium-term View <span class="panel-note">Multi-horizon overlay + historical warning behavior</span></h2>
+      
+      <div class="explain">
+        <p><strong>Why it matters:</strong> This view separates <em>medium-term vulnerability</em> from <em>near-term immediacy</em>.</p>
+        <p><strong>How to read:</strong> The system is estimated at multiple horizons:
+          <strong>12 months</strong> (watch), <strong>6 months</strong> (alert), and <strong>3 months</strong> (alarm).
+          It is normal to see medium-term risk rise before short-term risk does.</p>
+        <p><strong>What to do with it:</strong> If the short-term (3–6 month) lines rise meaningfully, that suggests conditions are shifting toward
+          more immediate risk. If only the 12-month line is elevated, it can indicate vulnerability without imminence.</p>
+      </div>
+
+      <h3 style="margin-top:18px; font-size:1.0rem;">How early does each horizon tend to warn?</h3>
+      <div class="explain">
+        <p>This summary comes from historical episodes and is meant to be easy to interpret.</p>
+      </div>
+      <div class="table-wrap">
+<table class="mini">
+<thead><tr><th>Horizon</th><th>How often it warned</th><th>Avg first threshold warning</th><th>Avg peak signal lead (when it warned)</th></tr></thead>
+<tbody>
+<tr><td><strong>3m</strong></td><td>0% of episodes</td><td>n/a</td><td>n/a</td></tr>
+<tr><td><strong>6m</strong></td><td>67% of episodes</td><td>10.0 mo</td><td>9.0 mo</td></tr>
+<tr><td><strong>12m</strong></td><td>67% of episodes</td><td>10.0 mo</td><td>6.7 mo</td></tr>
+</tbody></table></div>
+
+        <div class="fineprint" style="margin-top:10px;">
+          <strong>Plain-English meaning:</strong> “Warned” means the probability crossed an alert threshold before recession onset.
+          Leads are shown only for horizons that warned (crossed the threshold) in historical episodes.
+        </div>
+        
+    
+      <img src="stm_overlay_probabilities.png" alt="Short-term vs Medium-term View">
+    </div>
+    
+
+  <footer class="footer">
+    <p>&copy; 2026 Sens ABI LLC. All rights reserved. | Recession Probability Monitoring</p>
+  </footer>
+
+</div>
+</body>
+</html>
