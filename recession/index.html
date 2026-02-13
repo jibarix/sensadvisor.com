@@ -237,6 +237,32 @@
     font-weight: 700;
   }
 
+  .gauge { margin-top: 12px; }
+
+  .gauge-bar {
+    position: relative;
+    height: 12px;
+    border: 1px solid var(--border-primary);
+    border-radius: 999px;
+    background: #fff;
+  }
+
+  .gauge-marker {
+    position: absolute;
+    top: -6px;
+    width: 0;
+    height: 24px;
+    border-left: 3px solid var(--border-primary);
+  }
+
+  .gauge-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-size: 0.82rem;
+    color: var(--secondary-text);
+  }
+
   .footer {
     border-top: 2px solid var(--border-primary);
     margin-top: 50px;
@@ -274,6 +300,9 @@
     <div class="header-content">
       <a href="/" class="logo">SENS ADVISOR</a>
       <div class="header-links">
+        <a href="#overview">Overview</a>
+        <a href="#main">Recession Probability</a>
+        <a href="#gate">Mixture weight</a>
         <a href="#shortterm">Short-term view</a>
       </div>
     </div>
@@ -282,11 +311,28 @@
       Baseline: yield-curve probit • Augmented: macro-finance model • Hybrid: reliability-weighted mixture
     </div>
     <div class="meta">
-      <span><strong>Last updated (UTC):</strong> 2026-02-12 06:13 UTC</span>
+      <span><strong>Last updated (UTC):</strong> 2026-02-13 00:06 UTC</span>
+      <span><strong>Next scheduled update:</strong> 2026-03-01 10:00 UTC</span>
       <span><strong>Time window:</strong> next 12 months</span>
     </div>
   </header>
 
+  
+    <div class="panel" id="overview">
+      <h2>Overview <span class="panel-note">What this dashboard is measuring</span></h2>
+      
+      <div class="explain">
+        <p><strong>What you are looking at:</strong> a recession risk monitor that combines a classic yield-curve signal with broader measures of financial stress.</p>
+        <p><strong>Why a “regime-aware” approach:</strong> the yield curve is historically useful, but in some periods it can send prolonged warnings without broad economic stress.
+        This system adapts by learning which logic has been more reliable out-of-sample.</p>
+        <p><strong>Three parts:</strong> (1) a baseline yield-curve model, (2) an augmented macro-finance model using credit, financial conditions, and labor-market indicators,
+        and (3) a “reliability gate” (mixture weight <code>w</code>) that decides how much to trust each model at a given time.</p>
+        <p><strong>Reading tip:</strong> start with the probability chart, then check the mixture weight panel to see which model is driving today’s reading.</p>
+      </div>
+    
+      
+    </div>
+    
   
     <div class="panel" id="main">
       <h2>Recession Probability <span class="panel-note">How risk evolves over time</span></h2>
@@ -351,6 +397,33 @@
     </div>
     
       <img src="fig1_probability.png" alt="Recession Probability">
+    </div>
+    
+  
+    <div class="panel" id="gate">
+      <h2>Reliability Gate (Mixture Weight) <span class="panel-note">Which model the system trusts right now</span></h2>
+      
+      <div class="explain">
+        <p><strong>What this is:</strong> The reliability gate outputs <code>w</code>, the weight placed on the macro-finance model when forming the hybrid probability.</p>
+        <p><strong>How to read:</strong> When <code>w</code> is near 0, the system is mostly trusting the yield curve. When <code>w</code> is near 1, it is mostly trusting credit and labor-market stress signals.</p>
+        <p><strong>Why it helps:</strong> This is the “why” behind the blended probability—and it often explains why the system resists false alarms when the yield curve is inverted but broader stress is low.</p>
+      </div>
+      
+    <div class="gauge">
+      <div class="gauge-bar" aria-label="Mixture weight gauge (0 to 1)">
+        <div class="gauge-marker" style="left:69.4%"></div>
+      </div>
+      <div class="gauge-labels">
+        <span><strong>0</strong> = Yield curve</span>
+        <span><strong>1</strong> = Macro-finance</span>
+      </div>
+      <div class="fineprint" style="margin-top:8px;">
+        <strong>Current w:</strong> 0.69 • Blending both models
+      </div>
+    </div>
+    
+    
+      <img src="fig3_regime_weight.png" alt="Reliability Gate (Mixture Weight)">
     </div>
     
   
