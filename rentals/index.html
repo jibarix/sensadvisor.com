@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <title>Puerto Rico Rent Analytics | SENS ADVISOR</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-box-and-violin-plot@3"></script>
 
   <!-- Google Fonts - Source Code Pro -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -97,6 +98,57 @@
       font-weight: 400;
     }
 
+    /* Overview Section */
+    .overview {
+      background: var(--info-bg);
+      border: 2px solid var(--info-border);
+      border-radius: 8px;
+      padding: 25px;
+      margin-bottom: 40px;
+    }
+
+    .overview h2 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: var(--primary-text);
+    }
+
+    .overview h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-top: 20px;
+      margin-bottom: 10px;
+      color: var(--primary-text);
+    }
+
+    .overview p {
+      font-size: 0.9rem;
+      color: var(--secondary-text);
+      margin-bottom: 12px;
+      line-height: 1.7;
+    }
+
+    .overview ul {
+      margin-left: 20px;
+      margin-bottom: 12px;
+    }
+
+    .overview li {
+      font-size: 0.9rem;
+      color: var(--secondary-text);
+      margin-bottom: 8px;
+      line-height: 1.6;
+    }
+
+    .overview code {
+      background: var(--accent-light);
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
     /* Stats Grid */
     .stats-grid {
       display: grid;
@@ -171,6 +223,12 @@
       font-size: 0.75rem;
       font-weight: 400;
       color: var(--secondary-text);
+    }
+
+    .panel-description {
+      font-size: 0.85rem;
+      color: var(--secondary-text);
+      margin-bottom: 15px;
     }
 
     /* Grid Layout */
@@ -367,6 +425,7 @@
         <a href="/" class="logo">SENS ADVISOR</a>
 
         <div class="header-links">
+          <a href="#overview">Overview</a>
           <a href="#disclaimer">Disclaimer</a>
         </div>
       </div>
@@ -377,6 +436,50 @@
     </div>
 
     </header>
+
+    <!-- Overview Section -->
+    <section id="overview" class="overview">
+      <h2>📊 Dashboard Overview</h2>
+      
+      <p>
+        This dashboard provides data-driven insights into the San Juan rental market using machine learning 
+        to identify pricing patterns and potential opportunities. Data is collected twice daily from public 
+        listings and analyzed using an ensemble of regression models.
+      </p>
+
+      <h3>Understanding the Metrics</h3>
+      
+      <p><strong>Great Deals vs. Top Underpriced Opportunities</strong></p>
+      <p>
+        These two metrics use different thresholds to serve different purposes:
+      </p>
+      <ul>
+        <li><strong>"Great Deals" (Stats Card):</strong> High-confidence opportunities with <code>residual &lt; -$200</code> AND <code>anomaly_score &gt; 2.0</code>. These represent listings significantly below predicted market value with strong statistical confidence.</li>
+        <li><strong>"Top Underpriced Opportunities" (Table):</strong> Broader set with <code>residual &lt; -$150</code> AND <code>anomaly_score &gt; 2.0</code>. This lower threshold captures more potential deals for further investigation.</li>
+      </ul>
+
+      <h3>Key Terminology</h3>
+      <ul>
+        <li><strong>Neighborhood:</strong> Geographic area within San Juan (e.g., Condado, Santurce)</li>
+        <li><strong>Residual:</strong> Difference between actual price and predicted price (negative = underpriced)</li>
+        <li><strong>Anomaly Score:</strong> Statistical measure of how unusual a listing is (higher = more unusual)</li>
+        <li><strong>Median Absolute Error (MAE):</strong> Model accuracy metric - average prediction error in dollars</li>
+        <li><strong>Days on Market:</strong> Time since listing first appeared (active listings only)</li>
+      </ul>
+
+      <h3>How to Use This Dashboard</h3>
+      <ul>
+        <li><strong>Identify Value:</strong> Check "Top Underpriced Opportunities" for potential deals</li>
+        <li><strong>Track Trends:</strong> Monitor median price changes over time by neighborhood</li>
+        <li><strong>Assess Market:</strong> Review price distribution and inventory levels</li>
+        <li><strong>Validate Listings:</strong> Cross-reference model predictions with actual listings before making decisions</li>
+      </ul>
+
+      <p style="margin-top: 15px;">
+        <strong>⚠️ Important:</strong> This tool is for analysis and exploration only. Always verify listings 
+        independently and consult professionals before making rental decisions.
+      </p>
+    </section>
 
     <!-- Stats Overview -->
     <div class="stats-grid" id="statsGrid">
@@ -396,11 +499,10 @@
       </div>
 
       <div class="panel">
-        <h2>Inventory by Municipality <span class="panel-note">Active listings</span></h2>
+        <h2>Inventory by Neighborhood <span class="panel-note">Active listings</span></h2>
         <canvas id="invChart"></canvas>
       </div>
 
-      <!-- NEW: Days on Market panel -->
       <div class="panel">
         <h2>Days on Market <span class="panel-note">Active listings</span></h2>
         <div id="daysError"></div>
@@ -414,6 +516,13 @@
       </div>
     </div>
 
+    <!-- NEW: Price Distribution by Neighborhood (Boxplot) -->
+    <div class="panel grid-full">
+      <h2>Price Distribution by Neighborhood <span class="panel-note">Quartile analysis</span></h2>
+      <div id="boxplotError"></div>
+      <canvas id="boxplotChart"></canvas>
+    </div>
+
     <!-- Scatter Plot -->
     <div class="panel grid-full">
       <h2>Price vs Prediction Scatter <span class="panel-note">Green = underpriced | Red = overpriced</span></h2>
@@ -424,6 +533,9 @@
     <!-- Deals Table -->
     <div class="panel">
       <h2>Top Underpriced Opportunities <span class="panel-note">Potential market inefficiencies</span></h2>
+      <p class="panel-description">
+        Listings with <code>residual &lt; -$150</code> AND <code>anomaly_score &gt; 2.0</code>. Lower threshold than "Great Deals" to capture more opportunities for investigation.
+      </p>
       <div id="dealsError"></div>
       <table id="dealsTable">
         <thead>
@@ -464,7 +576,7 @@
       </table>
     </div>
 
-    <!-- Disclaimer Section (appended at end, before footer) -->
+    <!-- Disclaimer Section -->
     <section id="disclaimer" class="disclaimer">
       <h2>Disclaimer</h2>
 
@@ -533,10 +645,6 @@
     function fmtUSD(n) { return n != null ? '$' + n.toLocaleString() : '—'; }
     function fmtPct(n) { return n != null ? (n * 100).toFixed(1) + '%' : '—'; }
 
-    /**
-     * Load summary cards from static export (dashboard/data/stats.json).
-     * Updated: includes "Median Days on Market" card.
-     */
     async function loadStats() {
       try {
         const res = await fetch('./data/stats.json');
@@ -748,9 +856,6 @@
       }
     }
 
-    /**
-     * Days-on-market distribution (static export: dashboard/data/days_on_market.json).
-     */
     async function loadDaysOnMarket() {
       try {
         const res = await fetch('./data/days_on_market.json');
@@ -803,6 +908,86 @@
       } catch (e) {
         console.error('loadDaysOnMarket error:', e);
         document.getElementById('daysError').innerHTML = `<div class="error">Error: ${e.message}</div>`;
+      }
+    }
+
+    async function loadPriceBoxplot() {
+      try {
+        const res = await fetch('./data/price_by_neighborhood.json');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        if (!data || data.length === 0) {
+          document.getElementById('boxplotError').innerHTML = '<div class="empty-state">No neighborhood price data yet.</div>';
+          return;
+        }
+
+        // Sort by median price descending
+        data.sort((a, b) => b.median - a.median);
+
+        document.getElementById('boxplotError').innerHTML = '';
+        destroyChart('boxplotChart');
+        const ctx = document.getElementById('boxplotChart').getContext('2d');
+        
+        charts.boxplotChart = new Chart(ctx, {
+          type: 'boxplot',
+          data: {
+            labels: data.map(d => d.municipio),
+            datasets: [{
+              label: 'Price Distribution',
+              backgroundColor: 'rgba(0, 0, 0, 0.2)',
+              borderColor: 'rgba(0, 0, 0, 0.9)',
+              borderWidth: 2,
+              outlierColor: 'rgba(204, 0, 0, 0.7)',
+              padding: 10,
+              itemRadius: 3,
+              data: data.map(d => ({
+                min: d.min_price,
+                q1: d.q1,
+                median: d.median,
+                q3: d.q3,
+                max: d.max_price,
+                mean: d.mean_price,
+                items: []
+              }))
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: (ctx) => {
+                    const d = data[ctx.dataIndex];
+                    return [
+                      `Median: ${fmtUSD(d.median)}`,
+                      `Q1-Q3: ${fmtUSD(d.q1)} - ${fmtUSD(d.q3)}`,
+                      `Range: ${fmtUSD(d.min_price)} - ${fmtUSD(d.max_price)}`,
+                      `Mean: ${fmtUSD(Math.round(d.mean_price))}`,
+                      `Count: ${d.count} listings`
+                    ];
+                  }
+                }
+              }
+            },
+            scales: {
+              y: {
+                title: { display: true, text: 'Monthly Rent (USD)' },
+                ticks: { callback: v => fmtUSD(v) },
+                grid: { color: '#f0f0f0' }
+              },
+              x: {
+                title: { display: true, text: 'Neighborhood' },
+                grid: { display: false }
+              }
+            }
+          }
+        });
+      } catch (e) {
+        console.error('loadPriceBoxplot error:', e);
+        document.getElementById('boxplotError').innerHTML = `<div class="error">Error: ${e.message}</div>`;
       }
     }
 
@@ -860,8 +1045,6 @@
         const res = await fetch('./data/scatter.json');
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const rows = await res.json();
-
-        console.log('Scatter data received:', rows.length, 'rows');
 
         if (!rows || rows.length === 0) {
           document.getElementById('scatterError').innerHTML = '<div class="empty-state">No prediction data yet. Run ml_v2.py first.</div>';
@@ -938,7 +1121,7 @@
                     return [
                       `Actual: ${fmtUSD(d.x)}`,
                       `Predicted: ${fmtUSD(d.y)}`,
-                      `Municipio: ${d.municipio}`,
+                      `Neighborhood: ${d.municipio}`,
                       `Ad ID: ${d.ad_id}`
                     ];
                   }
@@ -970,8 +1153,6 @@
         const res = await fetch('./data/deals.json');
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const rows = await res.json();
-
-        console.log('Deals data received:', rows.length, 'rows');
 
         const tbody = document.querySelector('#dealsTable tbody');
 
@@ -1016,8 +1197,6 @@
         const res = await fetch('./data/anomalies.json');
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const rows = await res.json();
-
-        console.log('Anomalies data received:', rows.length, 'rows');
 
         const tbody = document.querySelector('#anomTable tbody');
 
@@ -1068,7 +1247,8 @@
           loadMedianPrices(),
           loadDistribution(),
           loadInventory(),
-          loadDaysOnMarket(),     // NEW
+          loadDaysOnMarket(),
+          loadPriceBoxplot(),
           loadFeatureImportance(),
           loadScatter(),
           loadDeals(),
