@@ -3,8 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <title>Puerto Rico Rent Analytics | SENS ADVISOR</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-box-and-violin-plot@3"></script>
+
+  <!-- Chart.js (UMD) + Box/Violin Plot (UMD) to ensure boxplot controller is registered -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-chart-box-and-violin-plot/4.0.0/Chart.BoxPlot.min.js"></script>
 
   <!-- Google Fonts - Source Code Pro -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -100,8 +102,8 @@
 
     /* Overview Section */
     .overview {
-      background: var(--info-bg);
-      border: 2px solid var(--info-border);
+      background: var(--primary-bg);              /* white */
+      border: 2px solid var(--border-primary);    /* black border */
       border-radius: 8px;
       padding: 25px;
       margin-bottom: 40px;
@@ -124,7 +126,7 @@
 
     .overview p {
       font-size: 0.9rem;
-      color: var(--secondary-text);
+      color: var(--primary-text);
       margin-bottom: 12px;
       line-height: 1.7;
     }
@@ -136,7 +138,7 @@
 
     .overview li {
       font-size: 0.9rem;
-      color: var(--secondary-text);
+      color: var(--primary-text);
       margin-bottom: 8px;
       line-height: 1.6;
     }
@@ -439,16 +441,16 @@
 
     <!-- Overview Section -->
     <section id="overview" class="overview">
-      <h2>📊 Dashboard Overview</h2>
-      
+      <h2>Dashboard Overview</h2>
+
       <p>
-        This dashboard provides data-driven insights into the San Juan rental market using machine learning 
-        to identify pricing patterns and potential opportunities. Data is collected twice daily from public 
+        This dashboard provides data-driven insights into the San Juan rental market using machine learning
+        to identify pricing patterns and potential opportunities. Data is collected twice daily from public
         listings and analyzed using an ensemble of regression models.
       </p>
 
       <h3>Understanding the Metrics</h3>
-      
+
       <p><strong>Great Deals vs. Top Underpriced Opportunities</strong></p>
       <p>
         These two metrics use different thresholds to serve different purposes:
@@ -476,7 +478,7 @@
       </ul>
 
       <p style="margin-top: 15px;">
-        <strong>⚠️ Important:</strong> This tool is for analysis and exploration only. Always verify listings 
+        <strong>Important:</strong> This tool is for analysis and exploration only. Always verify listings
         independently and consult professionals before making rental decisions.
       </p>
     </section>
@@ -626,6 +628,11 @@
     Chart.defaults.font.size = 11;
     Chart.defaults.color = '#000000';
     Chart.defaults.borderColor = '#dddddd';
+
+    // Optional safety: some builds expose registerables via ChartBoxPlot
+    if (window.ChartBoxPlot && ChartBoxPlot.registerables) {
+      Chart.register(...ChartBoxPlot.registerables);
+    }
 
     // Monochrome color palette
     const colors = [
@@ -928,7 +935,7 @@
         document.getElementById('boxplotError').innerHTML = '';
         destroyChart('boxplotChart');
         const ctx = document.getElementById('boxplotChart').getContext('2d');
-        
+
         charts.boxplotChart = new Chart(ctx, {
           type: 'boxplot',
           data: {
