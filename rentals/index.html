@@ -6,7 +6,8 @@
 
   <!-- Chart.js (UMD) + Box/Violin Plot (UMD) to ensure boxplot controller is registered -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-chart-box-and-violin-plot/4.0.0/Chart.BoxPlot.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@sgratzl/chartjs-chart-boxplot@4.4.5/build/index.umd.min.js"></script>
+
 
   <!-- Google Fonts - Source Code Pro -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -629,10 +630,20 @@
     Chart.defaults.color = '#000000';
     Chart.defaults.borderColor = '#dddddd';
 
-    // Optional safety: some builds expose registerables via ChartBoxPlot
-    if (window.ChartBoxPlot && ChartBoxPlot.registerables) {
-      Chart.register(...ChartBoxPlot.registerables);
-    }
+    // Ensure the boxplot controller/element are registered (UMD exposes exports on window)
+    (() => {
+      const box = window['chartjs-chart-boxplot'] || window.ChartBoxPlot || window.ChartBoxplot;
+      if (!box) return; // plugin didn't load
+
+      const { BoxPlotController, BoxAndWiskers, ViolinController, Violin } = box;
+
+      if (BoxPlotController && BoxAndWiskers) {
+        Chart.register(BoxPlotController, BoxAndWiskers);
+      }
+      if (ViolinController && Violin) {
+        Chart.register(ViolinController, Violin);
+      }
+    })();
 
     // Monochrome color palette
     const colors = [
