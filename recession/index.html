@@ -278,6 +278,13 @@
     }
   }
 
+  .latest-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 14px;
+  }
+
   @media (max-width: 768px) {
     .header-content {
       flex-direction: column;
@@ -287,6 +294,9 @@
       padding: 18px;
     }
     .callout-grid {
+      grid-template-columns: 1fr;
+    }
+    .latest-cards {
       grid-template-columns: 1fr;
     }
   }
@@ -302,8 +312,10 @@
       <div class="header-links">
         <a href="#overview">Overview</a>
         <a href="#main">Recession Probability</a>
+        <a href="#dashboard">Indicators</a>
         <a href="#gate">Mixture weight</a>
         <a href="#shortterm">Short-term view</a>
+        <a href="#limitations">Limitations</a>
       </div>
     </div>
     <h1>Recession Probability Monitoring</h1>
@@ -311,7 +323,7 @@
       Baseline: yield-curve probit • Augmented: macro-finance model • Hybrid: reliability-weighted mixture
     </div>
     <div class="meta">
-      <span><strong>Last updated (UTC):</strong> 2026-03-01 10:49 UTC</span>
+      <span><strong>Last updated (UTC):</strong> 2026-03-02 21:08 UTC</span>
       <span><strong>Next scheduled update:</strong> 2026-04-01 10:00 UTC</span>
       <span><strong>Time window:</strong> next 12 months</span>
     </div>
@@ -346,57 +358,77 @@
       </div>
     
     <div class="callout">
-      <div class="callout-title">Latest update</div>
-      <div class="fineprint" style="margin-top:6px;">
-        <strong>What this probability refers to:</strong> Probability that the U.S. enters a recession at least once in the next <strong>12 months</strong> (through <strong>2026-12-31</strong>).
+      <div class="callout-title" style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:6px;">
+        <span>Latest update</span>
+        <span class="muted" style="font-weight:500; font-size:0.85rem;">As of 2026-01-01</span>
       </div>
 
-      <div class="callout-grid" style="margin-top:12px;">
-        <div>
-          <div class="label">As-of date</div>
-          <div class="value">2026-01-01</div>
-        </div>
-        <div>
-          <div class="label">Hybrid probability (preferred)</div>
-          <div class="value">
-            7.1% <span class="muted">(Elevated)</span>
-            <span class="muted"> • computed</span>
+      <div class="latest-cards">
+        <div style="border:2px solid var(--border-primary); border-radius:8px; padding:18px; text-align:center;">
+          <div style="font-size:2.2rem; font-weight:700; line-height:1.1;">
+            7.1%
+          </div>
+          <div style="font-size:1.0rem; font-weight:600; margin-top:4px; color:var(--secondary-text);">
+            Elevated risk
+          </div>
+          <div class="muted" style="margin-top:8px; font-size:0.82rem;">
+            12-month recession probability
           </div>
         </div>
-        <div>
-          <div class="label">Yield-curve model</div>
-          <div class="value">11.0%</div>
-        </div>
-        <div>
-          <div class="label">Macro-finance model</div>
-          <div class="value">5.3%</div>
-        </div>
-        <div>
-          <div class="label">Which model we trust more (w)</div>
-          <div class="value">0.69</div>
-          <div class="muted" style="margin-top:4px;">0 = mostly yield curve • 1 = mostly macro-finance</div>
-          <div class="muted" style="margin-top:2px;">Blending both models</div>
-        </div>
-        <div>
-          <div class="label">Sensitivity (w ± 0.1)</div>
-          <div class="value">7.6% → 6.5%</div>
-          <div class="muted" style="margin-top:4px;">
-            If we slightly change how much weight we give each model, the headline probability would move within this range.
+
+        <div style="border:1px solid var(--accent-light); border-radius:8px; padding:14px;">
+          <div style="display:grid; grid-template-columns:auto 1fr; gap:4px 12px; font-size:0.92rem;">
+            <span class="muted">Yield-curve model</span>
+            <span style="font-weight:600; text-align:right;">11.0%</span>
+            <span class="muted">Macro-finance model</span>
+            <span style="font-weight:600; text-align:right;">5.3%</span>
+            <span class="muted">Reliability weight (w)</span>
+            <span style="font-weight:600; text-align:right;">0.69</span>
+          </div>
+          <div class="muted" style="margin-top:10px; font-size:0.82rem; border-top:1px solid var(--accent-light); padding-top:8px;">
+            Blending both models
+          </div>
+          <div style="margin-top:8px; font-size:0.82rem;">
+            <span class="muted">Sensitivity (w &plusmn; 0.1):</span>
+            <span style="font-weight:600;">7.6% &rarr; 6.5%</span>
           </div>
         </div>
       </div>
 
-      <div class="callout-text">
-        <strong>Current reading:<strong> Elevated recession risk over the next 12 months (computed from the yield-curve and macro-finance components using the reliability weight). This is a probability estimate based on historical relationships; it is not a guarantee and it does not predict exact timing. Blending both models.
-      </div>
-
-      <div class="fineprint">
-        <strong>What this is:</strong> a monitoring probability derived from historical patterns in financial & macro data.<br>
+      <div class="fineprint" style="margin-top:14px;">
+        <strong>What this is:</strong> a monitoring probability derived from historical patterns in financial &amp; macro data.<br>
         <strong>What this is not:</strong> a guarantee, a trading signal, or a prediction of exact recession timing.
       </div>
     </div>
     
       <img src="fig1_probability.png" alt="Recession Probability">
+    </div>
+    
+  
+    <div class="panel" id="dashboard">
+      <h2>Indicator Dashboard <span class="panel-note">What inputs look like right now</span></h2>
+      
+      <div class="explain">
+        <p><strong>What you are looking at:</strong> the four key inputs that feed the recession probability model, each shown as a standardized z-score so they can be compared on one chart.</p>
+        <p><strong>How to read:</strong> When a line moves sharply upward, that indicator is signaling increased stress relative to its own history.
+          When all four lines are near zero or below, conditions are historically benign.</p>
+      </div>
+      <div class="table-wrap">
+        <table class="mini">
+          <thead><tr><th>Indicator</th><th>What it captures</th><th>Stress direction</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Yield curve spread</strong></td><td>Difference between long- and short-term Treasury rates</td><td>Lower (inverted) = more stress</td></tr>
+            <tr><td><strong>Credit stress (EBP)</strong></td><td>Excess bond premium &mdash; the risk appetite of corporate-bond investors</td><td>Higher = more stress</td></tr>
+            <tr><td><strong>Financial conditions (NFCI)</strong></td><td>Chicago Fed index of overall financial tightness</td><td>Higher = tighter conditions</td></tr>
+            <tr><td><strong>Labor market (claims)</strong></td><td>Initial unemployment claims signal relative to recent trend</td><td>Higher = deteriorating labor market</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="fineprint" style="margin-top:10px;">
+        <strong>Note:</strong> These z-scores are for <em>display only</em> and are not the values fed directly into the model. They help you see which parts of the economy are currently under stress.
+      </div>
+    
+      <img src="fig2_dashboard.png" alt="Indicator Dashboard">
     </div>
     
   
@@ -459,6 +491,119 @@
         
     
       <img src="stm_overlay_probabilities.png" alt="Short-term vs Medium-term View">
+    </div>
+    
+  
+    <div class="panel" id="limitations">
+      <h2>Known Limitations <span class="panel-note">What this model cannot do</span></h2>
+      
+      <div class="explain">
+        <p><strong>Why this section exists:</strong> Transparency about model limitations is as important as
+        the headline probability. This system is useful, but it has structural blind spots that users should
+        understand before acting on its output.</p>
+      </div>
+
+      <h3 style="margin-top:18px; font-size:1.0rem;">1. Additive model cannot capture conditional effects</h3>
+      <div class="explain">
+        <p>The system has two models: a <em>baseline</em> (yield-curve-only probit) and an <em>augmented</em>
+        (macro-finance) elastic-net logistic regression. The augmented model intentionally includes the yield-curve
+        spread alongside five macro features (credit stress, financial conditions, labor market). The design intent is
+        that the augmented model sees the curve <em>in context</em>&mdash;an inverted curve accompanied by high credit stress
+        should mean more than an inverted curve with calm macro conditions.</p>
+
+        <p><strong>The limitation:</strong> elastic-net logistic regression is <em>additive</em> in log-odds:</p>
+        <div style="margin:10px 0; padding:8px 12px; background:#f6f6f6; border-radius:4px; font-size:0.9rem;">
+          log-odds = B<sub>0</sub> + B<sub>1</sub>&times;SPREAD + B<sub>2</sub>&times;CREDIT_Z + B<sub>3</sub>&times;NFCI + &hellip;
+        </div>
+        <p>There are no interaction terms. The coefficient B<sub>1</sub>&times;SPREAD contributes the same amount to the probability
+        whether credit stress is at +4.0 (2001 crisis) or &minus;0.2 (2022 calm). When the spread reaches extreme
+        values (&minus;1.2 to &minus;1.7 in 2022&ndash;2023), the SPREAD term dominates the augmented model regardless
+        of what the other features say.</p>
+
+        <p>The reliability gate has the same limitation&mdash;it is also an additive logistic regression. It cannot
+        learn "trust the augmented model <em>only when</em> the spread and credit indicators agree." It can only learn
+        unconditional tendencies about each feature.</p>
+
+        <p>The result: when the inversion is moderate (&minus;0.2 in early 2007), the five calm macro features outweigh
+        SPREAD inside the augmented model, the two models disagree, and the gate correctly suppresses the false alarm.
+        When the inversion is extreme (&minus;1.5 in 2023), SPREAD overwhelms the other features inside the augmented
+        model, the two models converge (correlation rises from 22% to 83%), and the gate has nothing to suppress.</p>
+      </div>
+      <div class="table-wrap" style="margin-top:10px;">
+        <table class="mini">
+          <thead><tr>
+            <th>Episode</th>
+            <th>Spread</th>
+            <th>Credit / NFCI / Labor</th>
+            <th>p_base</th>
+            <th>p_aug</th>
+            <th>p_mix</th>
+            <th>Outcome</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>2007 H1</strong></td>
+              <td>&minus;0.23 (mild)</td>
+              <td>All calm</td>
+              <td>0.60</td>
+              <td>0.06</td>
+              <td><strong>0.09</strong></td>
+              <td>Gate suppresses &mdash; correct</td>
+            </tr>
+            <tr>
+              <td><strong>2000 H2</strong></td>
+              <td>&minus;0.42</td>
+              <td>Credit Z: +4.2 (extreme)</td>
+              <td>0.87</td>
+              <td>0.96</td>
+              <td><strong>0.92</strong></td>
+              <td>Recession (2001) &mdash; correct</td>
+            </tr>
+            <tr>
+              <td><strong>2022&ndash;23</strong></td>
+              <td>&minus;1.20 (extreme)</td>
+              <td>All calm (NFCI &minus;0.22, Claims &minus;0.02)</td>
+              <td>0.65</td>
+              <td>0.50</td>
+              <td><strong>0.51</strong></td>
+              <td>No recession &mdash; false alarm</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="fineprint" style="margin-top:10px;">
+        <strong>Implication:</strong> The hybrid probability reached 0.67 during 2022&ndash;2023 with no recession.
+        No fixed alert threshold can resolve this&mdash;the issue is structural.
+        A future model revision could address this by adding interaction terms (SPREAD &times; CREDIT_Z, etc.)
+        to let the model learn that an inverted curve means less when macro conditions are benign,
+        or by using a model class that captures non-linear feature interactions.
+      </div>
+
+      <h3 style="margin-top:22px; font-size:1.0rem;">2. Small sample size</h3>
+      <div class="explain">
+        <p>The out-of-sample evaluation covers only <strong>3 recession episodes</strong> (roughly 28 recession months
+        out of 356 total). Any statistical analysis of threshold selection, lead times, or calibration is
+        inherently limited by this sample. Results should be treated as suggestive, not definitive.</p>
+      </div>
+
+      <h3 style="margin-top:22px; font-size:1.0rem;">3. Alert threshold interpretation</h3>
+      <div class="explain">
+        <p>The paper uses an illustrative threshold of 15% for the multi-horizon lead-time table and overlay chart.
+        Data-driven threshold analysis (precision curves, Youden's J, episode-conditional tests) was attempted but
+        proved uninformative: with only 3 episodes and a 7.9% base rate, no threshold achieves clean separation
+        between true and false alarms&mdash;especially given the structural issue above.</p>
+        <p><strong>Recommendation:</strong> Treat the 15% threshold as a reporting convention, not a decision rule.
+        The probability <em>level</em> and <em>direction</em> matter more than whether it crosses a specific line.</p>
+      </div>
+
+      <h3 style="margin-top:22px; font-size:1.0rem;">4. What this system is not</h3>
+      <div class="explain">
+        <p>This is a monitoring tool based on historical statistical relationships. It does not model causal mechanisms,
+        it cannot anticipate unprecedented shocks (e.g., a pandemic), and it should never be used as the sole basis
+        for financial decisions. It is one input among many.</p>
+      </div>
+    
+      
     </div>
     
 
