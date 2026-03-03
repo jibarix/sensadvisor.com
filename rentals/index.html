@@ -429,13 +429,15 @@
 
         <div class="header-links">
           <a href="#overview">Overview</a>
+          <a href="#deals">Deals</a>
+          <a href="#discounts">Discounts</a>
           <a href="#disclaimer">Disclaimer</a>
         </div>
       </div>
 
     <h1>San Juan Rental Market Dashboard | ML Pricing Signals</h1>
     <div class="subtitle">
-      Condado/Miramar, Hato Rey, Santurce, Viejo San Juan • Tracked beyond original ask range ($399–$1,800)
+      Condado/Miramar, Hato Rey, Santurce, Viejo San Juan • $550–$3,000
     </div>
 
     </header>
@@ -447,26 +449,25 @@
       <p>
         This dashboard provides data-driven insights into the San Juan rental market using machine learning
         to identify pricing patterns and potential opportunities. Data is collected twice daily from public
-        listings and analyzed using an ensemble of regression models.
+        listings ($550–$3,000 range) across Condado/Miramar, Hato Rey, Santurce, and Viejo San Juan,
+        and analyzed using an ensemble of regression models.
       </p>
 
       <h3>Understanding the Metrics</h3>
 
-      <p><strong>Great Deals vs. Top Underpriced Opportunities</strong></p>
+      <p><strong>Great Deals / Top Underpriced Opportunities</strong></p>
       <p>
-        These two metrics use different thresholds to serve different purposes:
+        Listings with <code>residual &lt; -$200</code>, <code>anomaly_score &gt; 2.0</code>, and <code>pred_std &le; $100</code> — significantly below predicted market value with strong statistical confidence and high model consensus (low ensemble disagreement).
+        The stats card count and the deals table use the same thresholds.
       </p>
-      <ul>
-        <li><strong>"Great Deals" (Stats Card):</strong> High-confidence opportunities with <code>residual &lt; -$200</code> AND <code>anomaly_score &gt; 2.0</code>. These represent listings significantly below predicted market value with strong statistical confidence.</li>
-        <li><strong>"Top Underpriced Opportunities" (Table):</strong> Broader set with <code>residual &lt; -$150</code> AND <code>anomaly_score &gt; 2.0</code>. This lower threshold captures more potential deals for further investigation.</li>
-      </ul>
 
       <h3>Key Terminology</h3>
       <ul>
         <li><strong>Neighborhood:</strong> Geographic area within San Juan (e.g., Condado, Santurce)</li>
         <li><strong>Residual:</strong> Difference between actual price and predicted price (negative = underpriced)</li>
         <li><strong>Anomaly Score:</strong> Statistical measure of how unusual a listing is (higher = more unusual)</li>
-        <li><strong>Median Absolute Error (MAE):</strong> Model accuracy metric - average prediction error in dollars</li>
+        <li><strong>Prediction Spread (pred_std):</strong> Standard deviation across ensemble models — lower = higher confidence, models agree</li>
+        <li><strong>Median Absolute Error (MDAE):</strong> Model accuracy metric — the median prediction error in dollars (robust to outliers)</li>
         <li><strong>Days on Market:</strong> Time since listing first appeared (active listings only)</li>
       </ul>
 
@@ -489,13 +490,14 @@
       <div class="loading">Initializing analytics...</div>
     </div>
 
+    <!-- Weekly Trend (full-width) -->
+    <div class="panel">
+      <h2>Median Price Trends <span class="panel-note">Weekly</span></h2>
+      <canvas id="medianChart"></canvas>
+    </div>
+
     <!-- Charts Grid -->
     <div class="grid">
-      <div class="panel">
-        <h2>Median Price Trends <span class="panel-note">30-day rolling</span></h2>
-        <canvas id="medianChart"></canvas>
-      </div>
-
       <div class="panel">
         <h2>Price Distribution <span class="panel-note">Current inventory</span></h2>
         <canvas id="distChart"></canvas>
@@ -534,11 +536,18 @@
     </div>
 
     <!-- Deals Table -->
-    <div class="panel">
+    <div id="deals" class="panel">
       <h2>Top Underpriced Opportunities <span class="panel-note">Potential market inefficiencies</span></h2>
       <p class="panel-description">
-        Listings with <code>residual &lt; -$150</code> AND <code>anomaly_score &gt; 2.0</code>. Lower threshold than "Great Deals" to capture more opportunities for investigation.
+        Listings with <code>residual &lt; -$200</code>, <code>anomaly_score &gt; 2.0</code>, and <code>pred_std &le; $100</code> — priced well below model predictions with high statistical confidence and strong model consensus.
       </p>
+      <div style="margin-bottom: 15px;">
+        <label for="dealsFilter" style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--secondary-text);">Neighborhood:</label>
+        <select id="dealsFilter" style="font-family: 'Source Code Pro', monospace; font-size: 0.85rem; padding: 6px 10px; border: 2px solid var(--border-primary); border-radius: 4px; background: var(--primary-bg); cursor: pointer; margin-left: 8px;">
+          <option value="all">All</option>
+        </select>
+        <span id="dealsCount" style="font-size: 0.8rem; color: var(--secondary-text); margin-left: 12px;"></span>
+      </div>
       <div id="dealsError"></div>
       <table id="dealsTable">
         <thead>
@@ -548,34 +557,46 @@
             <th>Beds/Baths</th>
             <th>Actual</th>
             <th>Predicted</th>
-            <th>Discount</th>
+            <th>Savings</th>
             <th>Score</th>
+            <th>Spread</th>
+            <th>Features</th>
+            <th>Link</th>
+          </tr>
+        </thead>
+        <tbody><tr><td colspan="10" class="loading">Loading...</td></tr></tbody>
+      </table>
+    </div>
+
+    <!-- Discounts Table -->
+    <div id="discounts" class="panel">
+      <h2>Other Discounts <span class="panel-note">Moderate savings</span></h2>
+      <p class="panel-description">
+        Listings with <code>anomaly_score &gt; 2.0</code> and <code>pred_std &le; $100</code> — priced below model predictions but not deep enough for top deals.
+      </p>
+      <div style="margin-bottom: 15px;">
+        <label for="discountFilter" style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--secondary-text);">Neighborhood:</label>
+        <select id="discountFilter" style="font-family: 'Source Code Pro', monospace; font-size: 0.85rem; padding: 6px 10px; border: 2px solid var(--border-primary); border-radius: 4px; background: var(--primary-bg); cursor: pointer; margin-left: 8px;">
+          <option value="all">All</option>
+        </select>
+        <span id="discountCount" style="font-size: 0.8rem; color: var(--secondary-text); margin-left: 12px;"></span>
+      </div>
+      <div id="discountsError"></div>
+      <table id="discountsTable">
+        <thead>
+          <tr>
+            <th>Location</th>
+            <th>Beds/Baths</th>
+            <th>Actual</th>
+            <th>Predicted</th>
+            <th>Savings</th>
+            <th>Score</th>
+            <th>Spread</th>
             <th>Features</th>
             <th>Link</th>
           </tr>
         </thead>
         <tbody><tr><td colspan="9" class="loading">Loading...</td></tr></tbody>
-      </table>
-    </div>
-
-    <!-- Anomalies Table -->
-    <div class="panel">
-      <h2>Price Anomalies <span class="panel-note">Statistical outliers</span></h2>
-      <div id="anomError"></div>
-      <table id="anomTable">
-        <thead>
-          <tr>
-            <th>Type</th>
-            <th>Location</th>
-            <th>Beds/Baths</th>
-            <th>Actual</th>
-            <th>Predicted</th>
-            <th>Difference</th>
-            <th>Score</th>
-            <th>Link</th>
-          </tr>
-        </thead>
-        <tbody><tr><td colspan="8" class="loading">Loading...</td></tr></tbody>
       </table>
     </div>
 
@@ -617,7 +638,7 @@
 
     <!-- Footer -->
     <footer class="footer">
-      <p>&copy; 2025 Sens ABI LLC. All rights reserved. | Rental Market Analytics Platform</p>
+      <p>&copy; 2026 Sens ABI LLC. All rights reserved. | Rental Market Analytics Platform</p>
     </footer>
   </div>
 
@@ -660,8 +681,9 @@
 
     // Utility functions
     function fmt(n) { return n != null ? n.toLocaleString() : '—'; }
-    function fmtUSD(n) { return n != null ? '$' + n.toLocaleString() : '—'; }
+    function fmtUSD(n) { return n != null ? '$' + Math.round(n).toLocaleString() : '—'; }
     function fmtPct(n) { return n != null ? (n * 100).toFixed(1) + '%' : '—'; }
+    function shortMuni(s) { return s ? s.replace(/^San Juan\s*-\s*/i, '') : s; }
 
     async function loadStats() {
       try {
@@ -685,7 +707,7 @@
           </div>
           <div class="stat-card">
             <div class="label">Median Days on Market</div>
-            <div class="value">${data.median_days_on_market != null ? data.median_days_on_market.toFixed(1) : '—'}</div>
+            <div class="value">${data.median_days_on_market != null ? Math.round(data.median_days_on_market) : '—'}</div>
             <div class="change">Active listings only</div>
           </div>
           <div class="stat-card">
@@ -696,7 +718,7 @@
           <div class="stat-card">
             <div class="label">Great Deals</div>
             <div class="value">${fmt(data.underpriced_count)}</div>
-            <div class="change">Residual < -$200 & score > 2.0</div>
+            <div class="change">Residual < -$200, score > 2.0, spread &le; $100</div>
           </div>
         `;
       } catch (e) {
@@ -718,8 +740,9 @@
 
         const grouped = {};
         rows.forEach(r => {
-          if (!grouped[r.municipio]) grouped[r.municipio] = [];
-          grouped[r.municipio].push(r);
+          const muni = shortMuni(r.municipio);
+          if (!grouped[muni]) grouped[muni] = [];
+          grouped[muni].push(r);
         });
 
         const volumes = Object.entries(grouped).map(([m, data]) => ({
@@ -844,7 +867,7 @@
         charts.invChart = new Chart(ctx, {
           type: 'bar',
           data: {
-            labels: data.map(d => d.municipio),
+            labels: data.map(d => shortMuni(d.municipio)),
             datasets: [{
               label: 'Active Listings',
               data: data.map(d => d.count),
@@ -950,7 +973,7 @@
         charts.boxplotChart = new Chart(ctx, {
           type: 'boxplot',
           data: {
-            labels: data.map(d => d.municipio),
+            labels: data.map(d => shortMuni(d.municipio)),
             datasets: [{
               label: 'Price Distribution',
               backgroundColor: 'rgba(0, 0, 0, 0.2)',
@@ -1139,7 +1162,7 @@
                     return [
                       `Actual: ${fmtUSD(d.x)}`,
                       `Predicted: ${fmtUSD(d.y)}`,
-                      `Neighborhood: ${d.municipio}`,
+                      `Neighborhood: ${shortMuni(d.municipio)}`,
                       `Ad ID: ${d.ad_id}`
                     ];
                   }
@@ -1166,87 +1189,156 @@
       }
     }
 
+    let dealsData = [];
+
+    function renderDeals(filter) {
+      const rows = filter === 'all' ? dealsData : dealsData.filter(r => shortMuni(r.municipio) === filter);
+      const tbody = document.querySelector('#dealsTable tbody');
+      document.getElementById('dealsCount').textContent = `${rows.length} listings`;
+
+      if (rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" class="empty-state">No deals for this neighborhood.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = '';
+      rows.forEach(r => {
+        const savings = fmtUSD(Math.abs(Math.round(r.residual)));
+        const features = [];
+        if (r.furnished) features.push('Furnished');
+        if (r.internet) features.push('Internet');
+        if (r.parking) features.push('Parking');
+        if (r.plan8_accepted) features.push('Plan 8');
+
+        tbody.innerHTML += `
+          <tr>
+            <td><span class="badge deal">DEAL</span></td>
+            <td>${shortMuni(r.municipio) || '—'}</td>
+            <td>${r.bedrooms || '—'} / ${r.bathrooms || '—'}</td>
+            <td>${fmtUSD(r.price)}</td>
+            <td>${fmtUSD(Math.round(r.predicted_price))}</td>
+            <td style="color: #00aa00; font-weight: 700;">-${savings}</td>
+            <td>${Math.round(r.anomaly_score)}</td>
+            <td>${r.pred_std != null ? '$' + Math.round(r.pred_std) : '—'}</td>
+            <td style="font-size: 0.75rem;">${features.join(', ') || '—'}</td>
+            <td><a href="${r.url}" target="_blank">View</a></td>
+          </tr>
+        `;
+      });
+    }
+
     async function loadDeals() {
       try {
         const res = await fetch('./data/deals.json');
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const rows = await res.json();
+        dealsData = await res.json();
 
-        const tbody = document.querySelector('#dealsTable tbody');
-
-        if (!rows || rows.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="9" class="empty-state">No deals found yet. More data needed.</td></tr>';
+        if (!dealsData || dealsData.length === 0) {
+          document.querySelector('#dealsTable tbody').innerHTML = '<tr><td colspan="10" class="empty-state">No deals found yet. More data needed.</td></tr>';
           return;
         }
 
         document.getElementById('dealsError').innerHTML = '';
-        tbody.innerHTML = '';
 
-        rows.forEach(r => {
-          const discount = ((r.price - r.predicted_price) / r.predicted_price * 100).toFixed(1);
-          const features = [];
-          if (r.furnished) features.push('Furnished');
-          if (r.internet) features.push('Internet');
-          if (r.parking) features.push('Parking');
-          if (r.plan8_accepted) features.push('Plan 8');
-
-          tbody.innerHTML += `
-            <tr>
-              <td><span class="badge deal">DEAL</span></td>
-              <td>${r.municipio || '—'}</td>
-              <td>${r.bedrooms || '—'} / ${r.bathrooms || '—'}</td>
-              <td>${fmtUSD(r.price)}</td>
-              <td>${fmtUSD(Math.round(r.predicted_price))}</td>
-              <td style="color: #00aa00; font-weight: 700;">${discount}%</td>
-              <td>${r.anomaly_score.toFixed(2)}</td>
-              <td style="font-size: 0.75rem;">${features.join(', ') || '—'}</td>
-              <td><a href="${r.url}" target="_blank">View</a></td>
-            </tr>
-          `;
+        const munis = [...new Set(dealsData.map(r => shortMuni(r.municipio)))].sort();
+        const select = document.getElementById('dealsFilter');
+        munis.forEach(m => {
+          const count = dealsData.filter(r => shortMuni(r.municipio) === m).length;
+          const opt = document.createElement('option');
+          opt.value = m;
+          opt.textContent = `${m} (${count})`;
+          select.appendChild(opt);
         });
+
+        select.addEventListener('change', () => renderDeals(select.value));
+
+        const defaultMuni = munis.find(m => m === 'Santurce');
+        if (defaultMuni) {
+          select.value = defaultMuni;
+          renderDeals(defaultMuni);
+        } else {
+          renderDeals('all');
+        }
       } catch (e) {
         console.error('loadDeals error:', e);
         document.getElementById('dealsError').innerHTML = `<div class="error">Error: ${e.message}</div>`;
       }
     }
 
-    async function loadAnomalies() {
+    let discountData = [];
+
+    function renderDiscounts(filter) {
+      const rows = filter === 'all' ? discountData : discountData.filter(r => shortMuni(r.municipio) === filter);
+      const tbody = document.querySelector('#discountsTable tbody');
+      document.getElementById('discountCount').textContent = `${rows.length} listings`;
+
+      if (rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" class="empty-state">No discounts for this neighborhood.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = '';
+      rows.forEach(r => {
+        const savings = fmtUSD(Math.abs(Math.round(r.residual)));
+        const features = [];
+        if (r.furnished) features.push('Furnished');
+        if (r.internet) features.push('Internet');
+        if (r.parking) features.push('Parking');
+        if (r.plan8_accepted) features.push('Plan 8');
+
+        tbody.innerHTML += `
+          <tr>
+            <td>${shortMuni(r.municipio) || '—'}</td>
+            <td>${r.bedrooms || '—'} / ${r.bathrooms || '—'}</td>
+            <td>${fmtUSD(r.price)}</td>
+            <td>${fmtUSD(Math.round(r.predicted_price))}</td>
+            <td style="color: #00aa00; font-weight: 600;">-${savings}</td>
+            <td>${Math.round(r.anomaly_score)}</td>
+            <td>${r.pred_std != null ? '$' + Math.round(r.pred_std) : '—'}</td>
+            <td style="font-size: 0.75rem;">${features.join(', ') || '—'}</td>
+            <td><a href="${r.url}" target="_blank">View</a></td>
+          </tr>
+        `;
+      });
+    }
+
+    async function loadDiscounts() {
       try {
-        const res = await fetch('./data/anomalies.json');
+        const res = await fetch('./data/discounts.json');
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const rows = await res.json();
+        discountData = await res.json();
 
-        const tbody = document.querySelector('#anomTable tbody');
-
-        if (!rows || rows.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No anomalies detected yet.</td></tr>';
+        if (!discountData || discountData.length === 0) {
+          document.querySelector('#discountsTable tbody').innerHTML = '<tr><td colspan="9" class="empty-state">No moderate discounts found.</td></tr>';
           return;
         }
 
-        document.getElementById('anomError').innerHTML = '';
-        tbody.innerHTML = '';
+        document.getElementById('discountsError').innerHTML = '';
 
-        rows.forEach(r => {
-          const type = r.residual < 0 ? 'Underpriced' : 'Overpriced';
-          const badgeClass = r.residual < 0 ? 'deal' : 'overpriced';
-          const diff = Math.abs(r.residual);
-
-          tbody.innerHTML += `
-            <tr>
-              <td><span class="badge ${badgeClass}">${type}</span></td>
-              <td>${r.municipio || '—'}</td>
-              <td>${r.bedrooms || '—'} / ${r.bathrooms || '—'}</td>
-              <td>${fmtUSD(r.price)}</td>
-              <td>${fmtUSD(Math.round(r.predicted_price))}</td>
-              <td style="font-weight: 700;">${fmtUSD(Math.round(diff))}</td>
-              <td>${r.anomaly_score.toFixed(2)}</td>
-              <td><a href="${r.url}" target="_blank">View</a></td>
-            </tr>
-          `;
+        // Populate neighborhood dropdown
+        const munis = [...new Set(discountData.map(r => shortMuni(r.municipio)))].sort();
+        const select = document.getElementById('discountFilter');
+        munis.forEach(m => {
+          const count = discountData.filter(r => shortMuni(r.municipio) === m).length;
+          const opt = document.createElement('option');
+          opt.value = m;
+          opt.textContent = `${m} (${count})`;
+          select.appendChild(opt);
         });
+
+        select.addEventListener('change', () => renderDiscounts(select.value));
+
+        // Default to Santurce if available
+        const defaultMuni = munis.find(m => m === 'Santurce');
+        if (defaultMuni) {
+          select.value = defaultMuni;
+          renderDiscounts(defaultMuni);
+        } else {
+          renderDiscounts('all');
+        }
       } catch (e) {
-        console.error('loadAnomalies error:', e);
-        document.getElementById('anomError').innerHTML = `<div class="error">Error: ${e.message}</div>`;
+        console.error('loadDiscounts error:', e);
+        document.getElementById('discountsError').innerHTML = `<div class="error">Error: ${e.message}</div>`;
       }
     }
 
@@ -1270,7 +1362,7 @@
           loadFeatureImportance(),
           loadScatter(),
           loadDeals(),
-          loadAnomalies()
+          loadDiscounts()
         ]);
         console.log('Dashboard loaded successfully');
       } catch (e) {
