@@ -16,28 +16,8 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.sensadvisor.com/research-document.html</loc>
+    <loc>https://www.sensadvisor.com/pr-lmci/</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.sensadvisor.com/accelerating_ddm_report.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://www.sensadvisor.com/hrm_validation.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://www.sensadvisor.com/tdlm_validation_report.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://www.sensadvisor.com/zhang_cosine_visualization.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <priority>0.8</priority>
   </url>
 </urlset>
