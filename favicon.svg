@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@700');
+  </style>
+  <rect width="64" height="64" fill="#000000"/>
+  <text x="32" y="40" font-family="'Source Code Pro', monospace" font-weight="700" font-size="16" fill="#ffffff" text-anchor="middle">SENS</text>
+</svg>
