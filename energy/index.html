@@ -187,18 +187,6 @@
   </div>
 
   <div class="panel">
-    <h2>Circuit Outages <span class="panel-note">Official (LUMA API) vs Estimated (ArcGIS circuits)</span></h2>
-    <div class="explain"><p>Compares LUMA's reported client count against the number of de-energized circuits from their ArcGIS Power Restoration layer. Divergences may indicate reporting lag or data staleness.</p></div>
-    <div class="chart-container"><canvas id="chart-comparison"></canvas></div>
-  </div>
-
-  <div class="panel">
-    <h2>Load Shedding <span class="panel-note">Deliberate rolling blackouts (LUMA ERP)</span></h2>
-    <div class="explain"><p>Clients affected by LUMA's Emergency Response Plan load shedding — intentional, scheduled power cuts to balance grid load. Separate from unplanned outages. Values are zero when no load shedding is active.</p></div>
-    <div class="chart-container"><canvas id="chart-loadshed"></canvas></div>
-  </div>
-
-  <div class="panel">
     <h2>Region Breakdown <span class="panel-note">Latest snapshot</span></h2>
     <table id="region-table">
       <thead>
@@ -207,8 +195,7 @@
           <th style="text-align:right">Clients</th>
           <th style="text-align:right">Without Power</th>
           <th style="text-align:right">%</th>
-          <th style="text-align:right">Circuits Out</th>
-          <th style="text-align:right">Load Shed</th>
+          <th style="text-align:right">Planned</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -216,9 +203,7 @@
   </div>
 
   <div class="source-note">
-    <p><b>Data sources:</b> <a href="https://miluma.lumapr.com/">LUMA Energy</a> regionsWithoutService API (polled every 10 min),
-    ArcGIS <a href="https://services3.arcgis.com/0n3sEGhALDkUSwc5/arcgis/rest/services/Power_Restoration/FeatureServer">Power Restoration</a> FeatureServer (polled every 10 min),
-    <a href="https://www.weather.gov/">NWS</a> weather observations (5 stations).
+    <p><b>Data source:</b> <a href="https://miluma.lumapr.com/">LUMA Energy</a> regionsWithoutService API, polled every 10 minutes.
     Snapshots are deduplicated — new rows are stored only when data changes.</p>
   </div>
 </div>
@@ -261,10 +246,7 @@
 
   // --- State ---
   let chartMain = null;
-  let chartComparison = null;
-  let chartLoadShed = null;
   let outageData = null;
-  let circuitData = null;
   let viewMode = "total";
   let unitMode = "clients";
 
@@ -311,15 +293,8 @@
   async function loadData(days) {
     const since = new Date(Date.now() - days * 86400000).toISOString();
 
-    const [outageRows, circuitRows] = await Promise.all([
-      sbQuery("outage_snapshots", `select=observed_at,payload_json&observed_at=gte.${since}&order=observed_at.asc`),
-      sbQuery("circuit_outage_snapshots", `select=observed_at,total_circuits,circuits_out,circuits_energized,region_breakdown&observed_at=gte.${since}&order=observed_at.asc`),
-    ]);
-
+    const outageRows = await sbQuery("outage_snapshots", `select=observed_at,payload_json&observed_at=gte.${since}&order=observed_at.asc`);
     outageData = outageRows.map(parseOutageRow);
-    circuitData = circuitRows;
-
-    // Append live from LUMA API (via Supabase — latest snapshot is near real-time)
     renderAll();
   }
 
@@ -344,7 +319,6 @@
     const maxWithout = Math.max(...data.map(d => d.total.without));
     const avgWithout = Math.round(data.reduce((s, d) => s + d.total.without, 0) / data.length);
     const maxPct = Math.max(...data.map(d => d.total.pct));
-    const latestCircuit = circuitData.length > 0 ? circuitData[circuitData.length - 1] : null;
 
     document.getElementById("stats-grid").innerHTML = `
       <div class="stat-card">
@@ -363,14 +337,9 @@
         <div class="detail">Over ${data.length} snapshots</div>
       </div>
       <div class="stat-card">
-        <div class="label">Circuits Out</div>
-        <div class="value">${latestCircuit ? latestCircuit.circuits_out.toLocaleString() : "—"}</div>
-        <div class="detail">${latestCircuit ? `of ${latestCircuit.total_circuits.toLocaleString()} total` : "No circuit data"}</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Load Shedding</div>
-        <div class="value">${latest.total.loadShed.toLocaleString()}</div>
-        <div class="detail">Clients currently affected</div>
+        <div class="label">Planned Outages</div>
+        <div class="value">${latest.total.planned.toLocaleString()}</div>
+        <div class="detail">Clients affected</div>
       </div>
       <div class="stat-card">
         <div class="label">Total Clients</div>
@@ -421,101 +390,23 @@
       },
     });
 
-    // Comparison chart: official vs circuit-based
-    if (chartComparison) chartComparison.destroy();
-    if (circuitData.length > 0) {
-      const cTimestamps = circuitData.map(d => new Date(d.observed_at));
-      // Find closest outage snapshot for each circuit snapshot
-      const officialAtCircuitTimes = circuitData.map(cd => {
-        const ct = new Date(cd.observed_at).getTime();
-        let closest = data[0];
-        let minDiff = Infinity;
-        for (const od of data) {
-          const diff = Math.abs(new Date(od.timestamp).getTime() - ct);
-          if (diff < minDiff) { minDiff = diff; closest = od; }
-        }
-        return closest.total.without;
-      });
-
-      chartComparison = new Chart(document.getElementById("chart-comparison"), {
-        type: "line",
-        data: {
-          labels: cTimestamps,
-          datasets: [
-            {
-              label: "LUMA Official (clients)",
-              data: officialAtCircuitTimes,
-              borderColor: "#e63946",
-              tension: 0.3,
-              pointRadius: circuitData.length > 100 ? 0 : 3,
-            },
-            {
-              label: "Circuits Out (count)",
-              data: circuitData.map(d => d.circuits_out),
-              borderColor: "#264653",
-              tension: 0.3,
-              pointRadius: circuitData.length > 100 ? 0 : 3,
-              yAxisID: "y1",
-            },
-          ],
-        },
-        options: {
-          ...chartDefaults,
-          scales: {
-            ...chartDefaults.scales,
-            y: {
-              ...chartDefaults.scales.y,
-              position: "left",
-              title: { display: true, text: "Clients without power", font: chartFont },
-            },
-            y1: {
-              position: "right",
-              ticks: { font: { ...chartFont, size: 10 } },
-              grid: { drawOnChartArea: false },
-              title: { display: true, text: "Circuits out", font: chartFont },
-            },
-          },
-        },
-      });
-    }
-
-    // Load shedding
-    if (chartLoadShed) chartLoadShed.destroy();
-    chartLoadShed = new Chart(document.getElementById("chart-loadshed"), {
-      type: "line",
-      data: {
-        labels: timestamps,
-        datasets: regionNames.map(name => ({
-          label: name,
-          data: data.map(d => d.regions[name]?.loadShed || 0),
-          borderColor: REGION_COLORS[name],
-          tension: 0.3, pointRadius: data.length > 100 ? 0 : 2,
-        })),
-      },
-      options: { ...chartDefaults },
-    });
-
     // Region table
-    const latestCB = latestCircuit?.region_breakdown || {};
     const tbody = document.querySelector("#region-table tbody");
     tbody.innerHTML = regionNames.map(name => {
       const r = latest.regions[name] || {};
-      const cb = latestCB[name] || {};
       return `<tr>
         <td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${REGION_COLORS[name]};margin-right:6px"></span>${name}</td>
         <td class="num">${(r.total || 0).toLocaleString()}</td>
         <td class="num">${(r.without || 0).toLocaleString()}</td>
         <td class="num">${(r.pct || 0).toFixed(2)}%</td>
-        <td class="num">${cb.out !== undefined ? `${cb.out} / ${cb.total}` : "—"}</td>
-        <td class="num">${(r.loadShed || 0).toLocaleString()}</td>
+        <td class="num">${(r.planned || 0).toLocaleString()}</td>
       </tr>`;
     }).join("") + `<tr style="font-weight:700;border-top:2px solid #000">
       <td>Total</td>
       <td class="num">${latest.total.total.toLocaleString()}</td>
       <td class="num">${latest.total.without.toLocaleString()}</td>
       <td class="num">${latest.total.pct.toFixed(2)}%</td>
-      <td class="num">${latestCircuit ? `${latestCircuit.circuits_out} / ${latestCircuit.total_circuits}` : "—"}</td>
-      <td class="num">${latest.total.loadShed.toLocaleString()}</td>
+      <td class="num">${latest.total.planned.toLocaleString()}</td>
     </tr>`;
   }
 
