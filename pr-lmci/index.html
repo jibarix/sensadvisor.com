@@ -172,7 +172,7 @@
       Dynamic factor model &bull; 40 indicators &bull; EM-PCA extraction &bull; Monthly release
     </div>
     <div class="meta">
-      <span><strong>Last updated:</strong> 2026-03-27 00:31 UTC</span>
+      <span><strong>Last updated:</strong> 2026-03-27 00:44 UTC</span>
       <span><strong>Release:</strong> December 2025</span>
       <span><strong>Next update:</strong> ~15th of next month</span>
     </div>
@@ -195,24 +195,24 @@
       </ul>
       <p><strong>Indicator groups (40 series):</strong></p>
       <ul style="margin: 8px 0 8px 20px; font-size: 0.9rem; color: var(--secondary-text);">
-        <li>Employment by sector (non-farm payrolls, manufacturing sub-industries)</li>
-        <li>Labor force, unemployment, participation rate</li>
-        <li>Job flows (gross gains, gross losses, net change)</li>
-        <li>Unemployment insurance claims (initial, continued, insured rate)</li>
-        <li>Tourism (hotel registrations, occupancy rates, airport and cruise passengers)</li>
-        <li>Construction (permits, cement sales and production)</li>
-        <li>Retail sales by store type</li>
-        <li>Government revenue (income tax, excise taxes, general fund)</li>
-        <li>Foreign trade (exports and imports)</li>
-        <li>Energy (electric power consumption by sector)</li>
-        <li>Prices (CPI, gasoline)</li>
-        <li>Other (bankruptcies, composite indices, housing, transportation)</li>
+        <li>Non-farm payroll employment by NAICS sector (13 series)</li>
+        <li>Labor force, employment, unemployment, participation rate (8 series)</li>
+        <li>Job flows: BED gross gains, gross losses, net change (3 series)</li>
+        <li>Unemployment insurance claims: initial and continued (2 series)</li>
+        <li>Tourism: non-resident registrations, hotel occupancy, SJU airport passengers (3 series)</li>
+        <li>Construction: cement production, building permits, foreclosures (3 series)</li>
+        <li>Trade: exports, imports, cargo throughput (3 series)</li>
+        <li>Consumer demand: auto sales, gas consumption, vehicle registrations (3 series)</li>
+        <li>Fiscal: income tax, excise taxes, motor vehicle tax (3 series)</li>
+        <li>Energy: industrial and residential electric power consumption (2 series)</li>
+        <li>Other: total bankruptcies, PR Economic Activity Index (2 series)</li>
       </ul>
       <p><strong>Data sources:</strong></p>
       <ul style="margin: 8px 0 8px 20px; font-size: 0.9rem; color: var(--secondary-text);">
-        <li><a href="https://jp.pr.gov" style="color: var(--primary-text);">Puerto Rico Planning Board</a> (Junta de Planificacion) &mdash; 230+ monthly economic indicators</li>
-        <li><a href="https://www.mercadolaboral.pr.gov" style="color: var(--primary-text);">PR Dept. of Labor, LMI Division</a> &mdash; LAUS employment, Business Employment Dynamics (job flows)</li>
+        <li><a href="https://jp.pr.gov" style="color: var(--primary-text);">Puerto Rico Planning Board</a> (Junta de Planificacion) &mdash; monthly economic indicators</li>
+        <li><a href="https://www.mercadolaboral.pr.gov" style="color: var(--primary-text);">PR Dept. of Labor, LMI Division</a> &mdash; Business Employment Dynamics (job flows)</li>
         <li><a href="https://oui.doleta.gov" style="color: var(--primary-text);">US Dept. of Labor, ETA</a> &mdash; Weekly unemployment insurance claims</li>
+        <li><a href="https://www.desarrollo.pr.gov" style="color: var(--primary-text);">PR Dept. of Economic Development (DDEC)</a> &mdash; Auto sales</li>
       </ul>
     </div>
   </div>
@@ -286,7 +286,7 @@
       <p>The hiring rate, which measures gross job gains as a share of employment, stood at 1.47% in the latest period, in line with its 12-month average of 1.43%. The separations rate registered 1.30%, with hiring exceeding separations. The net flow rate of +0.18 percentage points suggests net employment expansion (see Hiring and Separations Rates below).</p>
       <p>The unemployment rate fell to 5.7% in the latest period. Over the past three months, changes in the separations rate have been the dominant driver of unemployment rate movements (see Contributions to Unemployment Rate below). Looking ahead, the model-implied probability distribution suggests roughly balanced: 34% odds of a decrease, 32% odds of no change, and 34% odds of an increase (see Unemployment Rate Change Probabilities below).</p>
       <p>The diffusion index, which measures the share of indicators improving month-over-month, stood at 50.0%, indicating mixed conditions (see Diffusion Index below). The Momentum Gauge suggests a 52% probability that conditions will improve in the coming month, versus 48% for deterioration.</p>
-      <p>The current reading places PR labor market conditions at the 41st percentile of all observations since 1999, below the median of historical readings. For comparison, the average PR-LMCI was -3.77 in the pre-Maria period (2015-2017), -4.89 in the post-Maria/pre-COVID period, and -3.33 since mid-2021. The index is currently most influenced by economic activity index, government  - sa, cement production (pro-cyclical) and education and health services, professional and business services, excise taxes, grand total (counter-cyclical). (See Recent Conditions below.)</p>
+      <p>The current reading places PR labor market conditions at the 41st percentile of all observations since 1999, below the median of historical readings. For comparison, the average PR-LMCI was -3.77 in the pre-Maria period (2015-2017), -4.89 in the post-Maria/pre-COVID period, and -3.33 since mid-2021. The index is currently most influenced by economic activity index, government  - sa, cement production (pro-cyclical) and education and health services, professional and business services, excise taxes (counter-cyclical). (See Recent Conditions below.)</p>
 
     </div>
     <div class="fineprint" style="margin-top: 12px;">
@@ -404,8 +404,10 @@
       <p><strong>Key differences from the Chicago Fed.</strong> The Chicago Fed uses Current Population Survey
       (CPS) microdata and real-time private sector data (ADP, Indeed, Google Trends, Morning Consult) combined
       via partial least squares (PLS). These sources are not available for Puerto Rico. Instead, the PR-LMCI
-      uses the PR Planning Board's 230+ monthly economic indicators, BED establishment-level job flows,
-      and DOL unemployment insurance claims as inputs to a standard PCA factor model.</p>
+      uses a curated panel of 40 indicators drawn from the PR Planning Board, BED job flows,
+      DOL unemployment insurance claims, and DDEC auto sales as inputs to a standard PCA factor model.
+      Indicators were selected through a multi-evaluator consensus process prioritizing non-redundancy,
+      category balance, and minimum sample size.</p>
 
       <p><strong>References:</strong></p>
       <ul style="margin: 8px 0 8px 20px; font-size: 0.85rem; color: var(--secondary-text);">
@@ -434,7 +436,7 @@
 
 <footer>
   <p>Puerto Rico Labor Market Conditions Index (PR-LMCI)</p>
-  <p><a href="https://sensadvisor.com">SENS ADVISOR</a> &bull; Updated: 2026-03-27 00:31 UTC</p>
+  <p><a href="https://sensadvisor.com">SENS ADVISOR</a> &bull; Updated: 2026-03-27 00:44 UTC</p>
 </footer>
 
 </body>
