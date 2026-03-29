@@ -3,7 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Puerto Rico Energy Outage Tracker | SENS ADVISOR</title>
+<title>PR Outage Status | SENS ADVISOR</title>
+
+<meta name="description" content="Real-time power grid monitoring for Puerto Rico. Track unplanned and planned outages by region.">
+<meta property="og:title" content="PR Outage Status">
+<meta property="og:description" content="Real-time power grid monitoring — unplanned and planned outages by region.">
+<meta property="og:image" content="https://sensadvisor.com/energy/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://sensadvisor.com/energy/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="PR Outage Status">
+<meta name="twitter:description" content="Real-time power grid monitoring — unplanned and planned outages by region.">
+<meta name="twitter:image" content="https://sensadvisor.com/energy/og-image.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -60,12 +73,6 @@
   .header-links a:hover { color: var(--secondary-text); }
 
   .header h1 { font-size: 1.8rem; font-weight: 600; margin-top: 10px; }
-  .header .subtitle { font-size: 0.9rem; color: var(--secondary-text); margin-top: 4px; font-weight: 400; }
-
-  .meta {
-    margin-top: 8px; font-size: 0.85rem; color: var(--secondary-text);
-    display: flex; gap: 12px; flex-wrap: wrap;
-  }
 
   .panel {
     background: var(--primary-bg);
@@ -120,6 +127,11 @@
   }
   td.num { text-align: right; font-variant-numeric: tabular-nums; }
   tr:hover { background: var(--accent-lighter); }
+  th.sortable { cursor: pointer; user-select: none; }
+  th.sortable:hover { color: var(--primary-text); }
+  th.sortable::after { content: " \2195"; opacity: 0.3; }
+  th.sortable.asc::after { content: " \2191"; opacity: 1; }
+  th.sortable.desc::after { content: " \2193"; opacity: 1; }
 
   .no-data { text-align: center; padding: 40px; color: var(--secondary-text); font-style: italic; }
 
@@ -223,9 +235,7 @@
         <a href="#regions">Regions</a>
       </div>
     </div>
-    <h1>Puerto Rico Energy Outage Tracker</h1>
-    <div class="subtitle">Real-time and historical power grid monitoring</div>
-    <div class="meta" id="meta-info"></div>
+    <h1>PR Outage Status</h1>
   </div>
 
   <span class="nav-anchor" id="status"></span>
@@ -270,12 +280,13 @@
     <table id="region-table">
       <thead>
         <tr>
-          <th>Region</th>
-          <th style="text-align:right">Clients</th>
-          <th style="text-align:right">Without Power</th>
-          <th style="text-align:right">Unplanned</th>
-          <th style="text-align:right">Planned</th>
-          <th style="text-align:right">%</th>
+          <th class="sortable" data-col="0">Region</th>
+          <th class="sortable" data-col="1" style="text-align:right">Clients</th>
+          <th class="sortable" data-col="2" style="text-align:right">Without Power</th>
+          <th class="sortable" data-col="3" style="text-align:right">Unplanned</th>
+          <th class="sortable" data-col="4" style="text-align:right">Planned</th>
+          <th class="sortable" data-col="5" style="text-align:right">% Unplanned</th>
+          <th class="sortable" data-col="6" style="text-align:right">% Total</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -283,8 +294,7 @@
   </div>
 
   <div class="source-note">
-    <p><b>Data source:</b> <a href="https://miluma.lumapr.com/">LUMA Energy</a> regionsWithoutService API, polled every 10 minutes.
-    Snapshots are deduplicated — new rows are stored only when data changes.</p>
+    <p><b>Data source:</b> <a href="https://miluma.lumapr.com/">LUMA Energy</a></p>
   </div>
 </div>
 
@@ -477,14 +487,6 @@
     const data = outageData;
     if (!data || data.length === 0) return;
 
-    // Meta
-    const first = new Date(data[0].timestamp);
-    const last = new Date(data[data.length - 1].timestamp);
-    document.getElementById("meta-info").innerHTML =
-      `<span>${data.length} snapshots</span>` +
-      `<span>${first.toLocaleDateString()} — ${last.toLocaleDateString()}</span>` +
-      `<span>LUMA: ${data[data.length - 1].apiTimestamp || "N/A"}</span>`;
-
     const latest = data[data.length - 1];
     const timestamps = data.map(d => new Date(d.timestamp));
     const regionNames = Object.keys(REGION_COLORS);
@@ -556,28 +558,75 @@
 
     renderStatusBanner();
 
-    // Region table
-    const tbody = document.querySelector("#region-table tbody");
-    tbody.innerHTML = regionNames.map(name => {
+    // Region table — build sortable row data
+    tableRows = regionNames.map(name => {
       const r = latest.regions[name] || {};
       const unplanned = Math.max(0, (r.without || 0) - (r.planned || 0));
-      return `<tr>
-        <td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${REGION_COLORS[name]};margin-right:6px"></span>${name}</td>
-        <td class="num">${(r.total || 0).toLocaleString()}</td>
-        <td class="num">${(r.without || 0).toLocaleString()}</td>
-        <td class="num">${unplanned.toLocaleString()}</td>
-        <td class="num">${(r.planned || 0).toLocaleString()}</td>
-        <td class="num">${(r.pct || 0).toFixed(2)}%</td>
-      </tr>`;
-    }).join("") + `<tr style="font-weight:700;border-top:2px solid #000">
-      <td>Total</td>
-      <td class="num">${latest.total.total.toLocaleString()}</td>
-      <td class="num">${latest.total.without.toLocaleString()}</td>
-      <td class="num">${Math.max(0, latest.total.without - latest.total.planned).toLocaleString()}</td>
-      <td class="num">${latest.total.planned.toLocaleString()}</td>
-      <td class="num">${latest.total.pct.toFixed(2)}%</td>
-    </tr>`;
+      const unplannedPct = (r.total || 0) > 0 ? (unplanned / r.total * 100) : 0;
+      return {
+        name, color: REGION_COLORS[name],
+        clients: r.total || 0, without: r.without || 0,
+        unplanned, planned: r.planned || 0,
+        unplannedPct, totalPct: r.pct || 0,
+      };
+    });
+    tableTotals = {
+      clients: latest.total.total, without: latest.total.without,
+      unplanned: Math.max(0, latest.total.without - latest.total.planned),
+      planned: latest.total.planned,
+      unplannedPct: latest.total.total > 0 ? (Math.max(0, latest.total.without - latest.total.planned) / latest.total.total * 100) : 0,
+      totalPct: latest.total.pct,
+    };
+    renderTable();
   }
+
+  let tableRows = [];
+  let tableTotals = {};
+  let sortCol = -1;
+  let sortDir = "asc";
+  const COL_KEYS = ["name", "clients", "without", "unplanned", "planned", "unplannedPct", "totalPct"];
+
+  function renderTable() {
+    const tbody = document.querySelector("#region-table tbody");
+    tbody.innerHTML = tableRows.map(r => `<tr>
+        <td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${r.color};margin-right:6px"></span>${r.name}</td>
+        <td class="num">${r.clients.toLocaleString()}</td>
+        <td class="num">${r.without.toLocaleString()}</td>
+        <td class="num">${r.unplanned.toLocaleString()}</td>
+        <td class="num">${r.planned.toLocaleString()}</td>
+        <td class="num">${r.unplannedPct.toFixed(2)}%</td>
+        <td class="num">${r.totalPct.toFixed(2)}%</td>
+      </tr>`).join("") + `<tr style="font-weight:700;border-top:2px solid #000">
+        <td>Total</td>
+        <td class="num">${tableTotals.clients.toLocaleString()}</td>
+        <td class="num">${tableTotals.without.toLocaleString()}</td>
+        <td class="num">${tableTotals.unplanned.toLocaleString()}</td>
+        <td class="num">${tableTotals.planned.toLocaleString()}</td>
+        <td class="num">${tableTotals.unplannedPct.toFixed(2)}%</td>
+        <td class="num">${tableTotals.totalPct.toFixed(2)}%</td>
+      </tr>`;
+  }
+
+  document.querySelectorAll("#region-table th.sortable").forEach(th => {
+    th.addEventListener("click", () => {
+      const col = parseInt(th.dataset.col);
+      if (sortCol === col) {
+        sortDir = sortDir === "asc" ? "desc" : "asc";
+      } else {
+        sortCol = col;
+        sortDir = col === 0 ? "asc" : "desc"; // text asc, numbers desc by default
+      }
+      const key = COL_KEYS[col];
+      tableRows.sort((a, b) => {
+        const va = a[key], vb = b[key];
+        const cmp = typeof va === "string" ? va.localeCompare(vb) : va - vb;
+        return sortDir === "asc" ? cmp : -cmp;
+      });
+      document.querySelectorAll("#region-table th.sortable").forEach(h => h.classList.remove("asc", "desc"));
+      th.classList.add(sortDir);
+      renderTable();
+    });
+  });
 
   // --- Status hero ---
   function renderStatusBanner() {
