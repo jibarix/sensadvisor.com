@@ -88,21 +88,7 @@
 
   .chart-container { position: relative; width: 100%; height: 350px; }
 
-  .stats-grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 16px; margin-bottom: 30px;
-  }
-  .stat-card {
-    border: 2px solid var(--border-primary); border-radius: 8px;
-    padding: 16px; transition: all 0.2s ease;
-  }
-  .stat-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-  }
-  .stat-card .label { font-size: 0.75rem; color: var(--secondary-text); text-transform: uppercase; letter-spacing: 0.5px; }
-  .stat-card .value { font-size: 1.5rem; font-weight: 700; margin-top: 4px; }
-  .stat-card .detail { font-size: 0.8rem; color: var(--secondary-text); margin-top: 2px; }
+  .nav-anchor { display: block; position: relative; top: -80px; visibility: hidden; }
 
   .controls {
     display: flex; gap: 12px; align-items: center; margin-bottom: 20px; flex-wrap: wrap;
@@ -143,9 +129,85 @@
   }
   .source-note a { color: var(--primary-text); }
 
+  /* Status hero */
+  .status-hero {
+    border: 2px solid var(--border-primary); border-radius: 12px;
+    padding: 36px 32px; margin-bottom: 34px;
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center; gap: 8px;
+    transition: border-color 0.4s ease, background 0.4s ease;
+  }
+  .status-dot {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+    margin-bottom: 4px;
+    animation: pulse 2s ease-in-out infinite;
+    box-shadow: 0 0 12px rgba(0,0,0,0.15);
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 12px rgba(0,0,0,0.15); }
+    50% { opacity: 0.6; box-shadow: 0 0 24px rgba(0,0,0,0.25); }
+  }
+  .status-hero .status-label { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.5px; }
+  .status-hero .status-summary { font-size: 0.95rem; color: var(--secondary-text); }
+  .status-hero .status-breakdown {
+    display: flex; gap: 24px; margin-top: 8px;
+    font-size: 0.85rem; color: var(--secondary-text); flex-wrap: wrap;
+    justify-content: center;
+  }
+  .status-hero .status-breakdown .num { font-weight: 700; color: var(--primary-text); }
+
+  /* Uptime calendar */
+  .uptime-section { margin-bottom: 20px; }
+  .uptime-row {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 6px;
+  }
+  .uptime-label {
+    font-size: 0.8rem; font-weight: 600; width: 100px; flex-shrink: 0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .uptime-bar {
+    display: flex; gap: 2px; flex: 1; min-width: 0;
+  }
+  .uptime-day {
+    flex: 1; height: 28px; border-radius: 3px; cursor: pointer;
+    position: relative; min-width: 2px;
+    transition: transform 0.1s ease;
+  }
+  .uptime-day:hover { transform: scaleY(1.4); z-index: 2; }
+  .uptime-pct {
+    font-size: 0.75rem; color: var(--secondary-text); width: 64px;
+    text-align: right; flex-shrink: 0; font-variant-numeric: tabular-nums;
+  }
+
+  /* Tooltip */
+  .uptime-tooltip {
+    display: none; position: fixed;
+    background: var(--primary-text); color: var(--primary-bg);
+    font-size: 0.75rem; padding: 8px 12px; border-radius: 6px;
+    pointer-events: none; z-index: 200; max-width: 260px;
+    line-height: 1.5; white-space: nowrap;
+  }
+  .uptime-tooltip.visible { display: block; }
+
+  /* Legend */
+  .uptime-legend {
+    display: flex; gap: 16px; flex-wrap: wrap;
+    margin-top: 14px; font-size: 0.75rem; color: var(--secondary-text);
+  }
+  .uptime-legend-item { display: flex; align-items: center; gap: 5px; }
+  .uptime-legend-swatch {
+    width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0;
+  }
+
   @media (max-width: 768px) {
+    .status-hero { padding: 24px 18px; }
+    .status-hero .status-label { font-size: 1.2rem; }
+    .status-hero .status-breakdown { gap: 14px; font-size: 0.8rem; }
     .stats-grid { grid-template-columns: repeat(2, 1fr); }
     .chart-container { height: 250px; }
+    .uptime-label { width: 70px; font-size: 0.7rem; }
+    .uptime-day { height: 20px; }
+    .uptime-pct { width: 50px; font-size: 0.7rem; }
   }
 </style>
 </head>
@@ -153,9 +215,12 @@
 <div class="container">
   <div class="header">
     <div class="header-content">
-      <a class="logo" href="https://sensadvisor.com">SENS ADVISOR <span>/ Energy Tracker</span></a>
+      <a class="logo" href="https://sensadvisor.com">SENS ADVISOR</a>
       <div class="header-links">
-        <a href="https://sensadvisor.com">sensadvisor.com</a>
+        <a href="#status">Status</a>
+        <a href="#grid-history">Grid History</a>
+        <a href="#clients">Clients</a>
+        <a href="#regions">Regions</a>
       </div>
     </div>
     <h1>Puerto Rico Energy Outage Tracker</h1>
@@ -163,16 +228,24 @@
     <div class="meta" id="meta-info"></div>
   </div>
 
-  <div class="controls">
-    <button data-days="1" class="active">24h</button>
-    <button data-days="7">7d</button>
-    <button data-days="30">30d</button>
-    <button data-days="90">90d</button>
-    <button data-days="365">1y</button>
+  <span class="nav-anchor" id="status"></span>
+  <div class="status-hero" id="status-hero">
+    <div class="status-dot" id="status-dot"></div>
+    <div class="status-label" id="status-label">Loading...</div>
+    <div class="status-summary" id="status-summary"></div>
+    <div class="status-breakdown" id="status-breakdown"></div>
   </div>
 
-  <div class="stats-grid" id="stats-grid"></div>
+  <span class="nav-anchor" id="grid-history"></span>
+  <div class="panel">
+    <h2>Grid Status History <span class="panel-note">90 days — based on unplanned outages</span></h2>
+    <div id="uptime-calendar"></div>
+    <div class="uptime-legend" id="uptime-legend"></div>
+  </div>
 
+  <div class="uptime-tooltip" id="uptime-tooltip"></div>
+
+  <span class="nav-anchor" id="clients"></span>
   <div class="panel">
     <h2>Clients Without Power
       <span class="panel-note">
@@ -181,9 +254,17 @@
         <button class="toggle-btn active" id="toggle-unit-clients">Clients</button><button class="toggle-btn" id="toggle-unit-pct">%</button>
       </span>
     </h2>
+    <div class="controls">
+      <button data-days="1" class="active">24h</button>
+      <button data-days="7">7d</button>
+      <button data-days="30">30d</button>
+      <button data-days="90">90d</button>
+      <button data-days="365">1y</button>
+    </div>
     <div class="chart-container"><canvas id="chart-main"></canvas></div>
   </div>
 
+  <span class="nav-anchor" id="regions"></span>
   <div class="panel">
     <h2>Region Breakdown <span class="panel-note">Latest snapshot</span></h2>
     <table id="region-table">
@@ -192,8 +273,9 @@
           <th>Region</th>
           <th style="text-align:right">Clients</th>
           <th style="text-align:right">Without Power</th>
-          <th style="text-align:right">%</th>
+          <th style="text-align:right">Unplanned</th>
           <th style="text-align:right">Planned</th>
+          <th style="text-align:right">%</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -242,9 +324,91 @@
     },
   };
 
+  // --- Status thresholds (unplanned % of total clients) ---
+  const STATUS_LEVELS = [
+    { key: "major",       label: "Major Outage",    minPct: 10, color: "#e04343", weight: 1.0 },
+    { key: "partial",     label: "Partial Outage",  minPct: 3,  color: "#e86235", weight: 0.5 },
+    { key: "elevated",    label: "Elevated",        minPct: 1,  color: "#faa72a", weight: 0.1 },
+    { key: "operational", label: "Operational",      minPct: 0,  color: "#76ad2a", weight: 0   },
+  ];
+  const NO_DATA_COLOR = "#d5d3cd";
+
+  function classifyUnplannedPct(pct) {
+    for (const lvl of STATUS_LEVELS) {
+      if (pct >= lvl.minPct) return lvl;
+    }
+    return STATUS_LEVELS[STATUS_LEVELS.length - 1];
+  }
+
+  // Weighted downtime for a day (in minutes) → color
+  // Thresholds inspired by Atlassian Statuspage
+  function downtimeToColor(weightedMinutes) {
+    if (weightedMinutes <= 0) return STATUS_LEVELS[STATUS_LEVELS.length - 1].color; // green
+    if (weightedMinutes <= 20) return lerpColor("#76ad2a", "#faa72a", weightedMinutes / 20);
+    if (weightedMinutes <= 60) return lerpColor("#faa72a", "#e86235", (weightedMinutes - 20) / 40);
+    if (weightedMinutes <= 120) return lerpColor("#e86235", "#e04343", (weightedMinutes - 60) / 60);
+    return "#e04343";
+  }
+
+  function lerpColor(a, b, t) {
+    t = Math.max(0, Math.min(1, t));
+    const pa = [parseInt(a.slice(1,3),16), parseInt(a.slice(3,5),16), parseInt(a.slice(5,7),16)];
+    const pb = [parseInt(b.slice(1,3),16), parseInt(b.slice(3,5),16), parseInt(b.slice(5,7),16)];
+    const r = Math.round(pa[0] + (pb[0]-pa[0]) * t);
+    const g = Math.round(pa[1] + (pb[1]-pa[1]) * t);
+    const bl = Math.round(pa[2] + (pb[2]-pa[2]) * t);
+    return `#${r.toString(16).padStart(2,"0")}${g.toString(16).padStart(2,"0")}${bl.toString(16).padStart(2,"0")}`;
+  }
+
+  // Group snapshots by calendar day (local time), compute weighted downtime per day
+  // getUnplannedPct: function(snapshot) → unplanned percentage for the entity
+  function buildDailyStatus(snapshots, getUnplannedPct) {
+    const byDay = {};
+    for (const snap of snapshots) {
+      const dayKey = new Date(snap.timestamp).toLocaleDateString("en-CA"); // YYYY-MM-DD
+      if (!byDay[dayKey]) byDay[dayKey] = [];
+      byDay[dayKey].push(snap);
+    }
+
+    const result = {};
+    for (const [day, snaps] of Object.entries(byDay)) {
+      let majorMin = 0, partialMin = 0, elevatedMin = 0;
+      let totalSnapMin = 0;
+
+      for (let i = 0; i < snaps.length; i++) {
+        // Each snapshot represents the interval until the next snapshot (or ~10 min for last)
+        const curr = new Date(snaps[i].timestamp).getTime();
+        const next = i + 1 < snaps.length ? new Date(snaps[i+1].timestamp).getTime() : curr + 10 * 60000;
+        const minutes = Math.min((next - curr) / 60000, 60); // cap at 60 min per interval
+        totalSnapMin += minutes;
+
+        const pct = getUnplannedPct(snaps[i]);
+        const lvl = classifyUnplannedPct(pct);
+        if (lvl.key === "major") majorMin += minutes;
+        else if (lvl.key === "partial") partialMin += minutes;
+        else if (lvl.key === "elevated") elevatedMin += minutes;
+      }
+
+      const weighted = majorMin + (partialMin * 0.5) + (elevatedMin * 0.1);
+      const uptimePct = totalSnapMin > 0 ? Math.max(0, 100 - (weighted / totalSnapMin * 100)) : 100;
+
+      result[day] = {
+        color: downtimeToColor(weighted),
+        weighted,
+        majorMin: Math.round(majorMin),
+        partialMin: Math.round(partialMin),
+        elevatedMin: Math.round(elevatedMin),
+        snapshots: snaps.length,
+        uptimePct,
+      };
+    }
+    return result;
+  }
+
   // --- State ---
   let chartMain = null;
   let outageData = null;
+  let allData90 = null; // always 90 days for calendar
   let viewMode = "total";
   let unitMode = "clients";
 
@@ -290,19 +454,28 @@
   // --- Load data ---
   async function loadData(days) {
     const since = new Date(Date.now() - days * 86400000).toISOString();
+    const since90 = new Date(Date.now() - 90 * 86400000).toISOString();
 
-    const outageRows = await sbQuery("outage_snapshots", `select=observed_at,payload_json&observed_at=gte.${since}&order=observed_at.asc`);
-    outageData = outageRows.map(parseOutageRow);
+    const fetches = [
+      sbQuery("outage_snapshots", `select=observed_at,payload_json&observed_at=gte.${since}&order=observed_at.asc`),
+    ];
+    // Only reload 90-day data if we haven't yet
+    if (!allData90) {
+      fetches.push(sbQuery("outage_snapshots", `select=observed_at,payload_json&observed_at=gte.${since90}&order=observed_at.asc`));
+    }
+
+    const results = await Promise.all(fetches);
+    outageData = results[0].map(parseOutageRow);
+    if (results[1]) allData90 = results[1].map(parseOutageRow);
+
     renderAll();
+    renderCalendar();
   }
 
   // --- Render ---
   function renderAll() {
     const data = outageData;
-    if (!data || data.length === 0) {
-      document.getElementById("stats-grid").innerHTML = '<div class="no-data">No data yet. Snapshots will appear as the cron job runs.</div>';
-      return;
-    }
+    if (!data || data.length === 0) return;
 
     // Meta
     const first = new Date(data[0].timestamp);
@@ -312,40 +485,7 @@
       `<span>${first.toLocaleDateString()} — ${last.toLocaleDateString()}</span>` +
       `<span>LUMA: ${data[data.length - 1].apiTimestamp || "N/A"}</span>`;
 
-    // Stats
     const latest = data[data.length - 1];
-    const maxWithout = Math.max(...data.map(d => d.total.without));
-    const avgWithout = Math.round(data.reduce((s, d) => s + d.total.without, 0) / data.length);
-    const maxPct = Math.max(...data.map(d => d.total.pct));
-
-    document.getElementById("stats-grid").innerHTML = `
-      <div class="stat-card">
-        <div class="label">Current Without Power</div>
-        <div class="value">${latest.total.without.toLocaleString()}</div>
-        <div class="detail">${latest.total.pct}% of ${latest.total.total.toLocaleString()}</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Peak Without Power</div>
-        <div class="value">${maxWithout.toLocaleString()}</div>
-        <div class="detail">${maxPct.toFixed(2)}% at peak</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Average Without Power</div>
-        <div class="value">${avgWithout.toLocaleString()}</div>
-        <div class="detail">Over ${data.length} snapshots</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Planned Outages</div>
-        <div class="value">${latest.total.planned.toLocaleString()}</div>
-        <div class="detail">Clients affected</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Total Clients</div>
-        <div class="value">${latest.total.total.toLocaleString()}</div>
-        <div class="detail">Island-wide</div>
-      </div>
-    `;
-
     const timestamps = data.map(d => new Date(d.timestamp));
     const regionNames = Object.keys(REGION_COLORS);
     const isPct = unitMode === "pct";
@@ -354,14 +494,36 @@
     if (chartMain) chartMain.destroy();
     let datasets;
     if (viewMode === "total") {
-      datasets = [{
-        label: isPct ? "% Without Power" : "Without Power",
-        data: data.map(d => isPct ? d.total.pct : d.total.without),
-        borderColor: "#e63946",
-        backgroundColor: "rgba(230,57,70,0.1)",
-        fill: true, tension: 0.3,
-        pointRadius: data.length > 100 ? 0 : 3,
-      }];
+      const ptRadius = data.length > 100 ? 0 : 3;
+      datasets = [
+        {
+          label: isPct ? "% Unplanned" : "Unplanned",
+          data: data.map(d => {
+            if (isPct) {
+              const unplanned = Math.max(0, d.total.without - d.total.planned);
+              return d.total.total > 0 ? (unplanned / d.total.total * 100) : 0;
+            }
+            return Math.max(0, d.total.without - d.total.planned);
+          }),
+          borderColor: "#e63946",
+          backgroundColor: "rgba(230,57,70,0.25)",
+          fill: true, tension: 0.3, pointRadius: ptRadius,
+          order: 1,
+        },
+        {
+          label: isPct ? "% Planned" : "Planned",
+          data: data.map(d => {
+            if (isPct) {
+              return d.total.total > 0 ? (d.total.planned / d.total.total * 100) : 0;
+            }
+            return d.total.planned;
+          }),
+          borderColor: "#6c757d",
+          backgroundColor: "rgba(108,117,125,0.25)",
+          fill: true, tension: 0.3, pointRadius: ptRadius,
+          order: 2,
+        },
+      ];
     } else {
       datasets = regionNames.map(name => ({
         label: name,
@@ -379,33 +541,176 @@
         ...chartDefaults,
         scales: {
           ...chartDefaults.scales,
+          x: {
+            ...chartDefaults.scales.x,
+            stacked: viewMode === "total" || (viewMode === "region" && !isPct),
+          },
           y: {
             ...chartDefaults.scales.y,
-            stacked: viewMode === "region" && !isPct,
+            stacked: viewMode === "total" || (viewMode === "region" && !isPct),
             ticks: { ...chartDefaults.scales.y.ticks, callback: isPct ? (v => v + "%") : undefined },
           },
         },
       },
     });
 
+    renderStatusBanner();
+
     // Region table
     const tbody = document.querySelector("#region-table tbody");
     tbody.innerHTML = regionNames.map(name => {
       const r = latest.regions[name] || {};
+      const unplanned = Math.max(0, (r.without || 0) - (r.planned || 0));
       return `<tr>
         <td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${REGION_COLORS[name]};margin-right:6px"></span>${name}</td>
         <td class="num">${(r.total || 0).toLocaleString()}</td>
         <td class="num">${(r.without || 0).toLocaleString()}</td>
-        <td class="num">${(r.pct || 0).toFixed(2)}%</td>
+        <td class="num">${unplanned.toLocaleString()}</td>
         <td class="num">${(r.planned || 0).toLocaleString()}</td>
+        <td class="num">${(r.pct || 0).toFixed(2)}%</td>
       </tr>`;
     }).join("") + `<tr style="font-weight:700;border-top:2px solid #000">
       <td>Total</td>
       <td class="num">${latest.total.total.toLocaleString()}</td>
       <td class="num">${latest.total.without.toLocaleString()}</td>
-      <td class="num">${latest.total.pct.toFixed(2)}%</td>
+      <td class="num">${Math.max(0, latest.total.without - latest.total.planned).toLocaleString()}</td>
       <td class="num">${latest.total.planned.toLocaleString()}</td>
+      <td class="num">${latest.total.pct.toFixed(2)}%</td>
     </tr>`;
+  }
+
+  // --- Status hero ---
+  function renderStatusBanner() {
+    const data = outageData;
+    if (!data || data.length === 0) return;
+    const latest = data[data.length - 1];
+    const unplanned = Math.max(0, latest.total.without - latest.total.planned);
+    const planned = latest.total.planned;
+    const total = latest.total.total;
+    const pct = total > 0 ? (unplanned / total * 100) : 0;
+    const lvl = classifyUnplannedPct(pct);
+
+    document.getElementById("status-dot").style.background = lvl.color;
+    document.getElementById("status-label").textContent =
+      lvl.key === "operational" ? "All Regions Operational" : `Grid Status: ${lvl.label}`;
+    document.getElementById("status-summary").textContent =
+      `${pct.toFixed(2)}% unplanned outage across ${total.toLocaleString()} clients`;
+    document.getElementById("status-breakdown").innerHTML =
+      `<span><span class="num">${unplanned.toLocaleString()}</span> unplanned</span>` +
+      `<span><span class="num">${planned.toLocaleString()}</span> planned</span>` +
+      `<span><span class="num">${latest.total.without.toLocaleString()}</span> total without power</span>`;
+    document.getElementById("status-hero").style.borderColor = lvl.color;
+  }
+
+  // --- 90-day uptime calendar ---
+  function renderCalendar() {
+    const data = allData90;
+    if (!data || data.length === 0) {
+      document.getElementById("uptime-calendar").innerHTML = '<div class="no-data">Not enough data for calendar view.</div>';
+      return;
+    }
+
+    const regionNames = Object.keys(REGION_COLORS);
+
+    // Build 90-day date array
+    const days = [];
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    for (let i = 89; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      days.push(d.toLocaleDateString("en-CA"));
+    }
+
+    // Overall daily status
+    const overallDaily = buildDailyStatus(data, snap => {
+      const unplanned = Math.max(0, snap.total.without - snap.total.planned);
+      return snap.total.total > 0 ? (unplanned / snap.total.total * 100) : 0;
+    });
+
+    // Per-region daily status
+    const regionDaily = {};
+    for (const name of regionNames) {
+      regionDaily[name] = buildDailyStatus(data, snap => {
+        const r = snap.regions[name];
+        if (!r || r.total === 0) return 0;
+        const unplanned = Math.max(0, r.without - r.planned);
+        return (unplanned / r.total * 100);
+      });
+    }
+
+    // Compute uptime % for each row
+    function uptimeForRow(daily) {
+      let totalDaysWithData = 0, sumPct = 0;
+      for (const day of days) {
+        if (daily[day]) { totalDaysWithData++; sumPct += daily[day].uptimePct; }
+      }
+      return totalDaysWithData > 0 ? (sumPct / totalDaysWithData) : null;
+    }
+
+    function renderRow(label, daily, labelColor) {
+      const uptime = uptimeForRow(daily);
+      const uptimeStr = uptime !== null ? uptime.toFixed(2) + "%" : "—";
+      const colorDot = labelColor
+        ? `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${labelColor};margin-right:4px"></span>`
+        : "";
+      return `
+        <div class="uptime-row">
+          <div class="uptime-label">${colorDot}${label}</div>
+          <div class="uptime-bar">
+            ${days.map(day => {
+              const info = daily[day];
+              const color = info ? info.color : NO_DATA_COLOR;
+              return `<div class="uptime-day" style="background:${color}"
+                data-day="${day}" data-label="${label}"
+                data-info='${info ? JSON.stringify({s:info.snapshots,m:info.majorMin,p:info.partialMin,e:info.elevatedMin,w:Math.round(info.weighted),u:info.uptimePct.toFixed(2)}) : ""}'
+              ></div>`;
+            }).join("")}
+          </div>
+          <div class="uptime-pct">${uptimeStr}</div>
+        </div>`;
+    }
+
+    let html = renderRow("Overall", overallDaily, null);
+    for (const name of regionNames) {
+      html += renderRow(name, regionDaily[name], REGION_COLORS[name]);
+    }
+    document.getElementById("uptime-calendar").innerHTML = html;
+
+    // Legend
+    document.getElementById("uptime-legend").innerHTML =
+      STATUS_LEVELS.slice().reverse().map(l =>
+        `<div class="uptime-legend-item"><div class="uptime-legend-swatch" style="background:${l.color}"></div>${l.label}</div>`
+      ).join("") +
+      `<div class="uptime-legend-item"><div class="uptime-legend-swatch" style="background:${NO_DATA_COLOR}"></div>No Data</div>`;
+
+    // Tooltip
+    const tooltip = document.getElementById("uptime-tooltip");
+    document.getElementById("uptime-calendar").addEventListener("mouseover", e => {
+      const el = e.target.closest(".uptime-day");
+      if (!el) { tooltip.classList.remove("visible"); return; }
+      const day = el.dataset.day;
+      const label = el.dataset.label;
+      const raw = el.dataset.info;
+      let text;
+      if (!raw) {
+        text = `${label} — ${day}<br>No data exists for this day.`;
+      } else {
+        const info = JSON.parse(raw);
+        text = `${label} — ${day}<br>${info.s} snapshots`
+          + `<br>Major: ${info.m} min | Partial: ${info.p} min | Elevated: ${info.e} min`
+          + `<br>Weighted downtime: ${info.w} min`
+          + `<br>Uptime: ${info.u}%`;
+      }
+      tooltip.innerHTML = text;
+      tooltip.classList.add("visible");
+      const rect = el.getBoundingClientRect();
+      tooltip.style.left = Math.min(rect.left, window.innerWidth - 270) + "px";
+      tooltip.style.top = (rect.top - tooltip.offsetHeight - 8) + "px";
+    });
+    document.getElementById("uptime-calendar").addEventListener("mouseout", e => {
+      if (!e.target.closest(".uptime-day")) tooltip.classList.remove("visible");
+    });
   }
 
   // --- Toggle handlers ---
