@@ -169,6 +169,9 @@
     justify-content: center;
   }
   .status-hero .status-breakdown .num { font-weight: 700; color: var(--primary-text); }
+  .status-hero .status-timestamp {
+    font-size: 0.75rem; color: var(--secondary-text); margin-top: 4px;
+  }
 
   /* Uptime calendar */
   .uptime-section { margin-bottom: 20px; }
@@ -198,20 +201,32 @@
     display: none; position: fixed;
     background: var(--primary-text); color: var(--primary-bg);
     font-size: 0.75rem; padding: 8px 12px; border-radius: 6px;
-    pointer-events: none; z-index: 200; max-width: 260px;
+    pointer-events: none; z-index: 200; width: max-content;
     line-height: 1.5; white-space: nowrap;
   }
   .uptime-tooltip.visible { display: block; }
 
   /* Legend */
   .uptime-legend {
-    display: flex; gap: 16px; flex-wrap: wrap;
+    display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;
     margin-top: 14px; font-size: 0.75rem; color: var(--secondary-text);
   }
-  .uptime-legend-item { display: flex; align-items: center; gap: 5px; }
+  .uptime-legend-item {
+    display: flex; align-items: center; gap: 5px;
+    position: relative; cursor: default;
+  }
   .uptime-legend-swatch {
     width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0;
   }
+  .uptime-legend-item .legend-tip {
+    display: none; position: absolute; bottom: calc(100% + 6px); left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary-text); color: var(--primary-bg);
+    font-size: 0.7rem; padding: 6px 10px; border-radius: 6px;
+    white-space: nowrap; pointer-events: none; z-index: 200;
+    line-height: 1.4;
+  }
+  .uptime-legend-item:hover .legend-tip { display: block; }
 
   @media (max-width: 768px) {
     .status-hero { padding: 24px 18px; }
@@ -235,6 +250,7 @@
         <a href="#grid-history">Grid History</a>
         <a href="#clients">Clients</a>
         <a href="#regions">Regions</a>
+        <a href="#methodology">Methodology</a>
       </div>
     </div>
     <h1>PR Outage Status</h1>
@@ -246,6 +262,7 @@
     <div class="status-label" id="status-label">Loading...</div>
     <div class="status-summary" id="status-summary"></div>
     <div class="status-breakdown" id="status-breakdown"></div>
+    <div class="status-timestamp" id="status-timestamp"></div>
   </div>
 
   <span class="nav-anchor" id="grid-history"></span>
@@ -280,7 +297,7 @@
 
   <span class="nav-anchor" id="regions"></span>
   <div class="panel">
-    <h2>Region Breakdown <span class="panel-note">Latest snapshot</span></h2>
+    <h2>Region Breakdown <span class="panel-note" id="region-timestamp"></span></h2>
     <div class="table-wrap">
     <table id="region-table">
       <thead>
@@ -288,15 +305,35 @@
           <th class="sortable" data-col="0">Region</th>
           <th class="sortable" data-col="1" style="text-align:right">Clients</th>
           <th class="sortable" data-col="2" style="text-align:right">Without Power</th>
-          <th class="sortable" data-col="3" style="text-align:right">Unplanned</th>
-          <th class="sortable" data-col="4" style="text-align:right">Planned</th>
-          <th class="sortable" data-col="5" style="text-align:right">% Unplanned</th>
-          <th class="sortable" data-col="6" style="text-align:right">% Total</th>
+          <th class="sortable" data-col="3" style="text-align:right">% Distribution</th>
+          <th class="sortable" data-col="4" style="text-align:right">Unplanned</th>
+          <th class="sortable" data-col="5" style="text-align:right">Planned</th>
+          <th class="sortable" data-col="6" style="text-align:right">% Unplanned</th>
+          <th class="sortable" data-col="7" style="text-align:right">% Total</th>
         </tr>
       </thead>
       <tbody></tbody>
     </table>
     </div>
+  </div>
+
+  <span class="nav-anchor" id="methodology"></span>
+  <div class="panel explain">
+    <h2>Methodology</h2>
+    <p><b>Unplanned outages</b> — Calculated as total clients without service minus clients affected by planned outages. Only unplanned outages factor into status classification.</p>
+    <p><b>Status levels</b> — Based on the percentage of clients affected by unplanned outages:</p>
+    <table style="max-width:520px;margin:0 0 12px">
+      <thead><tr><th>Status</th><th style="text-align:right">Threshold</th></tr></thead>
+      <tbody>
+        <tr><td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#76ad2a;margin-right:6px"></span>Operational</td><td class="num">&lt; 1%</td></tr>
+        <tr><td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#faa72a;margin-right:6px"></span>Degraded Performance</td><td class="num">1% – 3%</td></tr>
+        <tr><td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#e86235;margin-right:6px"></span>Partial Outage</td><td class="num">3% – 10%</td></tr>
+        <tr><td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#e04343;margin-right:6px"></span>Major Outage</td><td class="num">&ge; 10%</td></tr>
+      </tbody>
+    </table>
+    <p><b>90-day grid history</b> — Each day is colored by weighted downtime: minutes spent at each severity level are weighted (Major &times; 1.0, Partial &times; 0.5, Degraded &times; 0.1) and mapped to a color gradient from green to red. Days with no recorded snapshots appear gray.</p>
+    <p><b>Uptime %</b> — Calculated per row as the weighted average across days with data: 100% minus the ratio of weighted downtime to total monitored time.</p>
+    <p><b>% Distribution</b> — Shows each region's share of the total clients without power, indicating where outages are concentrated.</p>
   </div>
 
   <div class="source-note">
@@ -344,7 +381,7 @@
   const STATUS_LEVELS = [
     { key: "major",       label: "Major Outage",    minPct: 10, color: "#e04343", weight: 1.0 },
     { key: "partial",     label: "Partial Outage",  minPct: 3,  color: "#e86235", weight: 0.5 },
-    { key: "elevated",    label: "Elevated",        minPct: 1,  color: "#faa72a", weight: 0.1 },
+    { key: "elevated",    label: "Degraded Performance", minPct: 1,  color: "#faa72a", weight: 0.1 },
     { key: "operational", label: "Operational",      minPct: 0,  color: "#76ad2a", weight: 0   },
   ];
   const NO_DATA_COLOR = "#d5d3cd";
@@ -408,6 +445,11 @@
       const weighted = majorMin + (partialMin * 0.5) + (elevatedMin * 0.1);
       const uptimePct = totalSnapMin > 0 ? Math.max(0, 100 - (weighted / totalSnapMin * 100)) : 100;
 
+      // Compute peak and average unplanned %
+      const pcts = snaps.map(s => getUnplannedPct(s));
+      const peakPct = Math.max(...pcts);
+      const avgPct = pcts.reduce((a, b) => a + b, 0) / pcts.length;
+
       result[day] = {
         color: downtimeToColor(weighted),
         weighted,
@@ -416,6 +458,9 @@
         elevatedMin: Math.round(elevatedMin),
         snapshots: snaps.length,
         uptimePct,
+        peakPct,
+        avgPct,
+        totalMin: Math.round(totalSnapMin),
       };
     }
     return result;
@@ -569,11 +614,12 @@
       const r = latest.regions[name] || {};
       const unplanned = Math.max(0, (r.without || 0) - (r.planned || 0));
       const unplannedPct = (r.total || 0) > 0 ? (unplanned / r.total * 100) : 0;
+      const distPct = latest.total.without > 0 ? ((r.without || 0) / latest.total.without * 100) : 0;
       return {
         name, color: REGION_COLORS[name],
         clients: r.total || 0, without: r.without || 0,
         unplanned, planned: r.planned || 0,
-        unplannedPct, totalPct: r.pct || 0,
+        unplannedPct, totalPct: r.pct || 0, distPct,
       };
     });
     tableTotals = {
@@ -590,7 +636,7 @@
   let tableTotals = {};
   let sortCol = -1;
   let sortDir = "asc";
-  const COL_KEYS = ["name", "clients", "without", "unplanned", "planned", "unplannedPct", "totalPct"];
+  const COL_KEYS = ["name", "clients", "without", "distPct", "unplanned", "planned", "unplannedPct", "totalPct"];
 
   function renderTable() {
     const tbody = document.querySelector("#region-table tbody");
@@ -598,6 +644,7 @@
         <td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${r.color};margin-right:6px"></span>${r.name}</td>
         <td class="num">${r.clients.toLocaleString()}</td>
         <td class="num">${r.without.toLocaleString()}</td>
+        <td class="num">${r.distPct.toFixed(1)}%</td>
         <td class="num">${r.unplanned.toLocaleString()}</td>
         <td class="num">${r.planned.toLocaleString()}</td>
         <td class="num">${r.unplannedPct.toFixed(2)}%</td>
@@ -606,6 +653,7 @@
         <td>Total</td>
         <td class="num">${tableTotals.clients.toLocaleString()}</td>
         <td class="num">${tableTotals.without.toLocaleString()}</td>
+        <td class="num">100.0%</td>
         <td class="num">${tableTotals.unplanned.toLocaleString()}</td>
         <td class="num">${tableTotals.planned.toLocaleString()}</td>
         <td class="num">${tableTotals.unplannedPct.toFixed(2)}%</td>
@@ -634,6 +682,17 @@
     });
   });
 
+  function relativeTime(date) {
+    const sec = Math.round((Date.now() - date.getTime()) / 1000);
+    if (sec < 60) return "just now";
+    const min = Math.floor(sec / 60);
+    if (min < 60) return `${min} min ago`;
+    const hr = Math.floor(min / 60);
+    if (hr < 24) return `${hr}h ago`;
+    const d = Math.floor(hr / 24);
+    return `${d}d ago`;
+  }
+
   // --- Status hero ---
   function renderStatusBanner() {
     const data = outageData;
@@ -655,6 +714,10 @@
       `<span><span class="num">${planned.toLocaleString()}</span> planned</span>` +
       `<span><span class="num">${latest.total.without.toLocaleString()}</span> total without power</span>`;
     document.getElementById("status-hero").style.borderColor = lvl.color;
+    const ts = new Date(latest.timestamp);
+    document.getElementById("status-timestamp").textContent =
+      `Last updated: ${ts.toLocaleString("en-US", { timeZone: "America/Puerto_Rico", dateStyle: "medium", timeStyle: "short" })} AST`;
+    document.getElementById("region-timestamp").textContent = relativeTime(ts);
   }
 
   // --- 90-day uptime calendar ---
@@ -718,7 +781,7 @@
               const color = info ? info.color : NO_DATA_COLOR;
               return `<div class="uptime-day" style="background:${color}"
                 data-day="${day}" data-label="${label}"
-                data-info='${info ? JSON.stringify({s:info.snapshots,m:info.majorMin,p:info.partialMin,e:info.elevatedMin,w:Math.round(info.weighted),u:info.uptimePct.toFixed(2)}) : ""}'
+                data-info='${info ? JSON.stringify({s:info.snapshots,m:info.majorMin,p:info.partialMin,e:info.elevatedMin,w:Math.round(info.weighted),u:info.uptimePct.toFixed(2),pk:info.peakPct.toFixed(2),av:info.avgPct.toFixed(2),t:info.totalMin}) : ""}'
               ></div>`;
             }).join("")}
           </div>
@@ -733,11 +796,17 @@
     document.getElementById("uptime-calendar").innerHTML = html;
 
     // Legend
+    const legendTips = {
+      operational: "< 1% unplanned outage",
+      elevated: "1% – 3% unplanned outage",
+      partial: "3% – 10% unplanned outage",
+      major: ">= 10% unplanned outage",
+    };
     document.getElementById("uptime-legend").innerHTML =
       STATUS_LEVELS.slice().reverse().map(l =>
-        `<div class="uptime-legend-item"><div class="uptime-legend-swatch" style="background:${l.color}"></div>${l.label}</div>`
+        `<div class="uptime-legend-item"><div class="uptime-legend-swatch" style="background:${l.color}"></div>${l.label}<span class="legend-tip">${legendTips[l.key]}</span></div>`
       ).join("") +
-      `<div class="uptime-legend-item"><div class="uptime-legend-swatch" style="background:${NO_DATA_COLOR}"></div>No Data</div>`;
+      `<div class="uptime-legend-item"><div class="uptime-legend-swatch" style="background:${NO_DATA_COLOR}"></div>No Data<span class="legend-tip">No snapshots recorded</span></div>`;
 
     // Tooltip
     const tooltip = document.getElementById("uptime-tooltip");
@@ -752,16 +821,30 @@
         text = `${label} — ${day}<br>No data exists for this day.`;
       } else {
         const info = JSON.parse(raw);
-        text = `${label} — ${day}<br>${info.s} snapshots`
-          + `<br>Major: ${info.m} min | Partial: ${info.p} min | Elevated: ${info.e} min`
+        text = `<b>${label} — ${day}</b>`
+          + `<br>${info.s} snapshots`
+          + `<br>${info.t} min monitored`
+          + `<br>Peak unplanned: ${info.pk}%`
+          + `<br>Avg unplanned: ${info.av}%`
+          + `<br>──────────────────`
+          + `<br>Major: ${info.m} min`
+          + `<br>Partial: ${info.p} min`
+          + `<br>Degraded: ${info.e} min`
+          + `<br>──────────────────`
           + `<br>Weighted downtime: ${info.w} min`
           + `<br>Uptime: ${info.u}%`;
       }
       tooltip.innerHTML = text;
       tooltip.classList.add("visible");
       const rect = el.getBoundingClientRect();
-      tooltip.style.left = Math.min(rect.left, window.innerWidth - 270) + "px";
-      tooltip.style.top = (rect.top - tooltip.offsetHeight - 8) + "px";
+      const tw = tooltip.offsetWidth;
+      const th = tooltip.offsetHeight;
+      let left = rect.left + rect.width / 2 - tw / 2;
+      left = Math.max(8, Math.min(left, window.innerWidth - tw - 8));
+      let top = rect.top - th - 8;
+      if (top < 8) top = rect.bottom + 8;
+      tooltip.style.left = left + "px";
+      tooltip.style.top = top + "px";
     });
     document.getElementById("uptime-calendar").addEventListener("mouseout", e => {
       if (!e.target.closest(".uptime-day")) tooltip.classList.remove("visible");
