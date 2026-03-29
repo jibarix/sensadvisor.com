@@ -133,6 +133,8 @@
   th.sortable.asc::after { content: " \2191"; opacity: 1; }
   th.sortable.desc::after { content: " \2193"; opacity: 1; }
 
+  .table-wrap { overflow-x: auto; }
+
   .no-data { text-align: center; padding: 40px; color: var(--secondary-text); font-style: italic; }
 
   .source-note {
@@ -249,8 +251,10 @@
   <span class="nav-anchor" id="grid-history"></span>
   <div class="panel">
     <h2>Grid Status History <span class="panel-note">90 days — based on unplanned outages</span></h2>
-    <div id="uptime-calendar"></div>
-    <div class="uptime-legend" id="uptime-legend"></div>
+    <div class="table-wrap">
+      <div id="uptime-calendar"></div>
+      <div class="uptime-legend" id="uptime-legend"></div>
+    </div>
   </div>
 
   <div class="uptime-tooltip" id="uptime-tooltip"></div>
@@ -277,6 +281,7 @@
   <span class="nav-anchor" id="regions"></span>
   <div class="panel">
     <h2>Region Breakdown <span class="panel-note">Latest snapshot</span></h2>
+    <div class="table-wrap">
     <table id="region-table">
       <thead>
         <tr>
@@ -291,6 +296,7 @@
       </thead>
       <tbody></tbody>
     </table>
+    </div>
   </div>
 
   <div class="source-note">
