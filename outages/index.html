@@ -281,8 +281,6 @@
     <h2>Clients Without Power
       <span class="panel-note">
         <button class="toggle-btn active" id="toggle-view-total">Total</button><button class="toggle-btn" id="toggle-view-region">Region</button>
-        <span style="margin-left:8px"></span>
-        <button class="toggle-btn active" id="toggle-unit-clients">Clients</button><button class="toggle-btn" id="toggle-unit-pct">%</button>
       </span>
     </h2>
     <div class="controls">
@@ -293,6 +291,15 @@
       <button data-days="365">1y</button>
     </div>
     <div class="chart-container"><canvas id="chart-main"></canvas></div>
+  </div>
+
+  <div class="panel">
+    <h2>Grid Uptime
+      <span class="panel-note">
+        <button class="toggle-btn active" id="toggle-uptime-total">Total</button><button class="toggle-btn" id="toggle-uptime-region">Region</button>
+      </span>
+    </h2>
+    <div class="chart-container"><canvas id="chart-uptime"></canvas></div>
   </div>
 
   <span class="nav-anchor" id="regions"></span>
@@ -467,19 +474,29 @@
   }
 
   // --- State ---
+  let chartUptime = null;
   let chartMain = null;
   let outageData = null;
   let allData90 = null; // always 90 days for calendar
   let viewMode = "total";
-  let unitMode = "clients";
+  let uptimeViewMode = "total";
 
-  // --- Supabase fetch helper ---
+  // --- Supabase fetch helper (paginates to bypass server max-rows cap) ---
   async function sbQuery(table, params = "") {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}`, {
-      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
-    });
-    if (!res.ok) throw new Error(`Supabase ${table}: ${res.status}`);
-    return res.json();
+    const pageSize = 1000;
+    let offset = 0;
+    let all = [];
+    while (true) {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}&limit=${pageSize}&offset=${offset}`, {
+        headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
+      });
+      if (!res.ok) throw new Error(`Supabase ${table}: ${res.status}`);
+      const rows = await res.json();
+      all = all.concat(rows);
+      if (rows.length < pageSize) break;
+      offset += pageSize;
+    }
+    return all;
   }
 
   // --- Parse outage snapshot ---
@@ -541,36 +558,24 @@
     const latest = data[data.length - 1];
     const timestamps = data.map(d => new Date(d.timestamp));
     const regionNames = Object.keys(REGION_COLORS);
-    const isPct = unitMode === "pct";
 
-    // Main chart
+    // Main chart (clients)
     if (chartMain) chartMain.destroy();
     let datasets;
     if (viewMode === "total") {
       const ptRadius = data.length > 100 ? 0 : 3;
       datasets = [
         {
-          label: isPct ? "% Unplanned" : "Unplanned",
-          data: data.map(d => {
-            if (isPct) {
-              const unplanned = Math.max(0, d.total.without - d.total.planned);
-              return d.total.total > 0 ? (unplanned / d.total.total * 100) : 0;
-            }
-            return Math.max(0, d.total.without - d.total.planned);
-          }),
+          label: "Unplanned",
+          data: data.map(d => Math.max(0, d.total.without - d.total.planned)),
           borderColor: "#e63946",
           backgroundColor: "rgba(230,57,70,0.25)",
           fill: true, tension: 0.3, pointRadius: ptRadius,
           order: 1,
         },
         {
-          label: isPct ? "% Planned" : "Planned",
-          data: data.map(d => {
-            if (isPct) {
-              return d.total.total > 0 ? (d.total.planned / d.total.total * 100) : 0;
-            }
-            return d.total.planned;
-          }),
+          label: "Planned",
+          data: data.map(d => d.total.planned),
           borderColor: "#6c757d",
           backgroundColor: "rgba(108,117,125,0.25)",
           fill: true, tension: 0.3, pointRadius: ptRadius,
@@ -580,10 +585,10 @@
     } else {
       datasets = regionNames.map(name => ({
         label: name,
-        data: data.map(d => isPct ? (d.regions[name]?.pct || 0) : (d.regions[name]?.without || 0)),
+        data: data.map(d => d.regions[name]?.without || 0),
         borderColor: REGION_COLORS[name],
         backgroundColor: REGION_COLORS[name] + "22",
-        fill: !isPct, tension: 0.3,
+        fill: true, tension: 0.3,
         pointRadius: data.length > 100 ? 0 : 2,
       }));
     }
@@ -594,14 +599,54 @@
         ...chartDefaults,
         scales: {
           ...chartDefaults.scales,
-          x: {
-            ...chartDefaults.scales.x,
-            stacked: viewMode === "total" || (viewMode === "region" && !isPct),
-          },
+          x: { ...chartDefaults.scales.x, stacked: true },
+          y: { ...chartDefaults.scales.y, stacked: true },
+        },
+      },
+    });
+
+    // Uptime chart — 100% baseline, outage % inverted
+    if (chartUptime) chartUptime.destroy();
+    let uptimeDatasets;
+    const ptR = data.length > 100 ? 0 : 3;
+    if (uptimeViewMode === "total") {
+      const uptimeData = data.map(d => {
+        const unplanned = Math.max(0, d.total.without - d.total.planned);
+        return d.total.total > 0 ? 100 - (unplanned / d.total.total * 100) : 100;
+      });
+      uptimeDatasets = [{
+        label: "Uptime %",
+        data: uptimeData,
+        borderColor: "#e63946",
+        backgroundColor: "rgba(230,57,70,0.15)",
+        fill: true, tension: 0.3, pointRadius: ptR,
+      }];
+    } else {
+      uptimeDatasets = regionNames.map(name => ({
+        label: name,
+        data: data.map(d => {
+          const r = d.regions[name];
+          if (!r || r.total === 0) return 100;
+          const unplanned = Math.max(0, r.without - r.planned);
+          return 100 - (unplanned / r.total * 100);
+        }),
+        borderColor: REGION_COLORS[name],
+        fill: false, tension: 0.3, pointRadius: ptR,
+      }));
+    }
+    const allUptimeValues = uptimeDatasets.flatMap(ds => ds.data);
+    const yMin = Math.floor(Math.min(...allUptimeValues));
+    chartUptime = new Chart(document.getElementById("chart-uptime"), {
+      type: "line",
+      data: { labels: timestamps, datasets: uptimeDatasets },
+      options: {
+        ...chartDefaults,
+        scales: {
+          ...chartDefaults.scales,
           y: {
             ...chartDefaults.scales.y,
-            stacked: viewMode === "total" || (viewMode === "region" && !isPct),
-            ticks: { ...chartDefaults.scales.y.ticks, callback: isPct ? (v => v + "%") : undefined },
+            min: yMin, max: 100,
+            ticks: { ...chartDefaults.scales.y.ticks, callback: v => v + "%" },
           },
         },
       },
@@ -867,7 +912,7 @@
     });
   }
   setupPair("toggle-view-total", "toggle-view-region", v => { viewMode = v ? "region" : "total"; });
-  setupPair("toggle-unit-clients", "toggle-unit-pct", v => { unitMode = v ? "pct" : "clients"; });
+  setupPair("toggle-uptime-total", "toggle-uptime-region", v => { uptimeViewMode = v ? "region" : "total"; });
 
   // Time range buttons
   document.querySelectorAll(".controls button").forEach(btn => {
