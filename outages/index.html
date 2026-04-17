@@ -173,28 +173,39 @@
     font-size: 0.75rem; color: var(--secondary-text); margin-top: 4px;
   }
 
-  /* Uptime calendar */
-  .uptime-section { margin-bottom: 20px; }
-  .uptime-row {
-    display: flex; align-items: center; gap: 10px; margin-bottom: 6px;
+  /* Uptime calendar — statuspage style */
+  .uptime-row { margin-bottom: 22px; }
+  .uptime-row:last-child { margin-bottom: 0; }
+  .uptime-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 6px; gap: 10px;
   }
   .uptime-label {
-    font-size: 0.8rem; font-weight: 600; width: 100px; flex-shrink: 0;
+    font-size: 0.9rem; font-weight: 600;
+    display: flex; align-items: center; gap: 6px; min-width: 0;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
+  .uptime-status {
+    font-size: 0.8rem; font-weight: 600; flex-shrink: 0;
+  }
   .uptime-bar {
-    display: flex; gap: 2px; flex: 1; min-width: 0;
+    display: flex; gap: 2px; width: 100%;
   }
   .uptime-day {
-    flex: 1; height: 28px; border-radius: 3px; cursor: pointer;
+    flex: 1; height: 34px; border-radius: 2px; cursor: pointer;
     position: relative; min-width: 2px;
     transition: transform 0.1s ease;
   }
-  .uptime-day:hover { transform: scaleY(1.4); z-index: 2; }
-  .uptime-pct {
-    font-size: 0.75rem; color: var(--secondary-text); width: 64px;
-    text-align: right; flex-shrink: 0; font-variant-numeric: tabular-nums;
+  .uptime-day:hover { transform: scaleY(1.15); z-index: 2; }
+  .uptime-foot {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 6px; font-size: 0.72rem; color: var(--secondary-text);
+    gap: 10px;
   }
+  .uptime-foot .days-line {
+    flex: 1; height: 1px; background: var(--accent-light); margin: 0 8px;
+  }
+  .uptime-pct { font-variant-numeric: tabular-nums; white-space: nowrap; }
 
   /* Tooltip */
   .uptime-tooltip {
@@ -234,9 +245,11 @@
     .status-hero .status-breakdown { gap: 14px; font-size: 0.8rem; }
     .stats-grid { grid-template-columns: repeat(2, 1fr); }
     .chart-container { height: 250px; }
-    .uptime-label { width: 70px; font-size: 0.7rem; }
-    .uptime-day { height: 20px; }
-    .uptime-pct { width: 50px; font-size: 0.7rem; }
+    .uptime-label { font-size: 0.8rem; }
+    .uptime-status { font-size: 0.7rem; }
+    .uptime-day { height: 26px; }
+    .uptime-foot { font-size: 0.65rem; }
+    .uptime-foot .days-line { margin: 0 4px; }
   }
 </style>
 </head>
@@ -811,15 +824,32 @@
       return totalDaysWithData > 0 ? (sumPct / totalDaysWithData) : null;
     }
 
-    function renderRow(label, daily, labelColor) {
+    // Current status per row, from the most recent snapshot
+    const latestSnap = data[data.length - 1];
+    function currentLevelOverall() {
+      const unp = Math.max(0, latestSnap.total.without - latestSnap.total.planned);
+      const pct = latestSnap.total.total > 0 ? (unp / latestSnap.total.total * 100) : 0;
+      return classifyUnplannedPct(pct);
+    }
+    function currentLevelRegion(name) {
+      const r = latestSnap.regions[name];
+      if (!r || r.total === 0) return STATUS_LEVELS[STATUS_LEVELS.length - 1];
+      const unp = Math.max(0, r.without - r.planned);
+      return classifyUnplannedPct(unp / r.total * 100);
+    }
+
+    function renderRow(label, daily, labelColor, level) {
       const uptime = uptimeForRow(daily);
-      const uptimeStr = uptime !== null ? uptime.toFixed(2) + "%" : "—";
+      const uptimeStr = uptime !== null ? uptime.toFixed(2) + " % uptime" : "— uptime";
       const colorDot = labelColor
-        ? `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${labelColor};margin-right:4px"></span>`
+        ? `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${labelColor};flex-shrink:0"></span>`
         : "";
       return `
         <div class="uptime-row">
-          <div class="uptime-label">${colorDot}${label}</div>
+          <div class="uptime-head">
+            <div class="uptime-label">${colorDot}${label}</div>
+            <div class="uptime-status" style="color:${level.color}">${level.label}</div>
+          </div>
           <div class="uptime-bar">
             ${days.map(day => {
               const info = daily[day];
@@ -830,13 +860,19 @@
               ></div>`;
             }).join("")}
           </div>
-          <div class="uptime-pct">${uptimeStr}</div>
+          <div class="uptime-foot">
+            <span>90 days ago</span>
+            <span class="days-line"></span>
+            <span class="uptime-pct">${uptimeStr}</span>
+            <span class="days-line"></span>
+            <span>Today</span>
+          </div>
         </div>`;
     }
 
-    let html = renderRow("Overall", overallDaily, null);
+    let html = renderRow("Overall", overallDaily, null, currentLevelOverall());
     for (const name of regionNames) {
-      html += renderRow(name, regionDaily[name], REGION_COLORS[name]);
+      html += renderRow(name, regionDaily[name], REGION_COLORS[name], currentLevelRegion(name));
     }
     document.getElementById("uptime-calendar").innerHTML = html;
 
