@@ -960,7 +960,7 @@
         <!-- Header -->
         <header class="header">
             <div class="header-content">
-                <a href="#" class="logo">SENS ADVISOR</a>
+                <a href="/" class="logo">SENS ADVISOR</a>
                 <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
                     <span class="hamburger-line"></span>
                     <span class="hamburger-line"></span>
@@ -1278,9 +1278,10 @@
 
         <!-- Footer -->
         <footer class="footer">
-            <p>&copy; 2025 Sens ABI LLC. All rights reserved. | Standard W9/1099 Process for US Clients</p>
+            <p>&copy; <span id="copyright-year">2026</span> Sens ABI LLC. All rights reserved. | Standard W9/1099 Process for US Clients</p>
         </footer>
     </div>
+    <script>document.getElementById('copyright-year').textContent=new Date().getFullYear();</script>
 
     <script>
         // Animate individual bio card
