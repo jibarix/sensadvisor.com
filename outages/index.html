@@ -535,52 +535,55 @@
     return all;
   }
 
-  // --- Parse outage snapshot ---
+  // --- Parse outage snapshot (from v_outage_snapshots_slim) ---
   function parseOutageRow(r) {
-    const p = r.payload_json;
+    const s = r.snapshot || {};
+    const t = s.total || {};
     const regions = {};
-    if (p.regions) {
-      for (const reg of p.regions) {
-        regions[reg.name] = {
-          without: reg.totalClientsWithoutService || 0,
-          total: reg.totalClients || 0,
-          pct: reg.percentageClientsWithoutService || 0,
-          loadShed: reg.totalClientsAffectedByLoadShed || 0,
-          planned: reg.totalClientsAffectedByPlannedOutage || 0,
-        };
-      }
+    for (const [name, v] of Object.entries(s.regions || {})) {
+      regions[name] = {
+        without: v.without || 0,
+        total: v.total || 0,
+        planned: v.planned || 0,
+        pct: v.total ? (v.without / v.total * 100) : 0,
+      };
     }
-    const totals = p.totals || {};
     return {
       timestamp: r.observed_at,
-      apiTimestamp: p.timestamp || null,
       total: {
-        without: totals.totalClientsWithoutService || 0,
-        total: totals.totalClients || 0,
-        pct: totals.totalPercentageWithoutService || 0,
-        loadShed: totals.totalClientsAffectedByLoadShed || 0,
-        planned: totals.totalClientsAffectedByPlannedOutage || 0,
+        without: t.without || 0,
+        total: t.total || 0,
+        planned: t.planned || 0,
+        pct: t.total ? (t.without / t.total * 100) : 0,
       },
       regions,
     };
   }
 
   // --- Load data ---
+  // Cache longer ranges across clicks; always refetch 24h so "latest" stays live.
+  const rangeCache = {};
   async function loadData(days) {
     const since = new Date(Date.now() - days * 86400000).toISOString();
     const since90 = new Date(Date.now() - 90 * 86400000).toISOString();
 
-    const fetches = [
-      sbQuery("outage_snapshots", `select=observed_at,payload_json&observed_at=gte.${since}&order=observed_at.asc`),
-    ];
-    // Only reload 90-day data if we haven't yet
-    if (!allData90) {
-      fetches.push(sbQuery("outage_snapshots", `select=observed_at,payload_json&observed_at=gte.${since90}&order=observed_at.asc`));
-    }
+    const mainP = (days !== 1 && rangeCache[days])
+      ? Promise.resolve(rangeCache[days])
+      : sbQuery("v_outage_snapshots_slim", `select=observed_at,snapshot&observed_at=gte.${since}&order=observed_at.asc`)
+          .then(rows => {
+            const parsed = rows.map(parseOutageRow);
+            if (days !== 1) rangeCache[days] = parsed;
+            return parsed;
+          });
 
-    const results = await Promise.all(fetches);
-    outageData = results[0].map(parseOutageRow);
-    if (results[1]) allData90 = results[1].map(parseOutageRow);
+    const ninetyP = allData90
+      ? Promise.resolve(allData90)
+      : sbQuery("v_outage_snapshots_slim", `select=observed_at,snapshot&observed_at=gte.${since90}&order=observed_at.asc`)
+          .then(rows => rows.map(parseOutageRow));
+
+    const [main, ninety] = await Promise.all([mainP, ninetyP]);
+    outageData = main;
+    allData90 = ninety;
 
     renderAll();
     renderCalendar();
