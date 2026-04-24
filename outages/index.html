@@ -44,6 +44,15 @@
     min-height: 100vh;
   }
 
+  .site-nav { background: #000; color: #fff; font-size: 0.82rem; padding: 10px 0; }
+  .site-nav-inner { max-width: 1400px; margin: 0 auto; padding: 0 20px; display: flex; gap: 20px; flex-wrap: wrap; }
+  .site-nav a { color: #fff; text-decoration: none; opacity: 0.7; transition: opacity 0.15s; }
+  .site-nav a:hover { opacity: 1; text-decoration: underline; }
+  .site-nav a[aria-current="page"] { opacity: 1; font-weight: 600; }
+
+  .site-footer { text-align: center; padding: 24px 20px; margin-top: 40px; border-top: 1px solid #ddd; font-size: 0.82rem; color: #555; }
+  .site-footer a { color: inherit; }
+
   .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
 
   .header {
@@ -254,10 +263,19 @@
 </style>
 </head>
 <body>
+<div class="site-nav">
+  <div class="site-nav-inner">
+    <a href="/">Home</a>
+    <a href="/rentals/">Rentals</a>
+    <a href="/recession/">Recession</a>
+    <a href="/pr-lmci/">PR-LMCI</a>
+    <a href="/outages/" aria-current="page">Outages</a>
+  </div>
+</div>
 <div class="container">
-  <div class="header">
+  <header class="header">
     <div class="header-content">
-      <a class="logo" href="https://sensadvisor.com">SENS ADVISOR</a>
+      <a class="logo" href="/">SENS ADVISOR</a>
       <div class="header-links">
         <a href="#status">Status</a>
         <a href="#grid-history">Grid History</a>
@@ -267,7 +285,7 @@
       </div>
     </div>
     <h1>PR Outage Status</h1>
-  </div>
+  </header>
 
   <span class="nav-anchor" id="status"></span>
   <div class="status-hero" id="status-hero">
@@ -360,6 +378,11 @@
     <p><b>Data source:</b> <a href="https://miluma.lumapr.com/">LUMA Energy</a></p>
   </div>
 </div>
+
+<footer class="site-footer">
+  <p>&copy; <span id="copyright-year">2026</span> Sens ABI LLC. All rights reserved.</p>
+</footer>
+<script>document.getElementById('copyright-year').textContent=new Date().getFullYear();</script>
 
 <script>
   // --- Config ---
