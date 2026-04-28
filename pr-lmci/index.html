@@ -29,6 +29,15 @@
     min-height: 100vh;
   }
 
+  .site-nav { background: #000; color: #fff; font-size: 0.82rem; padding: 10px 0; }
+  .site-nav-inner { max-width: 1400px; margin: 0 auto; padding: 0 20px; display: flex; gap: 20px; flex-wrap: wrap; }
+  .site-nav a { color: #fff; text-decoration: none; opacity: 0.7; transition: opacity 0.15s; }
+  .site-nav a:hover { opacity: 1; text-decoration: underline; }
+  .site-nav a[aria-current="page"] { opacity: 1; font-weight: 600; }
+
+  .site-footer { text-align: center; padding: 24px 20px; margin-top: 40px; border-top: 1px solid #ddd; font-size: 0.82rem; color: #555; }
+  .site-footer a { color: inherit; }
+
   .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
 
   .header {
@@ -152,6 +161,15 @@
 </head>
 
 <body>
+<div class="site-nav">
+  <div class="site-nav-inner">
+    <a href="/">Home</a>
+    <a href="/rentals/">Rentals</a>
+    <a href="/recession/">Recession</a>
+    <a href="/pr-lmci/" aria-current="page">PR-LMCI</a>
+    <a href="/outages/">Outages</a>
+  </div>
+</div>
 <div class="container">
 
   <header class="header">
@@ -172,7 +190,7 @@
       Dynamic factor model &bull; 40 indicators &bull; EM-PCA extraction &bull; Monthly release
     </div>
     <div class="meta">
-      <span><strong>Last updated:</strong> 2026-04-15 10:53 UTC</span>
+      <span><strong>Last updated:</strong> 2026-04-28 11:42 UTC</span>
       <span><strong>Release:</strong> January 2026</span>
       <span><strong>Updates:</strong> 15th and 28th of each month</span>
     </div>
@@ -434,10 +452,10 @@
 
 </div>
 
-<footer>
-  <p>Puerto Rico Labor Market Conditions Index (PR-LMCI)</p>
-  <p><a href="https://sensadvisor.com">SENS ADVISOR</a> &bull; Updated: 2026-04-15 10:53 UTC</p>
+<footer class="site-footer">
+  <p>&copy; <span id="copyright-year">2026</span> Sens ABI LLC. All rights reserved.</p>
 </footer>
+<script>document.getElementById('copyright-year').textContent=new Date().getFullYear();</script>
 
 </body>
 </html>
