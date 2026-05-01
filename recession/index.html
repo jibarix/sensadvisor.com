@@ -29,6 +29,15 @@
     min-height: 100vh;
   }
 
+  .site-nav { background: #000; color: #fff; font-size: 0.82rem; padding: 10px 0; }
+  .site-nav-inner { max-width: 1400px; margin: 0 auto; padding: 0 20px; display: flex; gap: 20px; flex-wrap: wrap; }
+  .site-nav a { color: #fff; text-decoration: none; opacity: 0.7; transition: opacity 0.15s; }
+  .site-nav a:hover { opacity: 1; text-decoration: underline; }
+  .site-nav a[aria-current="page"] { opacity: 1; font-weight: 600; }
+
+  .site-footer { text-align: center; padding: 24px 20px; margin-top: 40px; border-top: 1px solid #ddd; font-size: 0.82rem; color: #555; }
+  .site-footer a { color: inherit; }
+
   .container {
     max-width: 1400px;
     margin: 0 auto;
@@ -279,6 +288,15 @@
 </head>
 
 <body>
+<div class="site-nav">
+  <div class="site-nav-inner">
+    <a href="/">Home</a>
+    <a href="/rentals/">Rentals</a>
+    <a href="/recession/" aria-current="page">Recession</a>
+    <a href="/pr-lmci/">PR-LMCI</a>
+    <a href="/outages/">Outages</a>
+  </div>
+</div>
 <div class="container">
 
   <header class="header">
@@ -298,8 +316,8 @@
       Baseline: yield-curve probit &bull; Augmented: macro-finance with conditional spread effects &bull; Hybrid: reliability-weighted mixture
     </div>
     <div class="meta">
-      <span><strong>Last updated (UTC):</strong> 2026-04-01 11:06 UTC</span>
-      <span><strong>Next scheduled update:</strong> 2026-05-01 10:00 UTC</span>
+      <span><strong>Last updated (UTC):</strong> 2026-05-01 11:15 UTC</span>
+      <span><strong>Next scheduled update:</strong> 2026-06-01 10:00 UTC</span>
       <span><strong>Time window:</strong> next 12 months</span>
     </div>
   </header>
@@ -340,11 +358,11 @@
     <div class="callout">
       <div class="callout-title" style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:6px;">
         <span>Latest update</span>
-        <span class="muted" style="font-weight:500; font-size:0.85rem;">As of 2026-02-01</span>
+        <span class="muted" style="font-weight:500; font-size:0.85rem;">As of 2026-03-01</span>
       </div>
       <div class="latest-cards">
         <div style="border:2px solid var(--border-primary); border-radius:8px; padding:18px; text-align:center;">
-          <div style="font-size:2.2rem; font-weight:700; line-height:1.1;">6.8%</div>
+          <div style="font-size:2.2rem; font-weight:700; line-height:1.1;">6.2%</div>
           <div style="font-size:1.0rem; font-weight:600; margin-top:4px; color:var(--secondary-text);">
             Elevated risk
           </div>
@@ -353,18 +371,18 @@
         <div style="border:1px solid var(--accent-light); border-radius:8px; padding:14px;">
           <div style="display:grid; grid-template-columns:auto 1fr; gap:4px 12px; font-size:0.92rem;">
             <span class="muted">Yield-curve model</span>
-            <span style="font-weight:600; text-align:right;">11.9%</span>
+            <span style="font-weight:600; text-align:right;">11.1%</span>
             <span class="muted">Macro-finance model</span>
-            <span style="font-weight:600; text-align:right;">3.7%</span>
+            <span style="font-weight:600; text-align:right;">4.0%</span>
             <span class="muted">Reliability weight (w)</span>
-            <span style="font-weight:600; text-align:right;">0.61</span>
+            <span style="font-weight:600; text-align:right;">0.69</span>
           </div>
           <div class="muted" style="margin-top:10px; font-size:0.82rem; border-top:1px solid var(--accent-light); padding-top:8px;">
             Blending both models
           </div>
           <div style="margin-top:8px; font-size:0.82rem;">
             <span class="muted">Sensitivity (w &plusmn; 0.1):</span>
-            <span style="font-weight:600;">7.7% &rarr; 6.0%</span>
+            <span style="font-weight:600;">6.9% &rarr; 5.5%</span>
           </div>
         </div>
       </div>
@@ -409,14 +427,14 @@
       
     <div class="gauge">
       <div class="gauge-bar" aria-label="Mixture weight gauge (0 to 1)">
-        <div class="gauge-marker" style="left:61.4%"></div>
+        <div class="gauge-marker" style="left:68.8%"></div>
       </div>
       <div class="gauge-labels">
         <span><strong>0</strong> = Yield curve</span>
         <span><strong>1</strong> = Macro-finance</span>
       </div>
       <div class="fineprint" style="margin-top:8px;">
-        <strong>Current w:</strong> 0.61 &bull; Blending both models
+        <strong>Current w:</strong> 0.69 &bull; Blending both models
       </div>
     </div>
       <img src="fig3_regime_weight.png" alt="Reliability Gate (Mixture Weight)">
@@ -517,10 +535,12 @@
       
     </div>
 
-  <footer class="footer">
-    <p>&copy; 2026 Sens ABI LLC. All rights reserved.</p>
-  </footer>
-
 </div>
+
+<footer class="site-footer">
+  <p>&copy; <span id="copyright-year">2026</span> Sens ABI LLC. All rights reserved.</p>
+</footer>
+<script>document.getElementById('copyright-year').textContent=new Date().getFullYear();</script>
+
 </body>
 </html>
