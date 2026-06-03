@@ -307,17 +307,17 @@
         <a href="#main">Probability</a>
         <a href="#dashboard">Indicators</a>
         <a href="#gate">Mixture weight</a>
-        <a href="#interactions">Model design</a>
+        <a href="#model-design">Model design</a>
         <a href="#limitations">Limitations</a>
       </div>
     </div>
     <h1>Recession Probability Monitoring</h1>
     <div class="subtitle">
-      Baseline: yield-curve probit &bull; Augmented: macro-finance with conditional spread effects &bull; Hybrid: reliability-weighted mixture
+      Baseline: yield-curve probit &bull; Augmented: additive macro-finance model &bull; Hybrid: reliability-weighted mixture
     </div>
     <div class="meta">
-      <span><strong>Last updated (UTC):</strong> 2026-05-01 11:15 UTC</span>
-      <span><strong>Next scheduled update:</strong> 2026-06-01 10:00 UTC</span>
+      <span><strong>Last updated (UTC):</strong> 2026-06-03 00:09 UTC</span>
+      <span><strong>Next scheduled update:</strong> 2026-07-01 10:00 UTC</span>
       <span><strong>Time window:</strong> next 12 months</span>
     </div>
   </header>
@@ -329,14 +329,13 @@
       <div class="explain">
         <p><strong>What you are looking at:</strong> a recession risk monitor that combines a classic yield-curve signal with broader measures of financial stress.</p>
         <p><strong>Why a "regime-aware" approach:</strong> the yield curve is historically useful, but on its own it can send prolonged
-        warnings without broad economic stress. This system uses two intentionally independent models and learns which
-        has been more reliable out-of-sample.</p>
+        warnings without broad economic stress. This system pairs the classic curve signal with a broader macro-finance model and
+        learns which has been more reliable out-of-sample.</p>
         <p><strong>Two models, one gate:</strong></p>
         <ul style="margin:8px 0 8px 20px;">
-          <li><strong>Baseline:</strong> a yield-curve-only probit &mdash; pure term-spread signal.</li>
-          <li><strong>Augmented:</strong> a macro-finance elastic-net using credit stress, financial conditions, labor market indicators,
-          and interaction terms (SPREAD &times; CREDIT_Z, SPREAD &times; NFCI, SPREAD &times; CLAIMS_SIG). The yield curve enters this model
-          <em>only</em> through its interaction with macro context, so the two models measure genuinely different things.</li>
+          <li><strong>Baseline:</strong> a yield-curve-only probit &mdash; the classic, pure term-spread signal.</li>
+          <li><strong>Augmented:</strong> a macro-finance elastic-net using the term spread together with credit stress,
+          financial conditions, and labor-market indicators &mdash; a broader read on whether the curve signal is corroborated by real stress.</li>
           <li><strong>Reliability gate:</strong> a learned mixture weight <code>w</code> that decides how much to trust each model at a given time.</li>
         </ul>
         <p><strong>Reading tip:</strong> start with the probability chart, then check the mixture weight panel to see which model is driving today's reading.</p>
@@ -358,11 +357,11 @@
     <div class="callout">
       <div class="callout-title" style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:6px;">
         <span>Latest update</span>
-        <span class="muted" style="font-weight:500; font-size:0.85rem;">As of 2026-03-01</span>
+        <span class="muted" style="font-weight:500; font-size:0.85rem;">As of 2026-04-01</span>
       </div>
       <div class="latest-cards">
         <div style="border:2px solid var(--border-primary); border-radius:8px; padding:18px; text-align:center;">
-          <div style="font-size:2.2rem; font-weight:700; line-height:1.1;">6.2%</div>
+          <div style="font-size:2.2rem; font-weight:700; line-height:1.1;">6.9%</div>
           <div style="font-size:1.0rem; font-weight:600; margin-top:4px; color:var(--secondary-text);">
             Elevated risk
           </div>
@@ -371,18 +370,18 @@
         <div style="border:1px solid var(--accent-light); border-radius:8px; padding:14px;">
           <div style="display:grid; grid-template-columns:auto 1fr; gap:4px 12px; font-size:0.92rem;">
             <span class="muted">Yield-curve model</span>
-            <span style="font-weight:600; text-align:right;">11.1%</span>
+            <span style="font-weight:600; text-align:right;">10.2%</span>
             <span class="muted">Macro-finance model</span>
-            <span style="font-weight:600; text-align:right;">4.0%</span>
+            <span style="font-weight:600; text-align:right;">6.1%</span>
             <span class="muted">Reliability weight (w)</span>
-            <span style="font-weight:600; text-align:right;">0.69</span>
+            <span style="font-weight:600; text-align:right;">0.80</span>
           </div>
           <div class="muted" style="margin-top:10px; font-size:0.82rem; border-top:1px solid var(--accent-light); padding-top:8px;">
-            Blending both models
+            Leaning toward macro-finance signals
           </div>
           <div style="margin-top:8px; font-size:0.82rem;">
             <span class="muted">Sensitivity (w &plusmn; 0.1):</span>
-            <span style="font-weight:600;">6.9% &rarr; 5.5%</span>
+            <span style="font-weight:600;">7.3% &rarr; 6.5%</span>
           </div>
         </div>
       </div>
@@ -408,9 +407,8 @@
         </table>
       </div>
       <div class="fineprint" style="margin-top:10px;">
-        <strong>Note:</strong> The augmented model also uses interaction terms (SPREAD &times; CREDIT_Z, SPREAD &times; NFCI, SPREAD &times; CLAIMS_SIG)
-        so the yield curve enters the macro model only through its relationship with broader stress.
-        See the <a href="#interactions">Model Design</a> panel for details.
+        <strong>Note:</strong> The augmented model combines the term spread with these macro-finance signals in a single
+        elastic-net. See the <a href="#model-design">Model Design</a> panel for how it relates to the baseline.
       </div>
       <img src="fig2_indicator_dashboard.png" alt="Indicator Dashboard">
     </div>
@@ -421,71 +419,52 @@
       <div class="explain">
         <p><strong>What this is:</strong> The reliability gate outputs <code>w</code>, the weight placed on the macro-finance model when forming the hybrid probability.</p>
         <p><strong>How to read:</strong> When <code>w</code> is near 0, the system is mostly trusting the yield curve. When <code>w</code> is near 1, it is mostly trusting credit and labor-market stress signals.</p>
-        <p><strong>Why it helps:</strong> Because the two models are independent (the augmented model does not contain the yield curve as a standalone feature),
-        the gate can meaningfully arbitrate between "yield curve says danger" and "macro says calm" &mdash; or vice versa.</p>
+        <p><strong>Why it helps:</strong> The two models can genuinely disagree &mdash; the curve can invert while broader stress stays
+        low, or stress can build while the curve still looks benign. The gate learns, out-of-sample, which read to weight more heavily.</p>
       </div>
       
     <div class="gauge">
       <div class="gauge-bar" aria-label="Mixture weight gauge (0 to 1)">
-        <div class="gauge-marker" style="left:68.8%"></div>
+        <div class="gauge-marker" style="left:80.3%"></div>
       </div>
       <div class="gauge-labels">
         <span><strong>0</strong> = Yield curve</span>
         <span><strong>1</strong> = Macro-finance</span>
       </div>
       <div class="fineprint" style="margin-top:8px;">
-        <strong>Current w:</strong> 0.69 &bull; Blending both models
+        <strong>Current w:</strong> 0.80 &bull; Leaning toward macro-finance signals
       </div>
     </div>
       <img src="fig3_regime_weight.png" alt="Reliability Gate (Mixture Weight)">
     </div>
   
-    <div class="panel" id="interactions">
-      <h2>Model Design <span class="panel-note">How the two models stay independent</span></h2>
+    <div class="panel" id="model-design">
+      <h2>Model Design <span class="panel-note">What goes into each model — and why it stays simple</span></h2>
       
       <div class="explain">
-        <p><strong>Key design choice:</strong> The baseline model uses the yield-curve spread as its only input.
-        The augmented model deliberately <em>excludes</em> the spread as a standalone feature. Instead, the spread
-        enters the augmented model only through interaction terms:</p>
+        <p><strong>Two models:</strong> The baseline uses the yield-curve spread as its only input &mdash; the classic
+        Estrella-style recession probit. The augmented model is an additive macro-finance specification: the same spread
+        plus five broader stress measures.</p>
         <div style="margin:10px 0; padding:8px 12px; background:#f6f6f6; border-radius:4px; font-size:0.9rem;">
-          Augmented features: CREDIT_Z, CREDIT_CHG3M, NFCI, NFCI_CHG3M, CLAIMS_SIG,<br>
-          &nbsp;&nbsp;SPREAD &times; CREDIT_Z, SPREAD &times; NFCI, SPREAD &times; CLAIMS_SIG
+          Augmented features: SPREAD, CREDIT_Z, CREDIT_CHG3M, NFCI, NFCI_CHG3M, CLAIMS_SIG
         </div>
 
-        <p><strong>Why this matters:</strong> An inverted yield curve means different things depending on context.
-        When the curve inverts alongside rising credit stress and tightening financial conditions, that historically
-        signals genuine recession risk. When the curve inverts but credit, financial conditions, and labor markets
-        are all calm, the inversion is less meaningful.</p>
+        <p><strong>Why additive &mdash; and why not interaction terms:</strong> An inverted curve plausibly means different
+        things depending on context, so we tested an explicit interaction version &mdash; letting the spread's effect bend
+        with credit stress, financial conditions, and labor markets (SPREAD &times; CREDIT_Z, and so on). In a controlled
+        out-of-sample validation those interaction terms added no distinguishable value: the elastic-net shrank them toward
+        zero and kept the plain spread as the dominant signal, and the variant that dropped the standalone spread was
+        actually less well calibrated. The deployed model therefore stays additive.</p>
 
-        <p>By making the spread conditional on macro context, the augmented model can distinguish between these
-        scenarios. The interaction terms capture this: SPREAD &times; CREDIT_Z is large and negative when both
-        the curve and credit stress point to danger, but near zero when only one is alarming.</p>
-
-        <p><strong>Model independence:</strong> Because the two models measure genuinely different things
-        (pure term spread vs. macro-financial stress with conditional spread effects), the reliability gate
-        can meaningfully arbitrate between them. When they disagree, that disagreement carries real information.</p>
-      </div>
-
-      <div class="table-wrap" style="margin-top:10px;">
-        <table class="mini">
-          <thead><tr><th>Scenario</th><th>SPREAD</th><th>CREDIT_Z</th><th>SPREAD&times;CREDIT_Z</th><th>Model behavior</th></tr></thead>
-          <tbody>
-            <tr><td><strong>Inversion + stress</strong><br><span class="muted">e.g., 2000 H2</span></td>
-                <td>&minus;0.42</td><td>+4.2</td><td>&minus;1.76</td>
-                <td>Augmented model raises alarm (interaction amplifies)</td></tr>
-            <tr><td><strong>Inversion + calm</strong><br><span class="muted">e.g., 2022&ndash;23</span></td>
-                <td>&minus;1.50</td><td>&minus;0.2</td><td>+0.30</td>
-                <td>Augmented model stays calm (interaction dampens)</td></tr>
-            <tr><td><strong>Steep curve + stress</strong><br><span class="muted">e.g., 2008 GFC</span></td>
-                <td>+2.50</td><td>+4.6</td><td>+11.5</td>
-                <td>Augmented model raises alarm (macro stress dominates despite safe curve)</td></tr>
-          </tbody>
-        </table>
+        <p><strong>What this buys:</strong> The additive model is simpler, better calibrated out-of-sample, and matches the
+        specification in the accompanying paper. The reliability gate still has a meaningful job: the baseline reads the
+        curve alone, the augmented model reads the curve in the company of broader stress, and the gate learns which read
+        has been more trustworthy over time.</p>
       </div>
 
       <div class="fineprint" style="margin-top:10px;">
-        <strong>Regularization:</strong> The elastic-net's L1 penalty will zero out interaction terms if they are unhelpful,
-        so adding them carries no risk of overfitting. Products of leakage-free features remain leakage-free.
+        <strong>Regularization:</strong> The elastic-net's L1 penalty shrinks unhelpful coefficients toward zero, so the
+        macro features have to earn their place. All inputs are constructed to be leakage-free as of each scoring date.
       </div>
       
     </div>
@@ -505,28 +484,23 @@
         inherently limited by this sample. Results should be treated as suggestive, not definitive.</p>
       </div>
 
-      <h3 style="margin-top:22px; font-size:1.0rem;">2. Interaction terms are hand-selected</h3>
+      <h3 style="margin-top:22px; font-size:1.0rem;">2. Additive, linear specification</h3>
       <div class="explain">
-        <p>The interaction features (SPREAD &times; CREDIT_Z, SPREAD &times; NFCI, SPREAD &times; CLAIMS_SIG) were chosen
-        based on domain knowledge. Other interactions (e.g., CREDIT_Z &times; NFCI) might also be informative but
-        were not included to keep the model parsimonious. The elastic-net will zero out unhelpful terms, but
-        cannot discover interactions we did not provide.</p>
+        <p>The augmented model combines its features <em>additively</em> on the log-odds scale. It does not capture
+        conditional effects &mdash; for example, an inversion meaning something different when credit stress is high
+        versus low. We tested explicit interaction terms (SPREAD &times; CREDIT_Z, and others) and they added no
+        distinguishable out-of-sample value, so they were left out for parsimony. A tree-based or neural approach
+        could capture richer non-linearities, but at the cost of interpretability and with higher overfitting risk on
+        3 episodes.</p>
       </div>
 
-      <h3 style="margin-top:22px; font-size:1.0rem;">3. Linear interactions only</h3>
-      <div class="explain">
-        <p>Products capture <em>linear</em> interaction effects. Higher-order non-linearities (e.g., threshold effects where
-        "SPREAD &lt; &minus;1 AND CREDIT_Z &lt; 0") are not modeled. A tree-based or neural approach could capture these,
-        but at the cost of interpretability and with higher risk of overfitting on 3 episodes.</p>
-      </div>
-
-      <h3 style="margin-top:22px; font-size:1.0rem;">4. Alert threshold interpretation</h3>
+      <h3 style="margin-top:22px; font-size:1.0rem;">3. Alert threshold interpretation</h3>
       <div class="explain">
         <p>With only 3 episodes and a low base rate, no single threshold achieves clean separation between true
         and false alarms. The probability <em>level</em> and <em>direction</em> matter more than whether it crosses a specific line.</p>
       </div>
 
-      <h3 style="margin-top:22px; font-size:1.0rem;">5. What this system is not</h3>
+      <h3 style="margin-top:22px; font-size:1.0rem;">4. What this system is not</h3>
       <div class="explain">
         <p>This is a monitoring tool based on historical statistical relationships. It does not model causal mechanisms,
         it cannot anticipate unprecedented shocks (e.g., a pandemic), and it should never be used as the sole basis
