@@ -582,7 +582,7 @@
         plugins: { legend: { labels: { font: { ...chartFont, size: 11 } } }, tooltip: { titleFont: chartFont, bodyFont: chartFont } },
         scales: {
           x: { type: "time", ticks: { font: { ...chartFont, size: 10 } }, grid: { color: "#f0f0f0" } },
-          y: { ticks: { font: { ...chartFont, size: 10 }, callback: v => v + " MW" }, grid: { color: "#f0f0f0" } },
+          y: { beginAtZero: true, ticks: { font: { ...chartFont, size: 10 }, callback: v => v + " MW" }, grid: { color: "#f0f0f0" } },
         },
       },
     });
