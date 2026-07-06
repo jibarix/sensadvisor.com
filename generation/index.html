@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PR Generation Status | SENS ADVISOR</title>
+
+<meta name="description" content="Real-time electricity generation for Puerto Rico. Fuel mix, capacity, reserves, and per-plant output from the PREPA/Genera operational feed.">
+<meta property="og:title" content="PR Generation Status">
+<meta property="og:description" content="Real-time electricity generation — fuel mix, capacity, reserves, and per-plant output.">
+<meta property="og:image" content="https://sensadvisor.com/outages/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://sensadvisor.com/generation/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="PR Generation Status">
+<meta name="twitter:description" content="Real-time electricity generation — fuel mix, capacity, reserves, and per-plant output.">
+<meta name="twitter:image" content="https://sensadvisor.com/outages/og-image.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+
+<style>
+  :root {
+    --primary-bg: #ffffff;
+    --primary-text: #000000;
+    --secondary-text: #333333;
+    --border-primary: #000000;
+    --accent-light: #f0f0f0;
+    --accent-lighter: #f9f9f9;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Source Code Pro', monospace;
+    background: var(--primary-bg);
+    color: var(--primary-text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  .site-nav { background: #000; color: #fff; font-size: 0.82rem; padding: 10px 0; }
+  .site-nav-inner { max-width: 1400px; margin: 0 auto; padding: 0 20px; display: flex; gap: 20px; flex-wrap: wrap; }
+  .site-nav a { color: #fff; text-decoration: none; opacity: 0.7; transition: opacity 0.15s; }
+  .site-nav a:hover { opacity: 1; text-decoration: underline; }
+  .site-nav a[aria-current="page"] { opacity: 1; font-weight: 600; }
+
+  .site-footer { text-align: center; padding: 24px 20px; margin-top: 40px; border-top: 1px solid #ddd; font-size: 0.82rem; color: #555; }
+  .site-footer a { color: inherit; }
+
+  .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+
+  .header {
+    position: sticky; top: 0;
+    background: var(--primary-bg);
+    border-bottom: 2px solid var(--border-primary);
+    margin-bottom: 30px; padding-bottom: 16px;
+    z-index: 100;
+  }
+  .header-content {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-bottom: 8px;
+  }
+  .logo { font-size: 1.5rem; font-weight: 700; color: var(--primary-text); text-decoration: none; }
+  .logo span { font-weight: 400; color: var(--secondary-text); }
+  .header-links {
+    display: flex; gap: 14px; align-items: center;
+    font-size: 0.85rem; color: var(--secondary-text); flex-wrap: wrap;
+  }
+  .header-links a {
+    font-weight: 600; text-decoration: underline;
+    color: var(--primary-text); transition: color 0.2s ease;
+  }
+  .header-links a:hover { color: var(--secondary-text); }
+  .header h1 { font-size: 1.8rem; font-weight: 600; margin-top: 10px; }
+
+  .panel {
+    background: var(--primary-bg);
+    border: 2px solid var(--border-primary);
+    border-radius: 8px; padding: 26px; margin-bottom: 34px;
+    transition: all 0.2s ease;
+  }
+  .panel:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  }
+  .panel h2 {
+    font-size: 1.25rem; font-weight: 600; margin-bottom: 14px;
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap;
+  }
+  .panel-note { font-size: 0.75rem; font-weight: 400; color: var(--secondary-text); }
+  .explain p { font-size: 0.8rem; color: var(--secondary-text); margin-bottom: 12px; }
+
+  .chart-container { position: relative; width: 100%; height: 350px; }
+  .chart-container.short { height: 300px; }
+
+  .nav-anchor { display: block; position: relative; top: -80px; visibility: hidden; }
+
+  .controls { display: flex; gap: 12px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+  .controls button {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.85rem; padding: 6px 12px;
+    border: 2px solid var(--border-primary); border-radius: 4px;
+    background: var(--primary-bg); color: var(--primary-text); cursor: pointer;
+  }
+  .controls button:hover { background: var(--primary-text); color: var(--primary-bg); }
+  .controls button.active { background: var(--primary-text); color: var(--primary-bg); }
+
+  .toggle-btn {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.7rem; font-weight: 600; padding: 2px 8px;
+    border: 2px solid var(--border-primary); background: var(--primary-bg);
+    color: var(--primary-text); cursor: pointer; transition: all 0.2s ease;
+  }
+  .toggle-btn:not(:first-of-type) { border-left: none; }
+  .toggle-btn:first-of-type { border-radius: 4px 0 0 4px; }
+  .toggle-btn:last-of-type { border-radius: 0 4px 4px 0; }
+  .toggle-btn.active { background: var(--primary-text); color: var(--primary-bg); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--accent-light); }
+  th {
+    font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--secondary-text); border-bottom: 2px solid var(--border-primary);
+  }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  tr:hover { background: var(--accent-lighter); }
+  th.sortable { cursor: pointer; user-select: none; }
+  th.sortable:hover { color: var(--primary-text); }
+  th.sortable::after { content: " \2195"; opacity: 0.3; }
+  th.sortable.asc::after { content: " \2191"; opacity: 1; }
+  th.sortable.desc::after { content: " \2193"; opacity: 1; }
+  .table-wrap { overflow-x: auto; }
+  .no-data { text-align: center; padding: 40px; color: var(--secondary-text); font-style: italic; }
+
+  .source-note {
+    font-size: 0.75rem; color: var(--secondary-text); margin-top: 30px;
+    padding-top: 16px; border-top: 1px solid var(--accent-light);
+  }
+  .source-note a { color: var(--primary-text); }
+
+  /* Status hero */
+  .status-hero {
+    border: 2px solid var(--border-primary); border-radius: 12px;
+    padding: 36px 32px; margin-bottom: 34px;
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center; gap: 8px;
+    transition: border-color 0.4s ease, background 0.4s ease;
+  }
+  .status-dot {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+    margin-bottom: 4px;
+    animation: pulse 2s ease-in-out infinite;
+    box-shadow: 0 0 12px rgba(0,0,0,0.15);
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 12px rgba(0,0,0,0.15); }
+    50% { opacity: 0.6; box-shadow: 0 0 24px rgba(0,0,0,0.25); }
+  }
+  .status-hero .status-value { font-size: 2.4rem; font-weight: 700; letter-spacing: -1px; line-height: 1.1; }
+  .status-hero .status-value small { font-size: 1rem; font-weight: 500; color: var(--secondary-text); }
+  .status-hero .status-label { font-size: 1.15rem; font-weight: 600; }
+  .status-hero .status-summary { font-size: 0.95rem; color: var(--secondary-text); }
+  .status-hero .status-breakdown {
+    display: flex; gap: 24px; margin-top: 8px;
+    font-size: 0.85rem; color: var(--secondary-text); flex-wrap: wrap;
+    justify-content: center;
+  }
+  .status-hero .status-breakdown .num { font-weight: 700; color: var(--primary-text); }
+  .status-hero .status-timestamp { font-size: 0.75rem; color: var(--secondary-text); margin-top: 4px; }
+
+  /* Stat tiles */
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px; margin-bottom: 34px;
+  }
+  .stat-tile {
+    border: 2px solid var(--border-primary); border-radius: 8px;
+    padding: 16px 18px; display: flex; flex-direction: column; gap: 4px;
+    transition: all 0.2s ease;
+  }
+  .stat-tile:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.10); }
+  .stat-tile .stat-label {
+    font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--secondary-text);
+  }
+  .stat-tile .stat-value { font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .stat-tile .stat-value small { font-size: 0.85rem; font-weight: 500; color: var(--secondary-text); }
+  .stat-tile .stat-sub { font-size: 0.72rem; color: var(--secondary-text); }
+
+  /* Two-up grid for fuel mix + type breakdown */
+  .split-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 34px; }
+  .fuel-legend { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; font-size: 0.82rem; }
+  .fuel-legend-item { display: flex; align-items: center; gap: 8px; }
+  .fuel-legend-swatch { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+  .fuel-legend-item .fl-pct { margin-left: auto; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+  .type-bar-row { margin-bottom: 12px; }
+  .type-bar-head { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; }
+  .type-bar-head .num { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .type-bar-track { height: 16px; background: var(--accent-light); border-radius: 3px; overflow: hidden; }
+  .type-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+
+  @media (max-width: 768px) {
+    .status-hero { padding: 24px 18px; }
+    .status-hero .status-value { font-size: 1.8rem; }
+    .status-hero .status-breakdown { gap: 14px; font-size: 0.8rem; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .split-grid { grid-template-columns: 1fr; gap: 20px; }
+    .chart-container { height: 250px; }
+  }
+</style>
+</head>
+<body>
+<div class="site-nav">
+  <div class="site-nav-inner">
+    <a href="/">Home</a>
+    <a href="/rentals/">Rentals</a>
+    <a href="/recession/">Recession</a>
+    <a href="/pr-lmci/">PR-LMCI</a>
+    <a href="/outages/">Outages</a>
+    <a href="/generation/" aria-current="page">Generation</a>
+  </div>
+</div>
+<div class="container">
+  <header class="header">
+    <div class="header-content">
+      <a class="logo" href="/">SENS ADVISOR</a>
+      <div class="header-links">
+        <a href="#now">Now</a>
+        <a href="#mix">Fuel Mix</a>
+        <a href="#capacity">Capacity</a>
+        <a href="#history">History</a>
+        <a href="#plants">Plants</a>
+        <a href="#methodology">Methodology</a>
+      </div>
+    </div>
+    <h1>PR Generation Status</h1>
+  </header>
+
+  <span class="nav-anchor" id="now"></span>
+  <div class="status-hero" id="status-hero">
+    <div class="status-dot" id="status-dot"></div>
+    <div class="status-value" id="status-value">Loading…</div>
+    <div class="status-label" id="status-label"></div>
+    <div class="status-summary" id="status-summary"></div>
+    <div class="status-breakdown" id="status-breakdown"></div>
+    <div class="status-timestamp" id="status-timestamp"></div>
+  </div>
+
+  <div class="stats-grid" id="stats-grid"></div>
+
+  <span class="nav-anchor" id="mix"></span>
+  <div class="panel">
+    <h2>Generation Mix <span class="panel-note" id="mix-timestamp"></span></h2>
+    <div class="split-grid">
+      <div>
+        <div class="panel-note" style="margin-bottom:8px">By fuel (share of generation)</div>
+        <div class="chart-container short"><canvas id="chart-fuel"></canvas></div>
+        <div class="fuel-legend" id="fuel-legend"></div>
+      </div>
+      <div>
+        <div class="panel-note" style="margin-bottom:8px">By plant type (MW online now)</div>
+        <div id="type-bars"></div>
+      </div>
+    </div>
+  </div>
+
+  <span class="nav-anchor" id="capacity"></span>
+  <div class="panel">
+    <h2>Available Capacity
+      <span class="panel-note">
+        <button class="toggle-btn active" data-cap="daily">Daily</button><button class="toggle-btn" data-cap="weekly">Weekly</button><button class="toggle-btn" data-cap="monthly">Monthly</button>
+      </span>
+    </h2>
+    <div class="chart-container"><canvas id="chart-capacity"></canvas></div>
+  </div>
+
+  <span class="nav-anchor" id="history"></span>
+  <div class="panel">
+    <h2>Generation vs. Capacity <span class="panel-note">MW over time</span></h2>
+    <div class="controls">
+      <button data-days="1" class="active">24h</button>
+      <button data-days="7">7d</button>
+      <button data-days="30">30d</button>
+      <button data-days="90">90d</button>
+    </div>
+    <div class="chart-container"><canvas id="chart-history"></canvas></div>
+  </div>
+
+  <span class="nav-anchor" id="plants"></span>
+  <div class="panel">
+    <h2>Plant &amp; Unit Dispatch
+      <span class="panel-note">
+        <select id="type-filter" style="font-family:inherit;font-size:0.8rem;padding:2px 6px;border:2px solid #000;border-radius:4px;background:#fff">
+          <option value="">All types</option>
+        </select>
+      </span>
+    </h2>
+    <div class="table-wrap">
+    <table id="unit-table">
+      <thead>
+        <tr>
+          <th class="sortable" data-col="0">Plant</th>
+          <th class="sortable" data-col="1">Type</th>
+          <th class="sortable" data-col="2">Unit</th>
+          <th class="sortable" data-col="3" style="text-align:right">MW</th>
+          <th class="sortable" data-col="4" style="text-align:right">MVar</th>
+          <th class="sortable" data-col="5" style="text-align:right">Cost $/MWh</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    </div>
+  </div>
+
+  <span class="nav-anchor" id="methodology"></span>
+  <div class="panel explain">
+    <h2>Methodology</h2>
+    <p><b>Source</b> — PREPA's operational generation feed (operated by Genera PR), the data behind <a href="https://genera-pr.com/data-generacion">genera-pr.com/data-generacion</a>. A snapshot is captured about every 15 minutes and stored; charts read the most recent snapshot, and the history chart spans stored snapshots.</p>
+    <p><b>Generation mix</b> — Percentage share by fuel (Bunker, Diesel, LNG, Coal, Renewable) as reported by the feed. <b>By plant type</b> sums the megawatts currently online for each technology (hydro, cogen, gas turbine, combined cycle, steam, renewable).</p>
+    <p><b>Available capacity</b> — The feed's daily / weekly / monthly available-capacity series (MW), reflecting how much generating capacity was on hand over each window.</p>
+    <p><b>Reserves</b> — <b>Spinning reserve</b> is synchronized capacity ready immediately; <b>operating reserve</b> is total reserve available. Both are supply-adequacy indicators — the cushion between what is generating and what could be called on.</p>
+    <p><b>Plant &amp; unit dispatch</b> — Real-time output per generating unit: <b>MW</b> (real power), <b>MVar</b> (reactive power; can be negative when a unit absorbs reactive power), and <b>Cost</b> ($/MWh) where reported.</p>
+    <p><b>Times</b> shown in Atlantic Standard Time (AST, UTC−4).</p>
+  </div>
+
+  <div class="source-note">
+    <p><b>Data source:</b> <a href="https://genera-pr.com/data-generacion">Genera PR / PREPA operational feed</a>. This page is not affiliated with Genera PR or PREPA.</p>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <p>&copy; <span id="copyright-year">2026</span> Sens ABI LLC. All rights reserved.</p>
+</footer>
+<script>document.getElementById('copyright-year').textContent=new Date().getFullYear();</script>
+
+<script>
+  // --- Config ---
+  const SUPABASE_URL = "https://grovomkpsqgzakfuvuii.supabase.co";
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdyb3ZvbWtwc3FnemFrZnV2dWlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NzkxMjgsImV4cCI6MjA5MDE1NTEyOH0.U_ZH5gJij5NLkU786mV58uJ0orHZ6ElMkCtyoyuCvBg";
+
+  const FUEL_COLORS = {
+    Bunker: "#6b4423",
+    Diesel: "#d1793f",
+    LNG:    "#3a86a8",
+    Coal:   "#52525b",
+    Renew:  "#76ad2a",
+  };
+  const FUEL_LABELS = { Renew: "Renewable" };
+  const TYPE_COLORS = {
+    "Ciclo Combinado":  "#3a86a8",
+    "Vapor":            "#6b4423",
+    "COGEN":            "#7209b7",
+    "Turbina de Gas":   "#d1793f",
+    "Renovable":        "#76ad2a",
+    "Hidroelectricas":  "#2a9d8f",
+  };
+  const OTHER_COLOR = "#999999";
+
+  const chartFont = { family: "'Source Code Pro', monospace" };
+
+  // --- Supabase fetch helper (paginates to bypass server max-rows cap) ---
+  async function sbQuery(view, params = "") {
+    const pageSize = 1000;
+    let offset = 0, all = [];
+    while (true) {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/${view}?${params}&limit=${pageSize}&offset=${offset}`, {
+        headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
+      });
+      if (!res.ok) throw new Error(`Supabase ${view}: ${res.status}`);
+      const rows = await res.json();
+      all = all.concat(rows);
+      if (rows.length < pageSize) break;
+      offset += pageSize;
+    }
+    return all;
+  }
+
+  const fmt = (n, d = 0) =>
+    (n === null || n === undefined || isNaN(n)) ? "—"
+      : Number(n).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+
+  // --- State ---
+  let chartFuel = null, chartCapacity = null, chartHistory = null;
+  let latestMetrics = null, capacityBlocks = null, unitRows = [];
+  let capMode = "daily";
+
+  function showNoData(msg) {
+    document.getElementById("status-value").textContent = "No data yet";
+    document.getElementById("status-label").textContent = "";
+    document.getElementById("status-summary").textContent = msg || "The generation poller has not recorded any snapshots yet.";
+    document.getElementById("status-dot").style.background = "#d5d3cd";
+    document.getElementById("status-hero").style.borderColor = "#d5d3cd";
+    document.getElementById("stats-grid").innerHTML = "";
+    for (const id of ["type-bars"]) document.getElementById(id).innerHTML = '<div class="no-data">No data.</div>';
+    document.getElementById("fuel-legend").innerHTML = "";
+    document.querySelector("#unit-table tbody").innerHTML = '<tr><td colspan="6" class="no-data">No data.</td></tr>';
+  }
+
+  // --- Load ---
+  async function loadCore() {
+    const [latestRows, capRows, uRows] = await Promise.all([
+      sbQuery("v_generation_latest", "select=*"),
+      sbQuery("v_generation_capacity", "select=*"),
+      sbQuery("v_generation_units", "select=*"),
+    ]);
+    if (!latestRows.length) { showNoData(); return; }
+
+    const latest = latestRows[0];
+    latestMetrics = { ...(latest.metrics || {}), observed_at: latest.observed_at, source_updated_at: latest.source_updated_at };
+    const fuelMix = latest.fuel_mix || [];
+    capacityBlocks = (capRows[0] && capRows[0].capacity) || null;
+    unitRows = uRows || [];
+
+    renderHero();
+    renderStatTiles();
+    renderFuelMix(fuelMix);
+    renderTypeBars();
+    renderCapacity();
+    setupTypeFilter();
+    renderUnitTable();
+  }
+
+  async function loadHistory(days) {
+    const since = new Date(Date.now() - days * 86400000).toISOString();
+    const rows = await sbQuery("v_generation_metrics_history",
+      `select=observed_at,total_generation_mw,available_capacity_mw&observed_at=gte.${since}&order=observed_at.asc`);
+    renderHistory(rows);
+  }
+
+  // --- Hero ---
+  function renderHero() {
+    const m = latestMetrics;
+    const total = m.totalGeneration;
+    document.getElementById("status-value").innerHTML = `${fmt(total)} <small>MW generating</small>`;
+    document.getElementById("status-label").textContent =
+      m.renewablePct != null ? `${fmt(m.renewablePct)}% renewable · ${fmt(m.fossilPct)}% fossil` : "";
+    document.getElementById("status-summary").textContent =
+      m.availableCapacityMw != null ? `${fmt(m.availableCapacityMw)} MW available capacity on the system` : "";
+    document.getElementById("status-breakdown").innerHTML =
+      `<span><span class="num">${fmt(m.operatingReserveMw)}</span> MW operating reserve</span>` +
+      `<span><span class="num">${fmt(m.spinningReserveMw)}</span> MW spinning reserve</span>` +
+      (m.nextHourMw != null ? `<span><span class="num">${fmt(m.nextHourMw)}</span> MW next-hour forecast</span>` : "");
+
+    // Dot reflects feed freshness (is the data live?)
+    const srcTs = m.source_updated_at ? new Date(m.source_updated_at) : new Date(m.observed_at);
+    const ageMin = (Date.now() - srcTs.getTime()) / 60000;
+    const fresh = ageMin <= 45 ? "#76ad2a" : ageMin <= 180 ? "#faa72a" : "#e04343";
+    document.getElementById("status-dot").style.background = fresh;
+    document.getElementById("status-hero").style.borderColor = fresh;
+    document.getElementById("status-timestamp").textContent =
+      `Feed updated: ${srcTs.toLocaleString("en-US", { timeZone: "America/Puerto_Rico", dateStyle: "medium", timeStyle: "short" })} AST`;
+    document.getElementById("mix-timestamp").textContent =
+      srcTs.toLocaleString("en-US", { timeZone: "America/Puerto_Rico", dateStyle: "medium", timeStyle: "short" }) + " AST";
+  }
+
+  // --- Stat tiles ---
+  function renderStatTiles() {
+    const m = latestMetrics;
+    const tiles = [
+      { label: "Total Generation", value: fmt(m.totalGeneration), unit: "MW" },
+      { label: "Available Capacity", value: fmt(m.availableCapacityMw), unit: "MW" },
+      { label: "Operating Reserve", value: fmt(m.operatingReserveMw), unit: "MW",
+        sub: m.totalGeneration ? `${fmt(m.operatingReserveMw / m.totalGeneration * 100, 0)}% of generation` : "" },
+      { label: "Spinning Reserve", value: fmt(m.spinningReserveMw), unit: "MW" },
+      { label: "Renewable Share", value: fmt(m.renewablePct), unit: "%",
+        sub: m.totalGeneration != null && m.renewablePct != null ? `${fmt(m.totalGeneration * m.renewablePct / 100)} MW` : "" },
+      { label: "Peak Today", value: fmt(m.peakTodayMw), unit: "MW",
+        sub: m.peakAnnualMw != null ? `annual peak ${fmt(m.peakAnnualMw)} MW` : "" },
+    ];
+    document.getElementById("stats-grid").innerHTML = tiles.map(t => `
+      <div class="stat-tile">
+        <div class="stat-label">${t.label}</div>
+        <div class="stat-value">${t.value} <small>${t.unit}</small></div>
+        ${t.sub ? `<div class="stat-sub">${t.sub}</div>` : ""}
+      </div>`).join("");
+  }
+
+  // --- Fuel mix donut ---
+  function renderFuelMix(fuelMix) {
+    if (chartFuel) chartFuel.destroy();
+    const labels = fuelMix.map(f => FUEL_LABELS[f.fuel] || f.fuel);
+    const data = fuelMix.map(f => f.pct);
+    const colors = fuelMix.map(f => FUEL_COLORS[f.fuel] || OTHER_COLOR);
+
+    chartFuel = new Chart(document.getElementById("chart-fuel"), {
+      type: "doughnut",
+      data: { labels, datasets: [{ data, backgroundColor: colors, borderColor: "#fff", borderWidth: 2 }] },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: "58%",
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            titleFont: chartFont, bodyFont: chartFont,
+            callbacks: { label: c => ` ${c.label}: ${c.parsed}%` },
+          },
+        },
+      },
+    });
+
+    document.getElementById("fuel-legend").innerHTML = fuelMix.map(f => `
+      <div class="fuel-legend-item">
+        <span class="fuel-legend-swatch" style="background:${FUEL_COLORS[f.fuel] || OTHER_COLOR}"></span>
+        ${FUEL_LABELS[f.fuel] || f.fuel}
+        <span class="fl-pct">${fmt(f.pct)}%</span>
+      </div>`).join("");
+  }
+
+  // --- Generation by plant type (horizontal bars) ---
+  function renderTypeBars() {
+    const byType = {};
+    for (const u of unitRows) {
+      const mw = Number(u.mw) || 0;
+      byType[u.plant_type] = (byType[u.plant_type] || 0) + Math.max(0, mw);
+    }
+    const entries = Object.entries(byType).sort((a, b) => b[1] - a[1]);
+    if (!entries.length) { document.getElementById("type-bars").innerHTML = '<div class="no-data">No data.</div>'; return; }
+    const max = Math.max(...entries.map(e => e[1]));
+    document.getElementById("type-bars").innerHTML = entries.map(([type, mw]) => `
+      <div class="type-bar-row">
+        <div class="type-bar-head"><span>${type}</span><span class="num">${fmt(mw, 1)} MW</span></div>
+        <div class="type-bar-track">
+          <div class="type-bar-fill" style="width:${max ? (mw / max * 100) : 0}%;background:${TYPE_COLORS[type] || OTHER_COLOR}"></div>
+        </div>
+      </div>`).join("");
+  }
+
+  // --- Available capacity (category bar) ---
+  function renderCapacity() {
+    if (!capacityBlocks) { return; }
+    const block = capacityBlocks[capMode];
+    if (chartCapacity) chartCapacity.destroy();
+    if (!block || !block.labels) return;
+    chartCapacity = new Chart(document.getElementById("chart-capacity"), {
+      type: "bar",
+      data: {
+        labels: block.labels,
+        datasets: [{ label: "Available capacity (MW)", data: block.capacity, backgroundColor: "#3a86a8", borderRadius: 3 }],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { labels: { font: { ...chartFont, size: 11 } } }, tooltip: { titleFont: chartFont, bodyFont: chartFont } },
+        scales: {
+          x: { ticks: { font: { ...chartFont, size: 10 }, autoSkip: true, maxRotation: 0 }, grid: { display: false } },
+          y: { ticks: { font: { ...chartFont, size: 10 } }, grid: { color: "#f0f0f0" }, title: { display: true, text: "MW", font: { ...chartFont, size: 10 } } },
+        },
+      },
+    });
+  }
+
+  // --- Generation vs capacity over time ---
+  function renderHistory(rows) {
+    if (chartHistory) chartHistory.destroy();
+    const el = document.getElementById("chart-history");
+    if (!rows || !rows.length) {
+      const ctx = el.getContext("2d");
+      ctx.clearRect(0, 0, el.width, el.height);
+      return;
+    }
+    const labels = rows.map(r => new Date(r.observed_at));
+    const ptR = rows.length > 100 ? 0 : 2;
+    chartHistory = new Chart(el, {
+      type: "line",
+      data: {
+        labels,
+        datasets: [
+          { label: "Total generation", data: rows.map(r => r.total_generation_mw),
+            borderColor: "#e63946", backgroundColor: "rgba(230,57,70,0.12)", fill: true, tension: 0.3, pointRadius: ptR },
+          { label: "Available capacity", data: rows.map(r => r.available_capacity_mw),
+            borderColor: "#3a86a8", backgroundColor: "rgba(58,134,168,0.08)", fill: false, borderDash: [5, 4], tension: 0.3, pointRadius: ptR },
+        ],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { labels: { font: { ...chartFont, size: 11 } } }, tooltip: { titleFont: chartFont, bodyFont: chartFont } },
+        scales: {
+          x: { type: "time", ticks: { font: { ...chartFont, size: 10 } }, grid: { color: "#f0f0f0" } },
+          y: { ticks: { font: { ...chartFont, size: 10 }, callback: v => v + " MW" }, grid: { color: "#f0f0f0" } },
+        },
+      },
+    });
+  }
+
+  // --- Unit table ---
+  let sortCol = 3, sortDir = "desc", typeFilter = "";
+  const COL_KEYS = ["plant", "plant_type", "unit", "mw", "mvar", "cost"];
+
+  function setupTypeFilter() {
+    const types = [...new Set(unitRows.map(u => u.plant_type))].sort();
+    const sel = document.getElementById("type-filter");
+    sel.innerHTML = '<option value="">All types</option>' + types.map(t => `<option value="${t}">${t}</option>`).join("");
+    sel.addEventListener("change", () => { typeFilter = sel.value; renderUnitTable(); });
+  }
+
+  function renderUnitTable() {
+    let rows = unitRows.slice();
+    if (typeFilter) rows = rows.filter(r => r.plant_type === typeFilter);
+    const key = COL_KEYS[sortCol];
+    rows.sort((a, b) => {
+      let va = a[key], vb = b[key];
+      if (["mw", "mvar", "cost"].includes(key)) { va = Number(va) || 0; vb = Number(vb) || 0; }
+      const cmp = typeof va === "string" ? String(va).localeCompare(String(vb)) : va - vb;
+      return sortDir === "asc" ? cmp : -cmp;
+    });
+    const tbody = document.querySelector("#unit-table tbody");
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="6" class="no-data">No units match.</td></tr>'; return; }
+    const totalMw = rows.reduce((s, r) => s + (Number(r.mw) || 0), 0);
+    tbody.innerHTML = rows.map(r => `<tr>
+        <td><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${TYPE_COLORS[r.plant_type] || OTHER_COLOR};margin-right:6px"></span>${r.plant}</td>
+        <td>${r.plant_type}</td>
+        <td>${r.unit}</td>
+        <td class="num">${fmt(r.mw, 2)}</td>
+        <td class="num">${fmt(r.mvar, 2)}</td>
+        <td class="num">${(Number(r.cost) > 0) ? fmt(r.cost, 2) : "—"}</td>
+      </tr>`).join("") + `<tr style="font-weight:700;border-top:2px solid #000">
+        <td>Total${typeFilter ? " (" + typeFilter + ")" : ""}</td><td></td>
+        <td class="num">${rows.length} units</td>
+        <td class="num">${fmt(totalMw, 1)}</td><td></td><td></td>
+      </tr>`;
+  }
+
+  document.querySelectorAll("#unit-table th.sortable").forEach(th => {
+    th.addEventListener("click", () => {
+      const col = parseInt(th.dataset.col);
+      if (sortCol === col) sortDir = sortDir === "asc" ? "desc" : "asc";
+      else { sortCol = col; sortDir = (col <= 2) ? "asc" : "desc"; }
+      document.querySelectorAll("#unit-table th.sortable").forEach(h => h.classList.remove("asc", "desc"));
+      th.classList.add(sortDir);
+      renderUnitTable();
+    });
+  });
+
+  // --- Capacity toggle ---
+  document.querySelectorAll("[data-cap]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("[data-cap]").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      capMode = btn.dataset.cap;
+      renderCapacity();
+    });
+  });
+
+  // --- History range buttons ---
+  document.querySelectorAll(".controls button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".controls button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      loadHistory(parseInt(btn.dataset.days));
+    });
+  });
+
+  // --- Init ---
+  loadCore().catch(e => { console.error(e); showNoData("Could not load generation data: " + e.message); });
+  loadHistory(1).catch(e => console.error(e));
+</script>
+</body>
+</html>
