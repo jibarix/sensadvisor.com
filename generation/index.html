@@ -369,9 +369,9 @@
     <p><b>Hourly load shape</b> — For each hour of the day (AST), the shaded band is the 10th–90th percentile of generation across stored days and the solid line is the median; today's actual is overlaid. This shows whether the system is running above or below its usual level for the time of day, and — in the <b>Reserve</b> view — <i>when</i> reserves are typically thinnest (usually the evening peak, as solar fades and demand rises). The baseline currently spans roughly two weeks of data and sharpens as more accumulate; today is excluded from the "typical" band.</p>
     <p><b>Reserves</b> — <b>Spinning reserve</b> is synchronized capacity ready immediately; <b>operating reserve</b> is total reserve available. Both are the cushion between what is generating and what could be called on.</p>
     <p><b>Units online vs. offline</b> — The feed lists every generating unit each snapshot with its output. A unit is counted <b>online</b> when it is producing at least 1 MW and <b>offline</b> otherwise (idle, down, or — for solar — simply nighttime). The feed reports output, not the <i>reason</i> a unit is at zero, so "offline" does not distinguish a planned outage from a forced one from normal diurnal cycling.</p>
-    <p><b>◆ Critical units</b> — Units that historically carry meaningful, dispatchable load — so their being offline is a real loss of firm capacity, not a normal daily cycle. A unit is flagged Critical when, across the stored history, it is non-renewable, averages at least 20 MW when running, and runs at least half the time. Intermittent solar and wind are deliberately excluded (a zero at night is expected, not a loss). When a Critical unit is currently offline, its row is highlighted and the summary tallies the firm MW down. The set is derived from a baseline window and refreshed periodically; the "usually ~N MW" tooltip is each unit's average output when running.</p>
+    <p><b>◆ Critical units</b> — Units that historically carry meaningful, dispatchable load — so their being offline is a real loss of firm capacity, not a normal daily cycle. A unit is flagged Critical when, across the stored history, it is non-renewable, averages at least 20 MW when running, and runs at least half the time. Intermittent solar and wind are deliberately excluded (a zero at night is expected, not a loss). When a Critical unit is currently offline, its row is highlighted and the summary tallies the firm MW down. The <i>set</i> of Critical units is curated by hand, but each one's "usually ~N MW" — its average output when running — updates automatically from the stored per-unit history, so the typical figures stay current as units change.</p>
     <p><b>Plant &amp; unit dispatch</b> — Per unit: <b>MW now</b> (real power), <b>MVar</b> (reactive power; can be negative when a unit absorbs reactive power), and <b>Cost</b> ($/MWh). Where a running unit reports no price, the cost is shown in grey italics with a <b>~</b> prefix — imputed from the MW-weighted average of priced running units of the same plant type (the same method as the blended cost below). A unit whose type has no priced peer shows a dash.</p>
-    <p><b>Typical MW &amp; last online</b> — For each Critical unit the table shows its <b>Typical MW</b> (average output when running) beside its live output, and <b>Last online</b> — how long since it last produced at least 1 MW. A unit that is down then reads as a concrete loss against what it normally contributes, and the summary compares firm capacity online now against the total the Critical fleet provides when fully in service. (Last-online history is read from a stored per-unit view; if that view is unavailable the column shows a dash.)</p>
+    <p><b>Typical MW &amp; last online</b> — For each Critical unit the table shows its <b>Typical MW</b> (average output when running) beside its live output, and <b>Last online</b> — how long since it last produced at least 1 MW. A unit that is down then reads as a concrete loss against what it normally contributes, and the summary compares firm capacity online now against the total the Critical fleet provides when fully in service. (Both Typical MW and Last online are read from a stored per-unit view that refreshes each snapshot; if it is unavailable, Typical MW falls back to a baked baseline and Last online shows a dash.)</p>
     <p><b>Blended energy cost</b> — The MW-weighted average price of everything generating at each snapshot: each unit's $/MWh weighted by its megawatts. A running unit that reports no price is imputed at the MW-weighted average price of other running units of the same plant type — so an unpriced gas turbine is valued like the gas turbines that do report a price, rather than being dropped and understating the figure. The small amount of fuel-free generation with no priced peer of its type is excluded. It rises when cheaper baseload is offline and pricier peaking units backfill, so it tracks the cost consequence of the same outages the units table shows.</p>
     <p><b>Times</b> shown in Atlantic Standard Time (AST, UTC−4).</p>
   </div>
@@ -400,8 +400,10 @@
   // so their being offline is a real loss of firm capacity (unlike solar/wind at
   // night). Derived from 1,774 stored snapshots (~13 days, ending 2026-07-19):
   // non-renewable, averaging >= 20 MW when online and online >= 50% of the time.
-  // Keyed "plant_type|plant|unit"; baselineMw = avg output when running; region =
-  // where it sits on the grid. Regenerate periodically (or replace with a view).
+  // Keyed "plant_type|plant|unit"; region = where it sits on the grid. baselineMw
+  // (avg output when running) is a FALLBACK — at runtime each unit's Typical MW is
+  // refreshed live from v_generation_unit_stats.avg_online_mw, so these numbers only
+  // apply if that view is unavailable. The set/regions are still curated by hand.
   const CRITICAL_UNITS = {
     "Vapor|Costa Sur|Unit 5":                  { baselineMw: 292, region: "South" },
     "Vapor|Costa Sur|Unit 6":                  { baselineMw: 273, region: "South" },
@@ -569,7 +571,7 @@
     latestMetrics = { ...(latest.metrics || {}), observed_at: latest.observed_at, source_updated_at: latest.source_updated_at };
     const fuelMix = latest.fuel_mix || [];
     unitRows = (uRows || []).map(r => ({ ...r, _mw: num(r.mw) || 0 }));
-    unitRows.forEach(r => { r._online = r._mw >= ONLINE_MW; r._crit = CRITICAL_UNITS[critKey(r)] || null; });
+    unitRows.forEach(r => { r._online = r._mw >= ONLINE_MW; const c = CRITICAL_UNITS[critKey(r)]; r._crit = c ? { ...c } : null; });
     imputeUnitCost();
     allHistory = hist || [];
 
@@ -582,11 +584,17 @@
     } catch (e) { costHistory = []; }
     try {
       const stats = await sbQuery("v_generation_unit_stats",
-        "select=plant_type,plant,unit,last_online_at");
+        "select=plant_type,plant,unit,avg_online_mw,last_online_at");
       const sm = {};
-      for (const s of stats) sm[`${s.plant_type}|${s.plant}|${s.unit}`] = s.last_online_at;
-      unitRows.forEach(r => { r._lastOnline = sm[critKey(r)] || null; });
-    } catch (e) { /* unit-stats view not deployed yet — last-online stays blank */ }
+      for (const s of stats) sm[`${s.plant_type}|${s.plant}|${s.unit}`] = s;
+      unitRows.forEach(r => {
+        const s = sm[critKey(r)];
+        r._lastOnline = s ? s.last_online_at : null;
+        // Self-updating baseline: refresh each Critical unit's Typical MW from the
+        // stored-history average when the view has it; the baked value is the fallback.
+        if (r._crit && s && num(s.avg_online_mw) > 0) r._crit.baselineMw = Math.round(num(s.avg_online_mw));
+      });
+    } catch (e) { /* unit-stats view not deployed yet — last-online + Typical MW fall back to baked values */ }
 
     computeDerived();
     hourly = buildHourly(allHistory);
