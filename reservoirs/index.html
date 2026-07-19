@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PR Reservoir Levels | SENS ADVISOR</title>
+
+<meta name="description" content="Live water levels for Puerto Rico's principal reservoirs (embalses): elevation vs PRASA's operational alert bands — Desborde, Seguridad, Observación, Ajustes, Control — a rationing-risk read, per-reservoir status, and level history. From the USGS damsite gauges.">
+<meta property="og:title" content="PR Reservoir Levels">
+<meta property="og:description" content="Puerto Rico reservoir levels vs PRASA alert bands — rationing-risk read, per-reservoir status, and level history.">
+<meta property="og:image" content="https://sensadvisor.com/outages/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://sensadvisor.com/reservoirs/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="PR Reservoir Levels">
+<meta name="twitter:description" content="Puerto Rico reservoir levels vs PRASA alert bands — rationing-risk read, per-reservoir status, and level history.">
+<meta name="twitter:image" content="https://sensadvisor.com/outages/og-image.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+
+<style>
+  :root {
+    --primary-bg: #ffffff;
+    --primary-text: #000000;
+    --secondary-text: #333333;
+    --border-primary: #000000;
+    --accent-light: #f0f0f0;
+    --accent-lighter: #f9f9f9;
+    --ok: #76ad2a;
+    --warn: #faa72a;
+    --crit: #e04343;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Source Code Pro', monospace;
+    background: var(--primary-bg);
+    color: var(--primary-text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  .site-nav { background: #000; color: #fff; font-size: 0.82rem; padding: 10px 0; }
+  .site-nav-inner { max-width: 1400px; margin: 0 auto; padding: 0 20px; display: flex; gap: 20px; flex-wrap: wrap; }
+  .site-nav a { color: #fff; text-decoration: none; opacity: 0.7; transition: opacity 0.15s; }
+  .site-nav a:hover { opacity: 1; text-decoration: underline; }
+  .site-nav a[aria-current="page"] { opacity: 1; font-weight: 600; }
+
+  .site-footer { text-align: center; padding: 24px 20px; margin-top: 40px; border-top: 1px solid #ddd; font-size: 0.82rem; color: #555; }
+  .site-footer a { color: inherit; }
+
+  .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+
+  .header {
+    position: sticky; top: 0;
+    background: var(--primary-bg);
+    border-bottom: 2px solid var(--border-primary);
+    margin-bottom: 30px; padding-bottom: 16px;
+    z-index: 100;
+  }
+  .header-content {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-bottom: 8px;
+  }
+  .logo { font-size: 1.5rem; font-weight: 700; color: var(--primary-text); text-decoration: none; }
+  .logo span { font-weight: 400; color: var(--secondary-text); }
+  .header-links {
+    display: flex; gap: 14px; align-items: center;
+    font-size: 0.85rem; color: var(--secondary-text); flex-wrap: wrap;
+  }
+  .header-links a {
+    font-weight: 600; text-decoration: underline;
+    color: var(--primary-text); transition: color 0.2s ease;
+  }
+  .header-links a:hover { color: var(--secondary-text); }
+  .header h1 { font-size: 1.8rem; font-weight: 600; margin-top: 10px; }
+  .header .subtitle { font-size: 0.85rem; color: var(--secondary-text); margin-top: 2px; }
+
+  .panel {
+    background: var(--primary-bg);
+    border: 2px solid var(--border-primary);
+    border-radius: 8px; padding: 26px; margin-bottom: 34px;
+    transition: all 0.2s ease;
+  }
+  .panel:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  }
+  .panel h2 {
+    font-size: 1.25rem; font-weight: 600; margin-bottom: 14px;
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap;
+  }
+  .panel-note { font-size: 0.75rem; font-weight: 400; color: var(--secondary-text); }
+  .explain p { font-size: 0.8rem; color: var(--secondary-text); margin-bottom: 12px; }
+
+  .chart-container { position: relative; width: 100%; height: 350px; }
+  .chart-container.tall { height: 560px; }
+
+  .nav-anchor { display: block; position: relative; top: -80px; visibility: hidden; }
+
+  .controls { display: flex; gap: 12px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+  .controls select, .controls button {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.85rem; padding: 6px 12px;
+    border: 2px solid var(--border-primary); border-radius: 4px;
+    background: var(--primary-bg); color: var(--primary-text); cursor: pointer;
+  }
+  .controls button:hover { background: var(--primary-text); color: var(--primary-bg); }
+  .controls button.active { background: var(--primary-text); color: var(--primary-bg); }
+  .controls .spacer { flex: 1; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--accent-light); }
+  th {
+    font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--secondary-text); border-bottom: 2px solid var(--border-primary);
+  }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  tr:hover { background: var(--accent-lighter); }
+  th.sortable { cursor: pointer; user-select: none; }
+  th.sortable:hover { color: var(--primary-text); }
+  th.sortable::after { content: " \2195"; opacity: 0.3; }
+  th.sortable.asc::after { content: " \2191"; opacity: 1; }
+  th.sortable.desc::after { content: " \2193"; opacity: 1; }
+  .table-wrap { overflow-x: auto; }
+  .no-data { text-align: center; padding: 40px; color: var(--secondary-text); font-style: italic; }
+
+  .badge { font-size: 0.68rem; font-weight: 700; padding: 1px 7px; border-radius: 10px; letter-spacing: 0.3px; white-space: nowrap; }
+  .badge-op { background: var(--accent-light); color: #444; border: 1px solid #ccc; }
+
+  /* Fill bar inside the table + overview legend */
+  .fill-cell { display: flex; align-items: center; gap: 8px; min-width: 140px; }
+  .fill-track { flex: 1; height: 12px; background: var(--accent-light); border-radius: 3px; overflow: hidden; }
+  .fill-bar { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+  .fill-pct { font-variant-numeric: tabular-nums; font-weight: 700; font-size: 0.8rem; min-width: 42px; text-align: right; }
+
+  .band-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 14px; font-size: 0.78rem; color: var(--secondary-text); }
+  .band-legend-item { display: flex; align-items: center; gap: 6px; }
+  .band-swatch { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+
+  .source-note {
+    font-size: 0.75rem; color: var(--secondary-text); margin-top: 30px;
+    padding-top: 16px; border-top: 1px solid var(--accent-light);
+  }
+  .source-note a { color: var(--primary-text); }
+
+  /* Status hero */
+  .status-hero {
+    border: 3px solid var(--border-primary); border-radius: 12px;
+    padding: 32px 32px; margin-bottom: 22px;
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center; gap: 8px;
+    transition: border-color 0.4s ease, background 0.4s ease;
+  }
+  .status-dot {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+    margin-bottom: 4px;
+    animation: pulse 2s ease-in-out infinite;
+    box-shadow: 0 0 12px rgba(0,0,0,0.15);
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 12px rgba(0,0,0,0.15); }
+    50% { opacity: 0.6; box-shadow: 0 0 24px rgba(0,0,0,0.25); }
+  }
+  .status-hero .status-label { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.3px; line-height: 1.1; }
+  .status-hero .status-reason { font-size: 0.95rem; color: var(--secondary-text); max-width: 680px; }
+  .status-hero .status-breakdown {
+    display: flex; gap: 10px; margin-top: 12px;
+    font-size: 0.8rem; color: var(--secondary-text); flex-wrap: wrap;
+    justify-content: center;
+  }
+  .status-hero .status-breakdown .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 10px; border-radius: 12px; border: 1px solid #ddd; font-weight: 600;
+  }
+  .status-hero .status-breakdown .chip .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .status-hero .status-timestamp { font-size: 0.75rem; color: var(--secondary-text); margin-top: 10px; }
+
+  /* Stat tiles */
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px; margin-bottom: 34px;
+  }
+  .stat-tile {
+    border: 2px solid var(--border-primary); border-radius: 8px;
+    padding: 16px 18px; display: flex; flex-direction: column; gap: 4px;
+    transition: all 0.2s ease;
+  }
+  .stat-tile:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.10); }
+  .stat-tile .stat-label {
+    font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--secondary-text);
+  }
+  .stat-tile .stat-value { font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .stat-tile .stat-value small { font-size: 0.85rem; font-weight: 500; color: var(--secondary-text); }
+  .stat-tile .stat-sub { font-size: 0.72rem; color: var(--secondary-text); }
+  .stat-tile.accent-crit { border-color: var(--crit); }
+  .stat-tile.accent-warn { border-color: var(--warn); }
+  .stat-tile.accent-ok { border-color: var(--ok); }
+
+  @media (max-width: 768px) {
+    .status-hero { padding: 24px 18px; }
+    .status-hero .status-label { font-size: 1.2rem; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .chart-container { height: 300px; }
+    .chart-container.tall { height: 620px; }
+  }
+</style>
+</head>
+<body>
+<div class="site-nav">
+  <div class="site-nav-inner">
+    <a href="/">Home</a>
+    <a href="/rentals/">Rentals</a>
+    <a href="/recession/">Recession</a>
+    <a href="/pr-lmci/">PR-LMCI</a>
+    <a href="/outages/">Outages</a>
+    <a href="/generation/">Generation</a>
+    <a href="/reservoirs/" aria-current="page">Reservoirs</a>
+  </div>
+</div>
+<div class="container">
+  <header class="header">
+    <div class="header-content">
+      <a class="logo" href="/">SENS ADVISOR</a>
+      <div class="header-links">
+        <a href="#status">Status</a>
+        <a href="#overview">Overview</a>
+        <a href="#storage">Storage</a>
+        <a href="#table">Reservoirs</a>
+        <a href="#history">History</a>
+      </div>
+    </div>
+    <h1>Puerto Rico Reservoir Levels</h1>
+    <div class="subtitle">Elevation at each damsite vs PRASA's operational alert bands — a rationing-risk read for the island's water supply.</div>
+  </header>
+
+  <!-- System status -->
+  <span class="nav-anchor" id="status"></span>
+  <div class="status-hero" id="status-hero">
+    <div class="status-dot" id="status-dot" style="background:#d5d3cd;"></div>
+    <div class="status-label" id="status-label">Loading…</div>
+    <div class="status-reason" id="status-reason">Fetching the latest reservoir readings.</div>
+    <div class="status-breakdown" id="status-breakdown"></div>
+    <div class="status-timestamp" id="status-timestamp"></div>
+  </div>
+
+  <div class="stats-grid" id="stats-grid"></div>
+
+  <!-- Island overview -->
+  <span class="nav-anchor" id="overview"></span>
+  <div class="panel">
+    <h2>Fill vs operating range <span class="panel-note">0% = Control floor (rationing) · 100% = Desborde crest (spillover)</span></h2>
+    <div class="explain">
+      <p>Each bar shows where a reservoir sits between its <b>Control</b> floor (the level at which rationing controls begin, 0%) and its <b>Desborde</b> crest (the spillway, 100%). It is a threshold-relative fill gauge, not percent-of-volume. Bars are colored by the alert band the reservoir is currently in; the most-concerning reservoirs sort to the top.</p>
+    </div>
+    <div class="chart-container tall"><canvas id="chart-overview"></canvas></div>
+    <div class="band-legend" id="band-legend"></div>
+  </div>
+
+  <!-- Storage capacity & sedimentation -->
+  <span class="nav-anchor" id="storage"></span>
+  <div class="panel">
+    <h2>Storage capacity &amp; sedimentation <span class="panel-note">DRNA/PRASA PIRA 2016 · Mm³</span></h2>
+    <div class="explain">
+      <p>Each bar is a reservoir's <b>original</b> design storage. The solid blue part is the volume still usable as of the last bathymetric study; the faded brown part has silted in. Puerto Rico's older dams have lost heavily — several are down to a third or less of their built capacity, which is why a reservoir can hit rationing levels after only a short dry spell. Source: DRNA/PRASA <i>Plan Integral de Recursos de Agua</i> (2016), Tabla 5.5 — a 2015 snapshot, so real losses are now somewhat larger.</p>
+    </div>
+    <div class="chart-container tall"><canvas id="chart-storage"></canvas></div>
+  </div>
+
+  <!-- Reservoir table -->
+  <span class="nav-anchor" id="table"></span>
+  <div class="panel">
+    <h2>Reservoir status <span class="panel-note" id="table-note"></span></h2>
+    <div class="table-wrap">
+      <table id="res-table">
+        <thead>
+          <tr>
+            <th class="sortable" data-col="name">Reservoir</th>
+            <th class="sortable" data-col="municipio">Municipio</th>
+            <th class="sortable" data-col="operator">Operator</th>
+            <th class="sortable num" data-col="level_m">Level (m)</th>
+            <th class="sortable" data-col="status_rank">Status</th>
+            <th class="sortable num" data-col="pct_operating">Fill</th>
+            <th class="sortable num" data-col="capacity_mm3">Cap (Mm³)</th>
+            <th class="sortable num" data-col="safe_yield_mgd">Yield (MGD)</th>
+            <th class="sortable num" data-col="delta24h">24h Δ</th>
+            <th class="sortable num" data-col="measured_at">Updated</th>
+          </tr>
+        </thead>
+        <tbody><tr><td colspan="10" class="no-data">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- History -->
+  <span class="nav-anchor" id="history"></span>
+  <div class="panel">
+    <h2>Level history <span class="panel-note">gauge elevation vs the five alert lines</span></h2>
+    <div class="controls">
+      <select id="hist-site"></select>
+      <div class="spacer"></div>
+      <button data-days="1">1d</button>
+      <button data-days="7">7d</button>
+      <button data-days="30">30d</button>
+      <button data-days="0" class="active">All</button>
+    </div>
+    <div class="chart-container"><canvas id="chart-history"></canvas></div>
+    <div class="explain" style="margin-top:14px;">
+      <p id="hist-note"></p>
+    </div>
+  </div>
+
+  <div class="source-note">
+    <p><b>Data source:</b> <a href="https://waterservices.usgs.gov/">USGS Water Services</a> instantaneous values, parameter 72376 (reservoir elevation above local mean sea level, meters), read from the damsite gauges the USGS operates for PR's principal embalses. <b>Alert bands (Desborde / Seguridad / Observación / Ajustes / Control):</b> transcribed from PRASA's official "Monitoreo Diario de Embalses" chart — independently corroborated by the dam-crest elevations in PIRA Tabla 3.5 (agreement within ~1 m for ungated-overflow dams). <b>Reservoir facts</b> (storage &amp; sedimentation, safe yield, dam type/size, basin, year, owner, uses): DRNA/PRASA <i>Plan Integral de Recursos de Agua</i> (PIRA), Junio 2016 — Tabla 3.5 (información general) and Tabla 5.5 (sedimentación); a 2015 snapshot. This page is not affiliated with USGS, PRASA, or PREPA; the status read is an independent indicator, not an official rationing notice.</p>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <p>&copy; <span id="copyright-year">2026</span> Sens ABI LLC. All rights reserved.</p>
+</footer>
+<script>document.getElementById('copyright-year').textContent=new Date().getFullYear();</script>
+
+<script>
+  // --- Config ---
+  const SUPABASE_URL = "https://grovomkpsqgzakfuvuii.supabase.co";
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdyb3ZvbWtwc3FnemFrZnV2dWlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NzkxMjgsImV4cCI6MjA5MDE1NTEyOH0.U_ZH5gJij5NLkU786mV58uJ0orHZ6ElMkCtyoyuCvBg";
+  const AST_TZ = "America/Puerto_Rico";
+  const chartFont = { family: "'Source Code Pro', monospace" };
+
+  // The six PRASA operational bands, keyed by the status string the view emits.
+  // rank 0 (best/spilling) -> 5 (worst/below intake). Higher elevation = better.
+  const BANDS = {
+    "Desborde":          { rank: 0, color: "#3a86a8", label: "Spilling",     text: "#1f5a72" },
+    "Seguridad":         { rank: 1, color: "#76ad2a", label: "Safe",         text: "#3d6b0e" },
+    "Observación":       { rank: 2, color: "#faa72a", label: "Watch",        text: "#8a5a00" },
+    "Ajustes":           { rank: 3, color: "#d1793f", label: "Adjust",       text: "#8a4519" },
+    "Control":           { rank: 4, color: "#e04343", label: "Rationing",    text: "#b32020" },
+    "Fuera de Servicio": { rank: 5, color: "#7a1f1f", label: "Below intake", text: "#7a1f1f" },
+  };
+  const bandOf = (s) => BANDS[s] || { rank: 9, color: "#999", label: "Unknown", text: "#666" };
+  const hexA = (hex, a) => {
+    const n = parseInt(hex.slice(1), 16);
+    return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+  };
+
+  // --- Supabase fetch helper (paginates to bypass server max-rows cap) ---
+  async function sbQuery(view, params = "") {
+    const pageSize = 1000;
+    let offset = 0, all = [];
+    while (true) {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/${view}?${params}&limit=${pageSize}&offset=${offset}`, {
+        headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
+      });
+      if (!res.ok) throw new Error(`Supabase ${view}: ${res.status}`);
+      const rows = await res.json();
+      all = all.concat(rows);
+      if (rows.length < pageSize) break;
+      offset += pageSize;
+    }
+    return all;
+  }
+
+  const num = (v) => (v === null || v === undefined || v === "" || isNaN(Number(v))) ? null : Number(v);
+  const fmt = (n, d = 0) =>
+    (n === null || n === undefined || isNaN(n)) ? "—"
+      : Number(n).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+  const signed = (n, d = 2) => (n === null || n === undefined || isNaN(n)) ? "—" : (n >= 0 ? "+" : "") + fmt(n, d);
+
+  function relTime(iso) {
+    if (!iso) return "—";
+    const t = new Date(iso).getTime();
+    if (isNaN(t)) return "—";
+    const mins = Math.max(0, Math.round((Date.now() - t) / 60000));
+    if (mins < 60) return mins + "m ago";
+    const hrs = Math.round(mins / 60);
+    if (hrs < 48) return hrs + "h ago";
+    return Math.round(hrs / 24) + "d ago";
+  }
+
+  // A gauge that has gone this long without a new reading is treated as offline.
+  // USGS publishes these gauges with a normal lag of ~5-6 h, so 12 h cleanly
+  // separates a genuine outage (e.g. Cidra's sensor down since 2026-07-16) from lag.
+  const STALE_MS = 12 * 3600000;
+  const isStale = (iso) => { const t = iso ? new Date(iso).getTime() : NaN; return !isNaN(t) && (Date.now() - t) > STALE_MS; };
+
+  // Chart.js plugin: faint vertical dividers + AST date labels on the time axis.
+  const dayDividers = {
+    id: "dayDividers",
+    afterDraw(chart) {
+      const x = chart.scales.x;
+      if (!x || x.type !== "time" || !(x.max > x.min)) return;
+      const DAY = 86400000, AST_MIDNIGHT_UTC = 4 * 3600000; // AST = UTC-4, no DST
+      const spanDays = (x.max - x.min) / DAY;
+      const stepDays = spanDays <= 8 ? 1 : spanDays <= 20 ? 2 : spanDays <= 45 ? 3 : spanDays <= 100 ? 7 : 14;
+      const first = Math.ceil((x.min - AST_MIDNIGHT_UTC) / DAY) * DAY + AST_MIDNIGHT_UTC;
+      const { ctx, chartArea } = chart;
+      ctx.save();
+      ctx.font = "10px 'Source Code Pro', monospace";
+      ctx.textBaseline = "top";
+      for (let t = first; t <= x.max; t += stepDays * DAY) {
+        const px = x.getPixelForValue(t);
+        if (px < chartArea.left || px > chartArea.right) continue;
+        ctx.strokeStyle = "rgba(0,0,0,0.10)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(px, chartArea.top);
+        ctx.lineTo(px, chartArea.bottom);
+        ctx.stroke();
+        const label = new Date(t).toLocaleDateString("en-US", { timeZone: AST_TZ, month: "short", day: "numeric" });
+        const w = ctx.measureText(label).width;
+        ctx.fillStyle = "#888";
+        ctx.fillText(label, (px + 4 + w > chartArea.right) ? px - 4 - w : px + 4, chartArea.top + 2);
+      }
+      ctx.restore();
+    },
+  };
+
+  // Chart.js plugin: paint the alert bands + dashed threshold lines behind the
+  // level line on the history chart. Reads chart.$bands (set before each render).
+  const thresholdBands = {
+    id: "thresholdBands",
+    beforeDatasetsDraw(chart) {
+      const t = chart.$bands;
+      if (!t) return;
+      const y = chart.scales.y;
+      if (!y) return;
+      const { ctx, chartArea } = chart;
+      const stops = [
+        { from: -Infinity,      to: t.control_m,     color: hexA("#7a1f1f", 0.10) },
+        { from: t.control_m,    to: t.ajustes_m,     color: hexA("#e04343", 0.10) },
+        { from: t.ajustes_m,    to: t.observacion_m, color: hexA("#d1793f", 0.10) },
+        { from: t.observacion_m, to: t.seguridad_m,  color: hexA("#faa72a", 0.12) },
+        { from: t.seguridad_m,  to: t.desborde_m,    color: hexA("#76ad2a", 0.12) },
+        { from: t.desborde_m,   to: Infinity,        color: hexA("#3a86a8", 0.14) },
+      ];
+      ctx.save();
+      for (const s of stops) {
+        const hi = s.to === Infinity ? y.max : s.to;
+        const lo = s.from === -Infinity ? y.min : s.from;
+        if (hi <= y.min || lo >= y.max) continue;
+        const top = Math.max(chartArea.top, y.getPixelForValue(Math.min(y.max, hi)));
+        const bot = Math.min(chartArea.bottom, y.getPixelForValue(Math.max(y.min, lo)));
+        if (bot <= top) continue;
+        ctx.fillStyle = s.color;
+        ctx.fillRect(chartArea.left, top, chartArea.right - chartArea.left, bot - top);
+      }
+      const lines = [
+        { v: t.control_m, label: "Control" },
+        { v: t.ajustes_m, label: "Ajustes" },
+        { v: t.observacion_m, label: "Observación" },
+        { v: t.seguridad_m, label: "Seguridad" },
+        { v: t.desborde_m, label: "Desborde" },
+      ];
+      ctx.font = "10px 'Source Code Pro', monospace";
+      ctx.textBaseline = "bottom";
+      for (const ln of lines) {
+        if (ln.v == null || ln.v < y.min || ln.v > y.max) continue;
+        const py = y.getPixelForValue(ln.v);
+        ctx.strokeStyle = "rgba(0,0,0,0.28)";
+        ctx.setLineDash([4, 3]); ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(chartArea.left, py); ctx.lineTo(chartArea.right, py); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = "#555";
+        const w = ctx.measureText(ln.label).width;
+        ctx.fillText(ln.label, chartArea.right - w - 4, py - 2);
+      }
+      ctx.restore();
+    },
+  };
+
+  // --- State ---
+  let statusRows = [];             // enriched v_reservoir_status rows
+  let histBySite = {};             // site_no -> [{ t: ms, v: number }] asc
+  let chartOverview = null, chartHistory = null, chartStorage = null;
+  let sortCol = "status_rank", sortDir = "desc";
+  let histDays = 0, histSite = null;
+
+  // --- Load ---
+  async function init() {
+    let rows, hist;
+    try {
+      [rows, hist] = await Promise.all([
+        sbQuery("v_reservoir_status", "select=*"),
+        sbQuery("v_reservoir_history", "select=site_no,measured_at,value&order=measured_at.asc"),
+      ]);
+    } catch (e) {
+      showError(e.message);
+      return;
+    }
+
+    // Build per-site history series.
+    histBySite = {};
+    for (const h of (hist || [])) {
+      const v = num(h.value); if (v === null) continue;
+      (histBySite[h.site_no] ||= []).push({ t: new Date(h.measured_at).getTime(), v });
+    }
+
+    // Enrich each status row with its 24h change (from stored history).
+    statusRows = (rows || []).map(r => {
+      const series = histBySite[r.site_no] || [];
+      return {
+        ...r,
+        level_m: num(r.level_m),
+        pct_operating: num(r.pct_operating),
+        status_rank: r.status_rank === null ? null : Number(r.status_rank),
+        delta24h: delta(series, 24 * 3600000),
+        _band: bandOf(r.status),
+      };
+    });
+
+    if (!statusRows.length) { showError("No reservoirs returned."); return; }
+
+    renderHero();
+    renderTiles();
+    renderOverview();
+    renderStorage();
+    renderTable();
+    setupHistory();
+    renderHistory();
+  }
+
+  // Change in value over the last `windowMs`, using the reading closest to (last - window).
+  function delta(series, windowMs) {
+    if (series.length < 2) return null;
+    const last = series[series.length - 1];
+    const target = last.t - windowMs;
+    if (series[0].t > target) return null;             // not enough history yet
+    let best = series[0];
+    for (const p of series) { if (p.t <= target) best = p; else break; }
+    return last.v - best.v;
+  }
+
+  // --- Hero: system-level water status ---
+  function renderHero() {
+    const ranked = statusRows.filter(r => r.status_rank !== null);
+    const counts = {};
+    for (const r of ranked) counts[r.status] = (counts[r.status] || 0) + 1;
+    const worst = ranked.reduce((m, r) => Math.max(m, r.status_rank), -1);
+    const nConcern = ranked.filter(r => r.status_rank >= 4).length; // Control / below intake
+    const nAdjust = ranked.filter(r => r.status_rank === 3).length;
+    const nWatch  = ranked.filter(r => r.status_rank === 2).length;
+
+    let color = "#76ad2a", label, reason;
+    const worstNames = ranked.filter(r => r.status_rank === worst).map(r => r.name);
+    if (worst >= 4) {
+      color = "#e04343";
+      label = `${nConcern} reservoir${nConcern === 1 ? "" : "s"} at rationing level`;
+      reason = `${listNames(worstNames)} ${worstNames.length === 1 ? "is" : "are"} at or below the Control floor — the level where withdrawal controls (rationing) apply. Water supply from ${worstNames.length === 1 ? "it" : "these"} is stressed.`;
+    } else if (worst === 3) {
+      color = "#d1793f";
+      label = `${nAdjust} reservoir${nAdjust === 1 ? "" : "s"} in the adjustment band`;
+      reason = `${listNames(worstNames)} ${worstNames.length === 1 ? "has" : "have"} dropped into "Ajustes" — PRASA trims withdrawals here to slow the decline before rationing. Worth watching.`;
+    } else if (worst === 2) {
+      color = "#faa72a";
+      label = `${nWatch} reservoir${nWatch === 1 ? "" : "s"} on watch`;
+      reason = `${listNames(worstNames)} ${worstNames.length === 1 ? "is" : "are"} in the "Observación" band — below normal but above the adjustment threshold. No rationing indicated.`;
+    } else {
+      color = "#76ad2a";
+      label = "Reservoirs healthy";
+      reason = "Every tracked reservoir is at or above its Seguridad line — normal-to-full operating range, no rationing indicated.";
+    }
+
+    document.getElementById("status-dot").style.background = color;
+    document.getElementById("status-hero").style.borderColor = color;
+    document.getElementById("status-label").textContent = label;
+    document.getElementById("status-reason").textContent = reason;
+
+    // Breakdown chips, worst-first, only nonzero bands.
+    const order = ["Fuera de Servicio", "Control", "Ajustes", "Observación", "Seguridad", "Desborde"];
+    document.getElementById("status-breakdown").innerHTML = order
+      .filter(s => counts[s])
+      .map(s => `<span class="chip"><span class="dot" style="background:${BANDS[s].color}"></span>${counts[s]} ${s}</span>`)
+      .join("");
+
+    const latest = statusRows.reduce((m, r) => {
+      const t = r.measured_at ? new Date(r.measured_at).getTime() : 0;
+      return t > m ? t : m;
+    }, 0);
+    document.getElementById("status-timestamp").textContent =
+      latest ? `Latest reading ${relTime(new Date(latest).toISOString())} · gauges report every 15–60 min · reload to refresh` : "";
+  }
+
+  function listNames(names) {
+    if (names.length <= 2) return names.join(" and ");
+    return names.slice(0, -1).join(", ") + ", and " + names[names.length - 1];
+  }
+
+  // --- Stat tiles ---
+  function renderTiles() {
+    const ranked = statusRows.filter(r => r.status_rank !== null);
+    const healthy = ranked.filter(r => r.status_rank <= 1).length;
+    const watch   = ranked.filter(r => r.status_rank === 2).length;
+    const risk    = ranked.filter(r => r.status_rank >= 3).length;
+    const prepa = statusRows.filter(r => r.operator === "PREPA").length;
+    const prasa = statusRows.filter(r => r.operator === "PRASA").length;
+    const lowest = ranked.filter(r => r.pct_operating !== null)
+      .reduce((m, r) => (m === null || r.pct_operating < m.pct_operating) ? r : m, null);
+
+    const tiles = [
+      { label: "Reservoirs tracked", value: statusRows.length, sub: `${prepa} PREPA · ${prasa} PRASA` },
+      { label: "Healthy (≥ Seguridad)", value: healthy, sub: "safe-to-full range", accent: healthy ? "ok" : "" },
+      { label: "On watch (Observación)", value: watch, sub: "below normal", accent: watch ? "warn" : "" },
+      { label: "Rationing risk (≤ Ajustes)", value: risk, sub: "adjustment or lower", accent: risk ? "crit" : "" },
+    ];
+    if (lowest) tiles.push({
+      label: "Lowest reservoir",
+      valueHtml: `${lowest.name} <small>${fmt(lowest.pct_operating, 0)}%</small>`,
+      sub: `${lowest.status} · ${lowest.municipio || ""}`,
+      accent: lowest.status_rank >= 4 ? "crit" : lowest.status_rank === 3 ? "warn" : "",
+    });
+
+    // System storage: sum of surviving vs original capacity (PIRA 2016 snapshot).
+    const withCap = statusRows.filter(r => num(r.capacity_mm3) !== null && num(r.capacity_orig_mm3) !== null);
+    if (withCap.length) {
+      const capNow = withCap.reduce((s, r) => s + num(r.capacity_mm3), 0);
+      const capOrig = withCap.reduce((s, r) => s + num(r.capacity_orig_mm3), 0);
+      const lostPct = capOrig ? (1 - capNow / capOrig) * 100 : null;
+      tiles.push({
+        label: "System storage",
+        valueHtml: `${fmt(capNow, 0)} <small>Mm³</small>`,
+        sub: lostPct === null ? "PIRA 2016 snapshot"
+          : `${fmt(lostPct, 0)}% lost to silt vs ${fmt(capOrig, 0)} Mm³ built (PIRA 2016)`,
+        accent: lostPct !== null && lostPct >= 30 ? "warn" : "",
+      });
+    }
+
+    // System safe yield: sum of PIRA "Rendimiento Seguro" — sustainable raw-water supply.
+    const withYield = statusRows.filter(r => num(r.safe_yield_mgd) !== null);
+    if (withYield.length) {
+      const yieldSum = withYield.reduce((s, r) => s + num(r.safe_yield_mgd), 0);
+      tiles.push({
+        label: "System safe yield",
+        valueHtml: `${fmt(yieldSum, 0)} <small>MGD</small>`,
+        sub: `sustainable raw-water supply · ${withYield.length} reservoirs (PIRA 2008)`,
+      });
+    }
+
+    document.getElementById("stats-grid").innerHTML = tiles.map(t => `
+      <div class="stat-tile${t.accent ? " accent-" + t.accent : ""}">
+        <div class="stat-label">${t.label}</div>
+        <div class="stat-value">${t.valueHtml || t.value}</div>
+        <div class="stat-sub">${t.sub || ""}</div>
+      </div>`).join("");
+  }
+
+  // --- Island overview: horizontal fill bars, worst-first ---
+  function renderOverview() {
+    const rows = statusRows.filter(r => r.pct_operating !== null)
+      .slice()
+      .sort((a, b) => (b.status_rank - a.status_rank) || (a.pct_operating - b.pct_operating));
+    const el = document.getElementById("chart-overview");
+    if (chartOverview) chartOverview.destroy();
+    chartOverview = new Chart(el, {
+      type: "bar",
+      data: {
+        labels: rows.map(r => r.name),
+        datasets: [{
+          label: "Fill",
+          data: rows.map(r => r.pct_operating),
+          backgroundColor: rows.map(r => hexA(r._band.color, 0.85)),
+          borderColor: rows.map(r => r._band.color),
+          borderWidth: 1,
+          borderRadius: 3,
+        }],
+      },
+      options: {
+        indexAxis: "y",
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            titleFont: chartFont, bodyFont: chartFont,
+            callbacks: {
+              label: c => {
+                const r = rows[c.dataIndex];
+                const out = [` ${r.status} — ${fmt(r.pct_operating, 1)}% of range`,
+                             ` Level ${fmt(r.level_m, 2)} m · ${r.operator || "—"}`];
+                if (num(r.safe_yield_mgd) !== null) out.push(` Safe yield ${fmt(num(r.safe_yield_mgd), 1)} mgd`);
+                return out;
+              },
+            },
+          },
+        },
+        scales: {
+          x: { beginAtZero: true, suggestedMax: 100,
+               ticks: { font: { ...chartFont, size: 10 }, callback: v => v + "%" },
+               grid: { color: "#f0f0f0" },
+               title: { display: true, text: "Fill (% of Control→Desborde range)", font: { ...chartFont, size: 10 } } },
+          y: { ticks: { font: { ...chartFont, size: 10 } }, grid: { display: false } },
+        },
+      },
+    });
+
+    document.getElementById("band-legend").innerHTML = Object.entries(BANDS)
+      .sort((a, b) => a[1].rank - b[1].rank)
+      .map(([name, b]) => `<span class="band-legend-item"><span class="band-swatch" style="background:${b.color}"></span>${name} <span style="opacity:.6">(${b.label})</span></span>`)
+      .join("");
+  }
+
+  // --- Storage: original design capacity vs what's silted in (PIRA 2016) ---
+  function renderStorage() {
+    const rows = statusRows
+      .filter(r => num(r.capacity_orig_mm3) !== null && num(r.capacity_mm3) !== null)
+      .slice()
+      .sort((a, b) => num(b.capacity_orig_mm3) - num(a.capacity_orig_mm3));
+    const el = document.getElementById("chart-storage");
+    if (!rows.length) { el.closest(".panel").style.display = "none"; return; }
+    if (chartStorage) chartStorage.destroy();
+
+    const available = rows.map(r => num(r.capacity_mm3));
+    const lost = rows.map(r => Math.max(0, num(r.capacity_orig_mm3) - num(r.capacity_mm3)));
+
+    chartStorage = new Chart(el, {
+      type: "bar",
+      data: {
+        labels: rows.map(r => r.name),
+        datasets: [
+          { label: "Usable (2015)", data: available, stack: "s",
+            backgroundColor: hexA("#3a86a8", 0.85), borderColor: "#3a86a8", borderWidth: 1 },
+          { label: "Lost to sedimentation", data: lost, stack: "s",
+            backgroundColor: "rgba(150,110,80,0.35)", borderColor: "rgba(150,110,80,0.6)", borderWidth: 1 },
+        ],
+      },
+      options: {
+        indexAxis: "y",
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { font: { ...chartFont, size: 11 } } },
+          tooltip: {
+            titleFont: chartFont, bodyFont: chartFont,
+            callbacks: {
+              afterTitle: items => {
+                const r = rows[items[0].dataIndex];
+                const pct = r.pct_capacity == null ? null : Number(r.pct_capacity);
+                return `${pct === null ? "—" : fmt(pct, 0) + "% of original remains"}`
+                  + ` · built ${r.year_built || "?"}`
+                  + (r.survey_year ? ` · survey ${r.survey_year}` : "");
+              },
+              label: c => ` ${c.dataset.label}: ${fmt(c.parsed.x, 1)} Mm³`,
+              footer: items => {
+                const r = rows[items[0].dataIndex];
+                const sy = num(r.safe_yield_mgd);
+                return `Original ${fmt(num(r.capacity_orig_mm3), 1)} Mm³ · ${r.owner_2016 || "?"} · uses ${r.uses || "—"}`
+                  + (sy === null ? "" : `\nSafe yield ${fmt(sy, 1)} mgd · ${r.dam_type || ""} dam`);
+              },
+            },
+          },
+        },
+        scales: {
+          x: { stacked: true, beginAtZero: true,
+               ticks: { font: { ...chartFont, size: 10 }, callback: v => v + "" },
+               grid: { color: "#f0f0f0" },
+               title: { display: true, text: "Storage (Mm³)", font: { ...chartFont, size: 10 } } },
+          y: { stacked: true, ticks: { font: { ...chartFont, size: 10 } }, grid: { display: false } },
+        },
+      },
+    });
+  }
+
+  // --- Reservoir table ---
+  function renderTable() {
+    document.getElementById("table-note").textContent =
+      `${statusRows.length} reservoirs · sorted by ${sortLabel(sortCol)}`;
+
+    const dir = sortDir === "asc" ? 1 : -1;
+    const val = (r) => {
+      switch (sortCol) {
+        case "name": case "municipio": case "operator": return (r[sortCol] || "").toLowerCase();
+        case "measured_at": return r.measured_at ? new Date(r.measured_at).getTime() : 0;
+        default: return r[sortCol] === null || r[sortCol] === undefined ? -Infinity : r[sortCol];
+      }
+    };
+    const rows = statusRows.slice().sort((a, b) => {
+      const av = val(a), bv = val(b);
+      if (av < bv) return -1 * dir;
+      if (av > bv) return 1 * dir;
+      return a.name.localeCompare(b.name);
+    });
+
+    const body = rows.map(r => {
+      const b = r._band;
+      const pct = r.pct_operating;
+      const barW = pct === null ? 0 : Math.max(0, Math.min(100, pct));
+      const d = r.delta24h;
+      const dColor = d === null ? "var(--secondary-text)" : d > 0.005 ? "var(--ok)" : d < -0.005 ? "var(--crit)" : "var(--secondary-text)";
+      const cap = num(r.capacity_mm3), capO = num(r.capacity_orig_mm3);
+      const silted = r.pct_capacity == null ? null : 100 - Number(r.pct_capacity);
+      const capTitle = capO === null ? "" : `original ${fmt(capO, 1)} Mm³ · ${fmt(silted, 0)}% silted since ${r.year_built || "built"}`;
+      const sy = num(r.safe_yield_mgd);
+      return `<tr>
+        <td>${r.name}</td>
+        <td>${r.municipio || "—"}</td>
+        <td><span class="badge badge-op">${r.operator || "—"}</span></td>
+        <td class="num">${fmt(r.level_m, 2)}</td>
+        <td><span class="badge" style="background:${hexA(b.color, 0.16)};color:${b.text};border:1px solid ${hexA(b.color, 0.5)}">${r.status || "—"}</span></td>
+        <td>
+          <div class="fill-cell">
+            <div class="fill-track"><div class="fill-bar" style="width:${barW}%;background:${b.color}"></div></div>
+            <span class="fill-pct">${pct === null ? "—" : fmt(pct, 0) + "%"}</span>
+          </div>
+        </td>
+        <td class="num" title="${capTitle}">${cap === null ? "—" : fmt(cap, 1)}</td>
+        <td class="num" title="Rendimiento Seguro — sustainable raw-water supply (PIRA 2008)">${sy === null ? "—" : fmt(sy, 1)}</td>
+        <td class="num" style="color:${dColor}">${d === null ? "—" : signed(d, 2) + " m"}</td>
+        <td class="num" title="${r.measured_at || ""}">${isStale(r.measured_at) ? `<span style="color:var(--warn)" title="gauge offline — no new reading">${relTime(r.measured_at)} ⚠</span>` : relTime(r.measured_at)}</td>
+      </tr>`;
+    }).join("");
+    document.querySelector("#res-table tbody").innerHTML =
+      body || '<tr><td colspan="10" class="no-data">No data.</td></tr>';
+  }
+
+  function sortLabel(col) {
+    return { name: "name", municipio: "municipio", operator: "operator", level_m: "level",
+             status_rank: "status", pct_operating: "fill", capacity_mm3: "capacity",
+             safe_yield_mgd: "safe yield", delta24h: "24h change", measured_at: "recency" }[col] || col;
+  }
+
+  document.querySelectorAll("#res-table th.sortable").forEach(th => {
+    th.addEventListener("click", () => {
+      const col = th.dataset.col;
+      if (sortCol === col) { sortDir = sortDir === "asc" ? "desc" : "asc"; }
+      else { sortCol = col; sortDir = (col === "name" || col === "municipio" || col === "operator") ? "asc" : "desc"; }
+      document.querySelectorAll("#res-table th.sortable").forEach(h => h.classList.remove("asc", "desc"));
+      th.classList.add(sortDir);
+      renderTable();
+    });
+  });
+
+  // --- History chart ---
+  function setupHistory() {
+    const sel = document.getElementById("hist-site");
+    const opts = statusRows.slice().sort((a, b) => (b.status_rank - a.status_rank) || a.name.localeCompare(b.name));
+    sel.innerHTML = opts.map(r => `<option value="${r.site_no}">${r.name} — ${r.status || "?"}</option>`).join("");
+    histSite = opts[0].site_no;               // default: most-concerning reservoir
+    sel.value = histSite;
+    sel.addEventListener("change", () => { histSite = sel.value; renderHistory(); });
+
+    document.querySelectorAll('.controls button[data-days]').forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll('.controls button[data-days]').forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        histDays = Number(btn.dataset.days);
+        renderHistory();
+      });
+    });
+  }
+
+  // Physical/general profile from the PIRA facts, appended to the history note.
+  // Sentence 1: identity + storage/sedimentation (Tabla 5.5); sentence 2:
+  // engineering & general info (Tabla 3.5). Prefers the spelled-out Tabla 3.5 uses.
+  function profileLine(r) {
+    const capO = num(r.capacity_orig_mm3), cap = num(r.capacity_mm3);
+    const uses = r.uses_t35 || r.uses;
+    if (!r.year_built && capO === null && !r.dam_type) return "";
+    let s = "";
+    const bits = [];
+    if (r.year_built) bits.push(`Built ${r.year_built}`);
+    if (r.owner_2016) bits.push(`owner ${r.owner_2016}`);
+    if (uses) bits.push(`uses ${uses.toLowerCase()}`);
+    if (bits.length) s += " " + bits.join(", ") + ".";
+    if (capO !== null && cap !== null) {
+      const pct = r.pct_capacity == null ? null : Number(r.pct_capacity);
+      s += ` Storage ${fmt(capO, 1)}→${fmt(cap, 1)} Mm³`
+        + (pct === null ? "" : ` — ${fmt(pct, 0)}% of original remains`)
+        + ` (PIRA 2016).`;
+    }
+    const eng = [];
+    if (r.river_basin) eng.push(`impounds the ${r.river_basin}`);
+    if (r.dam_type && num(r.dam_height_m) !== null) eng.push(`${r.dam_type.toLowerCase()} dam ${fmt(num(r.dam_height_m), 0)} m tall`);
+    else if (r.dam_type) eng.push(`${r.dam_type.toLowerCase()} dam`);
+    if (num(r.max_depth_m) !== null) eng.push(`${fmt(num(r.max_depth_m), 0)} m max depth`);
+    if (num(r.safe_yield_mgd) !== null) eng.push(`safe yield ~${fmt(num(r.safe_yield_mgd), 1)} mgd`);
+    if (eng.length) s += " " + eng.join(", ").replace(/^./, c => c.toUpperCase()) + ".";
+    return s;
+  }
+
+  function renderHistory() {
+    const r = statusRows.find(x => x.site_no === histSite);
+    const el = document.getElementById("chart-history");
+    if (chartHistory) chartHistory.destroy();
+    if (!r) return;
+
+    let series = histBySite[histSite] || [];
+    if (histDays > 0) {
+      const since = Date.now() - histDays * 86400000;
+      series = series.filter(p => p.t >= since);
+    }
+
+    const note = document.getElementById("hist-note");
+    if (series.length < 2) {
+      const ctx = el.getContext("2d");
+      ctx.clearRect(0, 0, el.width, el.height);
+      // Distinguish an offline gauge (stale last reading) from a simply-new poller.
+      const full = histBySite[histSite] || [];
+      const lastIso = full.length ? new Date(full[full.length - 1].t).toISOString() : r.measured_at;
+      const lastLabel = lastIso
+        ? new Date(lastIso).toLocaleString("en-US", { timeZone: AST_TZ, dateStyle: "medium", timeStyle: "short" }) + " AST"
+        : "unknown";
+      if (isStale(lastIso)) {
+        note.innerHTML = `<b>${r.name}</b> — its USGS gauge has not reported a new elevation since <b>${relTime(lastIso)}</b> (${lastLabel}). The water-level sensor appears offline; the chart resumes automatically once USGS publishes new readings. Last known level <b>${fmt(r.level_m, 2)} m</b> (${r.status}).` + profileLine(r);
+      } else {
+        note.innerHTML = `<b>${r.name}</b> — not enough stored history yet for this window. The reservoir poller began recording recently; the chart fills in as readings accumulate. Current level <b>${fmt(r.level_m, 2)} m</b> (${r.status}).` + profileLine(r);
+      }
+      return;
+    }
+
+    const thresholds = {
+      control_m: num(r.control_m), ajustes_m: num(r.ajustes_m), observacion_m: num(r.observacion_m),
+      seguridad_m: num(r.seguridad_m), desborde_m: num(r.desborde_m),
+    };
+    const vals = series.map(p => p.v);
+    const dataMin = Math.min(...vals), dataMax = Math.max(...vals);
+    // Pad the y-range so the level line and the nearest alert lines are both visible.
+    const lo = Math.min(dataMin, thresholds.ajustes_m ?? dataMin);
+    const hi = Math.max(dataMax, thresholds.seguridad_m ?? dataMax);
+    const pad = Math.max(0.2, (hi - lo) * 0.08);
+    const ptR = series.length > 120 ? 0 : 2;
+
+    chartHistory = new Chart(el, {
+      type: "line",
+      plugins: [thresholdBands, dayDividers],
+      data: {
+        labels: series.map(p => new Date(p.t)),
+        datasets: [{
+          label: `${r.name} elevation (m)`,
+          data: series.map(p => p.v),
+          borderColor: "#111", backgroundColor: "rgba(0,0,0,0.04)",
+          fill: false, tension: 0.25, pointRadius: ptR, borderWidth: 2,
+        }],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { intersect: false, mode: "index" },
+        plugins: {
+          legend: { labels: { font: { ...chartFont, size: 11 } } },
+          tooltip: {
+            titleFont: chartFont, bodyFont: chartFont,
+            callbacks: {
+              title: i => i.length ? new Date(i[0].parsed.x).toLocaleString("en-US", { timeZone: AST_TZ, dateStyle: "medium", timeStyle: "short" }) + " AST" : "",
+              label: c => ` ${fmt(c.parsed.y, 2)} m`,
+            },
+          },
+        },
+        scales: {
+          x: {
+            type: "time",
+            // Reservoir levels move slowly (gauges report every 15-60 min), so never
+            // render finer than hourly — keeps the axis honest when history is sparse
+            // and scales up to days/weeks/months as the series grows.
+            time: { minUnit: "hour", displayFormats: { hour: "MMM d, ha", day: "MMM d", week: "MMM d", month: "MMM yyyy" } },
+            ticks: { font: { ...chartFont, size: 10 }, maxRotation: 0, autoSkipPadding: 16 },
+            grid: { color: "#f0f0f0" },
+          },
+          y: { suggestedMin: lo - pad, suggestedMax: hi + pad,
+               ticks: { font: { ...chartFont, size: 10 }, callback: v => v + " m" },
+               grid: { color: "#f0f0f0" },
+               title: { display: true, text: "Elevation (m above MSL)", font: { ...chartFont, size: 10 } } },
+        },
+      },
+    });
+    chartHistory.$bands = thresholds;
+    chartHistory.update();
+
+    const spanDays = (series[series.length - 1].t - series[0].t) / 86400000;
+    note.innerHTML = `<b>${r.name}</b> (${r.municipio || "—"}, ${r.operator || "—"}) — currently <b>${fmt(r.level_m, 2)} m</b>, in the <b>${r.status}</b> band. Shaded bands and dashed lines are PRASA's alert levels; the reservoir spills at <b>${fmt(thresholds.desborde_m, 2)} m</b> and enters rationing controls below <b>${fmt(thresholds.control_m, 2)} m</b>. Showing ${series.length} readings over ${spanDays < 1 ? "under a day" : fmt(spanDays, 0) + " day" + (spanDays >= 2 ? "s" : "")}.` + profileLine(r);
+  }
+
+  function showError(msg) {
+    document.getElementById("status-label").textContent = "Couldn't load reservoir data";
+    document.getElementById("status-reason").textContent = msg || "The reservoir views did not respond.";
+    document.getElementById("status-dot").style.background = "#d5d3cd";
+    document.getElementById("status-hero").style.borderColor = "#d5d3cd";
+    document.querySelector("#res-table tbody").innerHTML = '<tr><td colspan="10" class="no-data">No data.</td></tr>';
+  }
+
+  init();
+</script>
+</body>
+</html>
