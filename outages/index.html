@@ -181,6 +181,11 @@
   .status-hero .status-timestamp {
     font-size: 0.75rem; color: var(--secondary-text); margin-top: 4px;
   }
+  .status-hero .status-stale {
+    font-size: 0.78rem; font-weight: 600; color: #b26a00;
+    background: #fff6e6; border: 1px solid #f0c66b; border-radius: 6px;
+    padding: 6px 12px; margin-top: 10px;
+  }
 
   /* Uptime calendar — statuspage style */
   .uptime-row { margin-bottom: 22px; }
@@ -280,6 +285,7 @@
       <div class="header-links">
         <a href="#status">Status</a>
         <a href="#grid-history">Grid History</a>
+        <a href="#notable">Notable</a>
         <a href="#clients">Clients</a>
         <a href="#regions">Regions</a>
         <a href="#methodology">Methodology</a>
@@ -295,6 +301,7 @@
     <div class="status-summary" id="status-summary"></div>
     <div class="status-breakdown" id="status-breakdown"></div>
     <div class="status-timestamp" id="status-timestamp"></div>
+    <div class="status-stale" id="status-stale" style="display:none"></div>
   </div>
 
   <span class="nav-anchor" id="grid-history"></span>
@@ -307,6 +314,27 @@
   </div>
 
   <div class="uptime-tooltip" id="uptime-tooltip"></div>
+
+  <span class="nav-anchor" id="notable"></span>
+  <div class="panel">
+    <h2>Recent Notable Outages <span class="panel-note">worst days in the last 90 — by weighted downtime</span></h2>
+    <div class="table-wrap">
+      <table id="notable-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th style="text-align:right">Peak unplanned</th>
+            <th style="text-align:right">Avg unplanned</th>
+            <th style="text-align:right">Major</th>
+            <th style="text-align:right">Partial</th>
+            <th style="text-align:right">Degraded</th>
+            <th style="text-align:right">Weighted downtime</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
 
   <span class="nav-anchor" id="clients"></span>
   <div class="panel">
@@ -372,11 +400,14 @@
     </table>
     <p><b>90-day grid history</b> — Each day is colored by weighted downtime: minutes spent at each severity level are weighted (Major &times; 1.0, Partial &times; 0.5, Degraded &times; 0.1) and mapped to a color gradient from green to red. Days with no recorded snapshots appear gray.</p>
     <p><b>Uptime %</b> — Calculated per row as the weighted average across days with data: 100% minus the ratio of weighted downtime to total monitored time.</p>
+    <p><b>Recent notable outages</b> — The worst days of the last 90, ranked by weighted downtime (the same Major&nbsp;&times;&nbsp;1.0 / Partial&nbsp;&times;&nbsp;0.5 / Degraded&nbsp;&times;&nbsp;0.1 minutes used to color the grid history). <i>Peak</i> and <i>Avg unplanned</i> are the highest and mean share of clients out over that day; the Major / Partial / Degraded columns are minutes spent at each severity. Quiet days (under a minute of weighted downtime) are omitted.</p>
     <p><b>% Distribution</b> — Shows each region's share of the total clients without power, indicating where outages are concentrated.</p>
+    <p><b>Time zone &amp; freshness</b> — All days and timestamps use Atlantic Standard Time (AST, UTC&minus;4), Puerto Rico's local time. The page refreshes automatically every few minutes; if the newest snapshot is more than 30 minutes old a stale-data notice appears, since the upstream monitor may be paused.</p>
   </div>
 
   <div class="source-note">
     <p><b>Data source:</b> <a href="https://miluma.lumapr.com/">LUMA Energy</a></p>
+    <p>This is an independent public-interest monitor and is <b>not affiliated with, endorsed by, or operated by LUMA Energy</b>. Figures are derived from LUMA's public outage data and may differ from official reports.</p>
   </div>
 </div>
 
@@ -389,6 +420,8 @@
   // --- Config ---
   const SUPABASE_URL = "https://grovomkpsqgzakfuvuii.supabase.co";
   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdyb3ZvbWtwc3FnemFrZnV2dWlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NzkxMjgsImV4cCI6MjA5MDE1NTEyOH0.U_ZH5gJij5NLkU786mV58uJ0orHZ6ElMkCtyoyuCvBg";
+
+  const AST_TZ = "America/Puerto_Rico";
 
   const REGION_COLORS = {
     "San Juan": "#e63946",
@@ -406,7 +439,8 @@
     maintainAspectRatio: false,
     plugins: {
       legend: { labels: { font: { ...chartFont, size: 11 } } },
-      tooltip: { titleFont: chartFont, bodyFont: chartFont },
+      tooltip: { titleFont: chartFont, bodyFont: chartFont,
+        callbacks: { title: items => items.length ? new Date(items[0].parsed.x).toLocaleString("en-US", { timeZone: AST_TZ, dateStyle: "medium", timeStyle: "short" }) + " AST" : "" } },
     },
     scales: {
       x: {
@@ -418,6 +452,41 @@
         ticks: { font: { ...chartFont, size: 10 } },
         grid: { color: "#f0f0f0" },
       },
+    },
+  };
+
+  // Chart.js plugin: faint vertical dividers + date labels at AST midnights, so
+  // multi-day time-axis charts stay readable (which day is which) without changing
+  // the axis. Density adapts to the visible span (daily up to ~3mo, ~monthly at 1y).
+  const dayDividers = {
+    id: "dayDividers",
+    afterDraw(chart) {
+      const x = chart.scales.x;
+      if (!x || x.type !== "time" || !(x.max > x.min)) return;
+      const DAY = 86400000, AST_MIDNIGHT_UTC = 4 * 3600000; // AST = UTC-4, no DST
+      const spanDays = (x.max - x.min) / DAY;
+      const stepDays = spanDays <= 8 ? 1 : spanDays <= 20 ? 2 : spanDays <= 45 ? 3
+                     : spanDays <= 100 ? 7 : spanDays <= 250 ? 14 : 30;
+      const first = Math.ceil((x.min - AST_MIDNIGHT_UTC) / DAY) * DAY + AST_MIDNIGHT_UTC;
+      const { ctx, chartArea } = chart;
+      ctx.save();
+      ctx.font = "10px 'Source Code Pro', monospace";
+      ctx.textBaseline = "top";
+      for (let t = first; t <= x.max; t += stepDays * DAY) {
+        const px = x.getPixelForValue(t);
+        if (px < chartArea.left || px > chartArea.right) continue;
+        ctx.strokeStyle = "rgba(0,0,0,0.10)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(px, chartArea.top);
+        ctx.lineTo(px, chartArea.bottom);
+        ctx.stroke();
+        const label = new Date(t).toLocaleDateString("en-US", { timeZone: AST_TZ, month: "short", day: "numeric" });
+        const w = ctx.measureText(label).width;
+        ctx.fillStyle = "#888";
+        ctx.fillText(label, (px + 4 + w > chartArea.right) ? px - 4 - w : px + 4, chartArea.top + 2);
+      }
+      ctx.restore();
     },
   };
 
@@ -462,7 +531,7 @@
   function buildDailyStatus(snapshots, getUnplannedPct) {
     const byDay = {};
     for (const snap of snapshots) {
-      const dayKey = new Date(snap.timestamp).toLocaleDateString("en-CA"); // YYYY-MM-DD
+      const dayKey = new Date(snap.timestamp).toLocaleDateString("en-CA", { timeZone: AST_TZ }); // YYYY-MM-DD (AST)
       if (!byDay[dayKey]) byDay[dayKey] = [];
       byDay[dayKey].push(snap);
     }
@@ -563,12 +632,17 @@
 
   // --- Load data ---
   // Cache longer ranges across clicks; always refetch 24h so "latest" stays live.
+  // On an auto-refresh tick (force=true) the active range refetches, and the 90-day
+  // set refreshes at most every ~25 min (it only changes at day granularity).
   const rangeCache = {};
-  async function loadData(days) {
+  let currentDays = 1;
+  let ninetyFetchedAt = 0;
+  async function loadData(days, force = false) {
+    currentDays = days;
     const since = new Date(Date.now() - days * 86400000).toISOString();
     const since90 = new Date(Date.now() - 90 * 86400000).toISOString();
 
-    const mainP = (days !== 1 && rangeCache[days])
+    const mainP = (days !== 1 && !force && rangeCache[days])
       ? Promise.resolve(rangeCache[days])
       : sbQuery("v_outage_snapshots_slim", `select=observed_at,snapshot&observed_at=gte.${since}&order=observed_at.asc`)
           .then(rows => {
@@ -577,10 +651,11 @@
             return parsed;
           });
 
-    const ninetyP = allData90
-      ? Promise.resolve(allData90)
-      : sbQuery("v_outage_snapshots_slim", `select=observed_at,snapshot&observed_at=gte.${since90}&order=observed_at.asc`)
-          .then(rows => rows.map(parseOutageRow));
+    const refreshNinety = !allData90 || (force && Date.now() - ninetyFetchedAt > 25 * 60000);
+    const ninetyP = refreshNinety
+      ? sbQuery("v_outage_snapshots_slim", `select=observed_at,snapshot&observed_at=gte.${since90}&order=observed_at.asc`)
+          .then(rows => { ninetyFetchedAt = Date.now(); return rows.map(parseOutageRow); })
+      : Promise.resolve(allData90);
 
     const [main, ninety] = await Promise.all([mainP, ninetyP]);
     outageData = main;
@@ -634,6 +709,7 @@
     }
     chartMain = new Chart(document.getElementById("chart-main"), {
       type: "line",
+      plugins: [dayDividers],
       data: { labels: timestamps, datasets },
       options: {
         ...chartDefaults,
@@ -678,6 +754,7 @@
     const yMin = Math.floor(Math.min(...allUptimeValues));
     chartUptime = new Chart(document.getElementById("chart-uptime"), {
       type: "line",
+      plugins: [dayDividers],
       data: { labels: timestamps, datasets: uptimeDatasets },
       options: {
         ...chartDefaults,
@@ -714,6 +791,7 @@
       unplannedPct: latest.total.total > 0 ? (Math.max(0, latest.total.without - latest.total.planned) / latest.total.total * 100) : 0,
       totalPct: latest.total.pct,
     };
+    applySort();
     renderTable();
   }
 
@@ -722,6 +800,18 @@
   let sortCol = -1;
   let sortDir = "asc";
   const COL_KEYS = ["name", "clients", "without", "distPct", "unplanned", "planned", "unplannedPct", "totalPct"];
+
+  // Re-apply the active sort; called on every rebuild so a chosen sort survives
+  // range/toggle changes and auto-refresh.
+  function applySort() {
+    if (sortCol < 0) return;
+    const key = COL_KEYS[sortCol];
+    tableRows.sort((a, b) => {
+      const va = a[key], vb = b[key];
+      const cmp = typeof va === "string" ? va.localeCompare(vb) : va - vb;
+      return sortDir === "asc" ? cmp : -cmp;
+    });
+  }
 
   function renderTable() {
     const tbody = document.querySelector("#region-table tbody");
@@ -755,12 +845,7 @@
         sortCol = col;
         sortDir = col === 0 ? "asc" : "desc"; // text asc, numbers desc by default
       }
-      const key = COL_KEYS[col];
-      tableRows.sort((a, b) => {
-        const va = a[key], vb = b[key];
-        const cmp = typeof va === "string" ? va.localeCompare(vb) : va - vb;
-        return sortDir === "asc" ? cmp : -cmp;
-      });
+      applySort();
       document.querySelectorAll("#region-table th.sortable").forEach(h => h.classList.remove("asc", "desc"));
       th.classList.add(sortDir);
       renderTable();
@@ -801,8 +886,50 @@
     document.getElementById("status-hero").style.borderColor = lvl.color;
     const ts = new Date(latest.timestamp);
     document.getElementById("status-timestamp").textContent =
-      `Last updated: ${ts.toLocaleString("en-US", { timeZone: "America/Puerto_Rico", dateStyle: "medium", timeStyle: "short" })} AST`;
+      `Last updated: ${ts.toLocaleString("en-US", { timeZone: AST_TZ, dateStyle: "medium", timeStyle: "short" })} AST · refreshes automatically`;
     document.getElementById("region-timestamp").textContent = relativeTime(ts);
+
+    // Stale-data warning: the poller runs ~10 min, so a gap beyond 30 min means
+    // the monitor is likely paused and the status below may not reflect the grid now.
+    const ageMin = (Date.now() - ts.getTime()) / 60000;
+    const staleEl = document.getElementById("status-stale");
+    if (ageMin > 30) {
+      staleEl.textContent = `⚠ Data may be stale — the last snapshot was ${relativeTime(ts)}. The monitor may be paused; readings below may not reflect the grid right now.`;
+      staleEl.style.display = "";
+    } else {
+      staleEl.style.display = "none";
+    }
+  }
+
+  // --- Recent notable outages (top days by weighted downtime) ---
+  // Noon at a fixed -04:00 offset avoids any midnight-boundary shift when relabeling.
+  const astDayLabel = (dayStr) =>
+    new Date(dayStr + "T12:00:00-04:00").toLocaleDateString("en-US",
+      { timeZone: AST_TZ, weekday: "short", month: "short", day: "numeric" });
+
+  function renderNotable(overallDaily) {
+    const tbody = document.querySelector("#notable-table tbody");
+    const rows = Object.entries(overallDaily)
+      .map(([day, info]) => ({ day, ...info }))
+      .filter(r => r.weighted >= 1)   // skip trivially-green days
+      .sort((a, b) => b.weighted - a.weighted)
+      .slice(0, 8);
+    if (!rows.length) {
+      tbody.innerHTML = `<tr><td colspan="7" class="no-data">No significant unplanned outages in the last 90 days.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = rows.map(r => {
+      const lvl = classifyUnplannedPct(r.peakPct);
+      return `<tr>
+        <td><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${r.color};margin-right:6px"></span>${astDayLabel(r.day)}</td>
+        <td class="num" style="color:${lvl.color};font-weight:700">${r.peakPct.toFixed(1)}%</td>
+        <td class="num">${r.avgPct.toFixed(1)}%</td>
+        <td class="num">${r.majorMin} min</td>
+        <td class="num">${r.partialMin} min</td>
+        <td class="num">${r.elevatedMin} min</td>
+        <td class="num">${Math.round(r.weighted)} min</td>
+      </tr>`;
+    }).join("");
   }
 
   // --- 90-day uptime calendar ---
@@ -815,14 +942,10 @@
 
     const regionNames = Object.keys(REGION_COLORS);
 
-    // Build 90-day date array
+    // Build 90-day date array in AST (fixed UTC-4, so stepping 24h stays aligned)
     const days = [];
-    const today = new Date();
-    today.setHours(23, 59, 59, 999);
     for (let i = 89; i >= 0; i--) {
-      const d = new Date(today);
-      d.setDate(d.getDate() - i);
-      days.push(d.toLocaleDateString("en-CA"));
+      days.push(new Date(Date.now() - i * 86400000).toLocaleDateString("en-CA", { timeZone: AST_TZ }));
     }
 
     // Overall daily status
@@ -830,6 +953,7 @@
       const unplanned = Math.max(0, snap.total.without - snap.total.planned);
       return snap.total.total > 0 ? (unplanned / snap.total.total * 100) : 0;
     });
+    renderNotable(overallDaily);
 
     // Per-region daily status
     const regionDaily = {};
@@ -987,6 +1111,8 @@
   });
 
   loadData(1);
+  // Auto-refresh: keep "latest" live without a manual reload (poller runs ~10 min).
+  setInterval(() => loadData(currentDays, true), 5 * 60 * 1000);
 </script>
 </body>
 </html>
