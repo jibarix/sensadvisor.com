@@ -311,7 +311,7 @@
       <button data-days="1">1d</button>
       <button data-days="7">7d</button>
       <button data-days="30">30d</button>
-      <button data-days="0" class="active">All</button>
+      <button data-days="365" class="active">1y</button>
     </div>
     <div class="chart-container"><canvas id="chart-history"></canvas></div>
     <div class="explain" style="margin-top:14px;">
@@ -482,7 +482,7 @@
   let histBySite = {};             // site_no -> [{ t: ms, v: number }] asc
   let chartOverview = null, chartHistory = null, chartStorage = null;
   let sortCol = "status_rank", sortDir = "desc";
-  let histDays = 0, histSite = null;
+  let histDays = 365, histSite = null;
 
   // --- Load ---
   async function init() {
