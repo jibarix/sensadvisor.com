@@ -269,9 +269,9 @@
   <!-- Storage capacity & sedimentation -->
   <span class="nav-anchor" id="storage"></span>
   <div class="panel">
-    <h2>Storage capacity &amp; sedimentation <span class="panel-note">DRNA/PRASA PIRA 2016 · Mm³</span></h2>
+    <h2>Storage capacity &amp; sedimentation <span class="panel-note">DRNA/PRASA PIRA 2016 · % of original</span></h2>
     <div class="explain">
-      <p>Each bar is a reservoir's <b>original</b> design storage. The solid blue part is the volume still usable as of the last bathymetric study; the faded brown part has silted in. Puerto Rico's older dams have lost heavily — several are down to a third or less of their built capacity, which is why a reservoir can hit rationing levels after only a short dry spell. Source: DRNA/PRASA <i>Plan Integral de Recursos de Agua</i> (2016), Tabla 5.5 — a 2015 snapshot, so real losses are now somewhat larger.</p>
+      <p>Each bar is normalized to a reservoir's <b>original</b> design storage (100%): the solid blue part is the share still usable as of the last bathymetric study, the faded brown part has silted in. Bars are ordered worst-first, so you can compare proportional loss regardless of reservoir size — Puerto Rico's older dams have lost heavily, several down to a third or less of their built capacity, which is why a reservoir can hit rationing levels after only a short dry spell. Hover for the absolute volumes (Mm³). Source: DRNA/PRASA <i>Plan Integral de Recursos de Agua</i> (2016), Tabla 5.5 — a 2015 snapshot, so real losses are now somewhat larger.</p>
     </div>
     <div class="chart-container tall"><canvas id="chart-storage"></canvas></div>
   </div>
@@ -708,25 +708,37 @@
 
   // --- Storage: original design capacity vs what's silted in (PIRA 2016) ---
   function renderStorage() {
+    // Order worst-first by the SHARE lost to silt (not absolute size), so the
+    // normalized %-bars read as a ranking of proportional loss.
+    const lostShare = (r) => {
+      const o = num(r.capacity_orig_mm3), n = num(r.capacity_mm3);
+      return o > 0 ? (o - n) / o : 0;
+    };
     const rows = statusRows
       .filter(r => num(r.capacity_orig_mm3) !== null && num(r.capacity_mm3) !== null)
       .slice()
-      .sort((a, b) => num(b.capacity_orig_mm3) - num(a.capacity_orig_mm3));
+      .sort((a, b) => lostShare(b) - lostShare(a));
     const el = document.getElementById("chart-storage");
     if (!rows.length) { el.closest(".panel").style.display = "none"; return; }
     if (chartStorage) chartStorage.destroy();
 
-    const available = rows.map(r => num(r.capacity_mm3));
-    const lost = rows.map(r => Math.max(0, num(r.capacity_orig_mm3) - num(r.capacity_mm3)));
+    // Each bar is normalized to its own original capacity (usable% + lost% = 100),
+    // so proportional loss is comparable across reservoirs. Absolute Mm³ are kept in
+    // parallel arrays purely for the tooltip.
+    const availMm3 = rows.map(r => num(r.capacity_mm3));
+    const origMm3  = rows.map(r => num(r.capacity_orig_mm3));
+    const lostMm3  = rows.map((r, i) => Math.max(0, origMm3[i] - availMm3[i]));
+    const availPct = rows.map((r, i) => origMm3[i] > 0 ? availMm3[i] / origMm3[i] * 100 : 0);
+    const lostPct  = rows.map((r, i) => origMm3[i] > 0 ? Math.max(0, 100 - availPct[i]) : 0);
 
     chartStorage = new Chart(el, {
       type: "bar",
       data: {
         labels: rows.map(r => r.name),
         datasets: [
-          { label: "Usable (2015)", data: available, stack: "s",
+          { label: "Usable (2015)", data: availPct, stack: "s",
             backgroundColor: hexA("#3a86a8", 0.85), borderColor: "#3a86a8", borderWidth: 1 },
-          { label: "Lost to sedimentation", data: lost, stack: "s",
+          { label: "Lost to sedimentation", data: lostPct, stack: "s",
             backgroundColor: "rgba(150,110,80,0.35)", borderColor: "rgba(150,110,80,0.6)", borderWidth: 1 },
         ],
       },
@@ -745,7 +757,11 @@
                   + ` · built ${r.year_built || "?"}`
                   + (r.survey_year ? ` · survey ${r.survey_year}` : "");
               },
-              label: c => ` ${c.dataset.label}: ${fmt(c.parsed.x, 1)} Mm³`,
+              label: c => {
+                const i = c.dataIndex;
+                const mm3 = c.datasetIndex === 0 ? availMm3[i] : lostMm3[i];
+                return ` ${c.dataset.label}: ${fmt(c.parsed.x, 0)}% (${fmt(mm3, 1)} Mm³)`;
+              },
               footer: items => {
                 const r = rows[items[0].dataIndex];
                 const sy = num(r.safe_yield_mgd);
@@ -756,10 +772,10 @@
           },
         },
         scales: {
-          x: { stacked: true, beginAtZero: true,
-               ticks: { font: { ...chartFont, size: 10 }, callback: v => v + "" },
+          x: { stacked: true, beginAtZero: true, max: 100,
+               ticks: { font: { ...chartFont, size: 10 }, callback: v => v + "%" },
                grid: { color: "#f0f0f0" },
-               title: { display: true, text: "Storage (Mm³)", font: { ...chartFont, size: 10 } } },
+               title: { display: true, text: "Share of original capacity (%)", font: { ...chartFont, size: 10 } } },
           y: { stacked: true, ticks: { font: { ...chartFont, size: 10 } }, grid: { display: false } },
         },
       },
