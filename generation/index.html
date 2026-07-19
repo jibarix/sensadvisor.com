@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PR Generation Status | SENS ADVISOR</title>
 
-<meta name="description" content="Real-time electricity generation for Puerto Rico. Fuel mix, capacity, reserves, and per-plant output from the PREPA/Genera operational feed.">
+<meta name="description" content="Real-time electricity generation for Puerto Rico with a grid-adequacy alert: reserves, next-hour forecast vs available capacity, load-shedding (relevos de carga) risk, hourly load shape, and which units are online vs offline — from the PREPA/Genera operational feed.">
 <meta property="og:title" content="PR Generation Status">
-<meta property="og:description" content="Real-time electricity generation — fuel mix, capacity, reserves, and per-plant output.">
+<meta property="og:description" content="Grid-adequacy alert for Puerto Rico — reserves, relevos-de-carga risk, hourly load shape, and units online vs offline.">
 <meta property="og:image" content="https://sensadvisor.com/outages/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -15,7 +15,7 @@
 <meta property="og:url" content="https://sensadvisor.com/generation/">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="PR Generation Status">
-<meta name="twitter:description" content="Real-time electricity generation — fuel mix, capacity, reserves, and per-plant output.">
+<meta name="twitter:description" content="Grid-adequacy alert for Puerto Rico — reserves, relevos-de-carga risk, hourly load shape, and units online vs offline.">
 <meta name="twitter:image" content="https://sensadvisor.com/outages/og-image.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,6 +32,9 @@
     --border-primary: #000000;
     --accent-light: #f0f0f0;
     --accent-lighter: #f9f9f9;
+    --ok: #76ad2a;
+    --warn: #faa72a;
+    --crit: #e04343;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -139,16 +142,25 @@
   .table-wrap { overflow-x: auto; }
   .no-data { text-align: center; padding: 40px; color: var(--secondary-text); font-style: italic; }
 
+  .badge { font-size: 0.68rem; font-weight: 700; padding: 1px 7px; border-radius: 10px; letter-spacing: 0.3px; white-space: nowrap; }
+  .badge-online { background: rgba(118,173,42,0.16); color: #3d6b0e; border: 1px solid rgba(118,173,42,0.5); }
+  .badge-offline { background: rgba(180,180,180,0.18); color: #666; border: 1px solid rgba(160,160,160,0.5); }
+  .badge-critical { background: rgba(250,167,42,0.18); color: #8a5a00; border: 1px solid rgba(250,167,42,0.6); margin-left: 5px; }
+  .badge-critical-off { background: rgba(224,67,67,0.15); color: #b32020; border: 1px solid rgba(224,67,67,0.6); margin-left: 5px; }
+  tr.row-crit-off td { background: rgba(224,67,67,0.06); }
+  tr.row-crit-off:hover td { background: rgba(224,67,67,0.11); }
+  .units-summary .us-crit { color: var(--crit); font-weight: 700; }
+
   .source-note {
     font-size: 0.75rem; color: var(--secondary-text); margin-top: 30px;
     padding-top: 16px; border-top: 1px solid var(--accent-light);
   }
   .source-note a { color: var(--primary-text); }
 
-  /* Status hero */
+  /* Adequacy hero */
   .status-hero {
-    border: 2px solid var(--border-primary); border-radius: 12px;
-    padding: 36px 32px; margin-bottom: 34px;
+    border: 3px solid var(--border-primary); border-radius: 12px;
+    padding: 32px 32px; margin-bottom: 22px;
     display: flex; flex-direction: column; align-items: center;
     text-align: center; gap: 8px;
     transition: border-color 0.4s ease, background 0.4s ease;
@@ -163,17 +175,17 @@
     0%, 100% { opacity: 1; box-shadow: 0 0 12px rgba(0,0,0,0.15); }
     50% { opacity: 0.6; box-shadow: 0 0 24px rgba(0,0,0,0.25); }
   }
-  .status-hero .status-value { font-size: 2.4rem; font-weight: 700; letter-spacing: -1px; line-height: 1.1; }
-  .status-hero .status-value small { font-size: 1rem; font-weight: 500; color: var(--secondary-text); }
-  .status-hero .status-label { font-size: 1.15rem; font-weight: 600; }
-  .status-hero .status-summary { font-size: 0.95rem; color: var(--secondary-text); }
+  .status-hero .status-label { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.3px; line-height: 1.1; }
+  .status-hero .status-reason { font-size: 0.95rem; color: var(--secondary-text); max-width: 640px; }
+  .status-hero .status-value { font-size: 1.5rem; font-weight: 700; margin-top: 6px; }
+  .status-hero .status-value small { font-size: 0.9rem; font-weight: 500; color: var(--secondary-text); }
   .status-hero .status-breakdown {
-    display: flex; gap: 24px; margin-top: 8px;
+    display: flex; gap: 22px; margin-top: 10px;
     font-size: 0.85rem; color: var(--secondary-text); flex-wrap: wrap;
     justify-content: center;
   }
   .status-hero .status-breakdown .num { font-weight: 700; color: var(--primary-text); }
-  .status-hero .status-timestamp { font-size: 0.75rem; color: var(--secondary-text); margin-top: 4px; }
+  .status-hero .status-timestamp { font-size: 0.75rem; color: var(--secondary-text); margin-top: 6px; }
 
   /* Stat tiles */
   .stats-grid {
@@ -193,6 +205,9 @@
   .stat-tile .stat-value { font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; }
   .stat-tile .stat-value small { font-size: 0.85rem; font-weight: 500; color: var(--secondary-text); }
   .stat-tile .stat-sub { font-size: 0.72rem; color: var(--secondary-text); }
+  .stat-tile.accent-crit { border-color: var(--crit); }
+  .stat-tile.accent-warn { border-color: var(--warn); }
+  .stat-tile.accent-ok { border-color: var(--ok); }
 
   /* Two-up grid for fuel mix + type breakdown */
   .split-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 34px; }
@@ -207,9 +222,13 @@
   .type-bar-track { height: 16px; background: var(--accent-light); border-radius: 3px; overflow: hidden; }
   .type-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
 
+  .units-summary { display: flex; gap: 22px; flex-wrap: wrap; align-items: baseline; margin-bottom: 8px; font-size: 0.9rem; }
+  .units-summary .us-num { font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .units-summary .us-item { color: var(--secondary-text); }
+
   @media (max-width: 768px) {
     .status-hero { padding: 24px 18px; }
-    .status-hero .status-value { font-size: 1.8rem; }
+    .status-hero .status-label { font-size: 1.2rem; }
     .status-hero .status-breakdown { gap: 14px; font-size: 0.8rem; }
     .stats-grid { grid-template-columns: repeat(2, 1fr); }
     .split-grid { grid-template-columns: 1fr; gap: 20px; }
@@ -233,11 +252,12 @@
     <div class="header-content">
       <a class="logo" href="/">SENS ADVISOR</a>
       <div class="header-links">
-        <a href="#now">Now</a>
+        <a href="#now">Adequacy</a>
+        <a href="#hourly">Hourly</a>
         <a href="#mix">Fuel Mix</a>
-        <a href="#capacity">Capacity</a>
         <a href="#history">History</a>
-        <a href="#plants">Plants</a>
+        <a href="#cost">Cost</a>
+        <a href="#plants">Units</a>
         <a href="#methodology">Methodology</a>
       </div>
     </div>
@@ -247,14 +267,25 @@
   <span class="nav-anchor" id="now"></span>
   <div class="status-hero" id="status-hero">
     <div class="status-dot" id="status-dot"></div>
-    <div class="status-value" id="status-value">Loading…</div>
-    <div class="status-label" id="status-label"></div>
-    <div class="status-summary" id="status-summary"></div>
+    <div class="status-label" id="status-label">Loading…</div>
+    <div class="status-reason" id="status-reason"></div>
+    <div class="status-value" id="status-value"></div>
     <div class="status-breakdown" id="status-breakdown"></div>
     <div class="status-timestamp" id="status-timestamp"></div>
   </div>
 
   <div class="stats-grid" id="stats-grid"></div>
+
+  <span class="nav-anchor" id="hourly"></span>
+  <div class="panel">
+    <h2>Hourly Load Shape — Today vs. Typical
+      <span class="panel-note">
+        <button class="toggle-btn active" data-hmode="gen">Generation</button><button class="toggle-btn" data-hmode="reserve">Reserve</button>
+      </span>
+    </h2>
+    <div class="explain"><p id="hourly-note" style="margin-bottom:12px"></p></div>
+    <div class="chart-container"><canvas id="chart-hourly"></canvas></div>
+  </div>
 
   <span class="nav-anchor" id="mix"></span>
   <div class="panel">
@@ -272,19 +303,9 @@
     </div>
   </div>
 
-  <span class="nav-anchor" id="capacity"></span>
-  <div class="panel">
-    <h2>Available Capacity
-      <span class="panel-note">
-        <button class="toggle-btn active" data-cap="daily">Daily</button><button class="toggle-btn" data-cap="weekly">Weekly</button><button class="toggle-btn" data-cap="monthly">Monthly</button>
-      </span>
-    </h2>
-    <div class="chart-container"><canvas id="chart-capacity"></canvas></div>
-  </div>
-
   <span class="nav-anchor" id="history"></span>
   <div class="panel">
-    <h2>Generation vs. Capacity <span class="panel-note">MW over time</span></h2>
+    <h2>Generation, Capacity &amp; Reserve <span class="panel-note">MW over time</span></h2>
     <div class="controls">
       <button data-days="1" class="active">24h</button>
       <button data-days="7">7d</button>
@@ -294,15 +315,32 @@
     <div class="chart-container"><canvas id="chart-history"></canvas></div>
   </div>
 
+  <span class="nav-anchor" id="cost"></span>
+  <div class="panel" id="cost-panel" style="display:none">
+    <h2>Blended Energy Cost <span class="panel-note">MW-weighted $/MWh over time</span></h2>
+    <div class="explain"><p id="cost-note" style="margin-bottom:12px"></p></div>
+    <div class="controls">
+      <button data-costdays="1" class="active">24h</button>
+      <button data-costdays="7">7d</button>
+      <button data-costdays="30">30d</button>
+      <button data-costdays="90">90d</button>
+    </div>
+    <div class="chart-container"><canvas id="chart-cost"></canvas></div>
+  </div>
+
   <span class="nav-anchor" id="plants"></span>
   <div class="panel">
-    <h2>Plant &amp; Unit Dispatch
+    <h2>Units Online vs. Offline
       <span class="panel-note">
-        <select id="type-filter" style="font-family:inherit;font-size:0.8rem;padding:2px 6px;border:2px solid #000;border-radius:4px;background:#fff">
-          <option value="">All types</option>
-        </select>
+        <button class="toggle-btn active" data-status="">All</button><button class="toggle-btn" data-status="online">Online</button><button class="toggle-btn" data-status="offline">Offline</button><button class="toggle-btn" data-status="critical">Critical</button>
       </span>
     </h2>
+    <div class="units-summary" id="units-summary"></div>
+    <div class="panel-note" style="margin-bottom:14px">
+      <select id="type-filter" style="font-family:inherit;font-size:0.8rem;padding:2px 6px;border:2px solid #000;border-radius:4px;background:#fff">
+        <option value="">All types</option>
+      </select>
+    </div>
     <div class="table-wrap">
     <table id="unit-table">
       <thead>
@@ -310,9 +348,12 @@
           <th class="sortable" data-col="0">Plant</th>
           <th class="sortable" data-col="1">Type</th>
           <th class="sortable" data-col="2">Unit</th>
-          <th class="sortable" data-col="3" style="text-align:right">MW</th>
-          <th class="sortable" data-col="4" style="text-align:right">MVar</th>
-          <th class="sortable" data-col="5" style="text-align:right">Cost $/MWh</th>
+          <th class="sortable" data-col="3">Status</th>
+          <th class="sortable" data-col="4" style="text-align:right">MW now</th>
+          <th class="sortable" data-col="5" style="text-align:right">Typical MW</th>
+          <th class="sortable" data-col="6" style="text-align:right">MVar</th>
+          <th class="sortable" data-col="7" style="text-align:right">Cost $/MWh</th>
+          <th class="sortable" data-col="8">Last online</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -323,16 +364,20 @@
   <span class="nav-anchor" id="methodology"></span>
   <div class="panel explain">
     <h2>Methodology</h2>
-    <p><b>Source</b> — PREPA's operational generation feed (operated by Genera PR), the data behind <a href="https://genera-pr.com/data-generacion">genera-pr.com/data-generacion</a>. A snapshot is captured about every 15 minutes and stored; charts read the most recent snapshot, and the history chart spans stored snapshots.</p>
-    <p><b>Generation mix</b> — Percentage share by fuel (Bunker, Diesel, LNG, Coal, Renewable) as reported by the feed. <b>By plant type</b> sums the megawatts currently online for each technology (hydro, cogen, gas turbine, combined cycle, steam, renewable).</p>
-    <p><b>Available capacity</b> — The feed's daily / weekly / monthly available-capacity series (MW), reflecting how much generating capacity was on hand over each window.</p>
-    <p><b>Reserves</b> — <b>Spinning reserve</b> is synchronized capacity ready immediately; <b>operating reserve</b> is total reserve available. Both are supply-adequacy indicators — the cushion between what is generating and what could be called on.</p>
-    <p><b>Plant &amp; unit dispatch</b> — Real-time output per generating unit: <b>MW</b> (real power), <b>MVar</b> (reactive power; can be negative when a unit absorbs reactive power), and <b>Cost</b> ($/MWh) where reported.</p>
+    <p><b>Source</b> — PREPA's operational generation feed (operated by Genera PR), the data behind <a href="https://genera-pr.com/data-generacion">genera-pr.com/data-generacion</a>. A snapshot is captured about every 15 minutes and stored. "Now" figures read the most recent snapshot; history and hourly baselines read the stored snapshots.</p>
+    <p><b>Grid adequacy alert</b> — A supply-adequacy indicator computed from the feed, <i>not</i> an official PREPA/Genera declaration. It combines two tests: (1) <b>Forecast balance</b> — the feed's next-hour demand forecast vs. available capacity; a projected shortfall means load-shedding (<b>relevos de carga</b>) may be needed. (2) <b>N-1 reserve</b> — whether operating reserve covers the single largest online unit, the standard "can the grid survive losing its biggest generator" test. <b>Critical</b> = projected shortfall or near-zero reserve; <b>Tight</b> = reserve below the largest online unit; <b>Adequate</b> = reserve covers it.</p>
+    <p><b>Hourly load shape</b> — For each hour of the day (AST), the shaded band is the 10th–90th percentile of generation across stored days and the solid line is the median; today's actual is overlaid. This shows whether the system is running above or below its usual level for the time of day, and — in the <b>Reserve</b> view — <i>when</i> reserves are typically thinnest (usually the evening peak, as solar fades and demand rises). The baseline currently spans roughly two weeks of data and sharpens as more accumulate; today is excluded from the "typical" band.</p>
+    <p><b>Reserves</b> — <b>Spinning reserve</b> is synchronized capacity ready immediately; <b>operating reserve</b> is total reserve available. Both are the cushion between what is generating and what could be called on.</p>
+    <p><b>Units online vs. offline</b> — The feed lists every generating unit each snapshot with its output. A unit is counted <b>online</b> when it is producing at least 1 MW and <b>offline</b> otherwise (idle, down, or — for solar — simply nighttime). The feed reports output, not the <i>reason</i> a unit is at zero, so "offline" does not distinguish a planned outage from a forced one from normal diurnal cycling.</p>
+    <p><b>◆ Critical units</b> — Units that historically carry meaningful, dispatchable load — so their being offline is a real loss of firm capacity, not a normal daily cycle. A unit is flagged Critical when, across the stored history, it is non-renewable, averages at least 20 MW when running, and runs at least half the time. Intermittent solar and wind are deliberately excluded (a zero at night is expected, not a loss). When a Critical unit is currently offline, its row is highlighted and the summary tallies the firm MW down. The set is derived from a baseline window and refreshed periodically; the "usually ~N MW" tooltip is each unit's average output when running.</p>
+    <p><b>Plant &amp; unit dispatch</b> — Per unit: <b>MW now</b> (real power), <b>MVar</b> (reactive power; can be negative when a unit absorbs reactive power), and <b>Cost</b> ($/MWh). Where a running unit reports no price, the cost is shown in grey italics with a <b>~</b> prefix — imputed from the MW-weighted average of priced running units of the same plant type (the same method as the blended cost below). A unit whose type has no priced peer shows a dash.</p>
+    <p><b>Typical MW &amp; last online</b> — For each Critical unit the table shows its <b>Typical MW</b> (average output when running) beside its live output, and <b>Last online</b> — how long since it last produced at least 1 MW. A unit that is down then reads as a concrete loss against what it normally contributes, and the summary compares firm capacity online now against the total the Critical fleet provides when fully in service. (Last-online history is read from a stored per-unit view; if that view is unavailable the column shows a dash.)</p>
+    <p><b>Blended energy cost</b> — The MW-weighted average price of everything generating at each snapshot: each unit's $/MWh weighted by its megawatts. A running unit that reports no price is imputed at the MW-weighted average price of other running units of the same plant type — so an unpriced gas turbine is valued like the gas turbines that do report a price, rather than being dropped and understating the figure. The small amount of fuel-free generation with no priced peer of its type is excluded. It rises when cheaper baseload is offline and pricier peaking units backfill, so it tracks the cost consequence of the same outages the units table shows.</p>
     <p><b>Times</b> shown in Atlantic Standard Time (AST, UTC−4).</p>
   </div>
 
   <div class="source-note">
-    <p><b>Data source:</b> <a href="https://genera-pr.com/data-generacion">Genera PR / PREPA operational feed</a>. This page is not affiliated with Genera PR or PREPA.</p>
+    <p><b>Data source:</b> <a href="https://genera-pr.com/data-generacion">Genera PR / PREPA operational feed</a>. This page is not affiliated with Genera PR or PREPA. The adequacy status is an independent indicator, not an official grid alert.</p>
   </div>
 </div>
 
@@ -345,6 +390,37 @@
   // --- Config ---
   const SUPABASE_URL = "https://grovomkpsqgzakfuvuii.supabase.co";
   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdyb3ZvbWtwc3FnemFrZnV2dWlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NzkxMjgsImV4cCI6MjA5MDE1NTEyOH0.U_ZH5gJij5NLkU786mV58uJ0orHZ6ElMkCtyoyuCvBg";
+
+  // A unit is "online" when producing at least this many MW.
+  const ONLINE_MW = 1;
+  // How many days of history feed the hour-of-day "typical" baseline.
+  const BASELINE_DAYS = 45;
+
+  // "Critical" dispatchable units — ones that historically carry meaningful load,
+  // so their being offline is a real loss of firm capacity (unlike solar/wind at
+  // night). Derived from 1,774 stored snapshots (~13 days, ending 2026-07-19):
+  // non-renewable, averaging >= 20 MW when online and online >= 50% of the time.
+  // Keyed "plant_type|plant|unit"; baselineMw = avg output when running; region =
+  // where it sits on the grid. Regenerate periodically (or replace with a view).
+  const CRITICAL_UNITS = {
+    "Vapor|Costa Sur|Unit 5":                  { baselineMw: 292, region: "South" },
+    "Vapor|Costa Sur|Unit 6":                  { baselineMw: 273, region: "South" },
+    "Vapor|Aguirre|Unit 2":                    { baselineMw: 248, region: "South" },
+    "COGEN|AES|Unit 1":                        { baselineMw: 233, region: "South" },
+    "COGEN|AES|Unit 2":                        { baselineMw: 232, region: "South" },
+    "Vapor|Palo Seco|Unit 3":                  { baselineMw: 153, region: "North" },
+    "Ciclo Combinado|San Juan|CTG 6":          { baselineMw: 141, region: "North" },
+    "Ciclo Combinado|San Juan|CTG 5":          { baselineMw: 136, region: "North" },
+    "COGEN|Ecoelectrica|STG":                  { baselineMw: 132, region: "South" },
+    "COGEN|Ecoelectrica|Gas 1":                { baselineMw: 129, region: "South" },
+    "COGEN|Ecoelectrica|Gas 2":                { baselineMw: 129, region: "South" },
+    "Turbina de Gas|Estaciones GT|FEMA GT SJ": { baselineMw:  99, region: "North" },
+    "Turbina de Gas|Cambalache|Gas 3":         { baselineMw:  60, region: "North" },
+    "Turbina de Gas|Estaciones GT|Palo Seco":  { baselineMw:  56, region: "North" },
+    "Ciclo Combinado|San Juan|STG 5":          { baselineMw:  44, region: "North" },
+    "Turbina de Gas|Estaciones GT|FEMA GT PS": { baselineMw:  21, region: "North" },
+  };
+  const critKey = (r) => `${r.plant_type}|${r.plant}|${r.unit}`;
 
   const FUEL_COLORS = {
     Bunker: "#6b4423",
@@ -365,6 +441,7 @@
   const OTHER_COLOR = "#999999";
 
   const chartFont = { family: "'Source Code Pro', monospace" };
+  const AST_TZ = "America/Puerto_Rico";
 
   // --- Supabase fetch helper (paginates to bypass server max-rows cap) ---
   async function sbQuery(view, params = "") {
@@ -383,104 +460,304 @@
     return all;
   }
 
+  const num = (v) => (v === null || v === undefined || v === "" || isNaN(Number(v))) ? null : Number(v);
   const fmt = (n, d = 0) =>
     (n === null || n === undefined || isNaN(n)) ? "—"
       : Number(n).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+  const signed = (n, d = 0) => (n === null || n === undefined || isNaN(n)) ? "—" : (n >= 0 ? "+" : "") + fmt(n, d);
+
+  // "43m ago" / "3h ago" / "2d ago" from an ISO timestamp.
+  function relTime(iso) {
+    if (!iso) return "—";
+    const t = new Date(iso).getTime();
+    if (isNaN(t)) return "—";
+    const mins = Math.max(0, Math.round((Date.now() - t) / 60000));
+    if (mins < 60) return mins + "m ago";
+    const hrs = Math.round(mins / 60);
+    if (hrs < 48) return hrs + "h ago";
+    return Math.round(hrs / 24) + "d ago";
+  }
+
+  // AST calendar date (YYYY-MM-DD) and hour (0-23) for a Date.
+  function astParts(d) {
+    const parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: AST_TZ, year: "numeric", month: "2-digit", day: "2-digit",
+      hour: "2-digit", hour12: false,
+    }).formatToParts(d).reduce((o, p) => (o[p.type] = p.value, o), {});
+    return { date: `${parts.year}-${parts.month}-${parts.day}`, hour: parseInt(parts.hour, 10) % 24 };
+  }
+  const HOUR_LABELS = Array.from({ length: 24 }, (_, h) => {
+    const ap = h < 12 ? "a" : "p";
+    const hr = h % 12 === 0 ? 12 : h % 12;
+    return `${hr}${ap}`;
+  });
+
+  function percentile(sorted, p) {
+    if (!sorted.length) return null;
+    if (sorted.length === 1) return sorted[0];
+    const idx = (sorted.length - 1) * p, lo = Math.floor(idx), hi = Math.ceil(idx);
+    return lo === hi ? sorted[lo] : sorted[lo] + (sorted[hi] - sorted[lo]) * (idx - lo);
+  }
+
+  // Chart.js plugin: faint vertical dividers + date labels at AST midnights, so
+  // multi-day time-axis charts stay readable (which day is which) without changing
+  // the hourly axis. Line/label density adapts to the visible span.
+  const dayDividers = {
+    id: "dayDividers",
+    afterDraw(chart) {
+      const x = chart.scales.x;
+      if (!x || x.type !== "time" || !(x.max > x.min)) return;
+      const DAY = 86400000, AST_MIDNIGHT_UTC = 4 * 3600000; // AST = UTC-4, no DST
+      const spanDays = (x.max - x.min) / DAY;
+      const stepDays = spanDays <= 8 ? 1 : spanDays <= 20 ? 2 : spanDays <= 45 ? 3 : spanDays <= 100 ? 7 : 14;
+      const first = Math.ceil((x.min - AST_MIDNIGHT_UTC) / DAY) * DAY + AST_MIDNIGHT_UTC;
+      const { ctx, chartArea } = chart;
+      ctx.save();
+      ctx.font = "10px 'Source Code Pro', monospace";
+      ctx.textBaseline = "top";
+      for (let t = first; t <= x.max; t += stepDays * DAY) {
+        const px = x.getPixelForValue(t);
+        if (px < chartArea.left || px > chartArea.right) continue;
+        ctx.strokeStyle = "rgba(0,0,0,0.10)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(px, chartArea.top);
+        ctx.lineTo(px, chartArea.bottom);
+        ctx.stroke();
+        const label = new Date(t).toLocaleDateString("en-US", { timeZone: AST_TZ, month: "short", day: "numeric" });
+        const w = ctx.measureText(label).width;
+        ctx.fillStyle = "#888";
+        ctx.fillText(label, (px + 4 + w > chartArea.right) ? px - 4 - w : px + 4, chartArea.top + 2);
+      }
+      ctx.restore();
+    },
+  };
 
   // --- State ---
-  let chartFuel = null, chartCapacity = null, chartHistory = null;
-  let latestMetrics = null, capacityBlocks = null, unitRows = [];
-  let capMode = "daily";
+  let chartFuel = null, chartHistory = null, chartHourly = null, chartCost = null;
+  let latestMetrics = null, unitRows = [];
+  let allHistory = [], costHistory = [];
+  let adequacy = null, largestOnlineMw = null, hourly = null;
+  let hourMode = "gen", statusFilter = "", historyDays = 1, costDays = 1;
 
   function showNoData(msg) {
-    document.getElementById("status-value").textContent = "No data yet";
-    document.getElementById("status-label").textContent = "";
-    document.getElementById("status-summary").textContent = msg || "The generation poller has not recorded any snapshots yet.";
+    document.getElementById("status-label").textContent = "No data yet";
+    document.getElementById("status-reason").textContent = msg || "The generation poller has not recorded any snapshots yet.";
+    document.getElementById("status-value").textContent = "";
+    document.getElementById("status-breakdown").innerHTML = "";
     document.getElementById("status-dot").style.background = "#d5d3cd";
     document.getElementById("status-hero").style.borderColor = "#d5d3cd";
     document.getElementById("stats-grid").innerHTML = "";
-    for (const id of ["type-bars"]) document.getElementById(id).innerHTML = '<div class="no-data">No data.</div>';
+    document.getElementById("type-bars").innerHTML = '<div class="no-data">No data.</div>';
     document.getElementById("fuel-legend").innerHTML = "";
-    document.querySelector("#unit-table tbody").innerHTML = '<tr><td colspan="6" class="no-data">No data.</td></tr>';
+    document.getElementById("units-summary").innerHTML = "";
+    document.getElementById("hourly-note").textContent = "";
+    document.querySelector("#unit-table tbody").innerHTML = '<tr><td colspan="9" class="no-data">No data.</td></tr>';
   }
 
   // --- Load ---
-  async function loadCore() {
-    const [latestRows, capRows, uRows] = await Promise.all([
+  async function init() {
+    const [latestRows, uRows, hist] = await Promise.all([
       sbQuery("v_generation_latest", "select=*"),
-      sbQuery("v_generation_capacity", "select=*"),
       sbQuery("v_generation_units", "select=*"),
+      sbQuery("v_generation_metrics_history",
+        "select=observed_at,total_generation_mw,available_capacity_mw,operating_reserve_mw&order=observed_at.asc"),
     ]);
     if (!latestRows.length) { showNoData(); return; }
 
     const latest = latestRows[0];
     latestMetrics = { ...(latest.metrics || {}), observed_at: latest.observed_at, source_updated_at: latest.source_updated_at };
     const fuelMix = latest.fuel_mix || [];
-    capacityBlocks = (capRows[0] && capRows[0].capacity) || null;
-    unitRows = uRows || [];
+    unitRows = (uRows || []).map(r => ({ ...r, _mw: num(r.mw) || 0 }));
+    unitRows.forEach(r => { r._online = r._mw >= ONLINE_MW; r._crit = CRITICAL_UNITS[critKey(r)] || null; });
+    imputeUnitCost();
+    allHistory = hist || [];
+
+    // Optional enhancements — need the cost-history / unit-stats views deployed.
+    // Absent (pre-deploy) the page still works; these features just stay hidden.
+    try {
+      costHistory = await sbQuery("v_generation_cost_history",
+        "select=observed_at,waec_per_mwh&order=observed_at.asc");
+      if (costHistory.length) document.getElementById("cost-panel").style.display = "";
+    } catch (e) { costHistory = []; }
+    try {
+      const stats = await sbQuery("v_generation_unit_stats",
+        "select=plant_type,plant,unit,last_online_at");
+      const sm = {};
+      for (const s of stats) sm[`${s.plant_type}|${s.plant}|${s.unit}`] = s.last_online_at;
+      unitRows.forEach(r => { r._lastOnline = sm[critKey(r)] || null; });
+    } catch (e) { /* unit-stats view not deployed yet — last-online stays blank */ }
+
+    computeDerived();
+    hourly = buildHourly(allHistory);
 
     renderHero();
     renderStatTiles();
     renderFuelMix(fuelMix);
     renderTypeBars();
-    renderCapacity();
     setupTypeFilter();
+    renderUnitSummary();
     renderUnitTable();
+    renderHourly();
+    renderHistory();
+    renderCost();
   }
 
-  async function loadHistory(days) {
-    const since = new Date(Date.now() - days * 86400000).toISOString();
-    const rows = await sbQuery("v_generation_metrics_history",
-      `select=observed_at,total_generation_mw,available_capacity_mw&observed_at=gte.${since}&order=observed_at.asc`);
-    renderHistory(rows);
+  // --- Derived: largest online unit + adequacy classification ---
+  function computeDerived() {
+    largestOnlineMw = unitRows.reduce((m, r) => r._online ? Math.max(m, r._mw) : m, 0) || null;
+
+    const m = latestMetrics;
+    const gen = num(m.totalGeneration), cap = num(m.availableCapacityMw),
+          opRes = num(m.operatingReserveMw), nextHr = num(m.nextHourMw);
+    const marginNow = (cap != null && gen != null) ? cap - gen : null;      // current headroom
+    const marginNext = (cap != null && nextHr != null) ? cap - nextHr : null; // forecast headroom
+    const n1 = largestOnlineMw;
+
+    let level = "adequate", label = "Adequate reserves", reason = "";
+    if ((marginNext != null && marginNext < 0) || (opRes != null && opRes < 50)) {
+      level = "critical"; label = "Load-shedding risk (relevos de carga)";
+      if (marginNext != null && marginNext < 0)
+        reason = `Next-hour forecast ${fmt(nextHr)} MW exceeds available capacity ${fmt(cap)} MW — a projected ${fmt(Math.abs(marginNext))} MW shortfall. Load-shedding may be needed to balance the grid.`;
+      else
+        reason = `Operating reserve is only ${fmt(opRes)} MW — the system has almost no cushion, so any unit trip could force load-shedding.`;
+    } else if ((n1 != null && opRes != null && opRes < n1) || (n1 != null && marginNext != null && marginNext < n1)) {
+      level = "tight"; label = "Thin reserves";
+      reason = `Operating reserve ${fmt(opRes)} MW is below the largest online unit (${fmt(n1)} MW). The grid would not withstand losing its biggest generator (fails N-1) without dipping into emergency measures.`;
+    } else {
+      level = "adequate"; label = "Adequate reserves";
+      reason = n1 != null
+        ? `Operating reserve ${fmt(opRes)} MW covers the largest online unit (${fmt(n1)} MW), and the next-hour forecast fits within available capacity.`
+        : `Reserves are within normal range and the next-hour forecast fits within available capacity.`;
+    }
+    adequacy = { level, label, reason, gen, cap, opRes, nextHr, marginNow, marginNext, n1,
+      color: level === "critical" ? "#e04343" : level === "tight" ? "#faa72a" : "#76ad2a" };
   }
 
   // --- Hero ---
   function renderHero() {
-    const m = latestMetrics;
-    const total = m.totalGeneration;
-    document.getElementById("status-value").innerHTML = `${fmt(total)} <small>MW generating</small>`;
-    document.getElementById("status-label").textContent =
-      m.renewablePct != null ? `${fmt(m.renewablePct)}% renewable · ${fmt(m.fossilPct)}% fossil` : "";
-    document.getElementById("status-summary").textContent =
-      m.availableCapacityMw != null ? `${fmt(m.availableCapacityMw)} MW available capacity on the system` : "";
+    const a = adequacy, m = latestMetrics;
+    document.getElementById("status-label").textContent = a.label.toUpperCase();
+    document.getElementById("status-reason").textContent = a.reason;
+    document.getElementById("status-value").innerHTML =
+      `${fmt(a.gen)} <small>MW generating</small> · ${fmt(a.cap)} <small>MW available</small>`;
     document.getElementById("status-breakdown").innerHTML =
-      `<span><span class="num">${fmt(m.operatingReserveMw)}</span> MW operating reserve</span>` +
+      `<span><span class="num">${fmt(a.opRes)}</span> MW operating reserve</span>` +
       `<span><span class="num">${fmt(m.spinningReserveMw)}</span> MW spinning reserve</span>` +
-      (m.nextHourMw != null ? `<span><span class="num">${fmt(m.nextHourMw)}</span> MW next-hour forecast</span>` : "");
+      (a.nextHr != null ? `<span>next hour <span class="num">${fmt(a.nextHr)}</span> MW <small>(margin ${signed(a.marginNext)} MW)</small></span>` : "");
 
-    // Dot reflects feed freshness (is the data live?)
+    document.getElementById("status-dot").style.background = a.color;
+    document.getElementById("status-hero").style.borderColor = a.color;
+
     const srcTs = m.source_updated_at ? new Date(m.source_updated_at) : new Date(m.observed_at);
     const ageMin = (Date.now() - srcTs.getTime()) / 60000;
-    const fresh = ageMin <= 45 ? "#76ad2a" : ageMin <= 180 ? "#faa72a" : "#e04343";
-    document.getElementById("status-dot").style.background = fresh;
-    document.getElementById("status-hero").style.borderColor = fresh;
+    const freshNote = ageMin > 60 ? " · feed may be stale" : "";
     document.getElementById("status-timestamp").textContent =
-      `Feed updated: ${srcTs.toLocaleString("en-US", { timeZone: "America/Puerto_Rico", dateStyle: "medium", timeStyle: "short" })} AST`;
+      `Feed updated: ${srcTs.toLocaleString("en-US", { timeZone: AST_TZ, dateStyle: "medium", timeStyle: "short" })} AST${freshNote}`;
     document.getElementById("mix-timestamp").textContent =
-      srcTs.toLocaleString("en-US", { timeZone: "America/Puerto_Rico", dateStyle: "medium", timeStyle: "short" }) + " AST";
+      srcTs.toLocaleString("en-US", { timeZone: AST_TZ, dateStyle: "medium", timeStyle: "short" }) + " AST";
   }
 
   // --- Stat tiles ---
   function renderStatTiles() {
-    const m = latestMetrics;
+    const m = latestMetrics, a = adequacy;
+    const resAccent = a.level === "critical" ? "accent-crit" : a.level === "tight" ? "accent-warn" : "accent-ok";
+    const marginAccent = a.marginNext == null ? "" : a.marginNext < 0 ? "accent-crit" : a.marginNext < (a.n1 || 0) ? "accent-warn" : "accent-ok";
     const tiles = [
       { label: "Total Generation", value: fmt(m.totalGeneration), unit: "MW" },
       { label: "Available Capacity", value: fmt(m.availableCapacityMw), unit: "MW" },
-      { label: "Operating Reserve", value: fmt(m.operatingReserveMw), unit: "MW",
-        sub: m.totalGeneration ? `${fmt(m.operatingReserveMw / m.totalGeneration * 100, 0)}% of generation` : "" },
-      { label: "Spinning Reserve", value: fmt(m.spinningReserveMw), unit: "MW" },
+      { label: "Operating Reserve", value: fmt(m.operatingReserveMw), unit: "MW", accent: resAccent,
+        sub: a.n1 != null ? `largest unit ${fmt(a.n1)} MW (N-1)` : "" },
+      { label: "Forecast Margin", value: signed(a.marginNext), unit: "MW", accent: marginAccent,
+        sub: a.nextHr != null ? `next hour ${fmt(a.nextHr)} MW vs capacity` : "" },
       { label: "Renewable Share", value: fmt(m.renewablePct), unit: "%",
         sub: m.totalGeneration != null && m.renewablePct != null ? `${fmt(m.totalGeneration * m.renewablePct / 100)} MW` : "" },
       { label: "Peak Today", value: fmt(m.peakTodayMw), unit: "MW",
         sub: m.peakAnnualMw != null ? `annual peak ${fmt(m.peakAnnualMw)} MW` : "" },
     ];
     document.getElementById("stats-grid").innerHTML = tiles.map(t => `
-      <div class="stat-tile">
+      <div class="stat-tile ${t.accent || ""}">
         <div class="stat-label">${t.label}</div>
         <div class="stat-value">${t.value} <small>${t.unit}</small></div>
         ${t.sub ? `<div class="stat-sub">${t.sub}</div>` : ""}
       </div>`).join("");
+  }
+
+  // --- Hour-of-day baseline ---
+  function buildHourly(history) {
+    const nowDate = astParts(new Date()).date;
+    const cutoff = Date.now() - BASELINE_DAYS * 86400000;
+    const past = Array.from({ length: 24 }, () => ({ gen: [], cap: [], res: [] }));
+    const today = Array.from({ length: 24 }, () => ({ gen: [], cap: [], res: [] }));
+    for (const r of history) {
+      const t = new Date(r.observed_at);
+      if (t.getTime() < cutoff) continue;
+      const { date, hour } = astParts(t);
+      const gen = num(r.total_generation_mw), cap = num(r.available_capacity_mw), res = num(r.operating_reserve_mw);
+      const b = date === nowDate ? today[hour] : past[hour];
+      if (gen != null) b.gen.push(gen);
+      if (cap != null) b.cap.push(cap);
+      if (res != null) b.res.push(res);
+    }
+    const stat = (arr) => {
+      if (!arr.length) return { p10: null, p50: null, p90: null };
+      const s = [...arr].sort((a, b) => a - b);
+      return { p10: percentile(s, 0.1), p50: percentile(s, 0.5), p90: percentile(s, 0.9) };
+    };
+    const avg = (arr) => arr.length ? arr.reduce((x, y) => x + y, 0) / arr.length : null;
+    return {
+      genBand: past.map(b => stat(b.gen)),
+      capMed: past.map(b => stat(b.cap).p50),
+      resMed: past.map(b => stat(b.res).p50),
+      todayGen: today.map(b => avg(b.gen)),
+      todayRes: today.map(b => avg(b.res)),
+      days: new Set(history.filter(r => new Date(r.observed_at).getTime() >= cutoff).map(r => astParts(new Date(r.observed_at)).date)).size,
+    };
+  }
+
+  function renderHourly() {
+    if (chartHourly) chartHourly.destroy();
+    const h = hourly;
+    document.getElementById("hourly-note").textContent = hourMode === "gen"
+      ? `For each hour of the day, the shaded band is the usual range of generation (10th–90th percentile) and the line its median, drawn from ${h.days} day(s) of snapshots. Today's actual is overlaid, with the typical available-capacity line for context.`
+      : `Typical operating reserve by hour of day (median over ${h.days} day(s)), with today's actual. The dashed line marks the largest online unit — hours where reserve dips below it fail the N-1 test and are when relevos de carga are most likely.`;
+
+    let datasets;
+    if (hourMode === "gen") {
+      datasets = [
+        { label: "__p10", data: h.genBand.map(b => b.p10), borderColor: "rgba(58,134,168,0)", pointRadius: 0, fill: false },
+        { label: "Typical range (P10–P90)", data: h.genBand.map(b => b.p90), borderColor: "rgba(58,134,168,0)", backgroundColor: "rgba(58,134,168,0.13)", pointRadius: 0, fill: "-1" },
+        { label: "Typical generation (median)", data: h.genBand.map(b => b.p50), borderColor: "#3a86a8", borderWidth: 2, pointRadius: 0, tension: 0.35, fill: false },
+        { label: "Available capacity (median)", data: h.capMed, borderColor: "#999", borderDash: [5, 4], borderWidth: 1.5, pointRadius: 0, tension: 0.35, fill: false },
+        { label: "Today", data: h.todayGen, borderColor: "#e63946", borderWidth: 2.5, pointRadius: 2, tension: 0.35, spanGaps: false, fill: false },
+      ];
+    } else {
+      const n1 = adequacy && adequacy.n1 ? adequacy.n1 : null;
+      datasets = [
+        { label: "Typical operating reserve (median)", data: h.resMed, borderColor: "#3a86a8", borderWidth: 2, pointRadius: 0, tension: 0.35, backgroundColor: "rgba(58,134,168,0.10)", fill: true },
+        { label: "Today", data: h.todayRes, borderColor: "#e63946", borderWidth: 2.5, pointRadius: 2, tension: 0.35, spanGaps: false, fill: false },
+      ];
+      if (n1) datasets.push({ label: `Largest unit (N-1) ${fmt(n1)} MW`, data: Array(24).fill(n1), borderColor: "#faa72a", borderDash: [6, 4], borderWidth: 1.5, pointRadius: 0, fill: false });
+    }
+
+    chartHourly = new Chart(document.getElementById("chart-hourly"), {
+      type: "line",
+      data: { labels: HOUR_LABELS, datasets },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { intersect: false, mode: "index" },
+        plugins: {
+          legend: { labels: { font: { ...chartFont, size: 11 }, filter: (i) => i.text !== "__p10" } },
+          tooltip: { titleFont: chartFont, bodyFont: chartFont,
+            callbacks: { title: (items) => `${items[0].label} AST`,
+              label: (c) => c.dataset.label === "__p10" ? null : ` ${c.dataset.label}: ${fmt(c.parsed.y)} MW` } },
+        },
+        scales: {
+          x: { ticks: { font: { ...chartFont, size: 10 } }, grid: { display: false }, title: { display: true, text: "Hour of day (AST)", font: { ...chartFont, size: 10 } } },
+          y: { beginAtZero: true, ticks: { font: { ...chartFont, size: 10 }, callback: v => v + " MW" }, grid: { color: "#f0f0f0" } },
+        },
+      },
+    });
   }
 
   // --- Fuel mix donut ---
@@ -517,8 +794,7 @@
   function renderTypeBars() {
     const byType = {};
     for (const u of unitRows) {
-      const mw = Number(u.mw) || 0;
-      byType[u.plant_type] = (byType[u.plant_type] || 0) + Math.max(0, mw);
+      byType[u.plant_type] = (byType[u.plant_type] || 0) + Math.max(0, u._mw);
     }
     const entries = Object.entries(byType).sort((a, b) => b[1] - a[1]);
     if (!entries.length) { document.getElementById("type-bars").innerHTML = '<div class="no-data">No data.</div>'; return; }
@@ -532,34 +808,13 @@
       </div>`).join("");
   }
 
-  // --- Available capacity (category bar) ---
-  function renderCapacity() {
-    if (!capacityBlocks) { return; }
-    const block = capacityBlocks[capMode];
-    if (chartCapacity) chartCapacity.destroy();
-    if (!block || !block.labels) return;
-    chartCapacity = new Chart(document.getElementById("chart-capacity"), {
-      type: "bar",
-      data: {
-        labels: block.labels,
-        datasets: [{ label: "Available capacity (MW)", data: block.capacity, backgroundColor: "#3a86a8", borderRadius: 3 }],
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { labels: { font: { ...chartFont, size: 11 } } }, tooltip: { titleFont: chartFont, bodyFont: chartFont } },
-        scales: {
-          x: { ticks: { font: { ...chartFont, size: 10 }, autoSkip: true, maxRotation: 0 }, grid: { display: false } },
-          y: { ticks: { font: { ...chartFont, size: 10 } }, grid: { color: "#f0f0f0" }, title: { display: true, text: "MW", font: { ...chartFont, size: 10 } } },
-        },
-      },
-    });
-  }
-
-  // --- Generation vs capacity over time ---
-  function renderHistory(rows) {
+  // --- Generation / capacity / reserve over time ---
+  function renderHistory() {
     if (chartHistory) chartHistory.destroy();
     const el = document.getElementById("chart-history");
-    if (!rows || !rows.length) {
+    const since = Date.now() - historyDays * 86400000;
+    const rows = allHistory.filter(r => new Date(r.observed_at).getTime() >= since);
+    if (!rows.length) {
       const ctx = el.getContext("2d");
       ctx.clearRect(0, 0, el.width, el.height);
       return;
@@ -568,29 +823,95 @@
     const ptR = rows.length > 100 ? 0 : 2;
     chartHistory = new Chart(el, {
       type: "line",
+      plugins: [dayDividers],
       data: {
         labels,
         datasets: [
-          { label: "Total generation", data: rows.map(r => r.total_generation_mw),
-            borderColor: "#e63946", backgroundColor: "rgba(230,57,70,0.12)", fill: true, tension: 0.3, pointRadius: ptR },
-          { label: "Available capacity", data: rows.map(r => r.available_capacity_mw),
-            borderColor: "#3a86a8", backgroundColor: "rgba(58,134,168,0.08)", fill: false, borderDash: [5, 4], tension: 0.3, pointRadius: ptR },
+          { label: "Total generation", data: rows.map(r => num(r.total_generation_mw)),
+            borderColor: "#e63946", backgroundColor: "rgba(230,57,70,0.10)", fill: true, tension: 0.3, pointRadius: ptR },
+          { label: "Available capacity", data: rows.map(r => num(r.available_capacity_mw)),
+            borderColor: "#3a86a8", backgroundColor: "rgba(58,134,168,0.06)", fill: false, borderDash: [5, 4], tension: 0.3, pointRadius: ptR },
+          { label: "Operating reserve", data: rows.map(r => num(r.operating_reserve_mw)),
+            borderColor: "#76ad2a", fill: false, tension: 0.3, pointRadius: ptR, borderWidth: 1.5, yAxisID: "y1" },
         ],
       },
       options: {
         responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { labels: { font: { ...chartFont, size: 11 } } }, tooltip: { titleFont: chartFont, bodyFont: chartFont } },
+        interaction: { intersect: false, mode: "index" },
+        plugins: { legend: { labels: { font: { ...chartFont, size: 11 } } }, tooltip: { titleFont: chartFont, bodyFont: chartFont, callbacks: { title: i => i.length ? new Date(i[0].parsed.x).toLocaleString("en-US", { timeZone: AST_TZ, dateStyle: "medium", timeStyle: "short" }) + " AST" : "" } } },
         scales: {
           x: { type: "time", ticks: { font: { ...chartFont, size: 10 } }, grid: { color: "#f0f0f0" } },
-          y: { ticks: { font: { ...chartFont, size: 10 }, callback: v => v + " MW" }, grid: { color: "#f0f0f0" } },
+          y: { ticks: { font: { ...chartFont, size: 10 }, callback: v => v + " MW" }, grid: { color: "#f0f0f0" }, title: { display: true, text: "Generation / capacity", font: { ...chartFont, size: 10 } } },
+          y1: { position: "right", beginAtZero: true, ticks: { font: { ...chartFont, size: 10 }, callback: v => v + " MW" }, grid: { drawOnChartArea: false }, title: { display: true, text: "Reserve", font: { ...chartFont, size: 10 } } },
         },
       },
     });
   }
 
-  // --- Unit table ---
-  let sortCol = 3, sortDir = "desc", typeFilter = "";
-  const COL_KEYS = ["plant", "plant_type", "unit", "mw", "mvar", "cost"];
+  // --- Blended energy cost (MW-weighted $/MWh) over time ---
+  function renderCost() {
+    if (chartCost) chartCost.destroy();
+    if (!costHistory.length) return;
+    const el = document.getElementById("chart-cost");
+    const since = Date.now() - costDays * 86400000;
+    const rows = costHistory.filter(r => new Date(r.observed_at).getTime() >= since);
+    const latestWaec = num(costHistory[costHistory.length - 1].waec_per_mwh);
+    document.getElementById("cost-note").innerHTML =
+      "The MW-weighted average price of everything generating — each unit's $/MWh weighted by its output. A running unit that reports no price inherits the average price of other running units of the same type (an unpriced gas turbine is valued like the priced ones); the little fuel-free generation with no priced peer is left out. It rises when cheaper baseload is offline and pricier peaking units fill in." +
+      (latestWaec != null ? ` Latest: <b>$${fmt(latestWaec, 2)}/MWh</b>.` : "");
+    if (!rows.length) return;
+    const ptR = rows.length > 100 ? 0 : 2;
+    chartCost = new Chart(el, {
+      type: "line",
+      plugins: [dayDividers],
+      data: {
+        labels: rows.map(r => new Date(r.observed_at)),
+        datasets: [{
+          label: "Blended cost ($/MWh)", data: rows.map(r => num(r.waec_per_mwh)),
+          borderColor: "#7209b7", backgroundColor: "rgba(114,9,183,0.10)", fill: true, tension: 0.3, pointRadius: ptR, borderWidth: 2,
+        }],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { intersect: false, mode: "index" },
+        plugins: {
+          legend: { labels: { font: { ...chartFont, size: 11 } } },
+          tooltip: { titleFont: chartFont, bodyFont: chartFont,
+            callbacks: {
+              title: i => i.length ? new Date(i[0].parsed.x).toLocaleString("en-US", { timeZone: AST_TZ, dateStyle: "medium", timeStyle: "short" }) + " AST" : "",
+              label: c => ` ${c.dataset.label}: $${fmt(c.parsed.y, 2)}/MWh` } },
+        },
+        scales: {
+          x: { type: "time", ticks: { font: { ...chartFont, size: 10 } }, grid: { color: "#f0f0f0" } },
+          y: { ticks: { font: { ...chartFont, size: 10 }, callback: v => "$" + v }, grid: { color: "#f0f0f0" }, title: { display: true, text: "$/MWh", font: { ...chartFont, size: 10 } } },
+        },
+      },
+    });
+  }
+
+  // --- Unit summary + table ---
+  function renderUnitSummary() {
+    const total = unitRows.length;
+    const online = unitRows.filter(u => u._online).length;
+    const offline = total - online;
+    const dispatched = unitRows.reduce((s, u) => s + Math.max(0, u._mw), 0);
+    const crit = unitRows.filter(u => u._crit);
+    const critFleet = crit.reduce((s, u) => s + (u._crit.baselineMw || 0), 0);
+    const critOff = crit.filter(u => !u._online);
+    const critOffMw = critOff.reduce((s, u) => s + (u._crit.baselineMw || 0), 0);
+    const critOnMw = critFleet - critOffMw;
+    document.getElementById("units-summary").innerHTML =
+      `<span class="us-item"><span class="us-num">${online}</span> of ${total} units online</span>` +
+      `<span class="us-item"><span class="us-num">${offline}</span> offline / idle</span>` +
+      `<span class="us-item"><span class="us-num">${fmt(dispatched, 0)}</span> MW dispatched</span>` +
+      (crit.length ? `<span class="us-item"><span class="us-num">${fmt(critOnMw)}</span> of ~${fmt(critFleet)} MW critical firm capacity online</span>` : "") +
+      (crit.length && critOff.length
+        ? `<span class="us-item us-crit"><span class="us-num">${critOff.length}</span> of ${crit.length} critical units offline · ~${fmt(critOffMw)} MW down</span>`
+        : (crit.length ? `<span class="us-item">all ${crit.length} critical units online</span>` : ""));
+  }
+
+  let sortCol = 4, sortDir = "desc", typeFilter = "";
+  const COL_KEYS = ["plant", "plant_type", "unit", "status", "mw", "typical", "mvar", "cost", "lastonline"];
 
   function setupTypeFilter() {
     const types = [...new Set(unitRows.map(u => u.plant_type))].sort();
@@ -599,30 +920,84 @@
     sel.addEventListener("change", () => { typeFilter = sel.value; renderUnitTable(); });
   }
 
+  // Impute a $/MWh for RUNNING units that report no price, using the MW-weighted
+  // average cost of priced, running units of the SAME plant type — mirrors the blended
+  // cost view (v_generation_cost_history) so the table and the WAEC chart agree. Units
+  // whose type has no priced peer (genuinely fuel-free) keep no cost.
+  function imputeUnitCost() {
+    const acc = {}; // plant_type -> { mw, mwCost } over priced, running units
+    for (const r of unitRows) {
+      const c = num(r.cost);
+      if (r._mw > 0 && c > 0) {
+        const a = acc[r.plant_type] || (acc[r.plant_type] = { mw: 0, mwCost: 0 });
+        a.mw += r._mw; a.mwCost += r._mw * c;
+      }
+    }
+    const typeCost = {};
+    for (const t in acc) if (acc[t].mw > 0) typeCost[t] = acc[t].mwCost / acc[t].mw;
+    for (const r of unitRows) {
+      const c = num(r.cost);
+      if (c > 0) { r._costEff = c; r._costImputed = false; }
+      else if (r._mw > 0 && typeCost[r.plant_type] != null) { r._costEff = typeCost[r.plant_type]; r._costImputed = true; }
+      else { r._costEff = null; r._costImputed = false; }
+    }
+  }
+
   function renderUnitTable() {
     let rows = unitRows.slice();
     if (typeFilter) rows = rows.filter(r => r.plant_type === typeFilter);
+    if (statusFilter === "online") rows = rows.filter(r => r._online);
+    else if (statusFilter === "offline") rows = rows.filter(r => !r._online);
+    else if (statusFilter === "critical") rows = rows.filter(r => r._crit);
+
     const key = COL_KEYS[sortCol];
+    const typicalOf = (r) => r._crit ? r._crit.baselineMw : 0;
+    const lastOnlineOf = (r) => r._online ? Infinity : (r._lastOnline ? new Date(r._lastOnline).getTime() : 0);
     rows.sort((a, b) => {
-      let va = a[key], vb = b[key];
-      if (["mw", "mvar", "cost"].includes(key)) { va = Number(va) || 0; vb = Number(vb) || 0; }
+      let va, vb;
+      if (key === "status") { va = a._online ? 1 : 0; vb = b._online ? 1 : 0; }
+      else if (key === "typical") { va = typicalOf(a); vb = typicalOf(b); }
+      else if (key === "lastonline") { va = lastOnlineOf(a); vb = lastOnlineOf(b); }
+      else if (key === "cost") { va = a._costEff || 0; vb = b._costEff || 0; }
+      else if (["mw", "mvar"].includes(key)) { va = num(a[key]) || 0; vb = num(b[key]) || 0; }
+      else { va = a[key]; vb = b[key]; }
       const cmp = typeof va === "string" ? String(va).localeCompare(String(vb)) : va - vb;
       return sortDir === "asc" ? cmp : -cmp;
     });
+
     const tbody = document.querySelector("#unit-table tbody");
-    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="6" class="no-data">No units match.</td></tr>'; return; }
-    const totalMw = rows.reduce((s, r) => s + (Number(r.mw) || 0), 0);
-    tbody.innerHTML = rows.map(r => `<tr>
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="9" class="no-data">No units match.</td></tr>'; return; }
+    const totalMw = rows.reduce((s, r) => s + Math.max(0, r._mw), 0);
+    const onlineCount = rows.filter(r => r._online).length;
+    const typicalShown = rows.reduce((s, r) => s + (r._crit ? r._crit.baselineMw : 0), 0);
+    const lastCell = (r) => {
+      if (r._online) return '<span style="color:#999">— now</span>';
+      if (!r._lastOnline) return "—";
+      const abs = new Date(r._lastOnline).toLocaleString("en-US", { timeZone: AST_TZ, dateStyle: "medium", timeStyle: "short" });
+      return `<span title="${abs} AST">${relTime(r._lastOnline)}</span>`;
+    };
+    const costCell = (r) => {
+      if (r._costEff == null) return "—";
+      if (r._costImputed) return `<span style="color:#999;font-style:italic" title="No price reported — imputed from the ${r.plant_type} average">~${fmt(r._costEff, 2)}</span>`;
+      return fmt(r._costEff, 2);
+    };
+    tbody.innerHTML = rows.map(r => `<tr class="${(r._crit && !r._online) ? "row-crit-off" : ""}">
         <td><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${TYPE_COLORS[r.plant_type] || OTHER_COLOR};margin-right:6px"></span>${r.plant}</td>
         <td>${r.plant_type}</td>
         <td>${r.unit}</td>
+        <td><span class="badge ${r._online ? "badge-online" : "badge-offline"}">${r._online ? "Online" : "Offline"}</span>${r._crit ? `<span class="badge ${r._online ? "badge-critical" : "badge-critical-off"}" title="Critical dispatchable unit — usually ~${r._crit.baselineMw} MW (${r._crit.region})">◆ Critical</span>` : ""}</td>
         <td class="num">${fmt(r.mw, 2)}</td>
+        <td class="num">${r._crit ? "~" + fmt(r._crit.baselineMw) : "—"}</td>
         <td class="num">${fmt(r.mvar, 2)}</td>
-        <td class="num">${(Number(r.cost) > 0) ? fmt(r.cost, 2) : "—"}</td>
+        <td class="num">${costCell(r)}</td>
+        <td>${lastCell(r)}</td>
       </tr>`).join("") + `<tr style="font-weight:700;border-top:2px solid #000">
         <td>Total${typeFilter ? " (" + typeFilter + ")" : ""}</td><td></td>
         <td class="num">${rows.length} units</td>
-        <td class="num">${fmt(totalMw, 1)}</td><td></td><td></td>
+        <td>${onlineCount} online</td>
+        <td class="num">${fmt(totalMw, 1)}</td>
+        <td class="num">${typicalShown ? "~" + fmt(typicalShown) : ""}</td>
+        <td></td><td></td><td></td>
       </tr>`;
   }
 
@@ -630,35 +1005,52 @@
     th.addEventListener("click", () => {
       const col = parseInt(th.dataset.col);
       if (sortCol === col) sortDir = sortDir === "asc" ? "desc" : "asc";
-      else { sortCol = col; sortDir = (col <= 2) ? "asc" : "desc"; }
+      else { sortCol = col; sortDir = (col <= 3) ? "asc" : "desc"; }
       document.querySelectorAll("#unit-table th.sortable").forEach(h => h.classList.remove("asc", "desc"));
       th.classList.add(sortDir);
       renderUnitTable();
     });
   });
 
-  // --- Capacity toggle ---
-  document.querySelectorAll("[data-cap]").forEach(btn => {
+  // --- Toggles ---
+  document.querySelectorAll("[data-costdays]").forEach(btn => {
     btn.addEventListener("click", () => {
-      document.querySelectorAll("[data-cap]").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll("[data-costdays]").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
-      capMode = btn.dataset.cap;
-      renderCapacity();
+      costDays = parseInt(btn.dataset.costdays);
+      renderCost();
     });
   });
 
-  // --- History range buttons ---
-  document.querySelectorAll(".controls button").forEach(btn => {
+  document.querySelectorAll("[data-hmode]").forEach(btn => {
     btn.addEventListener("click", () => {
-      document.querySelectorAll(".controls button").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll("[data-hmode]").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
-      loadHistory(parseInt(btn.dataset.days));
+      hourMode = btn.dataset.hmode;
+      renderHourly();
+    });
+  });
+
+  document.querySelectorAll("[data-status]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("[data-status]").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      statusFilter = btn.dataset.status;
+      renderUnitTable();
+    });
+  });
+
+  document.querySelectorAll("[data-days]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("[data-days]").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      historyDays = parseInt(btn.dataset.days);
+      renderHistory();
     });
   });
 
   // --- Init ---
-  loadCore().catch(e => { console.error(e); showNoData("Could not load generation data: " + e.message); });
-  loadHistory(1).catch(e => console.error(e));
+  init().catch(e => { console.error(e); showNoData("Could not load generation data: " + e.message); });
 </script>
 </body>
 </html>
