@@ -182,15 +182,16 @@
         <a href="#drivers">Probabilities</a>
         <a href="#diffusion">Diffusion</a>
         <a href="#methodology">Methodology</a>
+        <a href="#validation">Validation</a>
         <a href="#data">Data</a>
       </div>
     </div>
     <h1>Puerto Rico Labor Market Conditions Index</h1>
     <div class="subtitle">
-      Dynamic factor model &bull; 39 indicators &bull; EM-PCA extraction &bull; Monthly release
+      Dynamic factor model &bull; 40 indicators &bull; EM-PCA extraction &bull; Monthly release
     </div>
     <div class="meta">
-      <span><strong>Last updated:</strong> 2026-07-15 11:21 UTC</span>
+      <span><strong>Last updated:</strong> 2026-07-20 19:49 UTC</span>
       <span><strong>Release:</strong> May 2026 (preliminary)</span>
       <span><strong>Updates:</strong> 15th and 28th of each month</span>
     </div>
@@ -201,10 +202,10 @@
     <h2>Overview <span class="panel-note">What this dashboard measures</span></h2>
     <div class="explain">
       <p><strong>What you are looking at:</strong> a monthly summary of Puerto Rico's labor market conditions,
-      combining 39 economic indicators into a single index using a dynamic factor model.</p>
+      combining 40 economic indicators into a single index using a dynamic factor model.</p>
       <p><strong>Methodology:</strong> The PR-LMCI follows the Chicago Fed Labor Market Conditions Index
       (Brave and Cole, 2014). It extracts the first principal component from a standardized panel of
-      39 indicators using EM-PCA to handle missing data.</p>
+      40 indicators using EM-PCA to handle missing data.</p>
       <p><strong>Three outputs:</strong></p>
       <ul style="margin: 8px 0 8px 20px; font-size: 0.9rem; color: var(--secondary-text);">
         <li><strong>PR-LMCI Level:</strong> the level of labor market conditions (0 = historical average).</li>
@@ -213,7 +214,7 @@
       </ul>
       <p><strong>Indicator categories:</strong> the curated panel spans the groups
       below. Indicators lacking sufficient history are dropped each release, leaving
-      39 series in the latest index.</p>
+      40 series in the latest index.</p>
       <ul style="margin: 8px 0 8px 20px; font-size: 0.9rem; color: var(--secondary-text);">
         <li>Non-farm payroll employment by NAICS sector</li>
         <li>Labor force, employment, unemployment, participation rate</li>
@@ -244,7 +245,7 @@
     <p style="font-size: 0.9rem; color: var(--secondary-text); margin-bottom: 16px;">
       Here are the latest estimates for May 2026:
     </p>
-      <p style="font-size:0.85rem; margin-bottom:16px; padding:10px 12px; border:1px solid var(--border-primary); border-radius:6px;"><strong>Preliminary.</strong> The May 2026 reading is based on partial data — 72% of indicators reported and will be revised as additional indicators are released.</p>
+      <p style="font-size:0.85rem; margin-bottom:16px; padding:10px 12px; border:1px solid var(--border-primary); border-radius:6px;"><strong>Preliminary.</strong> The May 2026 reading is based on partial data — 70% of indicators reported and will be revised as additional indicators are released.</p>
 
     <!-- Summary Comparison Table (Chicago Fed style) -->
     <div class="table-wrap">
@@ -260,22 +261,44 @@
         <tbody>
           <tr>
             <td><strong>PR-LMCI Level</strong></td>
-            <td style="text-align:right; font-weight:600;">-3.04</td>
-            <td style="text-align:right;">-3.07</td>
-            <td style="text-align:right;">-2.91</td>
+            <td style="text-align:right; font-weight:600;">-3.08</td>
+            <td style="text-align:right;">-3.11</td>
+            <td style="text-align:right;">-2.89</td>
           </tr>
           <tr>
             <td><strong>PR-LMCI Momentum</strong></td>
             <td style="text-align:right; font-weight:600;">+0.03</td>
             <td style="text-align:right;">+0.11</td>
-            <td style="text-align:right;">-0.01</td>
+            <td style="text-align:right;">+0.04</td>
           </tr>
           <tr>
             <td><strong>Diffusion Index</strong></td>
-            <td style="text-align:right; font-weight:600;">48.7%</td>
-            <td style="text-align:right;">50.4%</td>
-            <td style="text-align:right;">55.6%</td>
+            <td style="text-align:right; font-weight:600;">49.2%</td>
+            <td style="text-align:right;">51.7%</td>
+            <td style="text-align:right;">55.8%</td>
           </tr>
+          <tr>
+            <td><strong>Prob. Improving</strong></td>
+            <td style="text-align:right; font-weight:600;">53%</td>
+            <td style="text-align:right;" colspan="2" class="muted">--</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="font-size:1rem; font-weight:600; margin:22px 0 4px;">Labor Flows (BED)
+      <span class="panel-note">Job flows &bull; as of Sep 2025</span></h3>
+    <div class="table-wrap">
+      <table class="mini">
+        <thead>
+          <tr>
+            <th></th>
+            <th style="text-align:right;">Latest<br><span class="muted" style="font-weight:400;">(Sep 2025)</span></th>
+            <th style="text-align:right;">Previous<br><span class="muted" style="font-weight:400;">(Aug 2025)</span></th>
+            <th style="text-align:right;">Year Ago<br><span class="muted" style="font-weight:400;">(Sep 2024)</span></th>
+          </tr>
+        </thead>
+        <tbody>
           <tr>
             <td><strong>Hiring Rate</strong></td>
             <td style="text-align:right; font-weight:600;">1.44%</td>
@@ -289,25 +312,27 @@
             <td style="text-align:right;">1.35%</td>
           </tr>
           <tr>
-            <td><strong>Prob. Improving</strong></td>
-            <td style="text-align:right; font-weight:600;">53%</td>
-            <td style="text-align:right;" colspan="2" class="muted">--</td>
+            <td><strong>Net Flow</strong></td>
+            <td style="text-align:right; font-weight:600;">-0.11 pp</td>
+            <td style="text-align:right;">+0.01 pp</td>
+            <td style="text-align:right;">+0.09 pp</td>
           </tr>
         </tbody>
       </table>
     </div>
+      <p class="fineprint" style="margin-top:8px;"><strong>Note.</strong> Business Employment Dynamics (BED) job flows are published quarterly by the PR Dept. of Labor with a lag. The most recent available quarter is <strong>Sep 2025</strong>, so these rows trail the May 2026 index reading and will advance when the next BED release is posted.</p>
 
     <div style="margin-top: 16px; font-size: 0.9rem; color: var(--secondary-text);">
-      Based on 39 indicators. The PR-LMCI level is below average and conditions are stable.
+      Based on 40 indicators. The PR-LMCI level is below average and conditions are stable.
     </div>
 
     <!-- Narrative -->
     <div class="narrative" style="margin-top: 20px;">
-      <p>The Puerto Rico Labor Market Conditions Index (PR-LMCI) was little changed at -3.04 in May 2026, indicating that labor market conditions are below average. The PR-LMCI Momentum registered +0.03, suggesting conditions are stable. The index has been below its historical average for 184 consecutive months (see PR-LMCI Level below). The May 2026 reading is preliminary (72% of indicators reported) and will be revised as additional data arrive.</p>
-      <p>The hiring rate, which measures gross job gains as a share of employment, stood at 1.44% in the latest period, below its 12-month average of 1.53%. The separations rate registered 1.55%, with separations exceeding hiring. The net flow rate of -0.11 percentage points suggests net employment contraction (see Hiring and Separations Rates below).</p>
-      <p>The unemployment rate was unchanged to 5.6% in the latest period. Over the past three months, changes in the hiring rate have been the dominant driver of unemployment rate movements (see Contributions to Unemployment Rate below). Looking ahead, the model-implied probability distribution suggests decrease more likely: 45% odds of a decrease, 20% odds of no change, and 35% odds of an increase (see Unemployment Rate Change Probabilities below).</p>
-      <p>The diffusion index, which measures the share of indicators improving month-over-month, stood at 48.7%, indicating mixed conditions (see Diffusion Index below). The Momentum Gauge suggests a 53% probability that conditions will improve in the coming month, versus 47% for deterioration.</p>
-      <p>The current reading places PR labor market conditions at the 33rd percentile of all observations since 1999, below the median of historical readings. For comparison, the average PR-LMCI was -3.71 in the pre-Maria period (2015-2017), -4.75 in the post-Maria/pre-COVID period, and -3.24 since mid-2021. The index is currently most influenced by economic activity index, cement production, government  - sa (thousands of persons (sa)) (pro-cyclical) and education and health services, professional and business services, excise taxes (counter-cyclical). (See Recent Conditions below.)</p>
+      <p>The Puerto Rico Labor Market Conditions Index (PR-LMCI) was little changed at -3.08 in May 2026, indicating that labor market conditions are below average. The PR-LMCI Momentum registered +0.03, suggesting conditions are stable. The index has been below its historical average for 185 consecutive months (see PR-LMCI Level below). The May 2026 reading is preliminary (70% of indicators reported) and will be revised as additional data arrive.</p>
+      <p>The hiring rate, which measures gross job gains as a share of employment, stood at 1.44% in September 2025, below its 12-month average of 1.53%. The separations rate registered 1.55%, with separations exceeding hiring. The net flow rate of -0.11 percentage points suggests net employment contraction (see Hiring and Separations Rates below). These job-flow figures come from the Business Employment Dynamics series, which is published quarterly with a lag; September 2025 is the most recent period available, so they trail the May 2026 index reading above.</p>
+      <p>The unemployment rate was unchanged to 5.6% in May 2026. Over the three months through September 2025, changes in the hiring rate were the dominant flow-based driver of unemployment rate movements (see Contributions to Unemployment Rate below). The model-implied distribution for the next-month unemployment-rate change puts 45% odds on a decrease, 20% on no change, and 35% on an increase (see Unemployment Rate Change Probabilities below). This characterizes the balance of risks rather than a point forecast; out of sample the distribution does not improve on a no-change baseline for the direction of the next move.</p>
+      <p>The diffusion index, which measures the share of indicators improving month-over-month, stood at 49.2%, indicating mixed conditions (see Diffusion Index below). The Momentum Gauge suggests a 53% probability that conditions will improve in the coming month, versus 47% for deterioration.</p>
+      <p>The current reading places PR labor market conditions at the 34th percentile of all observations since 1999, below the median of historical readings. For comparison, the average PR-LMCI was -3.70 in the pre-Maria period (2015-2017), -4.83 in the post-Maria/pre-COVID period, and -3.32 since mid-2021. The index is currently most influenced by economic activity index, cement production, government  - sa (thousands of persons (sa)) (pro-cyclical) and education and health services, professional and business services, excise taxes (counter-cyclical). (See Recent Conditions below.)</p>
 
     </div>
     <div class="fineprint" style="margin-top: 12px;">
@@ -324,6 +349,7 @@
       employment. The separations rate (red dashed) measures gross job losses. When hiring exceeds separations,
       employment is expanding. The shaded area shows the gap.</p>
       <p><strong>Data source:</strong> PR Business Employment Dynamics (quarterly, interpolated to monthly).</p>
+      <p class="muted" style="font-size:0.82rem; margin-top:6px;"><strong>Data through Sep 2025.</strong> BED job flows are quarterly and lag the monthly index; this chart advances when the next quarter is released.</p>
     </div>
     <img src="fig2_hiring_separations.png" alt="Hiring and Separations Rates">
   </div>
@@ -335,18 +361,26 @@
       <p><strong>How to read:</strong> Black bars show the contribution of hiring (lower hiring pushes UE up).
       Red bars show the contribution of separations (higher separations pushes UE up). The line on the right
       axis tracks the actual unemployment rate level.</p>
+      <p class="muted" style="font-size:0.82rem; margin-top:6px;"><strong>Data through Sep 2025.</strong> BED job flows are quarterly and lag the monthly index; this chart advances when the next quarter is released.</p>
     </div>
     <img src="fig3_contributions.png" alt="Contributions to Unemployment Rate">
   </div>
 
   <!-- UE Rate Change Probabilities (Chicago Fed Fig 3) -->
   <div class="panel" id="drivers">
-    <h2>Unemployment Rate Change Probabilities <span class="panel-note">Model-implied vs historical</span></h2>
+    <h2>Unemployment Rate Change Probabilities <span class="panel-note">Unconditional distribution &bull; balance of risks</span></h2>
     <div class="explain">
-      <p><strong>How to read:</strong> Black bars show the model-implied probability for each range of
-      next-month unemployment rate changes. The dashed line shows the historical distribution since 1999.
-      When model-implied probabilities exceed historical benchmarks, that outcome is more likely than usual.
-      The relative odds box summarizes the balance of risks.</p>
+      <p><strong>How to read:</strong> Black bars show a probability distribution for next month's
+      unemployment-rate change, implied by the historical relationship between labor-market flows and
+      the unemployment rate. The dashed line is the unconditional historical distribution of monthly
+      changes since 1999. Read this as a characterization of the balance of risks &mdash; the spread of
+      outcomes plausible next month &mdash; not as a point forecast.</p>
+      <p class="fineprint"><strong>Out-of-sample caveat.</strong> In a walk-forward backtest this
+      flow-based distribution does <strong>not</strong> beat a random-walk (assume-no-change) baseline
+      at predicting the level or direction of the next unemployment-rate change. Its value is in sizing
+      the range of outcomes: the &plusmn;1&sigma; band's realized coverage (~71%) is close to its
+      nominal 68%. See <a href="#validation" style="color: var(--primary-text);">Validation &amp;
+      robustness</a>.</p>
     </div>
     <img src="fig4_probabilities.png" alt="Unemployment Rate Change Probabilities">
   </div>
@@ -355,8 +389,11 @@
   <div class="panel">
     <h2>Momentum Gauge <span class="panel-note">Probability of improvement vs deterioration</span></h2>
     <div class="explain">
-      <p><strong>How to read:</strong> The marker shows the model-implied probability that labor market conditions
-      will improve next month. When the marker is right of center, improvement is more likely than deterioration.</p>
+      <p><strong>How to read:</strong> The marker shows the probability that labor market conditions
+      improve next month, based on the historical distribution of month-to-month momentum. When the
+      marker is right of center, improvement is more likely than deterioration. Like the
+      unemployment-rate distribution above, treat this as a balance-of-risks read, not a validated
+      point forecast.</p>
     </div>
     <img src="fig5_momentum_gauge.png" alt="PR-LMCI Momentum Gauge">
   </div>
@@ -385,9 +422,9 @@
   <div class="panel" id="diffusion">
     <h2>Diffusion Index <span class="panel-note">Breadth of improvement across indicators</span></h2>
     <div class="explain">
-      <p><strong>How to read:</strong> The diffusion index measures what fraction of the 39 input indicators
+      <p><strong>How to read:</strong> The diffusion index measures what fraction of the 40 input indicators
       improved month-over-month. Values above 50% indicate that more indicators are improving than deteriorating
-      (broad-based improvement). Currently at 48.7%.</p>
+      (broad-based improvement). Currently at 49.2%.</p>
     </div>
     <img src="fig8_diffusion.png" alt="Diffusion Index">
   </div>
@@ -401,12 +438,12 @@
       (Brave, Butters, and Kelley, 2019) to Puerto Rico using locally available data.</p>
 
       <p><strong>Factor model.</strong> The PR-LMCI level is the first principal component extracted from
-      a standardized panel of 39 monthly indicators using Expectation-Maximization PCA
+      a standardized panel of 40 monthly indicators using Expectation-Maximization PCA
       (EM-PCA), which handles missing observations and ragged edges common in Puerto Rico data releases.
       The index is normalized so that zero represents the historical average. The PR-LMCI Momentum is the
       first difference of the level.</p>
 
-      <p><strong>Diffusion index.</strong> The share of the 39 input indicators that improved
+      <p><strong>Diffusion index.</strong> The share of the 40 input indicators that improved
       month-over-month, smoothed with a 3-month moving average. Values above 50% indicate broad-based
       improvement.</p>
 
@@ -417,18 +454,53 @@
       into the portions attributable to changes in the hiring rate (downward pressure when hiring increases)
       and the separations rate (upward pressure when separations increase).</p>
 
-      <p><strong>Probability forecasts.</strong> The unemployment rate change probability distribution compares
-      model-implied probabilities (based on recent flow dynamics) against the historical distribution of
-      monthly UE changes since 1999. The momentum gauge summarizes the net balance of improvement vs.
-      deterioration risk based on the recent trajectory of the PR-LMCI.</p>
+      <p><strong>Probability distributions, not point forecasts.</strong> The unemployment-rate change
+      distribution maps recent labor-market flows onto the historical distribution of monthly
+      unemployment-rate changes since 1999; the momentum gauge summarizes the net balance of
+      improvement vs. deterioration risk from the recent PR-LMCI trajectory. Both are presented as
+      unconditional distributions that characterize the balance of risks. Out of sample they do not
+      improve on a naive no-change baseline for the point or direction of the next move (see
+      <a href="#validation" style="color: var(--primary-text);">Validation &amp; robustness</a>), so
+      they should not be read as directional forecasts with an edge.</p>
 
       <p><strong>Key differences from the Chicago Fed.</strong> The Chicago Fed uses Current Population Survey
       (CPS) microdata and real-time private sector data (ADP, Indeed, Google Trends, Morning Consult) combined
       via partial least squares (PLS). These sources are not available for Puerto Rico. Instead, the PR-LMCI
-      uses a curated panel of 39 indicators drawn from the PR Planning Board, BED job flows,
+      uses a curated panel of 40 indicators drawn from the PR Planning Board, BED job flows,
       DOL unemployment insurance claims, and DDEC auto sales as inputs to a standard PCA factor model.
       Indicators were selected through a multi-evaluator consensus process prioritizing non-redundancy,
       category balance, and minimum sample size.</p>
+
+      <p id="validation"><strong>Validation &amp; robustness.</strong> The index is checked by a
+      reproducible validation suite (the scripts in <code>validation/</code>); the figures below are
+      from the July 2026 run and re-verified whenever the panel changes.</p>
+      <ul style="margin: 8px 0 8px 20px; font-size: 0.85rem; color: var(--secondary-text);">
+        <li><strong>Strong common factor.</strong> The first principal component explains ~40% of the
+        standardized panel's variance &mdash; roughly 16&times; the ~2.5% a no-structure panel of this
+        size would give &mdash; and the first two components together ~62%. The indicators share a
+        strong common signal.</li>
+        <li><strong>No single series drives it.</strong> Dropping any one indicator and re-estimating
+        leaves the index essentially unchanged (leave-one-out correlation &ge; 0.997).</li>
+        <li><strong>Redundancy is harmless.</strong> Collapsing near-duplicate series to one
+        representative per concept reproduces the index almost exactly (correlation ~1.00), so the
+        level is not an artifact of over-weighting any one category.</li>
+        <li><strong>Imputation is stable; the latest month is soft.</strong> EM imputation and simple
+        mean-fill produce nearly identical histories (correlation ~0.998). But the most recent month is
+        a ragged edge &mdash; often only ~70% of series have reported &mdash; so it is published as
+        <em>preliminary</em> and can move on the order of ~0.5 index points as late data arrive.</li>
+        <li><strong>The level is robust; the driver ranking is era-specific.</strong> Factor loadings
+        reshuffle between the pre-2016 and post-2016 samples (loadings correlation ~0.2). The overall
+        level and momentum are stable, but the ranked list of top drivers should be read within the
+        current era, not as a fixed structural ordering.</li>
+        <li><strong>The unemployment-rate distribution earns its bands, not an edge.</strong> In an
+        expanding-window, walk-forward backtest the flow-based UR forecast does not beat a random walk
+        on the level or direction of the next change; its &plusmn;1&sigma; interval coverage (~71%) is
+        close to the nominal 68%. It is therefore presented as an unconditional distribution.</li>
+        <li><strong>Composition is audited.</strong> Every intended indicator is reconciled against
+        what actually enters the model, and the full indicator universe is periodically re-scanned for
+        overlooked series. The current panel is employment-heavy by data availability, and no
+        high-coverage, non-redundant series is being missed.</li>
+      </ul>
 
       <p><strong>References:</strong></p>
       <ul style="margin: 8px 0 8px 20px; font-size: 0.85rem; color: var(--secondary-text);">
