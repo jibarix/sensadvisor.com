@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PR Reservoir Levels | SENS ADVISOR</title>
 
-<meta name="description" content="Live water levels for Puerto Rico's principal reservoirs (embalses): elevation vs PRASA's operational alert bands — Desborde, Seguridad, Observación, Ajustes, Control — a rationing-risk read, per-reservoir status, and level history. From the USGS damsite gauges.">
+<meta name="description" content="Live water levels for Puerto Rico's principal reservoirs (embalses): elevation vs PRASA's operational alert bands — Desborde, Seguridad, Observación, Ajustes, Control — compared against PRASA's operating thresholds, with per-reservoir status and level history. From the USGS damsite gauges.">
 <meta property="og:title" content="PR Reservoir Levels">
-<meta property="og:description" content="Puerto Rico reservoir levels vs PRASA alert bands — rationing-risk read, per-reservoir status, and level history.">
+<meta property="og:description" content="Puerto Rico reservoir levels compared against PRASA's operating thresholds — per-reservoir status and level history.">
 <meta property="og:image" content="https://sensadvisor.com/outages/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -15,7 +15,7 @@
 <meta property="og:url" content="https://sensadvisor.com/reservoirs/">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="PR Reservoir Levels">
-<meta name="twitter:description" content="Puerto Rico reservoir levels vs PRASA alert bands — rationing-risk read, per-reservoir status, and level history.">
+<meta name="twitter:description" content="Puerto Rico reservoir levels compared against PRASA's operating thresholds — per-reservoir status and level history.">
 <meta name="twitter:image" content="https://sensadvisor.com/outages/og-image.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -184,6 +184,16 @@
   .qpf-lean-dry { color: #c0392b; font-weight: 600; }
   .qpf-lean-wet { color: #2c7fa0; font-weight: 600; }
   .qpf-lean-normal { color: var(--secondary-text); font-weight: 600; }
+  /* plain-language summary line under each reservoir table row */
+  #res-table tbody tr.res-row td { border-bottom: none; }
+  #res-table tbody tr.row-summary td { font-size: 0.74rem; color: var(--secondary-text); padding-top: 2px; padding-bottom: 11px; }
+  #res-table tbody tr.row-summary b { color: var(--primary-text); }
+  /* collapsible technical detail in the outlook explainer */
+  .explain-more { margin-top: 8px; }
+  .explain-more > summary { cursor: pointer; font-weight: 600; font-size: 0.8rem; color: var(--secondary-text); }
+  .explain-more > summary:hover { color: var(--primary-text); }
+  .explain-more p { margin-top: 8px; }
+  .runway-nodate { color: var(--secondary-text); font-weight: 500; }
 
   /* ---- Provenance grammar: measurements look factual, official thresholds look
      attributed, model outputs look visibly provisional, old data looks dated. ---- */
@@ -207,12 +217,7 @@
   .layer-estimate   { background: rgba(154,160,166,0.12); }
   .layer-historical { background: rgba(150,110,80,0.07); }
 
-  /* Persistent non-affiliation strip + "independent analysis" tag */
-  .disclaimer-strip {
-    background: #f4f2ec; border-bottom: 1px solid #e2ded3;
-    font-size: 0.72rem; color: #5a5a52; text-align: center; padding: 5px 20px;
-  }
-  .disclaimer-strip b { color: #3f3f38; }
+  /* "independent analysis" tag beside the logo */
   .independent-tag {
     font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
     border: 1px solid #bbb; color: #666; border-radius: 4px; padding: 1px 6px;
@@ -267,12 +272,10 @@
   /* Model-result (runway) card additions: verdict, range, confidence — neutral styling,
      since these are SENS estimates (strong warning colors are reserved for official thresholds). */
   .runway-verdict { font-size: 0.76rem; line-height: 1.42; }
-  .runway-range { font-size: 0.72rem; color: var(--secondary-text); font-variant-numeric: tabular-nums; }
   .runway-conf { display: flex; align-items: center; gap: 6px; font-size: 0.68rem; color: var(--secondary-text); flex-wrap: wrap; }
   .conf-chip { font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; font-size: 0.6rem; padding: 1px 6px; border-radius: 8px; }
   .conf-low { border: 1px solid #b98a4e; color: #8a5a1e; background: rgba(185,138,78,0.12); }
   .conf-med { border: 1px solid #9aa0a6; color: #63696e; background: rgba(154,160,166,0.14); }
-  .runway-official-note { font-size: 0.66rem; color: var(--secondary-text); font-style: italic; }
 
   /* Methodology & validation */
   .methodology-grid {
@@ -376,9 +379,6 @@
     <a href="/reservoirs/" aria-current="page">Reservoirs</a>
   </div>
 </div>
-<div class="disclaimer-strip">
-  <b>Independent analysis.</b> Not affiliated with PRASA, DRNA, USGS, PREPA, or the Government of Puerto Rico.
-</div>
 <div class="container">
   <header class="header">
     <div class="header-content">
@@ -394,13 +394,13 @@
       </div>
     </div>
     <h1>Puerto Rico Reservoir Levels</h1>
-    <div class="subtitle">Elevation at each damsite vs PRASA's operational alert bands — an independent rationing-risk read for the island's water supply.</div>
+    <div class="subtitle">An independent comparison of measured reservoir levels with PRASA's published operating thresholds.</div>
   </header>
 
   <!-- What this page shows -->
   <div class="page-explainer">
     <div class="pe-title">What this page shows</div>
-    <p><b>Measured water levels</b> at Puerto Rico's principal reservoirs, from USGS sensors, placed against <b>PRASA's official alert bands</b> so you can see how close each reservoir sits to its rationing-control line. Where the model can, it adds an <b>experimental 30-day projection</b>.</p>
+    <p><b>Measured water levels</b> at Puerto Rico's principal reservoirs, from USGS sensors, placed against <b>PRASA's official operating thresholds</b> so you can see where each reservoir sits relative to those published lines. Where the model can, it adds an <b>experimental 30-day projection</b>.</p>
     <p class="pe-not">It is <b>not</b> an official water-supply forecast, <b>not</b> a rationing announcement, and the level percentages are position within the operating range — <b>not</b> percent of a reservoir's total water capacity.</p>
     <a class="ext-link-btn" href="https://www.acueductos.pr.gov/en-us/infraestructura/niveles-de-los-embalses" target="_blank" rel="noopener">Check PRASA's official reservoir report ↗</a>
   </div>
@@ -420,14 +420,14 @@
   <!-- Island overview -->
   <span class="nav-anchor" id="overview"></span>
   <div class="panel">
-    <h2>Position within operating range <span class="panel-note">0% = Control floor (rationing-control line) · 100% = Desborde crest (spillover)</span></h2>
+    <h2>Position within operating range <span class="panel-note">0% = Control line (lowest published) · 100% = Desborde crest (spillover)</span></h2>
     <div class="layer-banner layer-official">
-      <span class="prov prov-measured">Measured · USGS</span>
-      <span class="prov prov-official">Bands · PRASA</span>
+      <span class="prov prov-measured">Level · USGS</span>
+      <span class="prov prov-official">Thresholds · PRASA</span>
       <span>Where each measured level sits between two of PRASA's official published lines.</span>
     </div>
     <div class="explain">
-      <p>Each bar shows where a reservoir's measured level sits between its <b>Control</b> floor (PRASA's lowest published operating line, 0%) and its <b>Desborde</b> crest (the spillway, 100%). This is a <b>position within the operating range, not percent of total water volume</b> — a reservoir at 62% here is 62% of the way from its rationing-control line up to the spillway, not holding 62% of its water. Bars are colored by the alert band the reservoir is currently in; the most-concerning reservoirs sort to the top.</p>
+      <p>Each bar shows where a reservoir's measured level sits between its <b>Control</b> floor (PRASA's lowest published operating line, 0%) and its <b>Desborde</b> crest (the spillway, 100%). This is a <b>position within the operating range, not percent of total water volume</b> — a reservoir at 62% here is 62% of the way from its Control line up to the spillway, not holding 62% of its water. Bars are colored by the alert band the reservoir is currently in; the most-concerning reservoirs sort to the top.</p>
     </div>
     <div class="chart-container tall"><canvas id="chart-overview"></canvas></div>
     <div class="band-legend" id="band-legend"></div>
@@ -443,7 +443,7 @@
       <span>From the last published bathymetric survey. No newer survey is included here, so present-day losses may be larger.</span>
     </div>
     <div class="explain">
-      <p>Each bar is normalized to a reservoir's <b>original</b> design storage (100%): the solid blue part is the share still usable as of the 2015 survey, the faded brown part had silted in by then. Bars are ordered worst-first, so you can compare proportional loss regardless of reservoir size — Puerto Rico's older dams have lost heavily, several down to a third or less of their built capacity, which is why a reservoir can hit rationing levels after only a short dry spell. Hover for the absolute volumes (Mm³). Source: DRNA/PRASA <i>Plan Integral de Recursos de Agua</i> (2016), Tabla 5.5 — a 2015 snapshot; because no newer bathymetric survey is included here, these are a lower bound on today's siltation.</p>
+      <p>Each bar is normalized to a reservoir's <b>original</b> design storage (100%): the solid blue part is the share still usable as of the 2015 survey, the faded brown part had silted in by then. Bars are ordered worst-first, so you can compare proportional loss regardless of reservoir size — Puerto Rico's older dams have lost heavily, several down to a third or less of their built capacity, which is why a reservoir can hit rationing levels after only a short dry spell. Hover for the absolute volumes (Mm³). Source: DRNA/PRASA <i>Plan Integral de Recursos de Agua</i> (2016), Tabla 5.5 — a 2015 snapshot. Present-day siltation may be greater, but no newer survey is included here.</p>
     </div>
     <div class="chart-container tall"><canvas id="chart-storage"></canvas></div>
   </div>
@@ -453,7 +453,7 @@
   <div class="panel">
     <h2>Reservoir status <span class="panel-note" id="table-note"></span></h2>
     <div class="layer-banner layer-measured">
-      <span class="prov prov-measured">Measured · USGS</span>
+      <span class="prov prov-measured">Level · USGS</span>
       <span>Live gauge readings. The <b>Status</b> column compares each level to PRASA's official bands; <b>Position</b> is location within the operating range, not percent of total volume.</span>
     </div>
     <div class="table-wrap">
@@ -504,8 +504,12 @@
       <span>An experimental water-balance model for four of the nineteen embalses — <b>not an official forecast</b>.</span>
     </div>
     <div class="explain">
-      <p>The model runs for <b>four</b> reservoirs — Patillas plus Carraízo, La Plata, and Cerrillos — because a water balance only closes where USGS gauges measure <b>both</b> the inflow (covering at least 60% of the dam's drainage) and the below-dam releases. The other fifteen embalses on the status board carry the elevation gauge but not those discharge gauges, so their withdrawal can't be bounded — they still get the level-and-band read above.</p>
-      <p>Storage is marched 30 days ahead under three inflow scenarios drawn from 36 years of calendar climatology — <b>dry</b>, <b>typical</b>, and <b>wet</b> — a range of where the level <i>could</i> go. The <b>model result</b> below each reservoir reads off the conservative dry path: roughly how many days a <i>continued-dry</i> spell would take to carry the level down to each PRASA line (the dashed lines drawn here and on the history chart). The dry arm also stresses withdrawal to drought-year demand, so it is deliberately conservative and assumes no emergency releases. Separately, a <b>near-term tilt</b> reads the live NWS 7-day rain forecast against each site's historical 7-day rainfall and leans the drier or wetter arm — a hint for the coming week (the dry/typical/wet scenario-weight bar on each card), uncalibrated, and it does <b>not</b> move the dry-path result.</p>
+      <p><b>In plain language:</b> these charts show three possible paths — <b>not predictions</b> — for the next 30 days, under historically <b>dry</b>, <b>typical</b>, and <b>wet</b> conditions. They cover only the four reservoirs whose USGS gauges let the model close a water balance.</p>
+      <details class="explain-more">
+        <summary>How this model works</summary>
+        <p>The model runs for <b>four</b> reservoirs — Patillas plus Carraízo, La Plata, and Cerrillos — because a water balance only closes where USGS gauges measure <b>both</b> the inflow (covering at least 60% of the dam's drainage) and the below-dam releases. The other fifteen embalses on the status board carry the elevation gauge but not those discharge gauges, so their withdrawal can't be bounded — they still get the level-and-band read above.</p>
+        <p>Storage is marched 30 days ahead under three inflow scenarios drawn from 36 years of calendar climatology — <b>dry</b>, <b>typical</b>, and <b>wet</b> — a range of where the level <i>could</i> go. The <b>model result</b> below each reservoir reads off the conservative dry path: roughly how many days a <i>continued-dry</i> spell would take to carry the level down to each PRASA line (the dashed lines drawn here and on the history chart). The dry arm also stresses withdrawal to drought-year demand, so it is deliberately conservative and assumes no emergency releases. Separately, a <b>near-term rain tilt</b> reads the live NWS 7-day rain forecast against each site's historical 7-day rainfall and leans the drier or wetter arm — the dry/typical/wet <b>score bar</b> on each card, uncalibrated, and it does <b>not</b> move the dry-path result.</p>
+      </details>
     </div>
     <div class="runway-grid" id="runway-grid"></div>
     <div class="controls">
@@ -544,7 +548,7 @@
       </div>
       <div class="method-card">
         <h3>4. Scenario paths + near-term tilt</h3>
-        <p>The 30-day dry/typical/wet paths use 36 years of calendar-day inflow climatology, a 5 mm/day evaporation baseline, lake-rain scenarios, trailing release, and bounded annual demand. The three paths are a hypothetical range, not a weather forecast and not ranked by likelihood; the dry floor assumes no emergency release. Separately, a <b>near-term precipitation tilt</b> scores the live NWS <i>api.weather.gov</i> 7-day QPF at each reservoir's anchor point against that point's NOAA GHCN-Daily 7-day rainfall history (1990–2025) and expresses the wetness percentile as scenario weights (a near-term tilt) over the three arms. It re-weights which arm is likelier for the coming week — it does <b>not</b> move the conservative dry-path runway — and the weights are an uncalibrated heuristic until a QPF reforecast backtest exists.</p>
+        <p>The 30-day dry/typical/wet paths use 36 years of calendar-day inflow climatology, a 5 mm/day evaporation baseline, lake-rain scenarios, trailing release, and bounded annual demand. The three paths are a hypothetical range, not a weather forecast and not ranked by likelihood; the dry floor assumes no emergency release. Separately, a <b>near-term precipitation tilt</b> scores the live NWS <i>api.weather.gov</i> 7-day QPF at each reservoir's anchor point against that point's NOAA GHCN-Daily 7-day rainfall history (1990–2025) and expresses the wetness percentile as uncalibrated scenario scores (a near-term rain tilt) over the three arms. It leans toward whichever arm the coming week's rain favors — it does <b>not</b> move the conservative dry-path runway — and the scores are an uncalibrated heuristic, not probabilities, until a QPF reforecast backtest exists.</p>
       </div>
     </div>
     <div class="method-callout">
@@ -583,7 +587,7 @@
     "Seguridad":         { rank: 1, color: "#76ad2a", label: "Safe",         text: "#3d6b0e", es: "Safety",       desc: "Comfortable operating range, near full." },
     "Observación":       { rank: 2, color: "#faa72a", label: "Watch",        text: "#8a5a00", es: "Observation",  desc: "Below the normal-operating line — a level to watch more closely." },
     "Ajustes":           { rank: 3, color: "#d1793f", label: "Adjust",       text: "#8a4519", es: "Adjustments",  desc: "Lower still on the ladder — the line PRASA names “adjustments.”" },
-    "Control":           { rank: 4, color: "#e04343", label: "Rationing",    text: "#b32020", es: "Control",      desc: "PRASA's lowest published line — the rationing-control level." },
+    "Control":           { rank: 4, color: "#e04343", label: "Rationing",    text: "#b32020", es: "Control",      desc: "PRASA's lowest published operating line. Reaching it does not by itself constitute or announce rationing." },
     "Fuera de Servicio": { rank: 5, color: "#7a1f1f", label: "Below intake", text: "#7a1f1f", es: "Out of service", desc: "Below the water intake." },
   };
   const bandOf = (s) => BANDS[s] || { rank: 9, color: "#999", label: "Unknown", text: "#666" };
@@ -877,7 +881,7 @@
       return t > m ? t : m;
     }, 0);
     document.getElementById("status-timestamp").innerHTML =
-      `<span class="prov prov-measured">Measured · USGS</span> <span class="prov prov-official">Bands · PRASA</span> `
+      `<span class="prov prov-measured">Level · USGS</span> <span class="prov prov-official">Thresholds · PRASA</span> `
       + (latest ? `Latest reading ${relTime(new Date(latest).toISOString())} · gauges report every 15–60 min · reload to refresh` : "");
   }
 
@@ -1090,6 +1094,18 @@
     });
   }
 
+  // Plain-language one-line summary shown under each table row — synthesizes the columns
+  // into a sentence a non-specialist can read without decoding the band names.
+  function rowSummary(r) {
+    const band = r.status;
+    const d = num(r.delta24h);
+    const moved = d === null ? "no 24-hour change is reported"
+      : Math.abs(d) < 0.005 ? "held flat over the last 24 hours"
+      : `${d < 0 ? "fell" : "rose"} ${fmt(Math.abs(d), 2)} m over the last 24 hours`;
+    const where = band ? `In PRASA's <b>${band}</b> band` : "Not yet classified against PRASA's bands";
+    return `${where}; ${moved}. No official rationing announcement is implied.`;
+  }
+
   // --- Reservoir table ---
   function renderTable() {
     document.getElementById("table-note").textContent =
@@ -1120,7 +1136,7 @@
       const silted = r.pct_capacity == null ? null : 100 - Number(r.pct_capacity);
       const capTitle = capO === null ? "" : `original ${fmt(capO, 1)} Mm³ · ${fmt(silted, 0)}% silted since ${r.year_built || "built"}`;
       const sy = num(r.safe_yield_mgd);
-      return `<tr>
+      return `<tr class="res-row">
         <td>${r.name}</td>
         <td>${r.municipio || "—"}</td>
         <td><span class="badge badge-op">${r.operator || "—"}</span></td>
@@ -1136,7 +1152,8 @@
         <td class="num" title="Rendimiento Seguro — sustainable raw-water supply (PIRA 2008)">${sy === null ? "—" : fmt(sy, 1)}</td>
         <td class="num" style="color:${dColor}">${d === null ? "—" : signed(d, 2) + " m"}</td>
         <td class="num" title="${r.measured_at || ""}">${isStale(r.measured_at) ? `<span style="color:var(--warn)" title="gauge offline — no new reading">${relTime(r.measured_at)} ⚠</span>` : relTime(r.measured_at)}</td>
-      </tr>`;
+      </tr>
+      <tr class="row-summary"><td colspan="10">${rowSummary(r)}</td></tr>`;
     }).join("");
     document.querySelector("#res-table tbody").innerHTML =
       body || '<tr><td colspan="10" class="no-data">No data.</td></tr>';
@@ -1350,14 +1367,15 @@
 
   // Plausible range for the first band crossing: dry path (soonest) to typical path (later or never).
   // These are SENS estimates, so the wording stays hedged and never implies a single number.
-  function rangeText(rw, head) {
-    if (!head) return "";
+  // Compact, honestly-bounded span for the runway headline: dry-path low to typical-path high.
+  // Bold wraps only the day figure so the surrounding qualifier stays plain.
+  function rangeSpan(rw, head) {
     const lo = Math.round(head.days);
     const nc = crossDown(rw.normal, head.level);
-    if (!nc) return `Plausible range: ~${lo} days under continued-dry inflows, or it holds under typical inflows`;
+    if (!nc) return `<b>roughly ${lo} days</b> under continued-dry inflows — or it holds under typical inflows`;
     const hi = Math.round(nc.days);
-    if (hi <= lo) return `Plausible range: about ${lo} days`;
-    return `Plausible range: ${lo}–${hi} days (dry to typical inflows)`;
+    if (hi <= lo) return `<b>roughly ${lo} days</b>`;
+    return `<b>roughly ${lo}–${hi} days</b> (dry to typical inflows)`;
   }
 
   // Confidence read for a model result, from the 2016–25 backtest skill. Strong warning colors are
@@ -1408,7 +1426,7 @@
     const drift = 100 - segs.reduce((s, x) => s + x.pct, 0);
     if (drift) segs.slice().sort((a, b) => b.pct - a.pct)[0].pct += drift;
     const maxKey = ["dry", "normal", "wet"].reduce((m, k) => ((w[k] || 0) > (w[m] || 0) ? k : m), "dry");
-    const bar = `<div class="qpf-bar" title="scenario weights — dry ${segs[0].pct}% · typical ${segs[1].pct}% · wet ${segs[2].pct}%">
+    const bar = `<div class="qpf-bar" title="uncalibrated scores, not probabilities — dry ${segs[0].pct}% · typical ${segs[1].pct}% · wet ${segs[2].pct}%">
         <span class="qpf-seg-dry" style="width:${segs[0].pct}%"></span>
         <span class="qpf-seg-normal" style="width:${segs[1].pct}%"></span>
         <span class="qpf-seg-wet" style="width:${segs[2].pct}%"></span>
@@ -1416,8 +1434,8 @@
     const legend = segs
       .map(s => `<span class="qpf-lean-${s.key}${s.key === maxKey ? " is-max" : ""}">${s.label} ${s.pct}%</span>`)
       .join('<span class="qpf-sep">|</span>');
-    return `<div class="runway-qpf" title="${q.source || "NWS 7-day QPF vs local GHCN 7-day rainfall"} — near-term tilt, uncalibrated">
-        <div class="qpf-title">Near-term tilt<span class="qpf-sub">scenario weights · next 7 days</span></div>
+    return `<div class="runway-qpf" title="${q.source || "NWS 7-day QPF vs local GHCN 7-day rainfall"} — uncalibrated scores, not probabilities">
+        <div class="qpf-title">Near-term rain tilt<span class="qpf-sub">uncalibrated scores · not probabilities</span></div>
         ${bar}
         <div class="qpf-legend">${legend}</div>
         <div class="qpf-cap">7-day rain <b>${fmt(q.qpf_mm, 0)}</b> mm — ${ordinalPct(q.pctile)} of local 7-day rainfall (historical median ${fmt(q.normal_mm, 0)} mm)</div>
@@ -1450,12 +1468,11 @@
       const b = r._band;
       const head = rw.steps[0];
       const headHtml = head
-        ? `<span class="prov prov-estimate">SENS estimate</span> The <b>${head.label}</b> line could be reached in <b>${head.extrap ? "~" : "≈"}${fmt(head.days, 0)} days</b> under continued-dry conditions.`
+        ? `<span class="prov prov-estimate">SENS estimate</span> Under continued-dry inflows, the <b>${head.label}</b> line is reached in ${rangeSpan(rw, head)}. <span class="runway-nodate">This is not a predicted rationing date.</span>`
         : `<span class="prov prov-estimate">SENS estimate</span> No lower band is reached within the 30-day horizon under continued-dry conditions.`;
       const stepsHtml = rw.steps.slice(0, 3).map(s =>
         `<div class="step"><span class="step-band">${s.band}</span><span>${s.extrap ? "~" : ""}${fmt(s.days, 0)} d</span></div>`).join("");
       const conf = confidenceFor(fc.skill || {});
-      const range = rangeText(rw, head);
       return `<div class="runway-card">
         <div class="runway-head">
           <span class="runway-name">${fc.name}</span>
@@ -1463,12 +1480,10 @@
         </div>
         <div class="runway-verdict">${verdictFor(r, rw)}</div>
         <div class="runway-headline">${headHtml}</div>
-        ${range ? `<div class="runway-range">${range}</div>` : ""}
         <div class="runway-conf"><span class="conf-chip ${conf.cls}">${conf.label}</span> ${conf.note}</div>
         <div class="runway-steps">${stepsHtml || '<div class="step"><span class="step-band">—</span><span></span></div>'}</div>
         <div class="runway-now">now ${fmt(num(r.level_m), 2)} m · drought-year demand</div>
         ${qpfHtml(fc.qpf)}
-        <div class="runway-official-note">PRASA has not announced rationing based on this estimate.</div>
       </div>`;
     }).join("");
 
@@ -1489,7 +1504,7 @@
     if (qn) {
       const q = fc && fc.qpf;
       qn.textContent = (q && q.available)
-        ? `next 7-day rain ${fmt(q.qpf_mm, 0)} mm — ${ordinalPct(q.pctile)} of local 7-day rainfall (historical median ${fmt(q.normal_mm, 0)} mm) · near-term tilt, uncalibrated`
+        ? `next 7-day rain ${fmt(q.qpf_mm, 0)} mm — ${ordinalPct(q.pctile)} of local 7-day rainfall (historical median ${fmt(q.normal_mm, 0)} mm) · near-term rain tilt, uncalibrated scores`
         : "";
     }
     if (!fc || !r) return;
@@ -1606,7 +1621,7 @@
     const head = rw.steps[0];
     const sk = fc.skill || {};
     const runTxt = head
-      ? `Under a continued-dry spell it drops into <b>${head.label}</b> in <b>${head.extrap ? "~" : ""}${fmt(head.days, 0)} days</b>.`
+      ? `Under a continued-dry spell it reaches <b>${head.label}</b> in ${rangeSpan(rw, head)} — not a predicted date.`
       : `Under a continued-dry spell it holds within its current band across the 30-day horizon.`;
     const skillTxt = sk.mae_med != null
       ? ` Backtested on 2016–25: the dry floor held in <b>${100 - sk.breach}%</b> of windows`
