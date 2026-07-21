@@ -608,12 +608,24 @@
   let histDays = 365, histSite = null;
   const DAY_MS = 86400000;
 
-  // 30-day forecast, embedded at build time (see the FORECAST-DATA block + inject_forecast.py).
+  // 30-day forecast. Live from v_reservoir_forecast (refreshed daily by the pr_data_repo
+  // reservoir-forecast CI job); falls back to the FORECAST-DATA block embedded at build time
+  // (see inject_forecast.py) if the fetch is empty or unavailable.
   let FORECAST = { reservoirs: [] };
   try { FORECAST = JSON.parse(document.getElementById("forecast-data").textContent); }
   catch (e) { FORECAST = { reservoirs: [] }; }
   let chartForecast = null, fcSite = null;
   const forecastFor = (site) => (FORECAST.reservoirs || []).find(f => f.site === site);
+
+  // Rebuild FORECAST from v_reservoir_forecast rows (payload = the same slim per-reservoir shape
+  // as the embedded snapshot). Returns null if the view returned nothing usable so the caller
+  // keeps the embedded fallback.
+  function forecastFromRows(rows) {
+    const reservoirs = (rows || []).map(r => r.payload).filter(p => p && p.site);
+    if (!reservoirs.length) return null;
+    const anchor = reservoirs.map(p => p.anchor).filter(Boolean).sort().slice(-1)[0] || null;
+    return { reservoirs, anchor, horizon: (rows[0] && rows[0].horizon) || 30 };
+  }
 
   // --- Load ---
   async function init() {
@@ -627,6 +639,12 @@
       showError(e.message);
       return;
     }
+
+    // Live forecast is best-effort: on any failure keep the embedded build-time snapshot.
+    try {
+      const fresh = forecastFromRows(await sbQuery("v_reservoir_forecast", "select=site_no,anchor,horizon,payload"));
+      if (fresh) FORECAST = fresh;
+    } catch (e) { /* keep embedded fallback */ }
 
     // Build per-site history series.
     histBySite = {};
