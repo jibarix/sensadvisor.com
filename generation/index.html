@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PR Generation Status | SENS ADVISOR</title>
 
-<meta name="description" content="Real-time electricity generation for Puerto Rico with a grid-adequacy alert: reserves, next-hour forecast vs available capacity, load-shedding (relevos de carga) risk, hourly load shape, and which units are online vs offline — from the PREPA/Genera operational feed.">
+<meta name="description" content="Real-time electricity generation for Puerto Rico with a grid-adequacy indicator: reserves, next-hour forecast vs available capacity, load-shedding (relevos de carga) risk, hourly generation profile, and which units are online vs offline — from the PREPA/Genera operational feed.">
 <meta property="og:title" content="PR Generation Status">
-<meta property="og:description" content="Grid-adequacy alert for Puerto Rico — reserves, relevos-de-carga risk, hourly load shape, and units online vs offline.">
+<meta property="og:description" content="Grid-adequacy indicator for Puerto Rico — reserves, relevos-de-carga risk, hourly generation profile, and units online vs offline.">
 <meta property="og:image" content="https://sensadvisor.com/outages/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -15,7 +15,7 @@
 <meta property="og:url" content="https://sensadvisor.com/generation/">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="PR Generation Status">
-<meta name="twitter:description" content="Grid-adequacy alert for Puerto Rico — reserves, relevos-de-carga risk, hourly load shape, and units online vs offline.">
+<meta name="twitter:description" content="Grid-adequacy indicator for Puerto Rico — reserves, relevos-de-carga risk, hourly generation profile, and units online vs offline.">
 <meta name="twitter:image" content="https://sensadvisor.com/outages/og-image.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -81,6 +81,7 @@
   }
   .header-links a:hover { color: var(--secondary-text); }
   .header h1 { font-size: 1.8rem; font-weight: 600; margin-top: 10px; }
+  .page-sub { font-size: 0.9rem; color: var(--secondary-text); margin-top: 6px; max-width: 64ch; }
 
   .panel {
     background: var(--primary-bg);
@@ -263,6 +264,7 @@
       </div>
     </div>
     <h1>PR Generation Status</h1>
+    <p class="page-sub">Independent supply-adequacy indicator built from the public generation feed — not an official grid alert or outage forecast.</p>
   </header>
 
   <span class="nav-anchor" id="now"></span>
@@ -279,7 +281,7 @@
 
   <span class="nav-anchor" id="hourly"></span>
   <div class="panel">
-    <h2>Hourly Load Shape — Today vs. Typical
+    <h2>Hourly Generation Profile — Today vs. Typical
       <span class="panel-note">
         <button class="toggle-btn active" data-hmode="gen">Generation</button><button class="toggle-btn" data-hmode="reserve">Reserve</button>
       </span>
@@ -366,13 +368,13 @@
   <div class="panel explain">
     <h2>Methodology</h2>
     <p><b>Source</b> — PREPA's operational generation feed (operated by Genera PR), the data behind <a href="https://genera-pr.com/data-generacion">genera-pr.com/data-generacion</a>. A snapshot is captured about every 15 minutes and stored. "Now" figures read the most recent snapshot; history and hourly baselines read the stored snapshots.</p>
-    <p><b>Grid adequacy alert</b> — A supply-adequacy indicator computed from the feed, <i>not</i> an official PREPA/Genera declaration. It combines two tests: (1) <b>Forecast balance</b> — the feed's next-hour demand forecast vs. available capacity; a projected shortfall means load-shedding (<b>relevos de carga</b>) may be needed. (2) <b>N-1 reserve</b> — whether operating reserve covers the single largest online unit, the standard "can the grid survive losing its biggest generator" test. <b>Critical</b> = projected shortfall or near-zero reserve; <b>Tight</b> = reserve below the largest online unit; <b>Adequate</b> = reserve covers it.</p>
-    <p><b>Hourly load shape</b> — For each hour of the day (AST), the shaded band is the 10th–90th percentile of generation across stored days and the solid line is the median; today's actual is overlaid. This shows whether the system is running above or below its usual level for the time of day, and — in the <b>Reserve</b> view — <i>when</i> reserves are typically thinnest (usually the evening peak, as solar fades and demand rises). The baseline currently spans roughly two weeks of data and sharpens as more accumulate; today is excluded from the "typical" band.</p>
+    <p><b>Grid adequacy indicator</b> — A supply-adequacy indicator computed from the feed, <i>not</i> an official PREPA/Genera declaration. It combines two tests: (1) <b>Forecast balance</b> — the feed's next-hour demand forecast vs. available capacity; a projected shortfall means load-shedding (<b>relevos de carga</b>) may be needed. (2) <b>N-1 reserve</b> — whether operating reserve covers the single largest online unit (the N-1 reserve benchmark). This is a reserve comparison, not a full contingency simulation. <b>Critical</b> = projected shortfall or near-zero reserve; <b>Tight</b> = reserve below the largest online unit; <b>Adequate</b> = reserve covers it.</p>
+    <p><b>Hourly generation profile</b> — For each hour of the day (AST), the shaded band is the 10th–90th percentile of generation across stored days and the solid line is the median; today's actual is overlaid. This shows whether the system is running above or below its usual level for the time of day, and — in the <b>Reserve</b> view — <i>when</i> reserves are typically thinnest (usually the evening peak, as solar fades and demand rises). The baseline currently spans roughly two weeks of data and sharpens as more accumulate; today is excluded from the "typical" band.</p>
     <p><b>Reserves</b> — <b>Spinning reserve</b> is synchronized capacity ready immediately; <b>operating reserve</b> is total reserve available. Both are the cushion between what is generating and what could be called on.</p>
     <p><b>Units online vs. offline</b> — The feed lists every generating unit each snapshot with its output. A unit is counted <b>online</b> when it is producing at least 1 MW and <b>offline</b> otherwise (idle, down, or — for solar — simply nighttime). The feed reports output, not the <i>reason</i> a unit is at zero, so "offline" does not distinguish a planned outage from a forced one from normal diurnal cycling.</p>
-    <p><b>◆ Critical units</b> — Units that historically carry meaningful, dispatchable load — so their being offline is a real loss of firm capacity, not a normal daily cycle. A unit is flagged Critical when, across the stored history, it is non-renewable, averages at least 20 MW when running, and runs at least half the time. Intermittent solar and wind are deliberately excluded (a zero at night is expected, not a loss). When a Critical unit is currently offline, its row is highlighted and the summary tallies the firm MW down. The <i>set</i> of Critical units is curated by hand, but each one's "usually ~N MW" — its average output when running — updates automatically from the stored per-unit history, so the typical figures stay current as units change.</p>
+    <p><b>◆ Critical units</b> — Units that historically carry meaningful, dispatchable load — so their being offline is a real loss of dispatchable output, not a normal daily cycle. A unit is flagged Critical when, across the stored history, it is non-renewable, averages at least 20 MW when running, and runs at least half the time. Intermittent solar and wind are deliberately excluded (a zero at night is expected, not a loss). When a Critical unit is currently offline, its row is highlighted and the summary tallies the typical MW absent. The <i>set</i> of Critical units is curated by hand, but each one's "usually ~N MW" — its average output when running — updates automatically from the stored per-unit history, so the typical figures stay current as units change.</p>
     <p><b>Plant &amp; unit dispatch</b> — Per unit: <b>MW now</b> (real power), <b>MVar</b> (reactive power; can be negative when a unit absorbs reactive power), and <b>Cost</b> ($/MWh). Where a running unit reports no price, the cost is shown in grey italics with a <b>~</b> prefix — imputed from the MW-weighted average of priced running units of the same plant type (the same method as the blended cost below). A unit whose type has no priced peer shows a dash.</p>
-    <p><b>Typical MW &amp; last online</b> — For each Critical unit the table shows its <b>Typical MW</b> (average output when running) beside its live output, and <b>Last online</b> — how long since it last produced at least 1 MW. A unit that is down then reads as a concrete loss against what it normally contributes, and the summary compares firm capacity online now against the total the Critical fleet provides when fully in service. (Both Typical MW and Last online are read from a stored per-unit view that refreshes each snapshot; if it is unavailable, Typical MW falls back to a baked baseline and Last online shows a dash.)</p>
+    <p><b>Typical MW &amp; last online</b> — For each Critical unit the table shows its <b>Typical MW</b> (average output when running) beside its live output, and <b>Last online</b> — how long since it last produced at least 1 MW. A unit that is down then reads as a concrete loss against what it normally contributes, and the summary compares the typical output online now against the total the Critical fleet provides when fully in service. (Both Typical MW and Last online are read from a stored per-unit view that refreshes each snapshot; if it is unavailable, Typical MW falls back to a baked baseline and Last online shows a dash.)</p>
     <p><b>Blended energy cost</b> — The MW-weighted average price of everything generating at each snapshot: each unit's $/MWh weighted by its megawatts. A running unit that reports no price is imputed at the MW-weighted average price of other running units of the same plant type — so an unpriced gas turbine is valued like the gas turbines that do report a price, rather than being dropped and understating the figure. The small amount of fuel-free generation with no priced peer of its type is excluded. It rises when cheaper baseload is offline and pricier peaking units backfill, so it tracks the cost consequence of the same outages the units table shows.</p>
     <p><b>Times</b> shown in Atlantic Standard Time (AST, UTC−4).</p>
   </div>
@@ -398,7 +400,7 @@
   const BASELINE_DAYS = 45;
 
   // "Critical" dispatchable units — ones that historically carry meaningful load,
-  // so their being offline is a real loss of firm capacity (unlike solar/wind at
+  // so their being offline is a real loss of dispatchable output (unlike solar/wind at
   // night). Derived from 1,774 stored snapshots (~13 days, ending 2026-07-19):
   // non-renewable, averaging >= 20 MW when online and online >= 50% of the time.
   // Keyed "plant_type|plant|unit"; region = where it sits on the grid. baselineMw
@@ -625,14 +627,14 @@
 
     let level = "adequate", label = "Adequate reserves", reason = "";
     if ((marginNext != null && marginNext < 0) || (opRes != null && opRes < 50)) {
-      level = "critical"; label = "Load-shedding risk (relevos de carga)";
+      level = "critical"; label = "Reserves critically low";
       if (marginNext != null && marginNext < 0)
-        reason = `Next-hour forecast ${fmt(nextHr)} MW exceeds available capacity ${fmt(cap)} MW — a projected ${fmt(Math.abs(marginNext))} MW shortfall. Load-shedding may be needed to balance the grid.`;
+        reason = `Next-hour forecast ${fmt(nextHr)} MW exceeds available capacity ${fmt(cap)} MW — a projected ${fmt(Math.abs(marginNext))} MW shortfall. Load-shedding (relevos de carga) may be needed to balance the grid.`;
       else
-        reason = `Operating reserve is only ${fmt(opRes)} MW — the system has almost no cushion, so any unit trip could force load-shedding.`;
+        reason = `Operating reserve is only ${fmt(opRes)} MW — the system has almost no cushion, so any unit trip could force load-shedding (relevos de carga).`;
     } else if ((n1 != null && opRes != null && opRes < n1) || (n1 != null && marginNext != null && marginNext < n1)) {
       level = "tight"; label = "Thin reserves";
-      reason = `Operating reserve ${fmt(opRes)} MW is below the largest online unit (${fmt(n1)} MW). The grid would not withstand losing its biggest generator (fails N-1) without dipping into emergency measures.`;
+      reason = `Operating reserve ${fmt(opRes)} MW is below the largest online unit (${fmt(n1)} MW) — reserve would not cover the loss of that unit (below the N-1 benchmark).`;
     } else {
       level = "adequate"; label = "Adequate reserves";
       reason = n1 != null
@@ -913,9 +915,9 @@
       `<span class="us-item"><span class="us-num">${online}</span> of ${total} units online</span>` +
       `<span class="us-item"><span class="us-num">${offline}</span> offline / idle</span>` +
       `<span class="us-item"><span class="us-num">${fmt(dispatched, 0)}</span> MW dispatched</span>` +
-      (crit.length ? `<span class="us-item"><span class="us-num">${fmt(critOnMw)}</span> of ~${fmt(critFleet)} MW critical firm capacity online</span>` : "") +
+      (crit.length ? `<span class="us-item"><span class="us-num">${fmt(critOnMw)}</span> of ~${fmt(critFleet)} MW of critical units' typical output online</span>` : "") +
       (crit.length && critOff.length
-        ? `<span class="us-item us-crit"><span class="us-num">${critOff.length}</span> of ${crit.length} critical units offline · ~${fmt(critOffMw)} MW down</span>`
+        ? `<span class="us-item us-crit"><span class="us-num">${critOff.length}</span> of ${crit.length} critical units offline · ~${fmt(critOffMw)} MW of typical output absent</span>`
         : (crit.length ? `<span class="us-item">all ${crit.length} critical units online</span>` : ""));
   }
 
