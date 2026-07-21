@@ -168,13 +168,18 @@
   .runway-steps .step .step-band { color: var(--secondary-text); }
   .runway-now { font-size: 0.72rem; color: var(--secondary-text); border-top: 1px solid var(--accent-light); padding-top: 7px; }
   .runway-sub { font-size: 0.68rem; color: var(--secondary-text); font-style: italic; }
-  /* near-term precip tilt (NWS 7-day QPF vs GHCN normal): a probability lean over dry/normal/wet */
-  .runway-qpf { border-top: 1px solid var(--accent-light); padding-top: 7px; display: flex; flex-direction: column; gap: 4px; }
+  /* near-term precip tilt (NWS 7-day QPF vs local GHCN 7-day rainfall): scenario weights over dry/normal/wet */
+  .runway-qpf { border-top: 1px solid var(--accent-light); padding-top: 7px; display: flex; flex-direction: column; gap: 5px; }
+  .qpf-title { display: flex; justify-content: space-between; gap: 8px; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--secondary-text); }
+  .qpf-title .qpf-sub { text-transform: none; letter-spacing: 0; font-style: italic; }
   .qpf-bar { display: flex; height: 7px; border-radius: 4px; overflow: hidden; background: var(--accent-light); }
   .qpf-bar span { display: block; height: 100%; }
   .qpf-seg-dry { background: var(--crit); }
   .qpf-seg-normal { background: #9aa0a6; }
   .qpf-seg-wet { background: #3a86a8; }
+  .qpf-legend { display: flex; flex-wrap: wrap; gap: 3px 6px; font-size: 0.68rem; font-variant-numeric: tabular-nums; }
+  .qpf-legend .qpf-sep { color: var(--accent-light); font-weight: 400; }
+  .qpf-legend .is-max { text-decoration: underline; text-underline-offset: 2px; }
   .qpf-cap { font-size: 0.68rem; color: var(--secondary-text); font-variant-numeric: tabular-nums; }
   .qpf-cap b { color: var(--primary-text); }
   .qpf-lean-dry { color: #c0392b; font-weight: 600; }
@@ -382,7 +387,7 @@
   <div class="panel" id="outlook-panel" style="display:none;">
     <h2>30-day outlook <span class="panel-note" id="outlook-note">modeled reservoirs · scenario cone + continued-dry runway</span></h2>
     <div class="explain">
-      <p>A forward water-balance projection for the four reservoirs covered by the bounded utilization model. Storage is marched 30 days ahead under three inflow scenarios drawn from 36 years of calendar climatology — <b>dry</b>, <b>normal</b>, and <b>wet</b> — producing a fan of where the level could go. The <b>runway</b> below each is the number of days a <i>continued-dry</i> spell would take to carry the reservoir down to each PRASA alert line (the same dashed lines drawn here and on the history chart). The dry arm also stresses withdrawal to the reservoir's drought-year demand, so the runway is deliberately conservative. The <b>cone itself is a climatology spread, not a weather forecast</b>; layered on top, a <b>near-term tilt</b> reads the live NWS 7-day rain forecast against each site's rainfall normal and leans the odds toward the drier or wetter arm — a probability hint for the coming week (shown as the dry/normal/wet bar on each card), not a calibrated 30-day forecast. The dry floor assumes no emergency releases.</p>
+      <p>A forward water-balance projection for the four reservoirs covered by the bounded utilization model. Storage is marched 30 days ahead under three inflow scenarios drawn from 36 years of calendar climatology — <b>dry</b>, <b>normal</b>, and <b>wet</b> — producing a fan of where the level could go. The <b>runway</b> below each is the number of days a <i>continued-dry</i> spell would take to carry the reservoir down to each PRASA alert line (the same dashed lines drawn here and on the history chart). The dry arm also stresses withdrawal to the reservoir's drought-year demand, so the runway is deliberately conservative. The <b>cone itself is a climatology spread, not a weather forecast</b>; layered on top, a <b>near-term tilt</b> reads the live NWS 7-day rain forecast against each site's historical 7-day rainfall and re-weights the drier or wetter arm accordingly — a near-term hint for the coming week (shown as the dry/normal/wet scenario-weight bar on each card), not a calibrated 30-day forecast. The dry floor assumes no emergency releases.</p>
     </div>
     <div class="runway-grid" id="runway-grid"></div>
     <div class="controls">
@@ -416,7 +421,7 @@
       </div>
       <div class="method-card">
         <h3>4. Forecast cone + near-term tilt</h3>
-        <p>The 30-day dry/normal/wet paths use 36 years of calendar-day inflow climatology, a 5 mm/day evaporation baseline, lake-rain scenarios, trailing release, and bounded annual demand. The spread is a scenario range, not a weather forecast; the dry floor assumes no emergency release. Separately, a <b>near-term precipitation tilt</b> scores the live NWS <i>api.weather.gov</i> 7-day QPF at each reservoir's anchor point against that point's NOAA GHCN-Daily rainfall normal (1990–2025) and expresses the wetness percentile as a probability lean over the three scenarios. It re-weights which arm is likelier for the coming week — it does <b>not</b> move the conservative dry-path runway — and the weights are an uncalibrated heuristic until a QPF reforecast backtest exists.</p>
+        <p>The 30-day dry/normal/wet paths use 36 years of calendar-day inflow climatology, a 5 mm/day evaporation baseline, lake-rain scenarios, trailing release, and bounded annual demand. The spread is a scenario range, not a weather forecast; the dry floor assumes no emergency release. Separately, a <b>near-term precipitation tilt</b> scores the live NWS <i>api.weather.gov</i> 7-day QPF at each reservoir's anchor point against that point's NOAA GHCN-Daily 7-day rainfall history (1990–2025) and expresses the wetness percentile as scenario weights (a near-term tilt) over the three arms. It re-weights which arm is likelier for the coming week — it does <b>not</b> move the conservative dry-path runway — and the weights are an uncalibrated heuristic until a QPF reforecast backtest exists.</p>
       </div>
     </div>
     <div class="method-callout">
@@ -1212,21 +1217,39 @@
     return "";
   }
 
-  // Near-term precipitation tilt: a probability lean over dry/normal/wet from the live NWS 7-day
-  // QPF scored against the point's GHCN normal (§14a). A stacked bar (dry|normal|wet weights) plus
-  // a one-line readout. Returns "" when there is no signal, so the card renders exactly as before.
+  // Ordinal percentile label, e.g. 61 -> "61st percentile", 79 -> "79th percentile".
+  function ordinalPct(n) {
+    n = Math.round(n);
+    const v = n % 100, s = ["th", "st", "nd", "rd"];
+    return n + (s[(v - 20) % 10] || s[v] || s[0]) + " percentile";
+  }
+
+  // Near-term precipitation tilt (§14a): scenario weights over dry/normal/wet from the live NWS
+  // 7-day QPF scored against the point's local GHCN 7-day rainfall. A stacked bar + a visible
+  // Dry/Normal/Wet weight legend + a one-line readout. Returns "" when there is no signal, so the
+  // card renders exactly as before. These are an uncalibrated near-term tilt, not calibrated odds.
   function qpfHtml(q) {
     if (!q || !q.available || !q.weights) return "";
-    const w = q.weights, pct = x => Math.round(100 * (x || 0));
-    const leanClass = `qpf-lean-${q.most_likely || "normal"}`;
-    const bar = `<div class="qpf-bar" title="near-term regime odds — dry ${pct(w.dry)}% · normal ${pct(w.normal)}% · wet ${pct(w.wet)}%">
-        <span class="qpf-seg-dry" style="width:${pct(w.dry)}%"></span>
-        <span class="qpf-seg-normal" style="width:${pct(w.normal)}%"></span>
-        <span class="qpf-seg-wet" style="width:${pct(w.wet)}%"></span>
+    const w = q.weights;
+    // Integer percents that sum to exactly 100 (nudge the largest to absorb rounding drift).
+    const segs = [["dry", "Dry", w.dry || 0], ["normal", "Normal", w.normal || 0], ["wet", "Wet", w.wet || 0]]
+      .map(a => ({ key: a[0], label: a[1], pct: Math.round(100 * a[2]) }));
+    const drift = 100 - segs.reduce((s, x) => s + x.pct, 0);
+    if (drift) segs.slice().sort((a, b) => b.pct - a.pct)[0].pct += drift;
+    const maxKey = ["dry", "normal", "wet"].reduce((m, k) => ((w[k] || 0) > (w[m] || 0) ? k : m), "dry");
+    const bar = `<div class="qpf-bar" title="scenario weights — dry ${segs[0].pct}% · normal ${segs[1].pct}% · wet ${segs[2].pct}%">
+        <span class="qpf-seg-dry" style="width:${segs[0].pct}%"></span>
+        <span class="qpf-seg-normal" style="width:${segs[1].pct}%"></span>
+        <span class="qpf-seg-wet" style="width:${segs[2].pct}%"></span>
       </div>`;
-    return `<div class="runway-qpf" title="${q.source || "NWS 7-day QPF vs GHCN normal"} — near-term lean, uncalibrated">
+    const legend = segs
+      .map(s => `<span class="qpf-lean-${s.key}${s.key === maxKey ? " is-max" : ""}">${s.label} ${s.pct}%</span>`)
+      .join('<span class="qpf-sep">|</span>');
+    return `<div class="runway-qpf" title="${q.source || "NWS 7-day QPF vs local GHCN 7-day rainfall"} — near-term tilt, uncalibrated">
+        <div class="qpf-title">Near-term tilt<span class="qpf-sub">scenario weights · next 7 days</span></div>
         ${bar}
-        <div class="qpf-cap">next 7-day rain <b>${fmt(q.qpf_mm, 0)}</b> mm vs ${fmt(q.normal_mm, 0)} normal · <span class="${leanClass}">leans ${q.most_likely}</span> (p${q.pctile})</div>
+        <div class="qpf-legend">${legend}</div>
+        <div class="qpf-cap">7-day rain <b>${fmt(q.qpf_mm, 0)}</b> mm — ${ordinalPct(q.pctile)} of local 7-day rainfall (historical median ${fmt(q.normal_mm, 0)} mm)</div>
       </div>`;
   }
 
@@ -1257,7 +1280,7 @@
       const acc = runwayAccent(rw.steps);
       const head = rw.steps[0];
       const headHtml = head
-        ? `${head.extrap ? "~" : "≈"}${fmt(head.days, 0)} <small>days to ${head.label}</small>`
+        ? `${head.extrap ? "~" : "≈"}${fmt(head.days, 0)} <small>days to enter ${head.label} under continued-dry conditions</small>`
         : `holds <small>no lower band reached in the outlook</small>`;
       const stepsHtml = rw.steps.slice(0, 3).map(s =>
         `<div class="step"><span class="step-band">${s.band}</span><span>${s.extrap ? "~" : ""}${fmt(s.days, 0)} d</span></div>`).join("");
@@ -1272,7 +1295,7 @@
         </div>
         <div class="runway-headline">${headHtml}</div>
         <div class="runway-steps">${stepsHtml || '<div class="step"><span class="step-band">—</span><span></span></div>'}</div>
-        <div class="runway-now">now ${fmt(num(r.level_m), 2)} m · continued-dry, drought-year demand</div>
+        <div class="runway-now">now ${fmt(num(r.level_m), 2)} m · drought-year demand</div>
         ${qpfHtml(fc.qpf)}
         ${caveat ? `<div class="runway-sub">${caveat}</div>` : ""}
       </div>`;
@@ -1295,7 +1318,7 @@
     if (qn) {
       const q = fc && fc.qpf;
       qn.textContent = (q && q.available)
-        ? `next 7-day rain ${fmt(q.qpf_mm, 0)} mm vs ${fmt(q.normal_mm, 0)} normal · leans ${q.most_likely} (p${q.pctile}) — near-term, uncalibrated`
+        ? `next 7-day rain ${fmt(q.qpf_mm, 0)} mm — ${ordinalPct(q.pctile)} of local 7-day rainfall (historical median ${fmt(q.normal_mm, 0)} mm) · near-term tilt, uncalibrated`
         : "";
     }
     if (!fc || !r) return;
