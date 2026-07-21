@@ -146,6 +146,50 @@
   .band-legend-item { display: flex; align-items: center; gap: 6px; }
   .band-swatch { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
 
+  /* 30-day outlook: continued-dry runway cards */
+  .runway-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(228px, 1fr));
+    gap: 14px; margin-bottom: 22px;
+  }
+  .runway-card {
+    border: 2px solid var(--border-primary); border-radius: 8px;
+    padding: 14px 16px; display: flex; flex-direction: column; gap: 8px;
+    transition: all 0.2s ease;
+  }
+  .runway-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.10); }
+  .runway-card.accent-crit { border-color: var(--crit); }
+  .runway-card.accent-warn { border-color: var(--warn); }
+  .runway-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .runway-name { font-weight: 700; font-size: 0.95rem; }
+  .runway-headline { font-size: 1.2rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.15; }
+  .runway-headline small { font-size: 0.72rem; font-weight: 500; color: var(--secondary-text); }
+  .runway-steps { display: flex; flex-direction: column; gap: 3px; font-size: 0.72rem; font-variant-numeric: tabular-nums; }
+  .runway-steps .step { display: flex; justify-content: space-between; gap: 10px; }
+  .runway-steps .step .step-band { color: var(--secondary-text); }
+  .runway-now { font-size: 0.72rem; color: var(--secondary-text); border-top: 1px solid var(--accent-light); padding-top: 7px; }
+  .runway-sub { font-size: 0.68rem; color: var(--secondary-text); font-style: italic; }
+
+  /* Methodology & validation */
+  .methodology-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 14px; margin-top: 16px;
+  }
+  .method-card {
+    border: 1px solid var(--border-primary); border-radius: 6px;
+    padding: 15px 16px; background: var(--accent-lighter);
+  }
+  .method-card h3 { font-size: 0.9rem; margin-bottom: 7px; }
+  .method-card p, .method-callout { font-size: 0.78rem; color: var(--secondary-text); }
+  .method-equation {
+    margin: 10px 0; padding: 10px 12px; border-left: 4px solid var(--border-primary);
+    background: var(--primary-bg); font-size: 0.8rem; overflow-x: auto;
+    white-space: nowrap;
+  }
+  .method-callout {
+    margin-top: 14px; padding: 12px 14px;
+    border: 1px solid var(--border-primary); border-radius: 6px;
+  }
+
   .source-note {
     font-size: 0.75rem; color: var(--secondary-text); margin-top: 30px;
     padding-top: 16px; border-top: 1px solid var(--accent-light);
@@ -237,6 +281,8 @@
         <a href="#storage">Storage</a>
         <a href="#table">Reservoirs</a>
         <a href="#history">History</a>
+        <a href="#outlook">Outlook</a>
+        <a href="#methodology">Methodology</a>
       </div>
     </div>
     <h1>Puerto Rico Reservoir Levels</h1>
@@ -319,6 +365,55 @@
     </div>
   </div>
 
+  <!-- 30-day outlook -->
+  <span class="nav-anchor" id="outlook"></span>
+  <div class="panel" id="outlook-panel" style="display:none;">
+    <h2>30-day outlook <span class="panel-note" id="outlook-note">modeled reservoirs · scenario cone + continued-dry runway</span></h2>
+    <div class="explain">
+      <p>A forward water-balance projection for the four reservoirs covered by the bounded utilization model. Storage is marched 30 days ahead under three inflow scenarios drawn from 36 years of calendar climatology — <b>dry</b>, <b>normal</b>, and <b>wet</b> — producing a fan of where the level could go. The <b>runway</b> below each is the number of days a <i>continued-dry</i> spell would take to carry the reservoir down to each PRASA alert line (the same dashed lines drawn here and on the history chart). The dry arm also stresses withdrawal to the reservoir's drought-year demand, so the runway is deliberately conservative. This is a scenario spread from climatology, <b>not a weather forecast</b>, and the dry floor assumes no emergency releases.</p>
+    </div>
+    <div class="runway-grid" id="runway-grid"></div>
+    <div class="controls">
+      <select id="fc-site"></select>
+      <div class="spacer"></div>
+    </div>
+    <div class="chart-container"><canvas id="chart-forecast"></canvas></div>
+    <div class="explain" style="margin-top:14px;">
+      <p id="fc-note"></p>
+    </div>
+  </div>
+
+  <!-- Methodology & validation -->
+  <span class="nav-anchor" id="methodology"></span>
+  <div class="panel">
+    <h2>Methodology &amp; validation <span class="panel-note">how the utilization and outlook layers are built</span></h2>
+    <div class="methodology-grid">
+      <div class="method-card">
+        <h3>1. Level to storage</h3>
+        <p>USGS damsite elevation is converted to stored volume with the latest survey-specific stage-capacity curve. Local lake area is derived from the curve slope: <i>A<sub>lake</sub> = dV/dh</i>.</p>
+      </div>
+      <div class="method-card">
+        <h3>2. Daily water balance</h3>
+        <div class="method-equation">&Delta;S = I + P&middot;A<sub>lake</sub> &minus; E&middot;A<sub>lake</sub> &minus; O &minus; R &minus; W</div>
+        <p><i>W</i> is the residual left after inflow, rain on the lake, evaporation, spill, and controlled releases. It is not measured directly &mdash; it also absorbs seepage, ungauged inflow, and rating/sensor error, so it is an upper-bounded estimate of withdrawal, not a clean canal meter reading. Daily discharge inputs come from USGS series where available; rainfall and reference-ET inputs come from GOES-PRWEB grids.</p>
+      </div>
+      <div class="method-card">
+        <h3>3. Reporting cadence</h3>
+        <p>The balance is computed daily. Daily and sub-annual values are diagnostic; annual or rolling-annual values are reportable because short windows are more affected by release timing, missing inputs, and measurement noise.</p>
+      </div>
+      <div class="method-card">
+        <h3>4. Forecast cone</h3>
+        <p>The 30-day dry/normal/wet paths use 36 years of calendar-day inflow climatology, a 5 mm/day evaporation baseline, lake-rain scenarios, trailing release, and bounded annual demand. The spread is a scenario range, not a weather forecast; the dry floor assumes no emergency release.</p>
+      </div>
+    </div>
+    <div class="method-callout">
+      <b>Validation:</b> Patillas is the direct calibration anchor. The metered canal sits inside the 95% uncertainty band in both full-year windows: 2020, 12.1 versus 12.0 MGD (+1%); and 2021, 13.1 versus 12.5 MGD (+5%). The production set is Carraizo, La Plata, and Cerrillos; Guayabal and Guajataca were screened out. Cross-checks include mass-balance closure, interannual behavior, drought response, and plant-capacity magnitude. These checks support bounded estimates but are not independent canal ground truth for every reservoir.
+    </div>
+    <div class="method-callout">
+      <b>Limits:</b> Results are sensitive to curve age, ungauged inflow, operational releases, throughflow, rainfall/evaporation estimates, and gap-filled inputs. Treat utilization values as bounded analytical estimates and the outlook as decision support&mdash;not an official PRASA rationing notice.
+    </div>
+  </div>
+
   <div class="source-note">
     <p><b>Data source:</b> <a href="https://waterservices.usgs.gov/">USGS Water Services</a> instantaneous values, parameter 72376 (reservoir elevation above local mean sea level, meters), read from the damsite gauges the USGS operates for PR's principal embalses. <b>Alert bands (Desborde / Seguridad / Observación / Ajustes / Control):</b> transcribed from PRASA's official "Monitoreo Diario de Embalses" chart — independently corroborated by the dam-crest elevations in PIRA Tabla 3.5 (agreement within ~1 m for ungated-overflow dams). <b>Reservoir facts</b> (storage &amp; sedimentation, safe yield, dam type/size, basin, year, owner, uses): DRNA/PRASA <i>Plan Integral de Recursos de Agua</i> (PIRA), Junio 2016 — Tabla 3.5 (información general) and Tabla 5.5 (sedimentación); a 2015 snapshot. This page is not affiliated with USGS, PRASA, or PREPA; the status read is an independent indicator, not an official rationing notice.</p>
   </div>
@@ -328,6 +423,10 @@
   <p>&copy; <span id="copyright-year">2026</span> Sens ABI LLC. All rights reserved.</p>
 </footer>
 <script>document.getElementById('copyright-year').textContent=new Date().getFullYear();</script>
+
+<!-- FORECAST-DATA:START — regenerate via analysis/reservoir_balance/dump_forecast_json.py + site/tools/inject_forecast.py -->
+<script id="forecast-data" type="application/json">{"anchor":"2026-07-19","horizon":30,"reservoirs":[{"name":"Patillas","site":"50093045","anchor":"2026-07-19","now_elev":64.07,"now_pct":71.0,"full_mm3":12.96,"spillway":67.55,"inflow_now":4.0,"W":12.5,"W_dry":13.1,"seguridad":null,"dry":[64.07,64.03,63.99,63.95,63.91,63.87,63.83,63.79,63.75,63.71,63.67,63.63,63.58,63.54,63.5,63.45,63.4,63.36,63.31,63.27,63.22,63.17,63.13,63.08,63.03,62.99,62.94,62.89,62.84,62.8,62.75],"normal":[64.07,64.05,64.04,64.03,64.04,64.04,64.06,64.08,64.1,64.13,64.16,64.19,64.22,64.26,64.3,64.35,64.39,64.44,64.5,64.55,64.59,64.64,64.69,64.74,64.79,64.85,64.91,64.97,65.03,65.09,65.15],"wet":[64.07,64.1,64.17,64.27,64.41,64.57,64.76,64.97,65.21,65.45,65.69,65.93,66.19,66.46,66.73,67.02,67.31,67.55,67.55,67.55,67.55,67.55,67.55,67.55,67.55,67.55,67.55,67.55,67.55,67.55,67.55],"skill":{"inside":80,"breach":7,"mae_med":8.7}},{"name":"Carraizo","site":"50059000","anchor":"2026-07-19","now_elev":38.92,"now_pct":69.0,"full_mm3":16.42,"spillway":41.14,"inflow_now":34.7,"W":90.0,"W_dry":108.0,"seguridad":39.7,"dry":[38.92,38.79,38.65,38.52,38.38,38.24,38.1,37.95,37.79,37.64,37.48,37.32,37.17,36.99,36.81,36.63,36.45,36.27,36.08,35.87,35.65,35.44,35.22,34.97,34.71,34.44,34.18,33.87,33.56,33.25,32.9],"normal":[38.92,38.85,38.8,38.76,38.74,38.73,38.72,38.73,38.74,38.76,38.79,38.82,38.85,38.88,38.92,38.96,39.0,39.04,39.09,39.13,39.16,39.21,39.25,39.3,39.35,39.4,39.46,39.52,39.58,39.65,39.73],"wet":[38.92,38.95,39.07,39.25,39.48,39.74,40.09,40.48,40.91,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14],"skill":{"inside":85,"breach":0,"mae_med":32.6}},{"name":"La Plata","site":"50045000","anchor":"2026-07-19","now_elev":48.3,"now_pct":67.0,"full_mm3":30.88,"spillway":52.0,"inflow_now":13.6,"W":42.0,"W_dry":44.0,"seguridad":47.7,"dry":[48.3,48.25,48.2,48.15,48.1,48.05,48.0,47.95,47.89,47.84,47.78,47.73,47.67,47.61,47.56,47.5,47.44,47.38,47.33,47.27,47.21,47.15,47.09,47.03,46.97,46.91,46.85,46.79,46.73,46.66,46.6],"normal":[48.3,48.26,48.23,48.2,48.18,48.16,48.14,48.12,48.11,48.1,48.09,48.08,48.07,48.07,48.06,48.06,48.06,48.06,48.06,48.06,48.05,48.05,48.05,48.05,48.05,48.05,48.06,48.06,48.07,48.07,48.08],"wet":[48.3,48.3,48.34,48.4,48.48,48.58,48.7,48.85,49.03,49.2,49.38,49.56,49.74,49.93,50.12,50.3,50.48,50.67,50.86,51.05,51.24,51.43,51.62,51.81,52.0,52.0,52.0,52.0,52.0,52.0,52.0],"skill":{"inside":74,"breach":7,"mae_med":13.0}},{"name":"Cerrillos","site":"50113950","anchor":"2026-07-19","now_elev":169.25,"now_pct":79.0,"full_mm3":37.26,"spillway":174.65,"inflow_now":4.8,"W":24.0,"W_dry":26.0,"seguridad":null,"dry":[169.25,169.17,169.09,169.02,168.94,168.87,168.79,168.71,168.64,168.56,168.48,168.4,168.32,168.24,168.17,168.09,168.01,167.93,167.85,167.77,167.69,167.61,167.53,167.45,167.37,167.28,167.2,167.12,167.04,166.96,166.87],"normal":[169.25,169.18,169.12,169.06,169.0,168.95,168.89,168.84,168.78,168.73,168.68,168.63,168.57,168.52,168.47,168.42,168.37,168.32,168.27,168.22,168.18,168.13,168.08,168.04,167.99,167.94,167.9,167.86,167.81,167.77,167.73],"wet":[169.25,169.2,169.17,169.15,169.14,169.14,169.15,169.18,169.2,169.24,169.28,169.32,169.36,169.41,169.46,169.51,169.57,169.63,169.69,169.76,169.82,169.88,169.95,170.03,170.1,170.18,170.26,170.35,170.46,170.58,170.7],"skill":{"inside":55,"breach":1,"mae_med":6.2}}]}</script>
+<!-- FORECAST-DATA:END -->
 
 <script>
   // --- Config ---
@@ -477,12 +576,44 @@
     },
   };
 
+  // Chart.js plugin: mark "today" — the seam between observed history and the forecast cone.
+  // Reads chart.$forecastStart (ms) set before each render of the outlook chart.
+  const forecastDivider = {
+    id: "forecastDivider",
+    afterDatasetsDraw(chart) {
+      const t = chart.$forecastStart;
+      if (t == null) return;
+      const x = chart.scales.x;
+      if (!x) return;
+      const px = x.getPixelForValue(t);
+      const { ctx, chartArea } = chart;
+      if (px < chartArea.left || px > chartArea.right) return;
+      ctx.save();
+      ctx.strokeStyle = "rgba(0,0,0,0.45)";
+      ctx.setLineDash([2, 2]); ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(px, chartArea.top); ctx.lineTo(px, chartArea.bottom); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.font = "10px 'Source Code Pro', monospace";
+      ctx.fillStyle = "#555"; ctx.textBaseline = "top";
+      ctx.fillText("today", px + 3, chartArea.top + 2);
+      ctx.restore();
+    },
+  };
+
   // --- State ---
   let statusRows = [];             // enriched v_reservoir_status rows
   let histBySite = {};             // site_no -> [{ t: ms, v: number }] asc
   let chartOverview = null, chartHistory = null, chartStorage = null;
   let sortCol = "status_rank", sortDir = "desc";
   let histDays = 365, histSite = null;
+  const DAY_MS = 86400000;
+
+  // 30-day forecast, embedded at build time (see the FORECAST-DATA block + inject_forecast.py).
+  let FORECAST = { reservoirs: [] };
+  try { FORECAST = JSON.parse(document.getElementById("forecast-data").textContent); }
+  catch (e) { FORECAST = { reservoirs: [] }; }
+  let chartForecast = null, fcSite = null;
+  const forecastFor = (site) => (FORECAST.reservoirs || []).find(f => f.site === site);
 
   // --- Load ---
   async function init() {
@@ -526,6 +657,7 @@
     renderTable();
     setupHistory();
     renderHistory();
+    renderOutlook();
   }
 
   // Change in value over the last `windowMs`, using the reading closest to (last - window).
@@ -988,6 +1120,231 @@
 
     const spanDays = (series[series.length - 1].t - series[0].t) / 86400000;
     note.innerHTML = `<b>${r.name}</b> (${r.municipio || "—"}, ${r.operator || "—"}) — currently <b>${fmt(r.level_m, 2)} m</b>, in the <b>${r.status}</b> band. Shaded bands and dashed lines are PRASA's alert levels; the reservoir spills at <b>${fmt(thresholds.desborde_m, 2)} m</b> and enters rationing controls below <b>${fmt(thresholds.control_m, 2)} m</b>. Showing ${series.length} readings over ${spanDays < 1 ? "under a day" : fmt(spanDays, 0) + " day" + (spanDays >= 2 ? "s" : "")}.` + profileLine(r);
+  }
+
+  // --- 30-day outlook: continued-dry runway + scenario cone ---
+
+  // First downward crossing of `level` by a daily elevation series `arr` (day 0..N).
+  // Linearly interpolates the fractional day. If the horizon ends above `level`, extrapolates
+  // using the mean slope of the last `tail` days (marked extrap). Returns {days, extrap} | null.
+  function crossDown(arr, level, capDays = 240) {
+    if (!arr || arr.length < 2 || level == null) return null;
+    if (arr[0] <= level) return { days: 0, extrap: false };      // already at/below
+    for (let k = 1; k < arr.length; k++) {
+      if (arr[k] <= level) {
+        const frac = (arr[k - 1] - level) / (arr[k - 1] - arr[k]);
+        return { days: (k - 1) + frac, extrap: false };
+      }
+    }
+    const n = arr.length, tail = Math.min(10, n - 1);
+    const slope = (arr[n - 1] - arr[n - 1 - tail]) / tail;       // m/day (negative = falling)
+    if (slope >= -1e-4) return null;                             // essentially flat -> won't reach
+    const days = (n - 1) + (arr[n - 1] - level) / (-slope);
+    return days > capDays ? null : { days, extrap: true };
+  }
+
+  // Runway for one reservoir: rebase the model's dry cone onto the live gauge reading (this both
+  // connects it to the observed line and absorbs any datum offset, since we then test against the
+  // page's own PRASA thresholds), then find days-to-cross for each alert line below the level now.
+  function runwayFor(r, fc) {
+    const live = num(r.level_m);
+    const offset = (live !== null && fc.now_elev != null) ? live - fc.now_elev : 0;
+    const dry = fc.dry.map(e => e + offset);
+    const anchor = live !== null ? live : fc.now_elev;
+    // Crossing a threshold line downward drops the reservoir OUT of its current band and INTO the
+    // band just below it — that entered band is the operationally meaningful label, not the line
+    // touched (so crossing seguridad_m means "enters Observación / watch", never "reaches Seguridad").
+    const lines = [
+      { key: "seguridad_m",   band: "Observación",       label: "Observación (watch)" },
+      { key: "observacion_m", band: "Ajustes",           label: "Ajustes" },
+      { key: "ajustes_m",     band: "Control",           label: "Control (rationing)" },
+      { key: "control_m",     band: "Fuera de Servicio", label: "below intake" },
+    ];
+    const steps = [];
+    for (const b of lines) {
+      const lv = num(r[b.key]);
+      if (lv === null || lv >= anchor) continue;                // only lines below the current level
+      const c = crossDown(dry, lv);
+      if (c) steps.push({ band: b.band, label: b.label, days: c.days, extrap: c.extrap, level: lv });
+    }
+    steps.sort((a, b) => a.days - b.days);
+    return { offset, dry, steps, anchor };
+  }
+
+  // Urgency accent: crit once rationing (Control floor / below intake) is within a month; warn for
+  // any band-drop within ~6 weeks; otherwise neutral.
+  function runwayAccent(steps) {
+    if (!steps.length) return "";
+    const ration = steps.find(s => s.band === "Control" || s.band === "Fuera de Servicio");
+    if (ration && ration.days <= 30) return "crit";
+    if (steps[0].days <= 45) return "warn";
+    return "";
+  }
+
+  function renderOutlook() {
+    const panel = document.getElementById("outlook-panel");
+    const fcs = FORECAST.reservoirs || [];
+    if (!panel) return;
+    const items = fcs.map(fc => {
+      const r = statusRows.find(x => x.site_no === fc.site);
+      return r ? { fc, r, rw: runwayFor(r, fc) } : null;
+    }).filter(Boolean);
+    if (!items.length) { panel.style.display = "none"; return; }
+    panel.style.display = "";
+
+    // Worst-first: soonest band crossing to the top.
+    items.sort((a, b) => {
+      const da = a.rw.steps.length ? a.rw.steps[0].days : Infinity;
+      const db = b.rw.steps.length ? b.rw.steps[0].days : Infinity;
+      return da - db;
+    });
+
+    document.getElementById("outlook-note").textContent =
+      `${items.length} modeled reservoir${items.length === 1 ? "" : "s"} · scenario cone + continued-dry runway`
+      + (FORECAST.anchor ? ` · from ${FORECAST.anchor}` : "");
+
+    document.getElementById("runway-grid").innerHTML = items.map(({ fc, r, rw }) => {
+      const b = r._band;
+      const acc = runwayAccent(rw.steps);
+      const head = rw.steps[0];
+      const headHtml = head
+        ? `${head.extrap ? "~" : "≈"}${fmt(head.days, 0)} <small>days to ${head.label}</small>`
+        : `holds <small>no lower band reached in the outlook</small>`;
+      const stepsHtml = rw.steps.slice(0, 3).map(s =>
+        `<div class="step"><span class="step-band">${s.band}</span><span>${s.extrap ? "~" : ""}${fmt(s.days, 0)} d</span></div>`).join("");
+      const sk = fc.skill || {};
+      const caveat = (sk.mae_med != null && sk.mae_med > 20)
+        ? "cone-only: trust the runway, not the mid-line"
+        : (sk.mae_med != null ? `backtest: dry-floor breach ${sk.breach}% of windows` : "");
+      return `<div class="runway-card${acc ? " accent-" + acc : ""}">
+        <div class="runway-head">
+          <span class="runway-name">${fc.name}</span>
+          <span class="badge" style="background:${hexA(b.color, 0.16)};color:${b.text};border:1px solid ${hexA(b.color, 0.5)}">${r.status || "—"}</span>
+        </div>
+        <div class="runway-headline">${headHtml}</div>
+        <div class="runway-steps">${stepsHtml || '<div class="step"><span class="step-band">—</span><span></span></div>'}</div>
+        <div class="runway-now">now ${fmt(num(r.level_m), 2)} m · continued-dry, drought-year demand</div>
+        ${caveat ? `<div class="runway-sub">${caveat}</div>` : ""}
+      </div>`;
+    }).join("");
+
+    const sel = document.getElementById("fc-site");
+    sel.innerHTML = items.map(({ fc, r }) => `<option value="${fc.site}">${fc.name} — ${r.status || "?"}</option>`).join("");
+    fcSite = items[0].fc.site;
+    sel.value = fcSite;
+    sel.onchange = () => { fcSite = sel.value; renderForecastChart(); };
+    renderForecastChart();
+  }
+
+  function renderForecastChart() {
+    const fc = forecastFor(fcSite);
+    const r = statusRows.find(x => x.site_no === fcSite);
+    const el = document.getElementById("chart-forecast");
+    if (chartForecast) chartForecast.destroy();
+    if (!fc || !r) return;
+
+    // Recent observed tail so the cone reads as a forward extension of the same line.
+    const TAIL_DAYS = 21;
+    const full = histBySite[fcSite] || [];
+    const sinceTail = Date.now() - TAIL_DAYS * DAY_MS;
+    const tail = full.filter(p => p.t >= sinceTail);
+    const lastPt = full.length ? full[full.length - 1] : null;
+
+    // Re-anchor the cone to the live reading (connects the seam + neutralizes any datum offset).
+    const live = lastPt ? lastPt.v : num(r.level_m);
+    const offset = (live != null && fc.now_elev != null) ? live - fc.now_elev : 0;
+    const day0 = lastPt ? lastPt.t : Date.now();
+    const mk = (arr) => arr.map((e, k) => ({ x: day0 + k * DAY_MS, y: +(e + offset).toFixed(2) }));
+    const dry = mk(fc.dry), normal = mk(fc.normal), wet = mk(fc.wet);
+
+    const thresholds = {
+      control_m: num(r.control_m), ajustes_m: num(r.ajustes_m), observacion_m: num(r.observacion_m),
+      seguridad_m: num(r.seguridad_m), desborde_m: num(r.desborde_m),
+    };
+
+    // y-range covers the observed tail, the full cone, and the nearest few alert lines.
+    const ys = [...tail.map(p => p.v), ...dry.map(p => p.y), ...wet.map(p => p.y)];
+    let lo = Math.min(...ys), hi = Math.max(...ys);
+    for (const k of ["seguridad_m", "observacion_m", "desborde_m"]) {
+      const v = thresholds[k]; if (v != null) { lo = Math.min(lo, v); hi = Math.max(hi, v); }
+    }
+    const pad = Math.max(0.2, (hi - lo) * 0.08);
+
+    const datasets = [];
+    if (tail.length >= 2) datasets.push({
+      label: "Observed", data: tail.map(p => ({ x: p.t, y: p.v })),
+      borderColor: "#111", backgroundColor: "transparent", fill: false,
+      tension: 0.25, pointRadius: 0, borderWidth: 2, order: 0,
+    });
+    const idxDry = datasets.length;
+    datasets.push({
+      label: "Dry", data: dry, borderColor: hexA("#e04343", 0.85),
+      backgroundColor: "transparent", fill: false, tension: 0.2, pointRadius: 0, borderWidth: 1.5, order: 3,
+    });
+    datasets.push({
+      label: "Wet", data: wet, borderColor: hexA("#3a86a8", 0.75),
+      backgroundColor: hexA("#7f97a0", 0.15), fill: { target: idxDry }, tension: 0.2,
+      pointRadius: 0, borderWidth: 1.5, order: 4,
+    });
+    datasets.push({
+      label: "Normal", data: normal, borderColor: "#555",
+      backgroundColor: "transparent", fill: false, borderDash: [5, 3], tension: 0.2,
+      pointRadius: 0, borderWidth: 1.5, order: 2,
+    });
+
+    chartForecast = new Chart(el, {
+      type: "line",
+      plugins: [thresholdBands, dayDividers, forecastDivider],
+      data: { datasets },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { intersect: false, mode: "index" },
+        plugins: {
+          legend: { labels: { font: { ...chartFont, size: 11 }, boxWidth: 18 } },
+          tooltip: {
+            titleFont: chartFont, bodyFont: chartFont,
+            callbacks: {
+              title: i => i.length ? new Date(i[0].parsed.x).toLocaleDateString("en-US", { timeZone: AST_TZ, month: "short", day: "numeric" }) : "",
+              label: c => ` ${c.dataset.label}: ${fmt(c.parsed.y, 2)} m`,
+            },
+          },
+        },
+        scales: {
+          x: {
+            type: "time", min: tail.length >= 2 ? sinceTail : day0 - 2 * DAY_MS,
+            time: { unit: "day", displayFormats: { day: "MMM d" } },
+            ticks: { font: { ...chartFont, size: 10 }, maxRotation: 0, autoSkipPadding: 16 },
+            grid: { color: "#f0f0f0" },
+          },
+          y: {
+            suggestedMin: lo - pad, suggestedMax: hi + pad,
+            ticks: { font: { ...chartFont, size: 10 }, callback: v => v + " m" },
+            grid: { color: "#f0f0f0" },
+            title: { display: true, text: "Elevation (m above MSL)", font: { ...chartFont, size: 10 } },
+          },
+        },
+      },
+    });
+    chartForecast.$bands = thresholds;
+    chartForecast.$forecastStart = day0;
+    chartForecast.update();
+
+    // Note under the chart.
+    const rw = runwayFor(r, fc);
+    const head = rw.steps[0];
+    const sk = fc.skill || {};
+    const runTxt = head
+      ? `Under a continued-dry spell it drops into <b>${head.label}</b> in <b>${head.extrap ? "~" : ""}${fmt(head.days, 0)} days</b>.`
+      : `Under a continued-dry spell it holds within its current band across the 30-day horizon.`;
+    const skillTxt = sk.mae_med != null
+      ? ` Backtested on 2016–25: the dry floor held in <b>${100 - sk.breach}%</b> of windows`
+        + (sk.mae_med > 20 ? ` (but the central mid-line error is wide — trust the runway and the cone, not the normal path).` : `.`)
+      : "";
+    document.getElementById("fc-note").innerHTML =
+      `<b>${fc.name}</b> — the fan spans three inflow scenarios (dry / normal / wet) from 36 years of calendar climatology; `
+      + `the shaded band is the dry-to-wet spread and the dashed line is the normal path, both re-anchored to the live gauge reading (<b>${fmt(live, 2)} m</b>). `
+      + runTxt + skillTxt
+      + ` A scenario spread, not a weather forecast; the dry floor assumes no emergency releases.`;
   }
 
   function showError(msg) {
