@@ -422,12 +422,12 @@
   <div class="panel">
     <h2>Position within operating range <span class="panel-note">0% = Control line (lowest published) · 100% = Desborde crest (spillover)</span></h2>
     <div class="layer-banner layer-official">
-      <span class="prov prov-measured">Level · USGS</span>
-      <span class="prov prov-official">Thresholds · PRASA</span>
+      <span class="prov prov-measured">Level source: USGS</span>
+      <span class="prov prov-official">Threshold source: PRASA</span>
       <span>Where each measured level sits between two of PRASA's official published lines.</span>
     </div>
     <div class="explain">
-      <p>Each bar shows where a reservoir's measured level sits between its <b>Control</b> floor (PRASA's lowest published operating line, 0%) and its <b>Desborde</b> crest (the spillway, 100%). This is a <b>position within the operating range, not percent of total water volume</b> — a reservoir at 62% here is 62% of the way from its Control line up to the spillway, not holding 62% of its water. Bars are colored by the alert band the reservoir is currently in; the most-concerning reservoirs sort to the top.</p>
+      <p>Each bar shows where a reservoir's measured level sits between its <b>Control</b> floor (PRASA's lowest published operating line, 0%) and its <b>Desborde</b> crest (the spillway, 100%). This is a <b>position within the operating range, not percent of total water volume</b> — a reservoir at 62% here is 62% of the way from its Control line up to the spillway, not holding 62% of its water. Bars are colored by the alert band the reservoir is currently in; reservoirs in the lowest operating bands sort to the top.</p>
     </div>
     <div class="chart-container tall"><canvas id="chart-overview"></canvas></div>
     <div class="band-legend" id="band-legend"></div>
@@ -443,7 +443,7 @@
       <span>From the last published bathymetric survey. No newer survey is included here, so present-day losses may be larger.</span>
     </div>
     <div class="explain">
-      <p>Each bar is normalized to a reservoir's <b>original</b> design storage (100%): the solid blue part is the share still usable as of the 2015 survey, the faded brown part had silted in by then. Bars are ordered worst-first, so you can compare proportional loss regardless of reservoir size — Puerto Rico's older dams have lost heavily, several down to a third or less of their built capacity, which is why a reservoir can hit rationing levels after only a short dry spell. Hover for the absolute volumes (Mm³). Source: DRNA/PRASA <i>Plan Integral de Recursos de Agua</i> (2016), Tabla 5.5 — a 2015 snapshot. Present-day siltation may be greater, but no newer survey is included here.</p>
+      <p>Each bar is normalized to a reservoir's <b>original</b> design storage (100%): the solid blue part is the share still usable as of the 2015 survey, the faded brown part had silted in by then. Bars are ordered worst-first, so you can compare proportional loss regardless of reservoir size — Puerto Rico's older dams have lost heavily, several down to a third or less of their built capacity, reducing the water-storage buffer available during dry periods. Hover for the absolute volumes (Mm³). Source: DRNA/PRASA <i>Plan Integral de Recursos de Agua</i> (2016), Tabla 5.5 — a 2015 snapshot. Present-day siltation may be greater, but no newer survey is included here.</p>
     </div>
     <div class="chart-container tall"><canvas id="chart-storage"></canvas></div>
   </div>
@@ -453,7 +453,7 @@
   <div class="panel">
     <h2>Reservoir status <span class="panel-note" id="table-note"></span></h2>
     <div class="layer-banner layer-measured">
-      <span class="prov prov-measured">Level · USGS</span>
+      <span class="prov prov-measured">Level source: USGS</span>
       <span>Live gauge readings. The <b>Status</b> column compares each level to PRASA's official bands; <b>Position</b> is location within the operating range, not percent of total volume.</span>
     </div>
     <div class="table-wrap">
@@ -881,7 +881,7 @@
       return t > m ? t : m;
     }, 0);
     document.getElementById("status-timestamp").innerHTML =
-      `<span class="prov prov-measured">Level · USGS</span> <span class="prov prov-official">Thresholds · PRASA</span> `
+      `<span class="prov prov-measured">Level source: USGS</span> <span class="prov prov-official">Threshold source: PRASA</span> `
       + (latest ? `Latest reading ${relTime(new Date(latest).toISOString())} · gauges report every 15–60 min · reload to refresh` : "");
   }
 
