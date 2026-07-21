@@ -168,6 +168,18 @@
   .runway-steps .step .step-band { color: var(--secondary-text); }
   .runway-now { font-size: 0.72rem; color: var(--secondary-text); border-top: 1px solid var(--accent-light); padding-top: 7px; }
   .runway-sub { font-size: 0.68rem; color: var(--secondary-text); font-style: italic; }
+  /* near-term precip tilt (NWS 7-day QPF vs GHCN normal): a probability lean over dry/normal/wet */
+  .runway-qpf { border-top: 1px solid var(--accent-light); padding-top: 7px; display: flex; flex-direction: column; gap: 4px; }
+  .qpf-bar { display: flex; height: 7px; border-radius: 4px; overflow: hidden; background: var(--accent-light); }
+  .qpf-bar span { display: block; height: 100%; }
+  .qpf-seg-dry { background: var(--crit); }
+  .qpf-seg-normal { background: #9aa0a6; }
+  .qpf-seg-wet { background: #3a86a8; }
+  .qpf-cap { font-size: 0.68rem; color: var(--secondary-text); font-variant-numeric: tabular-nums; }
+  .qpf-cap b { color: var(--primary-text); }
+  .qpf-lean-dry { color: #c0392b; font-weight: 600; }
+  .qpf-lean-wet { color: #2c7fa0; font-weight: 600; }
+  .qpf-lean-normal { color: var(--secondary-text); font-weight: 600; }
 
   /* Methodology & validation */
   .methodology-grid {
@@ -370,11 +382,12 @@
   <div class="panel" id="outlook-panel" style="display:none;">
     <h2>30-day outlook <span class="panel-note" id="outlook-note">modeled reservoirs · scenario cone + continued-dry runway</span></h2>
     <div class="explain">
-      <p>A forward water-balance projection for the four reservoirs covered by the bounded utilization model. Storage is marched 30 days ahead under three inflow scenarios drawn from 36 years of calendar climatology — <b>dry</b>, <b>normal</b>, and <b>wet</b> — producing a fan of where the level could go. The <b>runway</b> below each is the number of days a <i>continued-dry</i> spell would take to carry the reservoir down to each PRASA alert line (the same dashed lines drawn here and on the history chart). The dry arm also stresses withdrawal to the reservoir's drought-year demand, so the runway is deliberately conservative. This is a scenario spread from climatology, <b>not a weather forecast</b>, and the dry floor assumes no emergency releases.</p>
+      <p>A forward water-balance projection for the four reservoirs covered by the bounded utilization model. Storage is marched 30 days ahead under three inflow scenarios drawn from 36 years of calendar climatology — <b>dry</b>, <b>normal</b>, and <b>wet</b> — producing a fan of where the level could go. The <b>runway</b> below each is the number of days a <i>continued-dry</i> spell would take to carry the reservoir down to each PRASA alert line (the same dashed lines drawn here and on the history chart). The dry arm also stresses withdrawal to the reservoir's drought-year demand, so the runway is deliberately conservative. The <b>cone itself is a climatology spread, not a weather forecast</b>; layered on top, a <b>near-term tilt</b> reads the live NWS 7-day rain forecast against each site's rainfall normal and leans the odds toward the drier or wetter arm — a probability hint for the coming week (shown as the dry/normal/wet bar on each card), not a calibrated 30-day forecast. The dry floor assumes no emergency releases.</p>
     </div>
     <div class="runway-grid" id="runway-grid"></div>
     <div class="controls">
       <select id="fc-site"></select>
+      <span id="fc-qpf-note" class="panel-note"></span>
       <div class="spacer"></div>
     </div>
     <div class="chart-container"><canvas id="chart-forecast"></canvas></div>
@@ -402,8 +415,8 @@
         <p>The balance is computed daily. Daily and sub-annual values are diagnostic; annual or rolling-annual values are reportable because short windows are more affected by release timing, missing inputs, and measurement noise.</p>
       </div>
       <div class="method-card">
-        <h3>4. Forecast cone</h3>
-        <p>The 30-day dry/normal/wet paths use 36 years of calendar-day inflow climatology, a 5 mm/day evaporation baseline, lake-rain scenarios, trailing release, and bounded annual demand. The spread is a scenario range, not a weather forecast; the dry floor assumes no emergency release.</p>
+        <h3>4. Forecast cone + near-term tilt</h3>
+        <p>The 30-day dry/normal/wet paths use 36 years of calendar-day inflow climatology, a 5 mm/day evaporation baseline, lake-rain scenarios, trailing release, and bounded annual demand. The spread is a scenario range, not a weather forecast; the dry floor assumes no emergency release. Separately, a <b>near-term precipitation tilt</b> scores the live NWS <i>api.weather.gov</i> 7-day QPF at each reservoir's anchor point against that point's NOAA GHCN-Daily rainfall normal (1990–2025) and expresses the wetness percentile as a probability lean over the three scenarios. It re-weights which arm is likelier for the coming week — it does <b>not</b> move the conservative dry-path runway — and the weights are an uncalibrated heuristic until a QPF reforecast backtest exists.</p>
       </div>
     </div>
     <div class="method-callout">
@@ -425,7 +438,7 @@
 <script>document.getElementById('copyright-year').textContent=new Date().getFullYear();</script>
 
 <!-- FORECAST-DATA:START — regenerate via analysis/reservoir_balance/dump_forecast_json.py + site/tools/inject_forecast.py -->
-<script id="forecast-data" type="application/json">{"anchor":"2026-07-19","horizon":30,"reservoirs":[{"name":"Patillas","site":"50093045","anchor":"2026-07-19","now_elev":64.07,"now_pct":71.0,"full_mm3":12.96,"spillway":67.55,"inflow_now":4.0,"W":12.5,"W_dry":13.1,"seguridad":null,"dry":[64.07,64.03,63.99,63.95,63.91,63.87,63.83,63.79,63.75,63.71,63.67,63.63,63.58,63.54,63.5,63.45,63.4,63.36,63.31,63.27,63.22,63.17,63.13,63.08,63.03,62.99,62.94,62.89,62.84,62.8,62.75],"normal":[64.07,64.05,64.04,64.03,64.04,64.04,64.06,64.08,64.1,64.13,64.16,64.19,64.22,64.26,64.3,64.35,64.39,64.44,64.5,64.55,64.59,64.64,64.69,64.74,64.79,64.85,64.91,64.97,65.03,65.09,65.15],"wet":[64.07,64.1,64.17,64.27,64.41,64.57,64.76,64.97,65.21,65.45,65.69,65.93,66.19,66.46,66.73,67.02,67.31,67.55,67.55,67.55,67.55,67.55,67.55,67.55,67.55,67.55,67.55,67.55,67.55,67.55,67.55],"skill":{"inside":80,"breach":7,"mae_med":8.7}},{"name":"Carraizo","site":"50059000","anchor":"2026-07-19","now_elev":38.92,"now_pct":69.0,"full_mm3":16.42,"spillway":41.14,"inflow_now":34.7,"W":90.0,"W_dry":108.0,"seguridad":39.7,"dry":[38.92,38.79,38.65,38.52,38.38,38.24,38.1,37.95,37.79,37.64,37.48,37.32,37.17,36.99,36.81,36.63,36.45,36.27,36.08,35.87,35.65,35.44,35.22,34.97,34.71,34.44,34.18,33.87,33.56,33.25,32.9],"normal":[38.92,38.85,38.8,38.76,38.74,38.73,38.72,38.73,38.74,38.76,38.79,38.82,38.85,38.88,38.92,38.96,39.0,39.04,39.09,39.13,39.16,39.21,39.25,39.3,39.35,39.4,39.46,39.52,39.58,39.65,39.73],"wet":[38.92,38.95,39.07,39.25,39.48,39.74,40.09,40.48,40.91,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14],"skill":{"inside":85,"breach":0,"mae_med":32.6}},{"name":"La Plata","site":"50045000","anchor":"2026-07-19","now_elev":48.3,"now_pct":67.0,"full_mm3":30.88,"spillway":52.0,"inflow_now":13.6,"W":42.0,"W_dry":44.0,"seguridad":47.7,"dry":[48.3,48.25,48.2,48.15,48.1,48.05,48.0,47.95,47.89,47.84,47.78,47.73,47.67,47.61,47.56,47.5,47.44,47.38,47.33,47.27,47.21,47.15,47.09,47.03,46.97,46.91,46.85,46.79,46.73,46.66,46.6],"normal":[48.3,48.26,48.23,48.2,48.18,48.16,48.14,48.12,48.11,48.1,48.09,48.08,48.07,48.07,48.06,48.06,48.06,48.06,48.06,48.06,48.05,48.05,48.05,48.05,48.05,48.05,48.06,48.06,48.07,48.07,48.08],"wet":[48.3,48.3,48.34,48.4,48.48,48.58,48.7,48.85,49.03,49.2,49.38,49.56,49.74,49.93,50.12,50.3,50.48,50.67,50.86,51.05,51.24,51.43,51.62,51.81,52.0,52.0,52.0,52.0,52.0,52.0,52.0],"skill":{"inside":74,"breach":7,"mae_med":13.0}},{"name":"Cerrillos","site":"50113950","anchor":"2026-07-19","now_elev":169.25,"now_pct":79.0,"full_mm3":37.26,"spillway":174.65,"inflow_now":4.8,"W":24.0,"W_dry":26.0,"seguridad":null,"dry":[169.25,169.17,169.09,169.02,168.94,168.87,168.79,168.71,168.64,168.56,168.48,168.4,168.32,168.24,168.17,168.09,168.01,167.93,167.85,167.77,167.69,167.61,167.53,167.45,167.37,167.28,167.2,167.12,167.04,166.96,166.87],"normal":[169.25,169.18,169.12,169.06,169.0,168.95,168.89,168.84,168.78,168.73,168.68,168.63,168.57,168.52,168.47,168.42,168.37,168.32,168.27,168.22,168.18,168.13,168.08,168.04,167.99,167.94,167.9,167.86,167.81,167.77,167.73],"wet":[169.25,169.2,169.17,169.15,169.14,169.14,169.15,169.18,169.2,169.24,169.28,169.32,169.36,169.41,169.46,169.51,169.57,169.63,169.69,169.76,169.82,169.88,169.95,170.03,170.1,170.18,170.26,170.35,170.46,170.58,170.7],"skill":{"inside":55,"breach":1,"mae_med":6.2}}]}</script>
+<script id="forecast-data" type="application/json">{"anchor":"2026-07-19","horizon":30,"reservoirs":[{"name":"Patillas","site":"50093045","anchor":"2026-07-19","now_elev":64.07,"now_pct":71.0,"full_mm3":12.96,"spillway":67.55,"inflow_now":4.0,"W":12.5,"W_dry":13.1,"seguridad":62.18,"dry":[64.07,64.03,63.99,63.95,63.91,63.87,63.83,63.79,63.75,63.71,63.67,63.63,63.58,63.54,63.5,63.45,63.4,63.36,63.31,63.27,63.22,63.17,63.13,63.08,63.03,62.99,62.94,62.89,62.84,62.8,62.75],"normal":[64.07,64.05,64.04,64.03,64.04,64.04,64.06,64.08,64.1,64.13,64.16,64.19,64.22,64.26,64.3,64.35,64.39,64.44,64.5,64.55,64.59,64.64,64.69,64.74,64.79,64.85,64.91,64.97,65.03,65.09,65.15],"wet":[64.07,64.1,64.17,64.27,64.41,64.57,64.76,64.97,65.21,65.45,65.69,65.93,66.19,66.46,66.73,67.02,67.31,67.55,67.55,67.55,67.55,67.55,67.55,67.55,67.55,67.55,67.55,67.55,67.55,67.55,67.55],"skill":{"inside":80,"breach":7,"mae_med":8.7},"qpf":{"available":true,"station":"RQC00664193","point":[17.9797,-66.1264],"asof":"2026-07-21","horizon_days":7,"coverage_hours":173,"qpf_mm":26.9,"normal_mm":20.3,"pctile":61,"lean":"near normal","weights":{"dry":0.083,"normal":0.6,"wet":0.317},"most_likely":"normal","source":"NWS api.weather.gov gridpoint QPF vs GHCN 1990-2025 normal","uncalibrated":true}},{"name":"Carraizo","site":"50059000","anchor":"2026-07-19","now_elev":38.92,"now_pct":69.0,"full_mm3":16.42,"spillway":41.14,"inflow_now":34.7,"W":90.0,"W_dry":108.0,"seguridad":39.7,"dry":[38.92,38.79,38.65,38.52,38.38,38.24,38.1,37.95,37.79,37.64,37.48,37.32,37.17,36.99,36.81,36.63,36.45,36.27,36.08,35.87,35.65,35.44,35.22,34.97,34.71,34.44,34.18,33.87,33.56,33.25,32.9],"normal":[38.92,38.85,38.8,38.76,38.74,38.73,38.72,38.73,38.74,38.76,38.79,38.82,38.85,38.88,38.92,38.96,39.0,39.04,39.09,39.13,39.16,39.21,39.25,39.3,39.35,39.4,39.46,39.52,39.58,39.65,39.73],"wet":[38.92,38.95,39.07,39.25,39.48,39.74,40.09,40.48,40.91,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14,41.14],"skill":{"inside":85,"breach":0,"mae_med":32.6},"qpf":{"available":true,"station":"RQC00669521","point":[18.3283,-66.0164],"asof":"2026-07-21","horizon_days":7,"coverage_hours":173,"qpf_mm":48.5,"normal_mm":26.4,"pctile":68,"lean":"wetter than normal","weights":{"dry":0.083,"normal":0.456,"wet":0.46},"most_likely":"wet","source":"NWS api.weather.gov gridpoint QPF vs GHCN 1990-2025 normal","uncalibrated":true}},{"name":"La Plata","site":"50045000","anchor":"2026-07-19","now_elev":48.3,"now_pct":67.0,"full_mm3":30.88,"spillway":52.0,"inflow_now":13.6,"W":42.0,"W_dry":44.0,"seguridad":47.7,"dry":[48.3,48.25,48.2,48.15,48.1,48.05,48.0,47.95,47.89,47.84,47.78,47.73,47.67,47.61,47.56,47.5,47.44,47.38,47.33,47.27,47.21,47.15,47.09,47.03,46.97,46.91,46.85,46.79,46.73,46.66,46.6],"normal":[48.3,48.26,48.23,48.2,48.18,48.16,48.14,48.12,48.11,48.1,48.09,48.08,48.07,48.07,48.06,48.06,48.06,48.06,48.06,48.06,48.05,48.05,48.05,48.05,48.05,48.05,48.06,48.06,48.07,48.07,48.08],"wet":[48.3,48.3,48.34,48.4,48.48,48.58,48.7,48.85,49.03,49.2,49.38,49.56,49.74,49.93,50.12,50.3,50.48,50.67,50.86,51.05,51.24,51.43,51.62,51.81,52.0,52.0,52.0,52.0,52.0,52.0,52.0],"skill":{"inside":74,"breach":7,"mae_med":13.0},"qpf":{"available":true,"station":"RQC00666390","point":[18.3344,-66.4078],"asof":"2026-07-21","horizon_days":7,"coverage_hours":173,"qpf_mm":33.8,"normal_mm":23.3,"pctile":66,"lean":"near normal","weights":{"dry":0.083,"normal":0.489,"wet":0.427},"most_likely":"normal","source":"NWS api.weather.gov gridpoint QPF vs GHCN 1990-2025 normal","uncalibrated":true}},{"name":"Cerrillos","site":"50113950","anchor":"2026-07-19","now_elev":169.25,"now_pct":79.0,"full_mm3":37.26,"spillway":174.65,"inflow_now":4.8,"W":24.0,"W_dry":26.0,"seguridad":160.9,"dry":[169.25,169.17,169.09,169.02,168.94,168.87,168.79,168.71,168.64,168.56,168.48,168.4,168.32,168.24,168.17,168.09,168.01,167.93,167.85,167.77,167.69,167.61,167.53,167.45,167.37,167.28,167.2,167.12,167.04,166.96,166.87],"normal":[169.25,169.18,169.12,169.06,169.0,168.95,168.89,168.84,168.78,168.73,168.68,168.63,168.57,168.52,168.47,168.42,168.37,168.32,168.27,168.22,168.18,168.13,168.08,168.04,167.99,167.94,167.9,167.86,167.81,167.77,167.73],"wet":[169.25,169.2,169.17,169.15,169.14,169.14,169.15,169.18,169.2,169.24,169.28,169.32,169.36,169.41,169.46,169.51,169.57,169.63,169.69,169.76,169.82,169.88,169.95,170.03,170.1,170.18,170.26,170.35,170.46,170.58,170.7],"skill":{"inside":55,"breach":1,"mae_med":6.2},"qpf":{"available":true,"station":"RQC00667292","point":[18.0258,-66.5253],"asof":"2026-07-21","horizon_days":7,"coverage_hours":173,"qpf_mm":33.5,"normal_mm":10.2,"pctile":79,"lean":"wetter than normal","weights":{"dry":0.083,"normal":0.211,"wet":0.706},"most_likely":"wet","source":"NWS api.weather.gov gridpoint QPF vs GHCN 1990-2025 normal","uncalibrated":true}}]}</script>
 <!-- FORECAST-DATA:END -->
 
 <script>
@@ -1199,6 +1212,24 @@
     return "";
   }
 
+  // Near-term precipitation tilt: a probability lean over dry/normal/wet from the live NWS 7-day
+  // QPF scored against the point's GHCN normal (§14a). A stacked bar (dry|normal|wet weights) plus
+  // a one-line readout. Returns "" when there is no signal, so the card renders exactly as before.
+  function qpfHtml(q) {
+    if (!q || !q.available || !q.weights) return "";
+    const w = q.weights, pct = x => Math.round(100 * (x || 0));
+    const leanClass = `qpf-lean-${q.most_likely || "normal"}`;
+    const bar = `<div class="qpf-bar" title="near-term regime odds — dry ${pct(w.dry)}% · normal ${pct(w.normal)}% · wet ${pct(w.wet)}%">
+        <span class="qpf-seg-dry" style="width:${pct(w.dry)}%"></span>
+        <span class="qpf-seg-normal" style="width:${pct(w.normal)}%"></span>
+        <span class="qpf-seg-wet" style="width:${pct(w.wet)}%"></span>
+      </div>`;
+    return `<div class="runway-qpf" title="${q.source || "NWS 7-day QPF vs GHCN normal"} — near-term lean, uncalibrated">
+        ${bar}
+        <div class="qpf-cap">next 7-day rain <b>${fmt(q.qpf_mm, 0)}</b> mm vs ${fmt(q.normal_mm, 0)} normal · <span class="${leanClass}">leans ${q.most_likely}</span> (p${q.pctile})</div>
+      </div>`;
+  }
+
   function renderOutlook() {
     const panel = document.getElementById("outlook-panel");
     const fcs = FORECAST.reservoirs || [];
@@ -1242,6 +1273,7 @@
         <div class="runway-headline">${headHtml}</div>
         <div class="runway-steps">${stepsHtml || '<div class="step"><span class="step-band">—</span><span></span></div>'}</div>
         <div class="runway-now">now ${fmt(num(r.level_m), 2)} m · continued-dry, drought-year demand</div>
+        ${qpfHtml(fc.qpf)}
         ${caveat ? `<div class="runway-sub">${caveat}</div>` : ""}
       </div>`;
     }).join("");
@@ -1259,6 +1291,13 @@
     const r = statusRows.find(x => x.site_no === fcSite);
     const el = document.getElementById("chart-forecast");
     if (chartForecast) chartForecast.destroy();
+    const qn = document.getElementById("fc-qpf-note");
+    if (qn) {
+      const q = fc && fc.qpf;
+      qn.textContent = (q && q.available)
+        ? `next 7-day rain ${fmt(q.qpf_mm, 0)} mm vs ${fmt(q.normal_mm, 0)} normal · leans ${q.most_likely} (p${q.pctile}) — near-term, uncalibrated`
+        : "";
+    }
     if (!fc || !r) return;
 
     // Recent observed tail so the cone reads as a forward extension of the same line.
