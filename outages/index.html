@@ -44,11 +44,71 @@
     min-height: 100vh;
   }
 
-  .site-nav { background: #000; color: #fff; font-size: 0.82rem; padding: 10px 0; }
-  .site-nav-inner { max-width: 1400px; margin: 0 auto; padding: 0 20px; display: flex; gap: 20px; flex-wrap: wrap; }
-  .site-nav a { color: #fff; text-decoration: none; opacity: 0.7; transition: opacity 0.15s; }
-  .site-nav a:hover { opacity: 1; text-decoration: underline; }
-  .site-nav a[aria-current="page"] { opacity: 1; font-weight: 600; }
+  /* ===== Standard analytics nav — mirrors the sensadvisor.com home menu
+     (brand + top-level links + Analytics dropdown, collapsing to a hamburger
+     on phones). Namespaced .stn-* so it can't collide with page/header CSS. */
+  .stn { background: var(--primary-bg); border-bottom: 2px solid var(--border-primary); position: relative; }
+  .stn-inner {
+    max-width: 1400px; margin: 0 auto; padding: 12px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .stn-brand { font-size: 1.05rem; font-weight: 700; color: var(--primary-text); text-decoration: none; white-space: nowrap; }
+  .stn-nav { display: flex; align-items: center; gap: 22px; }
+  .stn-nav a, .stn-dd-trigger {
+    color: var(--primary-text); font-size: 0.88rem; font-weight: 500;
+    text-decoration: none; padding: 6px 0;
+    border-bottom: 2px solid transparent; transition: border-color 0.2s ease;
+    cursor: pointer; user-select: none; white-space: nowrap;
+  }
+  .stn-nav a:hover, .stn-dd-trigger:hover { border-bottom-color: var(--border-primary); }
+  .stn-dd { position: relative; }
+  .stn-dd-menu {
+    display: none; position: absolute; top: 100%; right: 0;
+    background: var(--primary-bg); border: 2px solid var(--border-primary);
+    border-radius: 4px; margin-top: 8px; min-width: 230px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12); z-index: 1000;
+  }
+  /* Transparent bridge spanning the 8px gap so the dropdown stays open while
+     the cursor travels from the trigger to the menu (fixes hover dead-zone). */
+  .stn-dd-menu::before { content: ""; position: absolute; left: 0; right: 0; top: -9px; height: 10px; }
+  .stn-dd:hover .stn-dd-menu { display: block; }
+  .stn-dd-menu a {
+    display: block; padding: 11px 16px; font-size: 0.85rem;
+    color: var(--primary-text); text-decoration: none;
+    border-bottom: 1px solid var(--accent-light); transition: background 0.2s ease;
+  }
+  .stn-dd-menu a:last-child { border-bottom: none; }
+  .stn-dd-menu a:hover { background: var(--accent-light); }
+  .stn-dd-menu a[aria-current="page"] { font-weight: 700; border-left: 3px solid var(--border-primary); padding-left: 13px; }
+  .stn-burger { display: none; background: none; border: none; cursor: pointer; padding: 6px; }
+  .stn-burger-line { display: block; width: 24px; height: 2px; background: var(--primary-text); margin: 5px 0; transition: transform 0.3s ease, opacity 0.3s ease; }
+  .stn-burger.open .stn-burger-line:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .stn-burger.open .stn-burger-line:nth-child(2) { opacity: 0; }
+  .stn-burger.open .stn-burger-line:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  @media (max-width: 768px) {
+    .stn-burger { display: block; }
+    .stn-nav {
+      display: none; position: absolute; left: 0; right: 0; top: 100%;
+      flex-direction: column; align-items: stretch; gap: 0;
+      background: var(--primary-bg); border-bottom: 2px solid var(--border-primary);
+      padding: 0 20px; z-index: 999;
+    }
+    .stn-nav.open { display: flex; }
+    .stn-nav > a, .stn-dd-trigger {
+      padding: 14px 0; min-height: 44px; display: flex; align-items: center;
+      border-bottom: 1px solid var(--accent-light);
+    }
+    .stn-dd { width: 100%; }
+    .stn-dd-menu {
+      position: static; border: none; border-radius: 0; box-shadow: none;
+      margin-top: 0; min-width: 0; background: var(--accent-lighter); display: none;
+    }
+    .stn-dd.open .stn-dd-menu { display: block; }
+    .stn-dd:hover .stn-dd-menu { display: none; }
+    .stn-dd-menu::before { content: none; }
+    .stn-dd.open:hover .stn-dd-menu { display: block; }
+    .stn-dd-menu a { padding: 13px 16px 13px 24px; min-height: 44px; }
+  }
 
   .site-footer { text-align: center; padding: 24px 20px; margin-top: 40px; border-top: 1px solid #ddd; font-size: 0.82rem; color: #555; }
   .site-footer a { color: inherit; }
@@ -82,6 +142,7 @@
   .header-links a:hover { color: var(--secondary-text); }
 
   .header h1 { font-size: 1.8rem; font-weight: 600; margin-top: 10px; }
+  .page-sub { font-size: 0.9rem; color: var(--secondary-text); margin-top: 6px; max-width: 64ch; }
 
   .panel {
     background: var(--primary-bg);
@@ -254,31 +315,97 @@
   .uptime-legend-item:hover .legend-tip { display: block; }
 
   @media (max-width: 768px) {
+    .container { padding: 14px; }
+    .panel { padding: 20px 16px; }
+    /* Stack the page-header logo above its in-page anchor links so the anchors
+       flow full-width below instead of crowding the wrapped logo. */
+    .header-content { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .header-links { justify-content: flex-start; }
     .status-hero { padding: 24px 18px; }
     .status-hero .status-label { font-size: 1.2rem; }
+    .status-hero .status-summary { font-size: 0.85rem; }
     .status-hero .status-breakdown { gap: 14px; font-size: 0.8rem; }
     .stats-grid { grid-template-columns: repeat(2, 1fr); }
     .chart-container { height: 250px; }
     .uptime-label { font-size: 0.8rem; }
     .uptime-status { font-size: 0.7rem; }
-    .uptime-day { height: 26px; }
+    /* Let the 90 day-cells compress to fill the viewport instead of forcing
+       ~360px and overflowing the scroll wrapper (which clipped the right-aligned
+       status label). min-width:0 + a tighter gap makes the row fit any phone. */
+    .uptime-bar { gap: 1px; }
+    .uptime-day { height: 26px; min-width: 0; }
     .uptime-foot { font-size: 0.65rem; }
     .uptime-foot .days-line { margin: 0 4px; }
+    /* Panel-title toggle groups (Total/Region) never share a line with the title. */
+    .panel h2 .panel-note { width: 100%; }
   }
 </style>
 </head>
 <body>
-<div class="site-nav">
-  <div class="site-nav-inner">
-    <a href="/">Home</a>
-    <a href="/rentals/">Rentals</a>
-    <a href="/recession/">Recession</a>
-    <a href="/pr-lmci/">PR-LMCI</a>
-    <a href="/outages/" aria-current="page">Outages</a>
-    <a href="/generation/">Generation</a>
-    <a href="/reservoirs/">Reservoirs</a>
+<nav class="stn" aria-label="Site">
+  <div class="stn-inner">
+    <a class="stn-brand" href="/">SENS ADVISOR</a>
+    <button class="stn-burger" aria-label="Toggle menu" aria-expanded="false">
+      <span class="stn-burger-line"></span>
+      <span class="stn-burger-line"></span>
+      <span class="stn-burger-line"></span>
+    </button>
+    <div class="stn-nav">
+      <a href="/#research">Research</a>
+      <a href="/#services">Services</a>
+      <div class="stn-dd">
+        <span class="stn-dd-trigger" role="button" tabindex="0" aria-haspopup="true" aria-expanded="false">Analytics &#9662;</span>
+        <div class="stn-dd-menu">
+          <a href="/rentals/">Puerto Rico Rentals</a>
+          <a href="/recession/">US Recession Probability</a>
+          <a href="/pr-lmci/">PR Labor Market Index</a>
+          <a href="/outages/" aria-current="page">PR Outage Status</a>
+          <a href="/generation/">PR Generation Status</a>
+          <a href="/reservoirs/">PR Reservoir Levels</a>
+        </div>
+      </div>
+      <a href="/#about">About</a>
+      <a href="https://github.com/jibarix" target="_blank" rel="noopener">Code</a>
+      <a href="https://x.com/jorgearroyox" target="_blank" rel="noopener">Insights</a>
+      <a href="/#contact">Contact</a>
+    </div>
   </div>
-</div>
+</nav>
+<script>
+(function () {
+  var burger = document.querySelector('.stn-burger');
+  var nav = document.querySelector('.stn-nav');
+  var dd = document.querySelector('.stn-dd');
+  var trigger = document.querySelector('.stn-dd-trigger');
+  if (!burger || !nav) return;
+  burger.addEventListener('click', function () {
+    burger.classList.toggle('open');
+    nav.classList.toggle('open');
+    burger.setAttribute('aria-expanded', nav.classList.contains('open'));
+  });
+  nav.querySelectorAll('a').forEach(function (a) {
+    a.addEventListener('click', function () {
+      burger.classList.remove('open');
+      nav.classList.remove('open');
+      burger.setAttribute('aria-expanded', 'false');
+    });
+  });
+  if (trigger && dd) {
+    var toggleDd = function (e) {
+      if (window.innerWidth <= 768) { e.preventDefault(); e.stopPropagation(); dd.classList.toggle('open'); trigger.setAttribute('aria-expanded', dd.classList.contains('open')); }
+    };
+    trigger.addEventListener('click', toggleDd);
+    trigger.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') toggleDd(e); });
+  }
+  document.addEventListener('click', function (e) {
+    if (window.innerWidth <= 768 && !nav.contains(e.target) && !burger.contains(e.target)) {
+      burger.classList.remove('open'); nav.classList.remove('open');
+      burger.setAttribute('aria-expanded', 'false');
+      if (dd) dd.classList.remove('open');
+    }
+  });
+})();
+</script>
 <div class="container">
   <header class="header">
     <div class="header-content">
@@ -293,6 +420,7 @@
       </div>
     </div>
     <h1>PR Outage Status</h1>
+    <p class="page-sub">Independent SENS classification built from LUMA's public outage data — not an official emergency alert.</p>
   </header>
 
   <span class="nav-anchor" id="status"></span>
@@ -355,11 +483,12 @@
   </div>
 
   <div class="panel">
-    <h2>Grid Uptime
+    <h2>Service Availability
       <span class="panel-note">
         <button class="toggle-btn active" id="toggle-uptime-total">Total</button><button class="toggle-btn" id="toggle-uptime-region">Region</button>
       </span>
     </h2>
+    <div class="panel-note" style="margin-bottom:12px">Share of clients with power at each snapshot (100% &minus; unplanned outage %). Unweighted — the 90-day figures in Grid Status History are time-weighted by severity.</div>
     <div class="chart-container"><canvas id="chart-uptime"></canvas></div>
   </div>
 
@@ -400,7 +529,8 @@
       </tbody>
     </table>
     <p><b>90-day grid history</b> — Each day is colored by weighted downtime: minutes spent at each severity level are weighted (Major &times; 1.0, Partial &times; 0.5, Degraded &times; 0.1) and mapped to a color gradient from green to red. Days with no recorded snapshots appear gray.</p>
-    <p><b>Uptime %</b> — Calculated per row as the weighted average across days with data: 100% minus the ratio of weighted downtime to total monitored time.</p>
+    <p><b>Uptime % (Grid Status History)</b> — Each row's 90-day figure is the weighted average across days with data: 100% minus the ratio of weighted downtime to total monitored time. Days with no recorded snapshots are excluded from the average, so each row also shows how many of the 90 days had data (e.g. <i>84/90 days</i>) — a high percentage built on few days is not the same as one built on ninety.</p>
+    <p><b>Service Availability</b> — A separate, simpler chart: at each snapshot it plots the share of clients with power — 100% minus the unplanned-outage share — <i>unweighted</i>. It answers "how many clients are served right now," whereas the 90-day uptime above answers "how did the grid do over the day, weighted by severity."</p>
     <p><b>Recent notable outages</b> — The worst days of the last 90, ranked by weighted downtime (the same Major&nbsp;&times;&nbsp;1.0 / Partial&nbsp;&times;&nbsp;0.5 / Degraded&nbsp;&times;&nbsp;0.1 minutes used to color the grid history). <i>Peak</i> and <i>Avg unplanned</i> are the highest and mean share of clients out over that day; the Major / Partial / Degraded columns are minutes spent at each severity. Quiet days (under a minute of weighted downtime) are omitted.</p>
     <p><b>% Distribution</b> — Shows each region's share of the total clients without power, indicating where outages are concentrated.</p>
     <p><b>Time zone &amp; freshness</b> — All days and timestamps use Atlantic Standard Time (AST, UTC&minus;4), Puerto Rico's local time. The page refreshes automatically every few minutes; if the newest snapshot is more than 30 minutes old a stale-data notice appears, since the upstream monitor may be paused.</p>
@@ -580,11 +710,35 @@
     return result;
   }
 
+  // Convert mv_outage_daily rows into the { entity: { day: info } } maps that
+  // renderCalendar / renderNotable consume — the same shape buildDailyStatus()
+  // produced. `color` is derived here from the server-computed weighted downtime,
+  // so the calendar colors are unchanged.
+  function buildRollupMaps(rows) {
+    const maps = {};
+    for (const r of rows) {
+      const weighted = Number(r.weighted);
+      (maps[r.entity] ||= {})[r.day] = {
+        color: downtimeToColor(weighted),
+        weighted,
+        majorMin: r.major_min,
+        partialMin: r.partial_min,
+        elevatedMin: r.elevated_min,
+        snapshots: r.snapshots,
+        uptimePct: Number(r.uptime_pct),
+        peakPct: Number(r.peak_pct),
+        avgPct: Number(r.avg_pct),
+        totalMin: r.total_min,
+      };
+    }
+    return maps;
+  }
+
   // --- State ---
   let chartUptime = null;
   let chartMain = null;
   let outageData = null;
-  let allData90 = null; // always 90 days for calendar
+  let dailyRollup = null; // { entity: { 'YYYY-MM-DD': dayInfo } } for the 90-day calendar
   let viewMode = "total";
   let uptimeViewMode = "total";
 
@@ -635,32 +789,45 @@
   // Cache longer ranges across clicks; always refetch 24h so "latest" stays live.
   // On an auto-refresh tick (force=true) the active range refetches, and the 90-day
   // set refreshes at most every ~25 min (it only changes at day granularity).
+  // Long-range pulls (the 90-day calendar and >7-day ranges) read the
+  // materialized mirror (refreshed ~every 10 min) so they don't recompute JSON
+  // over tens of thousands of rows on every load. Short/live ranges (<=7d) stay
+  // on the plain view so the default 24h "latest" reading is never more than one
+  // poll stale. Both return the same {observed_at, snapshot} shape.
+  const OUTAGE_VIEW = "v_outage_snapshots_slim";
+  const OUTAGE_MV = "mv_outage_snapshots_slim";   // per-snapshot mirror, for the main chart's long ranges
+  const OUTAGE_DAILY = "mv_outage_daily";         // per-(day,entity) rollup, for the 90-day calendar
   const rangeCache = {};
   let currentDays = 1;
   let ninetyFetchedAt = 0;
   async function loadData(days, force = false) {
     currentDays = days;
     const since = new Date(Date.now() - days * 86400000).toISOString();
-    const since90 = new Date(Date.now() - 90 * 86400000).toISOString();
+    const sinceDay90 = new Date(Date.now() - 90 * 86400000).toLocaleDateString("en-CA", { timeZone: AST_TZ });
+    const mainTable = days > 7 ? OUTAGE_MV : OUTAGE_VIEW;
 
     const mainP = (days !== 1 && !force && rangeCache[days])
       ? Promise.resolve(rangeCache[days])
-      : sbQuery("v_outage_snapshots_slim", `select=observed_at,snapshot&observed_at=gte.${since}&order=observed_at.asc`)
+      : sbQuery(mainTable, `select=observed_at,snapshot&observed_at=gte.${since}&order=observed_at.asc`)
           .then(rows => {
             const parsed = rows.map(parseOutageRow);
             if (days !== 1) rangeCache[days] = parsed;
             return parsed;
           });
 
-    const refreshNinety = !allData90 || (force && Date.now() - ninetyFetchedAt > 25 * 60000);
+    // The 90-day calendar reads the pre-aggregated daily rollup — one row per
+    // (day, entity), ~150 KB in a single request — instead of ~13k per-snapshot
+    // rows (7 MB across 13 sequential pages). buildRollupMaps() yields the same
+    // { entity: { day: info } } maps buildDailyStatus() used to compute.
+    const refreshNinety = !dailyRollup || (force && Date.now() - ninetyFetchedAt > 25 * 60000);
     const ninetyP = refreshNinety
-      ? sbQuery("v_outage_snapshots_slim", `select=observed_at,snapshot&observed_at=gte.${since90}&order=observed_at.asc`)
-          .then(rows => { ninetyFetchedAt = Date.now(); return rows.map(parseOutageRow); })
-      : Promise.resolve(allData90);
+      ? sbQuery(OUTAGE_DAILY, `select=entity,day,snapshots,total_min,major_min,partial_min,elevated_min,weighted,uptime_pct,peak_pct,avg_pct&day=gte.${sinceDay90}&order=day.asc`)
+          .then(rows => { ninetyFetchedAt = Date.now(); return buildRollupMaps(rows); })
+      : Promise.resolve(dailyRollup);
 
     const [main, ninety] = await Promise.all([mainP, ninetyP]);
     outageData = main;
-    allData90 = ninety;
+    dailyRollup = ninety;
 
     renderAll();
     renderCalendar();
@@ -935,8 +1102,9 @@
 
   // --- 90-day uptime calendar ---
   function renderCalendar() {
-    const data = allData90;
-    if (!data || data.length === 0) {
+    // Daily status is pre-aggregated server-side (mv_outage_daily); the latest
+    // snapshot for the per-row "current status" comes from the main set.
+    if (!dailyRollup || !outageData || outageData.length === 0) {
       document.getElementById("uptime-calendar").innerHTML = '<div class="no-data">Not enough data for calendar view.</div>';
       return;
     }
@@ -949,35 +1117,27 @@
       days.push(new Date(Date.now() - i * 86400000).toLocaleDateString("en-CA", { timeZone: AST_TZ }));
     }
 
-    // Overall daily status
-    const overallDaily = buildDailyStatus(data, snap => {
-      const unplanned = Math.max(0, snap.total.without - snap.total.planned);
-      return snap.total.total > 0 ? (unplanned / snap.total.total * 100) : 0;
-    });
+    // Overall + per-region daily status (already computed by the server rollup)
+    const overallDaily = dailyRollup.total || {};
     renderNotable(overallDaily);
 
-    // Per-region daily status
     const regionDaily = {};
-    for (const name of regionNames) {
-      regionDaily[name] = buildDailyStatus(data, snap => {
-        const r = snap.regions[name];
-        if (!r || r.total === 0) return 0;
-        const unplanned = Math.max(0, r.without - r.planned);
-        return (unplanned / r.total * 100);
-      });
-    }
+    for (const name of regionNames) regionDaily[name] = dailyRollup[name] || {};
 
-    // Compute uptime % for each row
+    // Compute uptime % for each row, plus how many of the 90 days actually had data
     function uptimeForRow(daily) {
       let totalDaysWithData = 0, sumPct = 0;
       for (const day of days) {
         if (daily[day]) { totalDaysWithData++; sumPct += daily[day].uptimePct; }
       }
-      return totalDaysWithData > 0 ? (sumPct / totalDaysWithData) : null;
+      return {
+        pct: totalDaysWithData > 0 ? (sumPct / totalDaysWithData) : null,
+        daysWithData: totalDaysWithData,
+      };
     }
 
     // Current status per row, from the most recent snapshot
-    const latestSnap = data[data.length - 1];
+    const latestSnap = outageData[outageData.length - 1];
     function currentLevelOverall() {
       const unp = Math.max(0, latestSnap.total.without - latestSnap.total.planned);
       const pct = latestSnap.total.total > 0 ? (unp / latestSnap.total.total * 100) : 0;
@@ -991,7 +1151,7 @@
     }
 
     function renderRow(label, daily, labelColor, level) {
-      const uptime = uptimeForRow(daily);
+      const { pct: uptime, daysWithData } = uptimeForRow(daily);
       const uptimeStr = uptime !== null ? uptime.toFixed(2) + " % uptime" : "— uptime";
       const colorDot = labelColor
         ? `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${labelColor};flex-shrink:0"></span>`
@@ -1015,7 +1175,7 @@
           <div class="uptime-foot">
             <span>90 days ago</span>
             <span class="days-line"></span>
-            <span class="uptime-pct">${uptimeStr}</span>
+            <span class="uptime-pct">${uptimeStr} · ${daysWithData}/90 days</span>
             <span class="days-line"></span>
             <span>Today</span>
           </div>
