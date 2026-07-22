@@ -2,6 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Puerto Rico Rent Analytics | SENS ADVISOR</title>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -31,11 +32,71 @@
       min-height: 100vh;
     }
 
-    .site-nav { background: #000; color: #fff; font-size: 0.82rem; padding: 10px 0; }
-    .site-nav-inner { max-width: 1400px; margin: 0 auto; padding: 0 20px; display: flex; gap: 20px; flex-wrap: wrap; }
-    .site-nav a { color: #fff; text-decoration: none; opacity: 0.7; transition: opacity 0.15s; }
-    .site-nav a:hover { opacity: 1; text-decoration: underline; }
-    .site-nav a[aria-current="page"] { opacity: 1; font-weight: 600; }
+  /* ===== Standard analytics nav — mirrors the sensadvisor.com home menu
+     (brand + top-level links + Analytics dropdown, collapsing to a hamburger
+     on phones). Namespaced .stn-* so it can't collide with page/header CSS. */
+  .stn { background: var(--primary-bg); border-bottom: 2px solid var(--border-primary); position: relative; }
+  .stn-inner {
+    max-width: 1400px; margin: 0 auto; padding: 12px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .stn-brand { font-size: 1.05rem; font-weight: 700; color: var(--primary-text); text-decoration: none; white-space: nowrap; }
+  .stn-nav { display: flex; align-items: center; gap: 22px; }
+  .stn-nav a, .stn-dd-trigger {
+    color: var(--primary-text); font-size: 0.88rem; font-weight: 500;
+    text-decoration: none; padding: 6px 0;
+    border-bottom: 2px solid transparent; transition: border-color 0.2s ease;
+    cursor: pointer; user-select: none; white-space: nowrap;
+  }
+  .stn-nav a:hover, .stn-dd-trigger:hover { border-bottom-color: var(--border-primary); }
+  .stn-dd { position: relative; }
+  .stn-dd-menu {
+    display: none; position: absolute; top: 100%; right: 0;
+    background: var(--primary-bg); border: 2px solid var(--border-primary);
+    border-radius: 4px; margin-top: 8px; min-width: 230px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12); z-index: 1000;
+  }
+  /* Transparent bridge spanning the 8px gap so the dropdown stays open while
+     the cursor travels from the trigger to the menu (fixes hover dead-zone). */
+  .stn-dd-menu::before { content: ""; position: absolute; left: 0; right: 0; top: -9px; height: 10px; }
+  .stn-dd:hover .stn-dd-menu { display: block; }
+  .stn-dd-menu a {
+    display: block; padding: 11px 16px; font-size: 0.85rem;
+    color: var(--primary-text); text-decoration: none;
+    border-bottom: 1px solid var(--accent-light); transition: background 0.2s ease;
+  }
+  .stn-dd-menu a:last-child { border-bottom: none; }
+  .stn-dd-menu a:hover { background: var(--accent-light); }
+  .stn-dd-menu a[aria-current="page"] { font-weight: 700; border-left: 3px solid var(--border-primary); padding-left: 13px; }
+  .stn-burger { display: none; background: none; border: none; cursor: pointer; padding: 6px; }
+  .stn-burger-line { display: block; width: 24px; height: 2px; background: var(--primary-text); margin: 5px 0; transition: transform 0.3s ease, opacity 0.3s ease; }
+  .stn-burger.open .stn-burger-line:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .stn-burger.open .stn-burger-line:nth-child(2) { opacity: 0; }
+  .stn-burger.open .stn-burger-line:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  @media (max-width: 768px) {
+    .stn-burger { display: block; }
+    .stn-nav {
+      display: none; position: absolute; left: 0; right: 0; top: 100%;
+      flex-direction: column; align-items: stretch; gap: 0;
+      background: var(--primary-bg); border-bottom: 2px solid var(--border-primary);
+      padding: 0 20px; z-index: 999;
+    }
+    .stn-nav.open { display: flex; }
+    .stn-nav > a, .stn-dd-trigger {
+      padding: 14px 0; min-height: 44px; display: flex; align-items: center;
+      border-bottom: 1px solid var(--accent-light);
+    }
+    .stn-dd { width: 100%; }
+    .stn-dd-menu {
+      position: static; border: none; border-radius: 0; box-shadow: none;
+      margin-top: 0; min-width: 0; background: var(--accent-lighter); display: none;
+    }
+    .stn-dd.open .stn-dd-menu { display: block; }
+    .stn-dd:hover .stn-dd-menu { display: none; }
+    .stn-dd-menu::before { content: none; }
+    .stn-dd.open:hover .stn-dd-menu { display: block; }
+    .stn-dd-menu a { padding: 13px 16px 13px 24px; min-height: 44px; }
+  }
 
     .site-footer { text-align: center; padding: 24px 20px; margin-top: 40px; border-top: 1px solid #ddd; font-size: 0.82rem; color: #555; }
     .site-footer a { color: inherit; }
@@ -151,15 +212,70 @@
 </head>
 
 <body>
-  <div class="site-nav">
-    <div class="site-nav-inner">
-      <a href="/">Home</a>
-      <a href="/rentals/" aria-current="page">Rentals</a>
-      <a href="/recession/">Recession</a>
-      <a href="/pr-lmci/">PR-LMCI</a>
-      <a href="/outages/">Outages</a>
+  <nav class="stn" aria-label="Site">
+    <div class="stn-inner">
+      <a class="stn-brand" href="/">SENS ADVISOR</a>
+      <button class="stn-burger" aria-label="Toggle menu" aria-expanded="false">
+        <span class="stn-burger-line"></span>
+        <span class="stn-burger-line"></span>
+        <span class="stn-burger-line"></span>
+      </button>
+      <div class="stn-nav">
+        <a href="/#research">Research</a>
+        <a href="/#services">Services</a>
+        <div class="stn-dd">
+          <span class="stn-dd-trigger" role="button" tabindex="0" aria-haspopup="true" aria-expanded="false">Analytics &#9662;</span>
+          <div class="stn-dd-menu">
+            <a href="/rentals/" aria-current="page">Puerto Rico Rentals</a>
+            <a href="/recession/">US Recession Probability</a>
+            <a href="/pr-lmci/">PR Labor Market Index</a>
+            <a href="/outages/">PR Outage Status</a>
+            <a href="/generation/">PR Generation Status</a>
+            <a href="/reservoirs/">PR Reservoir Levels</a>
+          </div>
+        </div>
+        <a href="/#about">About</a>
+        <a href="https://github.com/jibarix" target="_blank" rel="noopener">Code</a>
+        <a href="https://x.com/jorgearroyox" target="_blank" rel="noopener">Insights</a>
+        <a href="/#contact">Contact</a>
+      </div>
     </div>
-  </div>
+  </nav>
+  <script>
+  (function () {
+    var burger = document.querySelector('.stn-burger');
+    var nav = document.querySelector('.stn-nav');
+    var dd = document.querySelector('.stn-dd');
+    var trigger = document.querySelector('.stn-dd-trigger');
+    if (!burger || !nav) return;
+    burger.addEventListener('click', function () {
+      burger.classList.toggle('open');
+      nav.classList.toggle('open');
+      burger.setAttribute('aria-expanded', nav.classList.contains('open'));
+    });
+    nav.querySelectorAll('a').forEach(function (a) {
+      a.addEventListener('click', function () {
+        burger.classList.remove('open');
+        nav.classList.remove('open');
+        burger.setAttribute('aria-expanded', 'false');
+      });
+    });
+    if (trigger && dd) {
+      var toggleDd = function (e) {
+        if (window.innerWidth <= 768) { e.preventDefault(); e.stopPropagation(); dd.classList.toggle('open'); trigger.setAttribute('aria-expanded', dd.classList.contains('open')); }
+      };
+      trigger.addEventListener('click', toggleDd);
+      trigger.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') toggleDd(e); });
+    }
+    document.addEventListener('click', function (e) {
+      if (window.innerWidth <= 768 && !nav.contains(e.target) && !burger.contains(e.target)) {
+        burger.classList.remove('open'); nav.classList.remove('open');
+        burger.setAttribute('aria-expanded', 'false');
+        if (dd) dd.classList.remove('open');
+      }
+    });
+  })();
+  </script>
   <div class="container">
     <header class="header">
       <div class="header-content">
