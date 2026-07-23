@@ -2,6 +2,18 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<!-- Theme init: set data-theme before paint to avoid a flash -->
+<script>
+(function () {
+  try {
+    var t = localStorage.getItem('theme');
+    if (t !== 'dark' && t !== 'light') {
+      t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PR Outage Status | SENS ADVISOR</title>
 
@@ -32,6 +44,55 @@
     --border-primary: #000000;
     --accent-light: #f0f0f0;
     --accent-lighter: #f9f9f9;
+  }
+
+  /* ===== Dark theme (shared toggle; syncs via localStorage 'theme') ===== */
+  :root[data-theme="dark"] {
+    --primary-bg: #0e0e10;
+    --primary-text: #ededed;
+    --secondary-text: #9aa0a6;
+    --border-primary: #3a3d42;
+    --accent-light: #212327;
+    --accent-lighter: #16171a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --primary-bg: #0e0e10;
+      --primary-text: #ededed;
+      --secondary-text: #9aa0a6;
+      --border-primary: #3a3d42;
+      --accent-light: #212327;
+      --accent-lighter: #16171a;
+    }
+  }
+  body, .stn, .stn-nav, .stn-dd-menu, .panel { transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease; }
+  /* Charts carry baked-in light colors; float them on a light tile so they stay legible in dark mode. */
+  :root[data-theme="dark"] canvas { background: #ffffff; }
+  :root[data-theme="dark"] .panel img[src$=".png"] { background: #ffffff; }
+  /* Theme toggle button (namespaced .stn-*) */
+  .stn-toggle {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    background: none; border: none; cursor: pointer; color: var(--primary-text);
+    padding: 6px; margin: 0; border-radius: 4px; transition: background 0.2s ease;
+  }
+  .stn-toggle:hover { background: var(--accent-light); }
+  .stn-toggle svg { width: 20px; height: 20px; display: block; }
+  .stn-toggle .stn-ic-sun { display: none; }
+  :root[data-theme="dark"] .stn-toggle .stn-ic-sun { display: block; }
+  :root[data-theme="dark"] .stn-toggle .stn-ic-moon { display: none; }
+  .stn-toggle-label { display: none; }
+  .stn-toggle .stn-lbl-light { display: none; }
+  :root[data-theme="dark"] .stn-toggle .stn-lbl-light { display: inline; }
+  :root[data-theme="dark"] .stn-toggle .stn-lbl-dark { display: none; }
+  @media (max-width: 768px) {
+    .stn-nav .stn-toggle {
+      width: 100%; justify-content: flex-start; gap: 12px;
+      padding: 14px 0; min-height: 44px;
+      border-bottom: 1px solid var(--accent-light);
+      font-size: 0.88rem; font-weight: 500;
+    }
+    .stn-nav .stn-toggle:hover { background: none; }
+    .stn-toggle-label { display: inline; }
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -368,6 +429,11 @@
       <a href="https://github.com/jibarix" target="_blank" rel="noopener">Code</a>
       <a href="https://x.com/jorgearroyox" target="_blank" rel="noopener">Insights</a>
       <a href="/#contact">Contact</a>
+      <button class="stn-toggle" type="button" aria-label="Toggle dark mode" aria-pressed="false" title="Toggle dark mode">
+        <svg class="stn-ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="stn-ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <span class="stn-toggle-label"><span class="stn-lbl-dark">Dark mode</span><span class="stn-lbl-light">Light mode</span></span>
+      </button>
     </div>
   </div>
 </nav>
@@ -403,6 +469,22 @@
       burger.setAttribute('aria-expanded', 'false');
       if (dd) dd.classList.remove('open');
     }
+  });
+})();
+(function () {
+  var toggle = document.querySelector('.stn-toggle');
+  if (!toggle) return;
+  function sync() {
+    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    toggle.setAttribute('aria-pressed', dark ? 'true' : 'false');
+  }
+  sync();
+  toggle.addEventListener('click', function () {
+    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    var next = dark ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('theme', next); } catch (e) {}
+    sync();
   });
 })();
 </script>
