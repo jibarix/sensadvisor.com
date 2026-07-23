@@ -481,6 +481,12 @@
   }
   .status-hero .status-breakdown .chip .dot { width: 10px; height: 10px; border-radius: 50%; }
   .status-hero .status-timestamp { font-size: 0.75rem; color: var(--secondary-text); margin-top: 10px; }
+  .status-hero .status-change {
+    margin-top: 8px; font-size: 0.85rem; color: var(--secondary-text);
+    display: flex; flex-wrap: wrap; gap: 4px 18px;
+  }
+  .status-hero .status-change:empty { display: none; }
+  .status-hero .status-change .arrow { font-weight: 700; font-size: 0.95rem; }
 
   /* Stat tiles */
   .stats-grid {
@@ -634,6 +640,7 @@
     <div class="status-label" id="status-label">Loading…</div>
     <div class="status-reason" id="status-reason">Fetching the latest reservoir readings.</div>
     <div class="status-breakdown" id="status-breakdown"></div>
+    <div class="status-change" id="status-change"></div>
     <div class="status-timestamp" id="status-timestamp"></div>
   </div>
 
@@ -1103,6 +1110,27 @@
       .filter(s => counts[s])
       .map(s => `<span class="chip"><span class="dot" style="background:${BANDS[s].color}"></span>${counts[s]} ${s}</span>`)
       .join("");
+
+    // Change line: how many reservoirs sit below normal, plus the 24h level
+    // direction across all sites. Reservoirs move slowly, so a full day is the
+    // right window (vs the generation/outage hero, which reads the last hour).
+    // Arrow + words carry the meaning; kept muted to stay factual.
+    const nBelowNormal = ranked.filter(r => r.status_rank >= 2).length;
+    let up = 0, down = 0;
+    for (const r of statusRows) {
+      const d = r.delta24h;
+      if (d == null) continue;
+      const series = histBySite[r.site_no];
+      const base = (series && series.length) ? Math.abs(series[series.length - 1].v) : 0;
+      const eps = Math.max(0.02, base * 0.0005);   // ignore sensor-level jitter
+      if (d > eps) up++; else if (d < -eps) down++;
+    }
+    let arrow = "→", word = "steady over 24h";
+    if (down > up) { arrow = "↓"; word = "trending lower over 24h"; }
+    else if (up > down) { arrow = "↑"; word = "trending higher over 24h"; }
+    const countPart = nBelowNormal > 0 ? `${nBelowNormal} below normal` : "All at or above normal";
+    document.getElementById("status-change").innerHTML =
+      `<span>${countPart} · <span class="arrow">${arrow}</span> ${word}</span>`;
 
     const latest = statusRows.reduce((m, r) => {
       const t = r.measured_at ? new Date(r.measured_at).getTime() : 0;

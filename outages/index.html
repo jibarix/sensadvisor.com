@@ -318,6 +318,12 @@
   .status-hero .status-timestamp {
     font-size: 0.75rem; color: var(--secondary-text); margin-top: 4px;
   }
+  .status-hero .status-change {
+    margin-top: 8px; font-size: 0.85rem; color: var(--secondary-text);
+    display: flex; flex-wrap: wrap; gap: 4px 18px;
+  }
+  .status-hero .status-change:empty { display: none; }
+  .status-hero .status-change .arrow { font-weight: 700; font-size: 0.95rem; }
   .status-hero .status-stale {
     font-size: 0.78rem; font-weight: 600; color: #b26a00;
     background: #fff6e6; border: 1px solid #f0c66b; border-radius: 6px;
@@ -525,6 +531,7 @@
     <div class="status-label" id="status-label">Loading...</div>
     <div class="status-summary" id="status-summary"></div>
     <div class="status-breakdown" id="status-breakdown"></div>
+    <div class="status-change" id="status-change"></div>
     <div class="status-timestamp" id="status-timestamp"></div>
     <div class="status-stale" id="status-stale" style="display:none"></div>
   </div>
@@ -1148,9 +1155,33 @@
       `<span><span class="num">${planned.toLocaleString()}</span> planned</span>` +
       `<span><span class="num">${latest.total.without.toLocaleString()}</span> total without power</span>`;
     document.getElementById("status-hero").style.borderColor = lvl.color;
+
+    // Change line: direction of clients-without-power over the last hour, so the
+    // hero says whether the grid is improving or deteriorating (arrow + words, not
+    // color alone). The reading closest to one hour before the latest snapshot.
+    const chEl = document.getElementById("status-change");
+    const targetT = new Date(latest.timestamp).getTime() - 3600000;
+    let hourAgo = null;
+    if (data.length && new Date(data[0].timestamp).getTime() <= targetT) {
+      for (const s of data) {
+        if (new Date(s.timestamp).getTime() <= targetT) hourAgo = s; else break;
+      }
+    }
+    if (hourAgo) {
+      const d = latest.total.without - hourAgo.total.without;
+      if (d === 0) {
+        chEl.innerHTML = `<span><span class="arrow">→</span> No change in clients without power in the last hour</span>`;
+      } else {
+        const arrow = d > 0 ? "↑" : "↓", word = d > 0 ? "more" : "fewer";
+        chEl.innerHTML = `<span><span class="arrow">${arrow}</span> ${Math.abs(d).toLocaleString()} ${word} without power in the last hour</span>`;
+      }
+    } else {
+      chEl.innerHTML = "";
+    }
+
     const ts = new Date(latest.timestamp);
     document.getElementById("status-timestamp").textContent =
-      `Last updated: ${ts.toLocaleString("en-US", { timeZone: AST_TZ, dateStyle: "medium", timeStyle: "short" })} AST · refreshes automatically`;
+      `Last updated: ${ts.toLocaleString("en-US", { timeZone: AST_TZ, dateStyle: "medium", timeStyle: "short" })} AST · Source: LUMA · refreshes automatically`;
     document.getElementById("region-timestamp").textContent = relativeTime(ts);
 
     // Stale-data warning: the poller runs ~10 min, so a gap beyond 30 min means

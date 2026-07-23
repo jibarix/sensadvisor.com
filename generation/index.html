@@ -323,6 +323,12 @@
   }
   .status-hero .status-breakdown .num { font-weight: 700; color: var(--primary-text); }
   .status-hero .status-timestamp { font-size: 0.75rem; color: var(--secondary-text); margin-top: 6px; }
+  .status-hero .status-change {
+    margin-top: 8px; font-size: 0.85rem; color: var(--secondary-text);
+    display: flex; flex-wrap: wrap; gap: 4px 18px;
+  }
+  .status-hero .status-change:empty { display: none; }
+  .status-hero .status-change .arrow { font-weight: 700; font-size: 0.95rem; }
 
   /* Stat tiles */
   .stats-grid {
@@ -482,6 +488,7 @@
     <div class="status-reason" id="status-reason"></div>
     <div class="status-value" id="status-value"></div>
     <div class="status-breakdown" id="status-breakdown"></div>
+    <div class="status-change" id="status-change"></div>
     <div class="status-timestamp" id="status-timestamp"></div>
   </div>
 
@@ -878,11 +885,36 @@
     document.getElementById("status-dot").style.background = a.color;
     document.getElementById("status-hero").style.borderColor = a.color;
 
+    // Change line: operating-reserve movement over the last hour (arrow + signed
+    // number so direction reads without relying on color). Uses the stored history
+    // reading closest to one hour before the latest observation.
+    const chEl = document.getElementById("status-change");
+    const target = allHistory.length ? new Date(allHistory[allHistory.length - 1].observed_at).getTime() - 3600000 : 0;
+    let past = null;
+    if (allHistory.length && new Date(allHistory[0].observed_at).getTime() <= target) {
+      for (const r of allHistory) {
+        if (new Date(r.observed_at).getTime() <= target) past = r; else break;
+      }
+    }
+    const curRes = allHistory.length ? num(allHistory[allHistory.length - 1].operating_reserve_mw) : null;
+    const pastRes = past ? num(past.operating_reserve_mw) : null;
+    if (curRes != null && pastRes != null) {
+      const d = Math.round(curRes - pastRes);
+      if (d === 0) {
+        chEl.innerHTML = `<span><span class="arrow">→</span> Operating reserve unchanged in the last hour</span>`;
+      } else {
+        const arrow = d > 0 ? "↑" : "↓";
+        chEl.innerHTML = `<span><span class="arrow">${arrow}</span> Operating reserve ${signed(d)} MW in the last hour</span>`;
+      }
+    } else {
+      chEl.innerHTML = "";
+    }
+
     const srcTs = m.source_updated_at ? new Date(m.source_updated_at) : new Date(m.observed_at);
     const ageMin = (Date.now() - srcTs.getTime()) / 60000;
     const freshNote = ageMin > 60 ? " · feed may be stale" : "";
     document.getElementById("status-timestamp").textContent =
-      `Feed updated: ${srcTs.toLocaleString("en-US", { timeZone: AST_TZ, dateStyle: "medium", timeStyle: "short" })} AST${freshNote}`;
+      `Feed updated: ${srcTs.toLocaleString("en-US", { timeZone: AST_TZ, dateStyle: "medium", timeStyle: "short" })} AST · Source: Genera PR${freshNote}`;
     document.getElementById("mix-timestamp").textContent =
       srcTs.toLocaleString("en-US", { timeZone: AST_TZ, dateStyle: "medium", timeStyle: "short" }) + " AST";
   }
