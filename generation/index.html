@@ -973,8 +973,9 @@
   function renderFuelMix(fuelMix) {
     const el = document.getElementById("fuel-bars");
     if (!fuelMix.length) { el.innerHTML = '<div class="no-data">No data.</div>'; return; }
-    const max = Math.max(...fuelMix.map(f => f.pct));
-    el.innerHTML = fuelMix.map(f => `
+    const rows = [...fuelMix].sort((a, b) => b.pct - a.pct);
+    const max = rows[0].pct;
+    el.innerHTML = rows.map(f => `
       <div class="type-bar-row">
         <div class="type-bar-head"><span>${FUEL_LABELS[f.fuel] || f.fuel}</span><span class="num">${fmt(f.pct)}%</span></div>
         <div class="type-bar-track">
