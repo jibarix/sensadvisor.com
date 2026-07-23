@@ -47,6 +47,14 @@
     --ok: #76ad2a;
     --warn: #faa72a;
     --crit: #e04343;
+    --page-gutter: clamp(20px, 4vw, 64px);
+    --signal: #008f43;
+    --signal-rgb: 0, 143, 67;
+    --grid-dot: rgba(0, 0, 0, 0.065);
+    --chart-text: #333333;
+    --chart-muted: #707070;
+    --chart-grid: #dddddd;
+    --surface-muted: #f7f7f7;
   }
 
   /* ===== Dark theme (shared toggle; syncs via localStorage 'theme') ===== */
@@ -57,6 +65,14 @@
     --border-primary: #3a3d42;
     --accent-light: #212327;
     --accent-lighter: #16171a;
+
+    --signal: #36e08a;
+    --signal-rgb: 54, 224, 138;
+    --grid-dot: rgba(255, 255, 255, 0.055);
+    --chart-text: #d7d9dc;
+    --chart-muted: #9aa0a6;
+    --chart-grid: #34373c;
+    --surface-muted: rgba(22, 23, 26, 0.9);
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -66,156 +82,348 @@
       --border-primary: #3a3d42;
       --accent-light: #212327;
       --accent-lighter: #16171a;
+
+      --signal: #36e08a;
+      --signal-rgb: 54, 224, 138;
+      --grid-dot: rgba(255, 255, 255, 0.055);
+      --chart-text: #d7d9dc;
+      --chart-muted: #9aa0a6;
+      --chart-grid: #34373c;
+      --surface-muted: rgba(22, 23, 26, 0.9);
     }
   }
-  body, .stn, .stn-nav, .stn-dd-menu, .panel { transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease; }
+  body, .site-header, .nav, .nav-dropdown-menu, .analytics-index, .panel { transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease; }
   /* Charts carry baked-in light colors; float them on a light tile so they stay legible in dark mode. */
   :root[data-theme="dark"] canvas { background: #ffffff; }
   :root[data-theme="dark"] .panel img[src$=".png"] { background: #ffffff; }
-  /* Theme toggle button (namespaced .stn-*) */
-  .stn-toggle {
+  /* Theme toggle button */
+  .theme-toggle {
     display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     background: none; border: none; cursor: pointer; color: var(--primary-text);
     padding: 6px; margin: 0; border-radius: 4px; transition: background 0.2s ease;
   }
-  .stn-toggle:hover { background: var(--accent-light); }
-  /* Back-to-top */
-  .stn-top {
-    position: fixed; right: 20px; bottom: 20px; z-index: 200;
-    width: 44px; height: 44px; padding: 0;
-    display: flex; align-items: center; justify-content: center;
-    background: var(--primary-bg); color: var(--primary-text);
-    border: 2px solid var(--border-primary); border-radius: 6px;
-    cursor: pointer; opacity: 0; pointer-events: none;
-    transform: translateY(8px);
-    transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
-  }
-  .stn-top.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
-  .stn-top:hover { background: var(--accent-light); }
-  .stn-top svg { width: 22px; height: 22px; display: block; }
-  @media print { .stn-top { display: none; } }
-  .stn-toggle svg { width: 20px; height: 20px; display: block; }
-  .stn-toggle .stn-ic-sun { display: none; }
-  :root[data-theme="dark"] .stn-toggle .stn-ic-sun { display: block; }
-  :root[data-theme="dark"] .stn-toggle .stn-ic-moon { display: none; }
-  .stn-toggle-label { display: none; }
-  .stn-toggle .stn-lbl-light { display: none; }
-  :root[data-theme="dark"] .stn-toggle .stn-lbl-light { display: inline; }
-  :root[data-theme="dark"] .stn-toggle .stn-lbl-dark { display: none; }
+  .theme-toggle:hover { background: var(--accent-light); }
+  .theme-toggle svg { width: 20px; height: 20px; display: block; }
+  .theme-toggle .ic-sun { display: none; }
+  :root[data-theme="dark"] .theme-toggle .ic-sun { display: block; }
+  :root[data-theme="dark"] .theme-toggle .ic-moon { display: none; }
+  .theme-toggle-label { display: none; }
+  .theme-toggle .lbl-light { display: none; }
+  :root[data-theme="dark"] .theme-toggle .lbl-light { display: inline; }
+  :root[data-theme="dark"] .theme-toggle .lbl-dark { display: none; }
   @media (max-width: 768px) {
-    .stn-nav .stn-toggle {
+    .nav .theme-toggle {
       width: 100%; justify-content: flex-start; gap: 12px;
       padding: 14px 0; min-height: 44px;
       border-bottom: 1px solid var(--accent-light);
       font-size: 0.88rem; font-weight: 500;
     }
-    .stn-nav .stn-toggle:hover { background: none; }
-    .stn-toggle-label { display: inline; }
+    .nav .theme-toggle:hover { background: none; }
+    .theme-toggle-label { display: inline; }
+  }
+
+  /* Scroll progress and quick return for a long analytical page. */
+  .back-to-top {
+    --top-progress: 0deg;
+    position: fixed;
+    right: clamp(18px, 2.2vw, 40px);
+    bottom: calc(clamp(18px, 2.2vw, 40px) + env(safe-area-inset-bottom, 0px));
+    z-index: 8000;
+    display: grid;
+    width: 58px;
+    height: 58px;
+    place-content: center;
+    gap: 1px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: conic-gradient(var(--signal) var(--top-progress), var(--accent-light) 0);
+    color: var(--primary-text);
+    font-family: inherit;
+    font-size: 0.58rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(12px) scale(0.94);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    isolation: isolate;
+  }
+  .back-to-top::before {
+    content: "";
+    position: absolute;
+    inset: 2px;
+    z-index: -1;
+    border-radius: inherit;
+    background: var(--primary-bg);
+    transition: background-color 0.25s ease;
+  }
+  .back-to-top .top-arrow { font-size: 0.9rem; line-height: 0.8; letter-spacing: 0; }
+  .back-to-top.is-visible { opacity: 0.9; pointer-events: auto; transform: translateY(0) scale(1); }
+  .back-to-top:hover { opacity: 1; transform: translateY(-3px) scale(1); }
+  .back-to-top:focus-visible { opacity: 1; outline: 2px solid var(--signal); outline-offset: 4px; }
+  @media print { .back-to-top { display: none; } }
+  @media (max-width: 480px) { .back-to-top { width: 52px; height: 52px; } }
+  @media (prefers-reduced-motion: reduce) {
+    .back-to-top { transition: none; }
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
+  html {
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
+    scroll-behavior: smooth;
+    scroll-padding-top: 56px;
+  }
+
   body {
     font-family: 'Source Code Pro', monospace;
-    background: var(--primary-bg);
+    position: relative;
+    background-color: var(--primary-bg);
+    background-image: radial-gradient(circle, var(--grid-dot) 1px, transparent 1px);
+    background-size: 34px 34px;
+    background-attachment: fixed;
     color: var(--primary-text);
     line-height: 1.6;
     min-height: 100vh;
   }
 
-  /* ===== Standard analytics nav — mirrors the sensadvisor.com home menu
+  /* ===== Shared site navigation — mirrors the sensadvisor.com home menu
      (brand + top-level links + Analytics dropdown, collapsing to a hamburger
-     on phones). Namespaced .stn-* so it can't collide with page/header CSS. */
-  .stn { background: var(--primary-bg); border-bottom: 2px solid var(--border-primary); position: relative; }
-  .stn-inner {
-    max-width: 1400px; margin: 0 auto; padding: 12px 20px;
-    display: flex; align-items: center; justify-content: space-between;
+     on phones), plus a sticky per-page section index. ===== */
+  .site-header {
+    position: relative;
+    z-index: 1100;
+    background: transparent;
   }
-  .stn-brand { font-size: 1.05rem; font-weight: 700; color: var(--primary-text); text-decoration: none; white-space: nowrap; }
-  .stn-nav { display: flex; align-items: center; gap: 22px; }
-  .stn-nav a, .stn-dd-trigger {
-    color: var(--primary-text); font-size: 0.88rem; font-weight: 500;
-    text-decoration: none; padding: 6px 0;
-    border-bottom: 2px solid transparent; transition: border-color 0.2s ease;
-    cursor: pointer; user-select: none; white-space: nowrap;
+  .site-header-inner {
+    position: relative;
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 18px var(--page-gutter);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
-  .stn-nav a:hover, .stn-dd-trigger:hover { border-bottom-color: var(--border-primary); }
-  .stn-dd { position: relative; }
-  .stn-dd-menu {
-    display: none; position: absolute; top: 100%; right: 0;
-    background: var(--primary-bg); border: 2px solid var(--border-primary);
-    border-radius: 4px; margin-top: 8px; min-width: 230px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12); z-index: 1000;
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    color: var(--primary-text);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .nav { display: flex; align-items: center; gap: clamp(16px, 2vw, 30px); }
+  .nav a,
+  .nav-dropdown-trigger {
+    color: var(--primary-text);
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    text-transform: uppercase;
+    padding: 8px 0;
+    border-bottom: 2px solid transparent;
+    transition: border-color 0.2s ease;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+  }
+  .nav a:hover,
+  .nav-dropdown-trigger:hover { border-bottom-color: var(--border-primary); }
+  .nav-dropdown { position: relative; }
+  .nav-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 220px;
+    margin-top: 8px;
+    border: 2px solid var(--border-primary);
+    border-radius: 4px;
+    background: var(--primary-bg);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    z-index: 1000;
   }
   /* Transparent bridge spanning the 8px gap so the dropdown stays open while
      the cursor travels from the trigger to the menu (fixes hover dead-zone). */
-  .stn-dd-menu::before { content: ""; position: absolute; left: 0; right: 0; top: -9px; height: 10px; }
-  .stn-dd:hover .stn-dd-menu { display: block; }
-  .stn-dd-menu a {
-    display: block; padding: 11px 16px; font-size: 0.85rem;
-    color: var(--primary-text); text-decoration: none;
-    border-bottom: 1px solid var(--accent-light); transition: background 0.2s ease;
+  .nav-dropdown-menu::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -9px;
+    height: 10px;
   }
-  .stn-dd-menu a:last-child { border-bottom: none; }
-  .stn-dd-menu a:hover { background: var(--accent-light); }
-  .stn-dd-menu a[aria-current="page"] { font-weight: 700; border-left: 3px solid var(--border-primary); padding-left: 13px; }
-  .stn-burger { display: none; background: none; border: none; cursor: pointer; padding: 6px; }
-  .stn-burger-line { display: block; width: 24px; height: 2px; background: var(--primary-text); margin: 5px 0; transition: transform 0.3s ease, opacity 0.3s ease; }
-  .stn-burger.open .stn-burger-line:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-  .stn-burger.open .stn-burger-line:nth-child(2) { opacity: 0; }
-  .stn-burger.open .stn-burger-line:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  .nav-dropdown:hover .nav-dropdown-menu { display: block; }
+  .nav-dropdown-menu a {
+    display: block;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--accent-light);
+    color: var(--primary-text);
+    font-size: 0.78rem;
+    text-decoration: none;
+    transition: background 0.2s ease;
+  }
+  .nav-dropdown-menu a:last-child { border-bottom: none; }
+  .nav-dropdown-menu a:hover { background: var(--accent-light); }
+  .nav-dropdown-menu a[aria-current="page"] {
+    padding-left: 13px;
+    border-left: 3px solid var(--signal);
+    font-weight: 700;
+  }
+  .hamburger {
+    display: none;
+    z-index: 200;
+    padding: 8px;
+    border: none;
+    background: none;
+    cursor: pointer;
+  }
+  .hamburger-line {
+    display: block;
+    width: 24px;
+    height: 2px;
+    margin: 5px 0;
+    background: var(--primary-text);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+  .hamburger.open .hamburger-line:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger.open .hamburger-line:nth-child(2) { opacity: 0; }
+  .hamburger.open .hamburger-line:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  .analytics-index {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-bottom: 1px solid var(--border-primary);
+    background: color-mix(in srgb, var(--primary-bg) 94%, transparent);
+    backdrop-filter: blur(14px);
+  }
+  .analytics-index-inner {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 0 var(--page-gutter);
+  }
+  .analytics-index-label {
+    margin-right: auto;
+    color: var(--secondary-text);
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .analytics-index a {
+    flex: 0 0 auto;
+    padding: 11px 0 10px;
+    border-bottom: 2px solid transparent;
+    color: var(--secondary-text);
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .analytics-index a:hover,
+  .analytics-index a:focus-visible {
+    color: var(--primary-text);
+    border-bottom-color: var(--signal);
+  }
+
   @media (max-width: 768px) {
-    .stn-burger { display: block; }
-    .stn-nav {
-      display: none; position: absolute; left: 0; right: 0; top: 100%;
-      flex-direction: column; align-items: stretch; gap: 0;
-      background: var(--primary-bg); border-bottom: 2px solid var(--border-primary);
-      padding: 0 20px; z-index: 999;
+    .site-header-inner {
+      padding-top: 15px;
+      padding-bottom: 15px;
+      flex-wrap: wrap;
     }
-    .stn-nav.open { display: flex; }
-    .stn-nav > a, .stn-dd-trigger {
-      padding: 14px 0; min-height: 44px; display: flex; align-items: center;
+    .hamburger { display: block; }
+    .nav {
+      display: none;
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 100%;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      padding: 0 var(--page-gutter);
+      border-top: 2px solid var(--border-primary);
+      border-bottom: 1px solid var(--border-primary);
+      background: var(--primary-bg);
+      z-index: 999;
+    }
+    .nav.open { display: flex; }
+    .nav > a,
+    .nav-dropdown-trigger {
+      display: flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 14px 0;
       border-bottom: 1px solid var(--accent-light);
     }
-    .stn-dd { width: 100%; }
-    .stn-dd-menu {
-      position: static; border: none; border-radius: 0; box-shadow: none;
-      margin-top: 0; min-width: 0; background: var(--accent-lighter); display: none;
+    .nav-dropdown { width: 100%; }
+    .nav-dropdown-menu {
+      position: static;
+      display: none;
+      min-width: 0;
+      margin-top: 0;
+      border: none;
+      border-radius: 0;
+      background: var(--accent-lighter);
+      box-shadow: none;
     }
-    .stn-dd.open .stn-dd-menu { display: block; }
-    .stn-dd:hover .stn-dd-menu { display: none; }
-    .stn-dd-menu::before { content: none; }
-    .stn-dd.open:hover .stn-dd-menu { display: block; }
-    .stn-dd-menu a { padding: 13px 16px 13px 24px; min-height: 44px; }
+    .nav-dropdown.open .nav-dropdown-menu { display: block; }
+    .nav-dropdown:hover .nav-dropdown-menu { display: none; }
+    .nav-dropdown-menu::before { content: none; }
+    .nav-dropdown.open:hover .nav-dropdown-menu { display: block; }
+    .nav-dropdown-menu a {
+      min-height: 44px;
+      padding: 14px 16px 14px 24px;
+    }
+    .analytics-index-inner {
+      gap: 22px;
+      overflow-x: auto;
+      overscroll-behavior-inline: contain;
+      scrollbar-width: none;
+    }
+    .analytics-index-inner::-webkit-scrollbar { display: none; }
+    .analytics-index-label { display: none; }
   }
 
-  .site-footer { text-align: center; padding: 24px 20px; margin-top: 40px; border-top: 1px solid #ddd; font-size: 0.82rem; color: #555; }
+  .site-footer { text-align: center; padding: 24px var(--page-gutter); margin-top: 40px; border-top: 1px solid var(--border-primary); font-size: 0.82rem; color: var(--secondary-text); }
   .site-footer a { color: inherit; }
 
-  .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+  .container {
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 0 var(--page-gutter);
+  }
 
   .header {
-    position: sticky; top: 0;
-    background: var(--primary-bg);
-    border-bottom: 2px solid var(--border-primary);
-    margin-bottom: 30px; padding-bottom: 16px;
-    z-index: 100;
+    background: transparent;
+    margin: clamp(40px, 6vw, 72px) 0 clamp(28px, 4vw, 44px);
   }
-  .header-content {
-    display: flex; justify-content: space-between;
-    align-items: center; margin-bottom: 8px;
+
+  .header-kicker {
+    display: block;
+    margin-bottom: clamp(14px, 1.6vw, 22px);
+    color: var(--signal);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
   }
-  .logo { font-size: 1.5rem; font-weight: 700; color: var(--primary-text); text-decoration: none; }
-  .logo span { font-weight: 400; color: var(--secondary-text); }
-  .header-links {
-    display: flex; gap: 14px; align-items: center;
-    font-size: 0.85rem; color: var(--secondary-text); flex-wrap: wrap;
-  }
-  .header-links a {
-    font-weight: 600; text-decoration: underline;
-    color: var(--primary-text); transition: color 0.2s ease;
-  }
-  .header-links a:hover { color: var(--secondary-text); }
+
   .header h1 { font-size: 1.8rem; font-weight: 600; margin-top: 10px; }
   .page-sub { font-size: 0.9rem; color: var(--secondary-text); margin-top: 6px; max-width: 64ch; }
 
@@ -240,7 +448,7 @@
   .chart-container { position: relative; width: 100%; height: 350px; }
   .chart-container.short { height: 300px; }
 
-  .nav-anchor { display: block; position: relative; top: -80px; visibility: hidden; }
+  .nav-anchor { display: block; position: relative; top: 0; visibility: hidden; }
 
   .controls { display: flex; gap: 12px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
   .controls button {
@@ -366,9 +574,6 @@
   .units-summary .us-item { color: var(--secondary-text); }
 
   @media (max-width: 768px) {
-    /* Stack the page-header logo above its in-page anchor links on phones. */
-    .header-content { flex-direction: column; align-items: flex-start; gap: 10px; }
-    .header-links { justify-content: flex-start; }
     .status-hero { padding: 24px 18px; }
     .status-hero .status-label { font-size: 1.2rem; }
     .status-hero .status-breakdown { gap: 14px; font-size: 0.8rem; }
@@ -376,23 +581,203 @@
     .split-grid { grid-template-columns: 1fr; gap: 20px; }
     .chart-container { height: 250px; }
   }
+  /* ===== Grid operations analytical shell ===== */
+  :root[data-theme="dark"] canvas { background: transparent; }
+  .container { overflow: hidden; }
+  .header { margin: clamp(52px, 9vw, 128px) 0 clamp(48px, 8vw, 104px); }
+  .header-kicker { margin-bottom: clamp(18px, 2vw, 28px); }
+  .header h1 {
+    max-width: 1120px;
+    margin: 0;
+    font-size: clamp(3.25rem, 7.6vw, 8.2rem);
+    font-weight: 600;
+    line-height: 0.88;
+    letter-spacing: -0.075em;
+    text-wrap: balance;
+  }
+  .page-sub {
+    max-width: 880px;
+    margin-top: clamp(24px, 4vw, 48px);
+    font-size: clamp(0.9rem, 1.25vw, 1.08rem);
+  }
+  .monitor-meta {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-top: clamp(26px, 4vw, 48px);
+    border-top: 1px solid var(--border-primary);
+    border-bottom: 1px solid var(--border-primary);
+    color: var(--secondary-text);
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .monitor-meta span { padding: 14px 16px 14px 0; }
+  .monitor-meta span + span { padding-left: 16px; border-left: 1px solid var(--accent-light); }
+  .monitor-meta strong { color: var(--primary-text); font-weight: 600; }
+  .signal-readout {
+    display: grid;
+    grid-template-columns: minmax(300px, 0.8fr) minmax(520px, 1.2fr);
+    margin: 0 0 clamp(46px, 7vw, 94px);
+    border-top: 2px solid var(--border-primary);
+    border-bottom: 1px solid var(--border-primary);
+  }
+  .status-hero {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    margin: 0;
+    padding: clamp(28px, 4vw, 54px) clamp(24px, 4vw, 54px) clamp(28px, 4vw, 54px) 0;
+    border: 0;
+    border-right: 1px solid var(--border-primary);
+    border-radius: 0;
+    text-align: left;
+  }
+  .status-dot { width: 14px; height: 14px; margin: 0 0 18px; }
+  .status-hero .status-label {
+    font-size: clamp(2.8rem, 5.8vw, 6.2rem);
+    font-weight: 500;
+    line-height: 0.88;
+    letter-spacing: -0.075em;
+  }
+  .status-hero .status-reason { margin-top: 18px; }
+  .status-hero .status-value {
+    margin-top: 28px;
+    font-size: clamp(1.35rem, 2.5vw, 2.4rem);
+    font-weight: 500;
+    letter-spacing: -0.04em;
+  }
+  .status-hero .status-breakdown {
+    display: grid;
+    width: 100%;
+    grid-template-columns: 1fr;
+    gap: 0;
+    margin-top: 24px;
+    border-top: 1px solid var(--accent-light);
+  }
+  .status-hero .status-breakdown > span { padding: 10px 0; border-bottom: 1px solid var(--accent-light); }
+  .status-hero .status-breakdown .num { font-size: 1.05rem; font-weight: 600; }
+  .status-hero .status-change { margin-top: 20px; }
+  .status-hero .status-timestamp { margin-top: 10px; }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    min-width: 0;
+    margin: 0;
+  }
+  .stat-tile {
+    min-height: 142px;
+    justify-content: space-between;
+    padding: clamp(18px, 3vw, 32px);
+    border: 0;
+    border-bottom: 1px solid var(--accent-light);
+    border-radius: 0;
+  }
+  .stat-tile:nth-child(odd) { border-right: 1px solid var(--accent-light); }
+  .stat-tile:nth-last-child(-n+2) { border-bottom: 0; }
+  .stat-tile:hover { transform: none; box-shadow: none; }
+  .stat-tile.accent-crit { border-top: 3px solid var(--crit); }
+  .stat-tile.accent-warn { border-top: 3px solid var(--warn); }
+  .stat-tile.accent-ok { border-top: 3px solid var(--ok); }
+  .stat-tile .stat-value {
+    margin-top: 18px;
+    font-size: clamp(1.45rem, 2.7vw, 2.6rem);
+    font-weight: 500;
+    letter-spacing: -0.05em;
+  }
+  .panel {
+    display: grid;
+    grid-template-columns: minmax(210px, 0.28fr) minmax(0, 1fr);
+    gap: 0 clamp(28px, 6vw, 96px);
+    min-width: 0;
+    margin: 0;
+    padding: clamp(42px, 7vw, 96px) 0;
+    border: 0;
+    border-top: 1px solid var(--border-primary);
+    border-radius: 0;
+    background: transparent;
+  }
+  .panel:hover { transform: none; box-shadow: none; }
+  .panel h2 {
+    align-self: start;
+    position: sticky;
+    top: 74px;
+    display: block;
+    max-width: 300px;
+    margin: 0;
+    font-size: clamp(1.35rem, 2vw, 2.05rem);
+    line-height: 1.08;
+    letter-spacing: -0.035em;
+  }
+  .panel h2 .panel-note {
+    display: block;
+    width: auto;
+    max-width: 260px;
+    margin-top: 12px;
+    line-height: 1.45;
+  }
+  .panel > :not(h2) { grid-column: 2; min-width: 0; }
+  .panel .chart-container {
+    min-height: 320px;
+    border-top: 1px solid var(--accent-light);
+    padding-top: 18px;
+  }
+  .panel .table-wrap { min-width: 0; }
+  #unit-table { min-width: 920px; }
+  .explain p { font-size: clamp(0.82rem, 0.95vw, 0.92rem); }
+  .source-note { margin: 0; padding: 22px 0 54px; }
+  .footer {
+    padding: 30px 0 6px;
+    border-top: 1px solid var(--border-primary);
+    color: var(--secondary-text);
+    font-size: 0.68rem;
+    letter-spacing: 0.05em;
+    text-align: left;
+    text-transform: uppercase;
+  }
+  @media (max-width: 980px) {
+    .signal-readout { grid-template-columns: 1fr; }
+    .status-hero { border-right: 0; border-bottom: 1px solid var(--border-primary); }
+    .panel { grid-template-columns: 1fr; gap: 24px; }
+    .panel h2 { position: static; max-width: none; }
+    .panel h2 .panel-note { max-width: none; }
+    .panel > :not(h2) { grid-column: 1; }
+  }
+  @media (max-width: 680px) {
+    .container { padding: 0 var(--page-gutter); }
+    .header { margin-top: 42px; }
+    .header h1 { font-size: clamp(2.8rem, 12vw, 4.4rem); }
+    .monitor-meta { grid-template-columns: 1fr; }
+    .monitor-meta span { padding: 11px 0; }
+    .monitor-meta span + span { padding-left: 0; border-top: 1px solid var(--accent-light); border-left: 0; }
+    .status-hero { padding-right: 0; }
+    .status-hero .status-label { font-size: clamp(3rem, 15vw, 5rem); }
+    .stats-grid { grid-template-columns: 1fr; }
+    .stat-tile { min-height: 108px; border-right: 0 !important; border-bottom: 1px solid var(--accent-light) !important; }
+    .panel .chart-container { height: 280px; min-height: 280px; }
+  }
 </style>
 </head>
 <body>
-<nav class="stn" aria-label="Site">
-  <div class="stn-inner">
-    <a class="stn-brand" href="/">SENS ADVISOR</a>
-    <button class="stn-burger" aria-label="Toggle menu" aria-expanded="false">
-      <span class="stn-burger-line"></span>
-      <span class="stn-burger-line"></span>
-      <span class="stn-burger-line"></span>
+<button class="back-to-top" type="button" aria-label="Back to top" aria-hidden="true" tabindex="-1">
+  <span>Top</span>
+  <span class="top-arrow" aria-hidden="true">&#8593;</span>
+</button>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="logo"><span>SENS ADVISOR</span></a>
+    <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
     </button>
-    <div class="stn-nav">
-      <a href="/#research">Research</a>
+    <nav class="nav" aria-label="Site">
       <a href="/#services">Services</a>
-      <div class="stn-dd">
-        <span class="stn-dd-trigger" role="button" tabindex="0" aria-haspopup="true" aria-expanded="false">Analytics &#9662;</span>
-        <div class="stn-dd-menu">
+      <div class="nav-dropdown">
+        <span class="nav-dropdown-trigger" role="button" tabindex="0" aria-haspopup="true" aria-expanded="false">Analytics &#9662;</span>
+        <div class="nav-dropdown-menu">
           <a href="/rentals/">San Juan Rentals</a>
           <a href="/recession/">US Recession Probability</a>
           <a href="/pr-lmci/">PR Labor Market Index</a>
@@ -401,59 +786,91 @@
           <a href="/reservoirs/">PR Reservoir Levels</a>
         </div>
       </div>
+      <a href="/#research">Research</a>
       <a href="/#about">About</a>
       <a href="https://github.com/jibarix" target="_blank" rel="noopener">Code</a>
       <a href="https://x.com/jorgearroyox" target="_blank" rel="noopener">Insights</a>
       <a href="/#contact">Contact</a>
-      <button class="stn-toggle" type="button" aria-label="Toggle dark mode" aria-pressed="false" title="Toggle dark mode">
-        <svg class="stn-ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        <svg class="stn-ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-        <span class="stn-toggle-label"><span class="stn-lbl-dark">Dark mode</span><span class="stn-lbl-light">Light mode</span></span>
+      <button class="theme-toggle" type="button" aria-label="Toggle dark mode" aria-pressed="false" title="Toggle dark mode">
+        <svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <span class="theme-toggle-label"><span class="lbl-dark">Dark mode</span><span class="lbl-light">Light mode</span></span>
       </button>
-    </div>
+    </nav>
+  </div>
+</header>
+
+<nav class="analytics-index" aria-label="Dashboard sections">
+  <div class="analytics-index-inner">
+    <span class="analytics-index-label">PR generation</span>
+    <a href="#now">Adequacy</a>
+    <a href="#hourly">Hourly</a>
+    <a href="#mix">Fuel mix</a>
+    <a href="#history">History</a>
+    <a href="#cost">Cost</a>
+    <a href="#plants">Units</a>
+    <a href="#methodology">Methodology</a>
   </div>
 </nav>
 <script>
 (function () {
-  var burger = document.querySelector('.stn-burger');
-  var nav = document.querySelector('.stn-nav');
-  var dd = document.querySelector('.stn-dd');
-  var trigger = document.querySelector('.stn-dd-trigger');
-  if (!burger || !nav) return;
-  burger.addEventListener('click', function () {
-    burger.classList.toggle('open');
+  var hamburger = document.querySelector('.hamburger');
+  var nav = document.querySelector('.nav');
+  var dropdown = document.querySelector('.nav-dropdown');
+  var dropdownTrigger = document.querySelector('.nav-dropdown-trigger');
+
+  if (!hamburger || !nav) return;
+
+  hamburger.addEventListener('click', function () {
+    hamburger.classList.toggle('open');
     nav.classList.toggle('open');
-    burger.setAttribute('aria-expanded', nav.classList.contains('open'));
+    hamburger.setAttribute('aria-expanded', nav.classList.contains('open'));
   });
-  nav.querySelectorAll('a').forEach(function (a) {
-    a.addEventListener('click', function () {
-      burger.classList.remove('open');
+
+  nav.querySelectorAll('a').forEach(function (link) {
+    link.addEventListener('click', function () {
+      hamburger.classList.remove('open');
       nav.classList.remove('open');
-      burger.setAttribute('aria-expanded', 'false');
+      hamburger.setAttribute('aria-expanded', 'false');
     });
   });
-  if (trigger && dd) {
-    var toggleDd = function (e) {
-      if (window.innerWidth <= 768) { e.preventDefault(); e.stopPropagation(); dd.classList.toggle('open'); trigger.setAttribute('aria-expanded', dd.classList.contains('open')); }
-    };
-    trigger.addEventListener('click', toggleDd);
-    trigger.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') toggleDd(e); });
+
+  if (dropdown && dropdownTrigger) {
+    function toggleDropdown(event) {
+      if (window.innerWidth <= 768) {
+        event.preventDefault();
+        event.stopPropagation();
+        dropdown.classList.toggle('open');
+        dropdownTrigger.setAttribute('aria-expanded', dropdown.classList.contains('open'));
+      }
+    }
+
+    dropdownTrigger.addEventListener('click', toggleDropdown);
+    dropdownTrigger.addEventListener('keydown', function (event) {
+      if (event.key === 'Enter' || event.key === ' ') toggleDropdown(event);
+    });
   }
-  document.addEventListener('click', function (e) {
-    if (window.innerWidth <= 768 && !nav.contains(e.target) && !burger.contains(e.target)) {
-      burger.classList.remove('open'); nav.classList.remove('open');
-      burger.setAttribute('aria-expanded', 'false');
-      if (dd) dd.classList.remove('open');
+
+  document.addEventListener('click', function (event) {
+    if (window.innerWidth <= 768 && !nav.contains(event.target) && !hamburger.contains(event.target)) {
+      hamburger.classList.remove('open');
+      nav.classList.remove('open');
+      hamburger.setAttribute('aria-expanded', 'false');
+      if (dropdown) dropdown.classList.remove('open');
+      if (dropdownTrigger) dropdownTrigger.setAttribute('aria-expanded', 'false');
     }
   });
 })();
+
 (function () {
-  var toggle = document.querySelector('.stn-toggle');
+  var toggle = document.querySelector('.theme-toggle');
   if (!toggle) return;
+
   function sync() {
     var dark = document.documentElement.getAttribute('data-theme') === 'dark';
     toggle.setAttribute('aria-pressed', dark ? 'true' : 'false');
   }
+
   sync();
   toggle.addEventListener('click', function () {
     var dark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -461,43 +878,43 @@
     document.documentElement.setAttribute('data-theme', next);
     try { localStorage.setItem('theme', next); } catch (e) {}
     sync();
+    if (typeof window.refreshAnalyticsTheme === 'function') {
+      window.refreshAnalyticsTheme();
+    }
   });
 })();
 </script>
 <div class="container">
   <header class="header">
-    <div class="header-content">
-      <div class="header-links">
-        <a href="#now">Adequacy</a>
-        <a href="#hourly">Hourly</a>
-        <a href="#mix">Fuel Mix</a>
-        <a href="#history">History</a>
-        <a href="#cost">Cost</a>
-        <a href="#plants">Units</a>
-        <a href="#methodology">Methodology</a>
-      </div>
+    <span class="header-kicker">Analytics / Grid</span>
+    <h1>Puerto Rico Generation</h1>
+    <p class="page-sub">A live view of supply adequacy, operating reserves, available capacity, generation mix, and unit availability.</p>
+    <div class="monitor-meta">
+      <span><strong>Monitor</strong><br>Live operational feed</span>
+      <span><strong>Refresh</strong><br>Approximately 15 minutes</span>
+      <span><strong>Source</strong><br>Genera PR / PREPA</span>
     </div>
-    <h1>PR Generation Status</h1>
-    <p class="page-sub">Independent supply-adequacy indicator built from the public generation feed — not an official grid alert or outage forecast.</p>
   </header>
 
   <span class="nav-anchor" id="now"></span>
-  <div class="status-hero" id="status-hero">
-    <div class="status-dot" id="status-dot"></div>
-    <div class="status-label" id="status-label">Loading…</div>
-    <div class="status-reason" id="status-reason"></div>
-    <div class="status-value" id="status-value"></div>
-    <div class="status-breakdown" id="status-breakdown"></div>
-    <div class="status-change" id="status-change"></div>
-    <div class="status-timestamp" id="status-timestamp"></div>
+  <div class="signal-readout">
+    <div class="status-hero" id="status-hero">
+      <div class="status-dot" id="status-dot"></div>
+      <div class="status-label" id="status-label">Connecting&hellip;</div>
+      <div class="status-reason" id="status-reason"></div>
+      <div class="status-value" id="status-value"></div>
+      <div class="status-breakdown" id="status-breakdown"></div>
+      <div class="status-change" id="status-change"></div>
+      <div class="status-timestamp" id="status-timestamp"></div>
+    </div>
+    <div class="stats-grid" id="stats-grid"></div>
   </div>
-
-  <div class="stats-grid" id="stats-grid"></div>
 
   <span class="nav-anchor" id="hourly"></span>
   <div class="panel">
-    <h2>Hourly Generation Profile — Today vs. Typical
+    <h2>Hourly profile
       <span class="panel-note">
+        Today vs. typical<br>
         <button class="toggle-btn active" data-hmode="gen">Generation</button><button class="toggle-btn" data-hmode="reserve">Reserve</button>
       </span>
     </h2>
@@ -596,11 +1013,11 @@
   <div class="source-note">
     <p><b>Data source:</b> <a href="https://genera-pr.com/data-generacion">Genera PR / PREPA operational feed</a>. This page is not affiliated with Genera PR or PREPA. The adequacy status is an independent indicator, not an official grid alert.</p>
   </div>
-</div>
 
-<footer class="site-footer">
-  <p>&copy; <span id="copyright-year">2026</span> Sens ABI LLC. All rights reserved.</p>
-</footer>
+  <footer class="footer">
+    <p>&copy; <span id="copyright-year">2026</span> Sens ABI LLC. All rights reserved. | Standard W9/1099 Process for US Clients</p>
+  </footer>
+</div>
 <script>document.getElementById('copyright-year').textContent=new Date().getFullYear();</script>
 
 <script>
@@ -666,6 +1083,35 @@
 
   const chartFont = { family: "'Source Code Pro', monospace" };
   const AST_TZ = "America/Puerto_Rico";
+  const chartCss = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  const chartTextColor = () => chartCss("--chart-text") || "#333333";
+  const chartGridColor = () => chartCss("--chart-grid") || "#dddddd";
+
+  function applyChartTheme() {
+    Chart.defaults.color = chartTextColor();
+    Chart.defaults.borderColor = chartGridColor();
+  }
+
+  function refreshChartTheme(chart) {
+    if (!chart) return;
+    Object.values(chart.options.scales || {}).forEach(scale => {
+      if (scale.grid) scale.grid.color = chartGridColor();
+      if (scale.ticks) scale.ticks.color = chartTextColor();
+      if (scale.title) scale.title.color = chartTextColor();
+    });
+    if (chart.options.plugins?.legend?.labels) {
+      chart.options.plugins.legend.labels.color = chartTextColor();
+    }
+    chart.update("none");
+  }
+
+  applyChartTheme();
+  window.refreshAnalyticsTheme = function () {
+    applyChartTheme();
+    refreshChartTheme(chartHourly);
+    refreshChartTheme(chartHistory);
+    refreshChartTheme(chartCost);
+  };
 
   // --- Supabase fetch helper (paginates to bypass server max-rows cap) ---
   async function sbQuery(view, params = "") {
@@ -1015,7 +1461,7 @@
         },
         scales: {
           x: { ticks: { font: { ...chartFont, size: 10 } }, grid: { display: false }, title: { display: true, text: "Hour of day (AST)", font: { ...chartFont, size: 10 } } },
-          y: { beginAtZero: true, ticks: { font: { ...chartFont, size: 10 }, callback: v => v + " MW" }, grid: { color: "#f0f0f0" } },
+          y: { beginAtZero: true, ticks: { font: { ...chartFont, size: 10 }, callback: v => v + " MW" }, grid: { color: chartGridColor() } },
         },
       },
     });
@@ -1086,8 +1532,8 @@
         interaction: { intersect: false, mode: "index" },
         plugins: { legend: { labels: { font: { ...chartFont, size: 11 } } }, tooltip: { titleFont: chartFont, bodyFont: chartFont, callbacks: { title: i => i.length ? new Date(i[0].parsed.x).toLocaleString("en-US", { timeZone: AST_TZ, dateStyle: "medium", timeStyle: "short" }) + " AST" : "" } } },
         scales: {
-          x: { type: "time", ticks: { font: { ...chartFont, size: 10 } }, grid: { color: "#f0f0f0" } },
-          y: { ticks: { font: { ...chartFont, size: 10 }, callback: v => v + " MW" }, grid: { color: "#f0f0f0" }, title: { display: true, text: "Generation / capacity", font: { ...chartFont, size: 10 } } },
+          x: { type: "time", ticks: { font: { ...chartFont, size: 10 } }, grid: { color: chartGridColor() } },
+          y: { ticks: { font: { ...chartFont, size: 10 }, callback: v => v + " MW" }, grid: { color: chartGridColor() }, title: { display: true, text: "Generation / capacity", font: { ...chartFont, size: 10 } } },
           y1: { position: "right", beginAtZero: true, ticks: { font: { ...chartFont, size: 10 }, callback: v => v + " MW" }, grid: { drawOnChartArea: false }, title: { display: true, text: "Reserve", font: { ...chartFont, size: 10 } } },
         },
       },
@@ -1128,8 +1574,8 @@
               label: c => ` ${c.dataset.label}: $${fmt(c.parsed.y, 2)}/MWh` } },
         },
         scales: {
-          x: { type: "time", ticks: { font: { ...chartFont, size: 10 } }, grid: { color: "#f0f0f0" } },
-          y: { ticks: { font: { ...chartFont, size: 10 }, callback: v => "$" + v }, grid: { color: "#f0f0f0" }, title: { display: true, text: "$/MWh", font: { ...chartFont, size: 10 } } },
+          x: { type: "time", ticks: { font: { ...chartFont, size: 10 } }, grid: { color: chartGridColor() } },
+          y: { ticks: { font: { ...chartFont, size: 10 }, callback: v => "$" + v }, grid: { color: chartGridColor() }, title: { display: true, text: "$/MWh", font: { ...chartFont, size: 10 } } },
         },
       },
     });
@@ -1298,22 +1744,38 @@
   // --- Init ---
   init().catch(e => { console.error(e); showNoData("Could not load generation data: " + e.message); });
 </script>
-<button class="stn-top" type="button" aria-label="Back to top" title="Back to top">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
-</button>
 <script>
+  // Scroll-progress back-to-top control.
   (function () {
-    var btn = document.querySelector(".stn-top");
-    if (!btn) return;
-    var onScroll = function () {
-      if (window.scrollY > 400) btn.classList.add("show");
-      else btn.classList.remove("show");
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    btn.addEventListener("click", function () {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
+    var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var backToTop = document.querySelector('.back-to-top');
+    var topControlFrame = 0;
+
+    function syncBackToTop() {
+      topControlFrame = 0;
+      if (!backToTop) return;
+      var scrollable = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      var progress = Math.min(1, Math.max(0, window.scrollY / scrollable));
+      var revealAt = Math.max(420, window.innerHeight * 0.8);
+      var visible = window.scrollY > revealAt;
+      backToTop.style.setProperty('--top-progress', (progress * 360).toFixed(1) + 'deg');
+      backToTop.classList.toggle('is-visible', visible);
+      backToTop.setAttribute('aria-hidden', visible ? 'false' : 'true');
+      backToTop.tabIndex = visible ? 0 : -1;
+    }
+
+    function queueTopControlSync() {
+      if (!topControlFrame) { topControlFrame = window.requestAnimationFrame(syncBackToTop); }
+    }
+
+    if (backToTop) {
+      backToTop.addEventListener('click', function () {
+        window.scrollTo({ top: 0, behavior: reducedMotion ? 'auto' : 'smooth' });
+      });
+      syncBackToTop();
+      window.addEventListener('scroll', queueTopControlSync, { passive: true });
+      window.addEventListener('resize', queueTopControlSync, { passive: true });
+    }
   })();
 </script>
 </body>
