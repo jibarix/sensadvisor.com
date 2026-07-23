@@ -1,5 +1,19 @@
+# --- Research / report HTML kept out of the published site ---
 zhang_cosine_visualization.html
 tdlm_validation_report.html
 research-document.html
 hrm_validation.html
 accelerating_ddm_report.html
+
+# --- Local-only files, never publish ---
+upwork-profile-overview.txt
+debug.log
+*.log
+
+# --- OS / editor cruft ---
+.DS_Store
+Thumbs.db
+desktop.ini
+*.tmp
+*.bak
+*~
