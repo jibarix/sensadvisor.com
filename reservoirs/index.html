@@ -338,6 +338,15 @@
   .layer-estimate   { background: rgba(154,160,166,0.12); }
   .layer-historical { background: rgba(150,110,80,0.07); }
 
+  /* Dark-mode legibility: the provenance badges / layer banners above use hardcoded
+     light-theme colors (e.g. #111 measured), which go near-invisible on the dark
+     surface. Re-light them; these selectors outrank the plain .prov-* rules. */
+  :root[data-theme="dark"] .prov-measured   { border-color: var(--primary-text); color: var(--primary-text); }
+  :root[data-theme="dark"] .prov-official   { border-color: #4f93ad; color: #7fc4e0; }
+  :root[data-theme="dark"] .prov-estimate   { border-color: #6b7075; color: var(--secondary-text); }
+  :root[data-theme="dark"] .prov-historical { border-color: rgba(190,150,110,0.6); color: #cba680; }
+  :root[data-theme="dark"] .layer-measured  { background: rgba(255,255,255,0.04); }
+
   /* "independent analysis" tag beside the logo */
   .independent-tag {
     font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
