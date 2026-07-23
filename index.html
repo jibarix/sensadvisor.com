@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SENS ADVISOR | Jorge A. Arroyo - xP&A Consultant</title>
-    
+    <title>SENS ADVISOR | Jorge A. Arroyo - xP&A & Data Consultant</title>
+
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
@@ -19,7 +19,7 @@
     <link rel="canonical" href="https://www.sensadvisor.com/" />
 
     <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="SENS ADVISOR | Jorge A. Arroyo - xP&A Consultant" />
+    <meta property="og:title" content="SENS ADVISOR | Jorge A. Arroyo - xP&A & Data Consultant" />
     <meta property="og:description" content="SENS ADVISOR provides expert consulting in Financial Modeling, Puerto Rico Private Company Valuation, Azure BI Services, and Custom Advanced Analytics. Gain financial clarity through integrated xP&A." />
     <meta property="og:url" content="https://www.sensadvisor.com/" />
     <meta property="og:type" content="website" />
@@ -28,7 +28,7 @@
 
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="SENS ADVISOR | Jorge A. Arroyo - xP&A Consultant" />
+    <meta name="twitter:title" content="SENS ADVISOR | Jorge A. Arroyo - xP&A & Data Consultant" />
     <meta name="twitter:description" content="Expert consulting in Financial Modeling, Puerto Rico Private Company Valuation, Azure BI Services, and Custom Advanced Analytics." />
 
     <!-- Structured Data (JSON-LD) -->
@@ -42,7 +42,7 @@
       "founder": {
         "@type": "Person",
         "name": "Jorge A. Arroyo",
-        "jobTitle": "xP&A Consultant"
+        "jobTitle": "xP&A & Data Consultant"
       },
       "areaServed": "Puerto Rico",
       "serviceType": ["Financial Modeling", "Business Valuation", "Azure BI Services", "Advanced Analytics", "AI Consulting"]
@@ -953,6 +953,96 @@
                 transition-duration: 0.01ms !important;
             }
         }
+
+        /* ===== Hero: live PR infrastructure monitor ===== */
+        .hero { margin: 0 0 40px; }
+        .monitor {
+            border: 2px solid var(--border-primary);
+            border-radius: 8px;
+            background: var(--primary-bg);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 26px;
+        }
+        .monitor-head {
+            display: flex; align-items: center; gap: 12px;
+            padding: 9px 16px;
+            border-bottom: 2px solid var(--border-primary);
+            background: var(--accent-lighter);
+            font-size: 0.78rem;
+        }
+        .monitor-live { display: inline-flex; align-items: center; gap: 7px; font-weight: 700; letter-spacing: 0.14em; }
+        .mon-dot-live { width: 9px; height: 9px; border-radius: 50%; background: #00cc00; animation: mon-pulse 1.6s ease-out infinite; }
+        @keyframes mon-pulse {
+            0%   { box-shadow: 0 0 0 0 rgba(0,204,0,0.6); opacity: 1; }
+            70%  { box-shadow: 0 0 0 7px rgba(0,204,0,0); opacity: .5; }
+            100% { box-shadow: 0 0 0 0 rgba(0,204,0,0); opacity: 1; }
+        }
+        .monitor-title { color: var(--secondary-text); flex: 1 1 auto; }
+        .monitor-refresh { color: var(--secondary-text); opacity: 0.75; font-size: 0.72rem; white-space: nowrap; }
+        .monitor-grid { display: grid; grid-template-columns: repeat(3, 1fr); }
+        .mon-tile {
+            display: flex; flex-direction: column; gap: 3px;
+            padding: 18px 20px;
+            text-decoration: none;
+            color: var(--primary-text);
+            border-right: 1px solid var(--accent-light);
+            position: relative;
+            transition: background 0.2s ease;
+        }
+        .mon-tile:last-child { border-right: none; }
+        .mon-tile:hover { background: var(--accent-lighter); }
+        .mon-tile::after {
+            content: "VIEW \2192";
+            position: absolute;
+            right: 18px;
+            bottom: 17px;
+            color: var(--secondary-text);
+            font-size: 0.66rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            opacity: 0.65;
+        }
+        .mon-dot { width: 11px; height: 11px; border-radius: 50%; background: #ccc; position: absolute; top: 18px; right: 18px; transition: background 0.3s ease; }
+        .mon-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--secondary-text); }
+        .mon-value { font-size: 1.15rem; font-weight: 400; margin-top: 2px; padding-right: 16px; }
+        .mon-value strong { font-weight: 700; }
+        .mon-value small { font-size: 0.82rem; color: var(--secondary-text); font-weight: 500; }
+        .mon-sub { font-size: 0.78rem; color: var(--secondary-text); }
+        .mon-ts { font-size: 0.68rem; color: var(--secondary-text); opacity: 0.7; margin-top: 4px; min-height: 0.8rem; padding-right: 58px; }
+        .hero-copy { max-width: 760px; }
+        .hero h1 { font-size: 2.6rem; font-weight: 700; line-height: 1.12; letter-spacing: -0.01em; margin-bottom: 16px; }
+        .hero-sub { font-size: 1.05rem; color: var(--secondary-text); margin-bottom: 24px; max-width: 700px; }
+        .hero-cta { display: flex; flex-wrap: wrap; gap: 14px; }
+        .hero-btn {
+            padding: 12px 24px; font-family: inherit; font-weight: 600; font-size: 0.95rem;
+            text-decoration: none; border-radius: 4px; border: 2px solid var(--primary-text);
+            transition: all 0.2s ease; display: inline-block;
+        }
+        .hero-btn-primary { background: var(--primary-text); color: var(--primary-bg); }
+        .hero-btn-primary:hover { background: var(--primary-bg); color: var(--primary-text); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .hero-btn-ghost { background: var(--primary-bg); color: var(--primary-text); }
+        .hero-btn-ghost:hover { background: var(--accent-light); transform: translateY(-1px); }
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+        }
+        @media (max-width: 640px) {
+            .hero { display: flex; flex-direction: column; }
+            .hero-copy { order: 1; }
+            .monitor { order: 2; margin: 28px 0 0; }
+            .monitor-grid { grid-template-columns: 1fr; }
+            .mon-tile { border-right: none; border-bottom: 1px solid var(--accent-light); }
+            .mon-tile:last-child { border-bottom: none; }
+            .monitor-title { display: none; }
+        }
+        @media (max-width: 480px) {
+            .hero h1 { font-size: 1.6rem; }
+            .hero-sub { font-size: 0.95rem; }
+            .hero-btn { width: 100%; text-align: center; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .mon-dot-live { animation: none !important; }
+        }
     </style>
 </head>
 <body>
@@ -967,7 +1057,6 @@
                     <span class="hamburger-line"></span>
                 </button>
                 <nav class="nav">
-                    <a href="#research">Research</a>
                     <a href="#services">Services</a>
                     <div class="nav-dropdown">
                         <span class="nav-dropdown-trigger">Analytics ▾</span>
@@ -980,6 +1069,7 @@
                             <a href="reservoirs/">PR Reservoir Levels</a>
                         </div>
                     </div>
+                    <a href="#research">Research</a>
                     <a href="#about">About</a>
                     <a href="https://github.com/jibarix" target="_blank">Code</a>
                     <a href="https://x.com/jorgearroyox" target="_blank">Insights</a>
@@ -989,136 +1079,165 @@
         </header>
 
 
-<!-- Research Section -->
-<section id="research" class="panel">
-    <h2>Academic Research & Publications</h2>
-    <p style="text-align: center; color: var(--secondary-text); margin-bottom: 30px;">
-        Interdisciplinary research spanning applied econometrics, urban economics, and AI safety
-    </p>
-    
-    <div class="research-grid">
-        <!-- ArXiv Paper 1 -->
-        <div class="research-card">
-            <div class="research-meta">
-                <span>ARXIV PRE-PRINT</span>
-                <span class="document-id">arXiv:2511.19469</span>
-            </div>
-            <h3>Big Wins, Small Net Gains: Direct and Spillover Effects of First Industry Entries in Puerto Rico</h3>
-            <p>This study examines how first sizable industry entries reshape local and neighboring labor markets across Puerto Rico using over a decade of quarterly municipality-industry data (2014Q1-2025Q1). Employing robust staggered difference-in-differences estimators and doubly robust frameworks with spatial interference modeling, the research identifies large persistent direct employment and wage gains in treated municipalities while accounting for spillover effects through contiguity networks.</p>
-            <p><strong>Key Topics:</strong> Labor markets, Economic development, Spatial econometrics, Causal inference, Regional economics</p>
-            <a href="https://arxiv.org/abs/2511.19469" class="research-button" target="_blank">VIEW ON ARXIV →</a>
-        </div>
 
-        <!-- ArXiv Paper 2 -->
-        <div class="research-card">
-            <div class="research-meta">
-                <span>ARXIV PRE-PRINT</span>
-                <span class="document-id">arXiv:2510.25782</span>
+        <!-- Hero Section: live PR infrastructure monitor -->
+        <section class="hero" aria-label="Introduction">
+            <div class="monitor" aria-label="Live Puerto Rico infrastructure monitor">
+                <div class="monitor-head">
+                    <span class="monitor-live"><span class="mon-dot-live"></span>LIVE</span>
+                    <span class="monitor-title">Puerto Rico infrastructure &middot; monitored in real time</span>
+                    <span class="monitor-refresh" id="mon-refresh">connecting&hellip;</span>
+                </div>
+                <div class="monitor-grid">
+                    <a class="mon-tile" href="outages/" id="mon-grid">
+                        <span class="mon-dot"></span>
+                        <span class="mon-label">Power grid</span>
+                        <span class="mon-value">&mdash;</span>
+                        <span class="mon-sub">clients without power</span>
+                        <span class="mon-ts"></span>
+                    </a>
+                    <a class="mon-tile" href="generation/" id="mon-gen">
+                        <span class="mon-dot"></span>
+                        <span class="mon-label">Generation</span>
+                        <span class="mon-value">&mdash;</span>
+                        <span class="mon-sub">supply vs. reserve</span>
+                        <span class="mon-ts"></span>
+                    </a>
+                    <a class="mon-tile" href="reservoirs/" id="mon-water">
+                        <span class="mon-dot"></span>
+                        <span class="mon-label">Reservoirs</span>
+                        <span class="mon-value">&mdash;</span>
+                        <span class="mon-sub">vs. PRASA thresholds</span>
+                        <span class="mon-ts"></span>
+                    </a>
+                </div>
             </div>
-            <h3>Short-Run Multi-Outcome Effects of Nightlife Regulation in San Juan</h3>
-            <p>An evaluation of San Juan's late-night alcohol sales ordinance using multi-outcome synthetic control methods that pool economic and public-safety indicators. The study demonstrates how common-weight estimators can clarify policy mechanisms under low-rank outcome structures, finding economically meaningful reallocations in targeted sectors (restaurants, bars, hospitality) without clear departures in public disorder or violent crime metrics.</p>
-            <p><strong>Key Topics:</strong> Policy evaluation, Synthetic control, Urban economics, Public safety, Alcohol regulation</p>
-            <a href="https://arxiv.org/abs/2510.25782" class="research-button" target="_blank">VIEW ON ARXIV →</a>
-        </div>
-
-        <!-- SSRN Paper 1 -->
-        <div class="research-card">
-            <div class="research-meta">
-                <span>SSRN PRE-PRINT</span>
-                <span class="document-id">SSRN-5812003</span>
+            <div class="hero-copy">
+                <h1>I build data products that run on their own.</h1>
+                <p class="hero-sub">This live board is one of mine: Puerto Rico's power grid, generation, and reservoirs, updated automatically from public feeds. I'm Jorge, an <strong>xP&amp;A and data consultant</strong> who turns messy operational and financial data into systems that ship and keep working.</p>
+                <div class="hero-cta">
+                    <a href="#contact" class="hero-btn hero-btn-primary">Let's talk &rarr;</a>
+                    <a href="#services" class="hero-btn hero-btn-ghost">See what I do &rarr;</a>
+                </div>
             </div>
-            <h3>Disaster, Capital, and Neighborhood Change: Tract-Level Evidence on Post-María Gentrification in Puerto Rico</h3>
-            <p>This paper provides tract-level evidence on post-disaster gentrification patterns following Hurricane María in Puerto Rico. Using vulnerability models and XGBoost classification, it demonstrates that strong post-shock upgrading occurs selectively in tracts combining low baseline incomes with higher educational attainment and lower residential mobility. The findings reveal path-dependent gentrification shaped by pre-existing socioeconomic conditions and provide vulnerability measures to inform anti-displacement policy.</p>
-            <p><strong>Key Topics:</strong> Urban gentrification, Disaster economics, Machine learning, Housing policy, Socioeconomic vulnerability</p>
-            <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5812003" class="research-button" target="_blank">VIEW ON SSRN →</a>
-        </div>
-
-        <!-- SSRN Paper 2 -->
-        <div class="research-card">
-            <div class="research-meta">
-                <span>SSRN PRE-PRINT</span>
-                <span class="document-id">SSRN-6180258</span>
-            </div>
-            <h3>The Rule-Relocation Problem in Bio-Inspired AI</h3>
-            <p>Bio-inspired AI is increasingly presented as overcoming externally imposed objectives by internalizing regulation through drives, homeostasis, or predictive control. This Perspective argues that this narrative is often mistaken: in many contemporary designs, normativity is not eliminated but relocated, with constraints compiled into internal variables, learning rules, or deployment infrastructures while authorship remains external. To make this relocation explicit, this Perspective introduces a lifecycle map that locates where normative "whistles" enter AI systems from training through deployment, and proposes a constructive design pattern — the separation of an explicit Safety Envelope from an internal Adaptive Space — that preserves robust control while making normative authorship auditable and governable.</p>
-            <p><strong>Key Topics:</strong> AI safety, Bio-inspired AI, Normativity, Rule relocation, Safety envelope, Adaptive space</p>
-            <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6180258" class="research-button" target="_blank">VIEW ON SSRN →</a>
-        </div>
-
-        <!-- SSRN Paper 4 -->
-        <div class="research-card">
-            <div class="research-meta">
-                <span>SSRN PRE-PRINT</span>
-                <span class="document-id">SSRN-5939414</span>
-            </div>
-            <h3>Who Bears the Burden of Island-Wide Electricity Shortfalls? Evidence from Puerto Rico</h3>
-            <p>Puerto Rico faces persistent electricity reliability challenges, raising a key question: can standard aggregate stress indicators detect the spatial incidence of the economic burden? This paper estimates municipal incidence of monthly shortfalls by combining island-month variation in shortfall measures with predetermined cross-municipality differences in electricity-dependence. Exposure is constructed from 2019 sector composition using electricity-intensity weights; outcomes include real retail sales and municipal employment over 2020-2025. The results indicate that aggregate shortfall metrics are not a reliable basis for detecting granular economic incidence.</p>
-            <p><strong>Key Topics:</strong> Electricity reliability, Infrastructure economics, Puerto Rico, Spatial analysis, Economic burden, Energy policy</p>
-            <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5939414" class="research-button" target="_blank">VIEW ON SSRN →</a>
-        </div>
-
-        <!-- SSRN Paper 5 -->
-        <div class="research-card">
-            <div class="research-meta">
-                <span>SSRN PRE-PRINT</span>
-                <span class="document-id">SSRN-6103787</span>
-            </div>
-            <h3>The Controlled U.S. Corporate Footprint by Owner Jurisdiction: Evidence from IRS SOI Data (2002–2022)</h3>
-            <p>This paper constructs a 2002-2022 panel from IRS Statistics of Income tabulations to map the controlled U.S. corporate footprint associated with SOI-assigned foreign owner jurisdictions. Using co-equal measures of balance-sheet scale, reported income, and profitability, the research documents persistent concentration among a small set of jurisdictions and a weak alignment between asset scale and reported returns. The analysis situates Puerto Rico within cross-jurisdiction distributions, highlighting recent years in which moderate scale coincides with relatively high reported profitability. The results provide a transparent, replicable baseline for interpreting owner-jurisdiction labels in U.S. corporate tax data.</p>
-            <p><strong>Key Topics:</strong> Foreign-controlled corporations, IRS Statistics of Income, Owner jurisdiction, Corporate profitability, Offshore financial centers, Tax policy, Puerto Rico</p>
-            <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6103787" class="research-button" target="_blank">VIEW ON SSRN →</a>
-        </div>
-
-        <!-- SSRN Paper - When GDP Is Not Enough -->
-        <div class="research-card">
-            <div class="research-meta">
-                <span>SSRN PRE-PRINT</span>
-                <span class="document-id">SSRN-6198498</span>
-            </div>
-            <h3>When GDP Is Not Enough: Puerto Rico, Statistical Boundaries, and the Limits of National Accounting in a Regional Economy</h3>
-            <p>This paper argues that Puerto Rico's core macroeconomic interpretive problem is institutional rather than technical: the island is economically "external" yet statistically "internal" to U.S. survey and accounting architectures, preventing a consistently implemented resident/non-resident boundary across production, income, and financial accounts. Drawing on primary-source documentation and official reports from 1989–2023, the analysis reconstructs the evolution of Puerto Rico's macroeconomic accounts and demonstrates why GDP modernization alone cannot resolve ambiguity about resident income and external dependence.</p>
-            <p><strong>Key Topics:</strong> National accounting, GDP/GNP measurement, Statistical boundaries, Macroeconomic systems, Puerto Rico economy, BEA methodology, Accounting closure</p>
-            <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6198498" class="research-button" target="_blank">VIEW ON SSRN →</a>
-        </div>
-
-        <!-- Manuscript 2 - Diagnostic Companion -->
-        <div class="research-card">
-            <div class="research-meta">
-                <span>DIAGNOSTIC COMPANION</span>
-                <span class="document-id">PR-GDP-QA-2026</span>
-            </div>
-            <h3>When GDP Is Not Enough: Q&A on Puerto Rico's Macroeconomic Accounts, Statistical Boundaries, and Accounting Closure</h3>
-            <p>A diagnostic companion document that examines whether Puerto Rico's published aggregates (GDP, GNP, BOP, and related tables) form a closed and internally coherent macroeconomic system. Using direct quotations from official PRPB and BEA methodology documents, this Q&A identifies specific measurement gaps, residual calculations, and structural blind spots that prevent system closure. Each entry concludes with a policy implication describing what users cannot do reliably when that data gap persists.</p>
-            <p><strong>Key Topics:</strong> Data quality assessment, Statistical methodology, Measurement limitations, PRPB documentation, BEA methodologies, Policy implications, Forensic analysis</p>
-            <a href="https://sensadvisor.com/manuscripts/when_gpd_is_not_enough_diagnostic_companion_v2.pdf" class="research-button" target="_blank">VIEW COMPANION →</a>
-        </div>
-
-        <!-- SSRN Paper - Spurious Fit in Thin Markets -->
-        <div class="research-card">
-            <div class="research-meta">
-                <span>SSRN PRE-PRINT</span>
-                <span class="document-id">SSRN-6278098</span>
-            </div>
-            <h3>Spurious Fit in Thin Markets: A Preprocessing Cautionary Tale Using Puerto Rico GO Spreads</h3>
-            <p>Post-restructuring Puerto Rico GO bond spreads achieve strong in-sample fit but fail dramatically in walk-forward evaluation. Using transaction-level yields from EMMA for Series 2022A maturities matched to U.S. Treasury benchmarks, this paper constructs a monthly fiscal-stress signal and documents that a one-lag predictive regression produces high burn-in R² (~0.52) and a permutation p-value of 0.006 — yet out-of-sample R² collapses to approximately −6.4 to −8.3, with a simple AR(1) benchmark dominating throughout. A forensic preprocessing audit identifies the rolling standardization window as the smoking gun: short 126-day Z-scores manufacture apparent predictability by adapting to local regimes, while extending to 252 days substantially reduces the walk-forward collapse but eliminates in-sample significance entirely.</p>
-            <p><strong>Key Topics:</strong> Spurious regression, Thin market microstructure, Preprocessing forensics, Walk-forward validation, Municipal bonds, Puerto Rico economy, Forecasting</p>
-            <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6278098" class="research-button" target="_blank">VIEW ON SSRN →</a>
-        </div>
-
-        <!-- SSRN Paper - Financial Fragility -->
-        <div class="research-card">
-            <div class="research-meta">
-                <span>SSRN PRE-PRINT</span>
-                <span class="document-id">SSRN-6325338</span>
-            </div>
-            <h3>Diagnosing Financial Fragility in a Complex Economy</h3>
-            <p>Periods of market stability often coincide with rising financial fragility. Standard risk measures appear reliable until liquidity constraints bind, at which point losses escalate rapidly and decision-making becomes forced. This article reframes fragility as a diagnostic and governance problem rather than a forecasting failure. It explains how leverage, funding dependence, crowding, and intermediary balance-sheet constraints accumulate quietly during calm periods and are transmitted through liquidity constraints under stress, and offers practical guidance for monitoring fragility, stress testing liquidation mechanics, constructing resilient portfolios, and establishing governance rules that prioritize robustness over precision.</p>
-            <p><strong>Key Topics:</strong> Financial fragility, Liquidity risk, Leverage, Balance-sheet constraints, Stress testing, Portfolio resilience, Risk governance</p>
-            <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6325338" class="research-button" target="_blank">VIEW ON SSRN →</a>
-        </div>
-
-    </div>
-</section>
+        </section>
+        <script>
+        (function () {
+            var SB = "https://grovomkpsqgzakfuvuii.supabase.co";
+            var KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdyb3ZvbWtwc3FnemFrZnV2dWlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NzkxMjgsImV4cCI6MjA5MDE1NTEyOH0.U_ZH5gJij5NLkU786mV58uJ0orHZ6ElMkCtyoyuCvBg";
+            var HED = { apikey: KEY, Authorization: "Bearer " + KEY };
+            function sb(path) {
+                return fetch(SB + "/rest/v1/" + path, { headers: HED, cache: "no-store" })
+                    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); });
+            }
+            function fmt(n) { return (Math.round(n)).toLocaleString("en-US"); }
+            function num(value) {
+                if (value == null || value === "") return null;
+                var n = Number(value);
+                return Number.isFinite(n) ? n : null;
+            }
+            function hhmm(iso) {
+                var d = new Date(iso);
+                if (isNaN(d)) return "";
+                return "updated " + d.toLocaleTimeString("en-US", {
+                    timeZone: "America/Puerto_Rico", hour: "numeric", minute: "2-digit"
+                }) + " AST";
+            }
+            function paint(id, valueHtml, sub, color, ts) {
+                var el = document.getElementById(id); if (!el) return;
+                el.querySelector(".mon-value").innerHTML = valueHtml;
+                if (sub != null) el.querySelector(".mon-sub").textContent = sub;
+                el.querySelector(".mon-dot").style.background = color;
+                el.querySelector(".mon-ts").textContent = ts || "";
+            }
+            function fail(id) {
+                var el = document.getElementById(id); if (!el) return;
+                el.querySelector(".mon-value").textContent = "feed unavailable";
+                el.querySelector(".mon-dot").style.background = "#999";
+                el.querySelector(".mon-ts").textContent = "";
+            }
+            function loadGrid() {
+                return sb("v_outage_snapshots_slim?select=observed_at,snapshot&order=observed_at.desc&limit=1")
+                    .then(function (rows) {
+                        var r = rows && rows[0]; if (!r) throw 0;
+                        var t = (r.snapshot && r.snapshot.total) || {};
+                        var without = t.without || 0, total = t.total || 0, planned = t.planned || 0;
+                        var unplanned = Math.max(0, without - planned);
+                        var statusPct = total ? (unplanned / total * 100) : 0;
+                        var color = statusPct >= 10 ? "#e04343" : statusPct >= 3 ? "#e86235" : statusPct >= 1 ? "#faa72a" : "#76ad2a";
+                        paint("mon-grid",
+                            "<strong>" + fmt(without) + "</strong> <small>without power</small>",
+                            statusPct.toFixed(1) + "% unplanned", color, hhmm(r.observed_at));
+                    }).catch(function () { fail("mon-grid"); });
+            }
+            function loadGen() {
+                return Promise.all([
+                    sb("v_generation_latest?select=*"),
+                    sb("v_generation_units?select=mw")
+                ]).then(function (res) {
+                    var latest = res[0] && res[0][0]; if (!latest) throw 0;
+                    var m = latest.metrics || {};
+                    var gen = num(m.totalGeneration), cap = num(m.availableCapacityMw),
+                        opRes = num(m.operatingReserveMw), nextHr = num(m.nextHourMw);
+                    if (gen == null || opRes == null) throw 0;
+                    var n1 = (res[1] || []).reduce(function (a, u) {
+                        var v = num(u.mw);
+                        return v != null && v >= 1 && v > a ? v : a;
+                    }, 0) || null;
+                    var marginNext = (cap != null && nextHr != null) ? cap - nextHr : null;
+                    var label, color;
+                    if ((marginNext != null && marginNext < 0) || opRes < 50) {
+                        label = "Reserves critically low"; color = "#e04343";
+                    } else if ((n1 != null && opRes < n1) ||
+                               (n1 != null && marginNext != null && marginNext < n1)) {
+                        label = "Thin reserves"; color = "#faa72a";
+                    } else {
+                        label = "Adequate reserves"; color = "#76ad2a";
+                    }
+                    paint("mon-gen",
+                        "<strong>" + fmt(gen) + "</strong> <small>MW generating &middot; " + fmt(opRes) + " MW operating reserve</small>",
+                        label, color, hhmm(latest.observed_at));
+                }).catch(function () { fail("mon-gen"); });
+            }
+            function loadWater() {
+                return sb("v_reservoir_status?select=status,status_rank,measured_at")
+                    .then(function (rows) {
+                        if (!rows || !rows.length) throw 0;
+                        var total = rows.length;
+                        var ranked = rows.filter(function (r) { return r.status_rank != null; });
+                        if (!ranked.length) throw 0;
+                        var worst = ranked.reduce(function (a, r) { return Math.max(a, +r.status_rank); }, -1);
+                        var belowNormal = ranked.filter(function (r) { return +r.status_rank >= 2; });
+                        var nControl = ranked.filter(function (r) { return +r.status_rank >= 4; }).length;
+                        var nAdjust = ranked.filter(function (r) { return +r.status_rank === 3; }).length;
+                        var nWatch = ranked.filter(function (r) { return +r.status_rank === 2; }).length;
+                        var color = worst >= 4 ? "#e04343" : worst === 3 ? "#d1793f" : worst === 2 ? "#faa72a" : "#76ad2a";
+                        var value = belowNormal.length
+                            ? "<strong>" + belowNormal.length + "</strong> <small>of " + total + " below normal</small>"
+                            : "<strong>All " + total + "</strong> <small>within normal bands</small>";
+                        var bands = [];
+                        if (nControl) bands.push(nControl + " at Control or below");
+                        if (nAdjust) bands.push(nAdjust + " in Ajustes");
+                        if (nWatch) bands.push(nWatch + " in Observaci\u00f3n");
+                        var latest = ranked.reduce(function (a, r) {
+                            var t = r.measured_at ? new Date(r.measured_at).getTime() : 0;
+                            return t > a ? t : a;
+                        }, 0);
+                        paint("mon-water", value,
+                            bands.length ? bands.join(" \u00b7 ") : "at or above Seguridad",
+                            color, latest ? hhmm(new Date(latest).toISOString()) : "");
+                    }).catch(function () { fail("mon-water"); });
+            }
+            function refreshAll() {
+                var rf = document.getElementById("mon-refresh");
+                Promise.all([loadGrid(), loadGen(), loadWater()]).then(function () {
+                    if (rf) rf.textContent = "auto-refreshing";
+                });
+            }
+            refreshAll();
+            setInterval(refreshAll, 5 * 60 * 1000);
+        })();
+        </script>
 
         <!-- Services Section -->
         <section id="services" class="panel">
@@ -1137,7 +1256,7 @@
                     </ul>
                     <p><strong>Ideal for:</strong> CFOs, startup founders, investors evaluating PR opportunities, M&A transactions</p>
                 </div>
-                
+
                 <div class="service-card">
                     <h3>Data & Business Intelligence</h3>
                     <p>End-to-end BI solutions leveraging Microsoft Azure cloud platform for actionable insights.</p>
@@ -1151,14 +1270,174 @@
                     </ul>
                     <p><strong>Ideal for:</strong> Operations leaders, IT/BI heads, organizations with data silos, cloud migration projects</p>
                 </div>
+
+                <div class="service-card">
+                    <h3>Custom Analytics & Data Products</h3>
+                    <p>Live, decision-ready data products built on automated pipelines — from real-time monitoring to predictive models.</p>
+                    <ul>
+                        <li>Real-Time Economic & Market Dashboards</li>
+                        <li>Automated Data Pipelines (Scraping, ETL, Cloud DB)</li>
+                        <li>Forecasting & Predictive Modeling</li>
+                        <li>Economic Indicators & Monitoring</li>
+                        <li>Interactive, Public-Facing Dashboards</li>
+                        <li>Ongoing Data Refresh & Maintenance</li>
+                    </ul>
+                    <p><strong>Ideal for:</strong> organizations needing continuous monitoring, market intelligence, or data-driven public reporting — see live examples under Analytics</p>
+                </div>
+
+                <div class="service-card">
+                    <h3>AI & LLM Solutions</h3>
+                    <p>Evidence-based AI implementation grounded in hands-on research — practical gains, not hype.</p>
+                    <ul>
+                        <li>LLM Workflow Automation & Tooling</li>
+                        <li>AI Literacy & Agentic Tool Enablement (Claude Code, Codex)</li>
+                        <li>Model Evaluation & Validation</li>
+                        <li>Document & Data Extraction</li>
+                        <li>Realistic AI Opportunity Assessments</li>
+                        <li>Analysis-Time Reduction & Process Automation</li>
+                    </ul>
+                    <p><strong>Ideal for:</strong> teams considering AI, automating research and reporting, or separating real capability from hype</p>
+                </div>
             </div>
         </section>
+
+<!-- Research Section -->
+<section id="research" class="panel">
+    <h2>Academic Research & Publications</h2>
+    <p style="text-align: center; color: var(--secondary-text); margin-bottom: 30px;">
+        Interdisciplinary research spanning applied econometrics, urban economics, and AI safety
+    </p>
+    
+    <div class="research-grid">
+        <!-- ArXiv Paper 1 -->
+        <div class="research-card">
+            <div class="research-meta">
+                <span>ARXIV PRE-PRINT</span>
+                <span class="document-id">arXiv:2511.19469</span>
+            </div>
+            <h3>Big Wins, Small Net Gains: Direct and Spillover Effects of First Industry Entries in Puerto Rico</h3>
+            <p>Using staggered difference-in-differences on a decade of quarterly municipality data, this study finds a municipality's first sizable industry entries deliver large, persistent local employment and wage gains — but only small net gains once neighboring-area spillovers are netted out.</p>
+            <a href="https://arxiv.org/abs/2511.19469" class="research-button" target="_blank">VIEW ON ARXIV →</a>
+        </div>
+
+        <!-- ArXiv Paper 2 -->
+        <div class="research-card">
+            <div class="research-meta">
+                <span>ARXIV PRE-PRINT</span>
+                <span class="document-id">arXiv:2510.25782</span>
+            </div>
+            <h3>Short-Run Multi-Outcome Effects of Nightlife Regulation in San Juan</h3>
+            <p>A multi-outcome synthetic-control evaluation of San Juan's late-night alcohol ordinance finds meaningful economic reallocation across restaurants, bars, and hospitality — but no clear change in public-disorder or violent-crime measures.</p>
+            <a href="https://arxiv.org/abs/2510.25782" class="research-button" target="_blank">VIEW ON ARXIV →</a>
+        </div>
+
+        <!-- SSRN Paper 1 -->
+        <div class="research-card">
+            <div class="research-meta">
+                <span>SSRN PRE-PRINT</span>
+                <span class="document-id">SSRN-5812003</span>
+            </div>
+            <h3>Disaster, Capital, and Neighborhood Change: Tract-Level Evidence on Post-María Gentrification in Puerto Rico</h3>
+            <p>Tract-level machine-learning evidence that post-Hurricane María upgrading concentrated selectively in low-income neighborhoods with higher education and lower residential mobility — a path-dependent gentrification, with vulnerability measures to guide anti-displacement policy.</p>
+            <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5812003" class="research-button" target="_blank">VIEW ON SSRN →</a>
+        </div>
+
+        <!-- SSRN Paper 2 -->
+        <div class="research-card">
+            <div class="research-meta">
+                <span>SSRN PRE-PRINT</span>
+                <span class="document-id">SSRN-6180258</span>
+            </div>
+            <h3>The Rule-Relocation Problem in Bio-Inspired AI</h3>
+            <p>Argues "self-regulating" bio-inspired AI doesn't remove externally imposed objectives but relocates them — and proposes separating an explicit Safety Envelope from an internal Adaptive Space to keep normative authorship auditable and governable.</p>
+            <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6180258" class="research-button" target="_blank">VIEW ON SSRN →</a>
+        </div>
+
+        <!-- SSRN Paper 4 -->
+        <div class="research-card">
+            <div class="research-meta">
+                <span>SSRN PRE-PRINT</span>
+                <span class="document-id">SSRN-5939414</span>
+            </div>
+            <h3>Who Bears the Burden of Island-Wide Electricity Shortfalls? Evidence from Puerto Rico</h3>
+            <p>Estimates the municipal economic incidence of Puerto Rico's 2020–2025 electricity shortfalls and shows that aggregate stress indicators fail to reveal where the burden actually lands.</p>
+            <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5939414" class="research-button" target="_blank">VIEW ON SSRN →</a>
+        </div>
+
+        <!-- SSRN Paper 5 -->
+        <div class="research-card">
+            <div class="research-meta">
+                <span>SSRN PRE-PRINT</span>
+                <span class="document-id">SSRN-6103787</span>
+            </div>
+            <h3>The Controlled U.S. Corporate Footprint by Owner Jurisdiction: Evidence from IRS SOI Data (2002–2022)</h3>
+            <p>Builds a 2002–2022 IRS Statistics of Income panel mapping the U.S. corporate footprint by foreign owner jurisdiction — documenting persistent concentration and weak alignment between asset scale and reported profitability, with Puerto Rico situated in the distribution.</p>
+            <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6103787" class="research-button" target="_blank">VIEW ON SSRN →</a>
+        </div>
+
+        <!-- SSRN Paper - When GDP Is Not Enough -->
+        <div class="research-card">
+            <div class="research-meta">
+                <span>SSRN PRE-PRINT</span>
+                <span class="document-id">SSRN-6198498</span>
+            </div>
+            <h3>When GDP Is Not Enough: Puerto Rico, Statistical Boundaries, and the Limits of National Accounting in a Regional Economy</h3>
+            <p>Argues Puerto Rico's macro-accounting problem is institutional, not technical — economically "external" yet statistically "internal" to U.S. accounts — so GDP modernization alone can't resolve ambiguity about resident income and external dependence.</p>
+            <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6198498" class="research-button" target="_blank">VIEW ON SSRN →</a>
+        </div>
+
+        <!-- Manuscript 2 - Diagnostic Companion -->
+        <div class="research-card">
+            <div class="research-meta">
+                <span>DIAGNOSTIC COMPANION</span>
+                <span class="document-id">PR-GDP-QA-2026</span>
+            </div>
+            <h3>When GDP Is Not Enough: Q&A on Puerto Rico's Macroeconomic Accounts, Statistical Boundaries, and Accounting Closure</h3>
+            <p>A diagnostic companion that tests whether Puerto Rico's published aggregates (GDP, GNP, BOP) form a closed, coherent system — using official PRPB and BEA methodology quotations to pinpoint measurement gaps and their policy consequences.</p>
+            <a href="https://sensadvisor.com/manuscripts/when_gpd_is_not_enough_diagnostic_companion_v2.pdf" class="research-button" target="_blank">VIEW COMPANION →</a>
+        </div>
+
+        <!-- SSRN Paper - Spurious Fit in Thin Markets -->
+        <div class="research-card">
+            <div class="research-meta">
+                <span>SSRN PRE-PRINT</span>
+                <span class="document-id">SSRN-6278098</span>
+            </div>
+            <h3>Spurious Fit in Thin Markets: A Preprocessing Cautionary Tale Using Puerto Rico GO Spreads</h3>
+            <p>Puerto Rico GO-spread models show strong in-sample fit yet collapse out-of-sample — a forensic audit pins the cause on a short rolling-standardization window that manufactures false predictability.</p>
+            <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6278098" class="research-button" target="_blank">VIEW ON SSRN →</a>
+        </div>
+
+        <!-- SSRN Paper - Financial Fragility -->
+        <div class="research-card">
+            <div class="research-meta">
+                <span>SSRN PRE-PRINT</span>
+                <span class="document-id">SSRN-6325338</span>
+            </div>
+            <h3>Diagnosing Financial Fragility in a Complex Economy</h3>
+            <p>Reframes financial fragility as a governance and diagnostic problem rather than a forecasting one — showing how leverage, funding dependence, and crowding accumulate quietly in calm periods, with practical guidance for monitoring and stress-testing.</p>
+            <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6325338" class="research-button" target="_blank">VIEW ON SSRN →</a>
+        </div>
+
+        <!-- SSRN Paper - Credit Union Forbearance -->
+        <div class="research-card">
+            <div class="research-meta">
+                <span>SSRN PRE-PRINT</span>
+                <span class="document-id">SSRN-6909221</span>
+            </div>
+            <h3>Regulatory Forbearance and Depositor Stickiness in Puerto Rico's Credit Union System: A Chronicle of Act 220-2015 and the Insolvency-Illiquidity Risk</h3>
+            <p>Chronicles how Puerto Rico's cooperative credit unions weathered the 2013–18 collapse in their government-debt holdings — a legislative accounting override (Act 220-2015) that deferred loss recognition, paired with common-bond depositor loyalty that prevented the deposit flight which would have forced bond liquidation at distressed prices.</p>
+            <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6909221" class="research-button" target="_blank">VIEW ON SSRN →</a>
+        </div>
+
+    </div>
+</section>
 
         <!-- About Section -->
         <section id="about" class="panel">
             <h2 class="clickable-name" onclick="toggleProfileImage(this)">About Jorge A. Arroyo</h2>
             <p style="text-align: center; color: var(--secondary-text); margin-bottom: 30px; font-size: 1.1rem;">
-                xP&A Consultant Specializing in Financial Planning & Advanced Analytics
+                xP&A & Data Consultant · Analytics Engineer & Developer
             </p>
             
             <div class="about-content">
@@ -1190,7 +1469,7 @@
                         <div class="timeline-item" data-type="work" data-details="Design connected planning solutions integrating finance, operations, and sales data|Develop comprehensive financial models with DCF analyses and Monte Carlo simulations|Build cloud-based analytics solutions using Azure Databricks, DevOps, and Power Platform|Create mobile-friendly dashboards for real-time decision support|Leverage state-of-the-art LLMs reducing analysis time by over 50%">
                             <div class="timeline-date">2019 - Present</div>
                             <div class="timeline-content">
-                                <h4>xP&A Consultant</h4>
+                                <h4>xP&A & Data Consultant</h4>
                                 <p class="timeline-company">SENS ADVISOR</p>
                             </div>
                         </div>
@@ -1446,7 +1725,7 @@
             popup.className = 'profile-popup show';
             popup.innerHTML = `
                 <img src="src/assets/images/jaasa.jpg" alt="Jorge A. Arroyo">
-                <p>Jorge A. Arroyo - xP&A Consultant & AI Research Enthusiast</p>
+                <p>Jorge A. Arroyo - xP&A & Data Consultant · Analytics Engineer & Developer</p>
             `;
             
             nameElement.appendChild(popup);
