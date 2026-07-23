@@ -775,11 +775,21 @@
   // --- Load ---
   async function init() {
     const historySince = new Date(Date.now() - (HISTORY_MAX_DAYS + 2) * 86400000).toISOString();
-    const [latestRows, uRows, hist] = await Promise.all([
+    // Fire every query concurrently. The two "optional enhancement" views
+    // (cost-history / unit-stats) may not be deployed yet, so a failed fetch
+    // resolves to null and the page still works without them — but firing them
+    // alongside the core queries keeps them off the critical path. They used to
+    // run serially *after* the main load, adding ~4 extra round-trips before
+    // anything rendered.
+    const [latestRows, uRows, hist, costRes, statsRes] = await Promise.all([
       sbQuery("v_generation_latest", "select=*"),
       sbQuery("v_generation_units", "select=*"),
       sbQuery("v_generation_metrics_history",
         `select=observed_at,total_generation_mw,available_capacity_mw,operating_reserve_mw&observed_at=gte.${historySince}&order=observed_at.asc`),
+      sbQuery("v_generation_cost_history",
+        `select=observed_at,waec_per_mwh&observed_at=gte.${historySince}&order=observed_at.asc`).catch(() => null),
+      sbQuery("v_generation_unit_stats",
+        "select=plant_type,plant,unit,avg_online_mw,last_online_at").catch(() => null),
     ]);
     if (!latestRows.length) { showNoData(); return; }
 
@@ -792,17 +802,12 @@
     allHistory = hist || [];
 
     // Optional enhancements — need the cost-history / unit-stats views deployed.
-    // Absent (pre-deploy) the page still works; these features just stay hidden.
-    try {
-      costHistory = await sbQuery("v_generation_cost_history",
-        `select=observed_at,waec_per_mwh&observed_at=gte.${historySince}&order=observed_at.asc`);
-      if (costHistory.length) document.getElementById("cost-panel").style.display = "";
-    } catch (e) { costHistory = []; }
-    try {
-      const stats = await sbQuery("v_generation_unit_stats",
-        "select=plant_type,plant,unit,avg_online_mw,last_online_at");
+    // A null result (fetch failed / view absent) leaves the feature hidden.
+    costHistory = costRes || [];
+    if (costHistory.length) document.getElementById("cost-panel").style.display = "";
+    if (statsRes) {
       const sm = {};
-      for (const s of stats) sm[`${s.plant_type}|${s.plant}|${s.unit}`] = s;
+      for (const s of statsRes) sm[`${s.plant_type}|${s.plant}|${s.unit}`] = s;
       unitRows.forEach(r => {
         const s = sm[critKey(r)];
         r._lastOnline = s ? s.last_online_at : null;
@@ -810,7 +815,7 @@
         // stored-history average when the view has it; the baked value is the fallback.
         if (r._crit && s && num(s.avg_online_mw) > 0) r._crit.baselineMw = Math.round(num(s.avg_online_mw));
       });
-    } catch (e) { /* unit-stats view not deployed yet — last-online + Typical MW fall back to baked values */ }
+    }
 
     computeDerived();
     hourly = buildHourly(allHistory);
