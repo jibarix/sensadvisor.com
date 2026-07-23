@@ -256,71 +256,22 @@
             border-bottom-color: var(--accent-light);
         }
 
-        /* Token-Based Diffusion Animation */
+        /* Scramble / decode text reveal (monochrome, on-brand) */
         .bio-token {
             display: inline;
-            position: relative;
-            transition: all 0.5s ease;
-            margin-right: 4px;
-            padding: 2px 4px;
-            border-radius: 3px;
+            transition: color 0.25s ease, opacity 0.2s ease;
         }
 
-        .bio-token.masked {
-            background: rgba(255, 200, 200, 0.8);
-            color: #666666;
-            border: 1px solid #ff0000;
-            animation: pulse 1.5s infinite;
-        }
-
-        .bio-token.revealing {
-            background: rgba(200, 255, 200, 0.8);
-            color: var(--primary-text);
-            border: 1px solid #00aa00;
-            animation: reveal 0.4s ease-out;
+        .bio-token.scrambling {
+            color: var(--secondary-text);
+            opacity: 0.9;
         }
 
         .bio-token.revealed {
-            background: transparent;
             color: var(--primary-text);
-            border: 1px solid transparent;
-            animation: stabilize 0.25s ease-out;
+            opacity: 1;
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 0.7; }
-            50% { opacity: 1; }
-        }
-
-        @keyframes reveal {
-            0% {
-                background: rgba(255, 200, 200, 0.8);
-                border: 1px solid #ff0000;
-                transform: scale(1.1);
-            }
-            50% {
-                background: rgba(200, 255, 200, 0.8);
-                border: 1px solid #00aa00;
-                transform: scale(1.05);
-            }
-            100% {
-                background: rgba(240, 255, 240, 0.6);
-                border: 1px solid #666666;
-                transform: scale(1);
-            }
-        }
-
-        @keyframes stabilize {
-            0% {
-                background: rgba(240, 255, 240, 0.6);
-                border: 1px solid #666666;
-            }
-            100% {
-                background: transparent;
-                border: 1px solid transparent;
-                color: var(--primary-text);
-            }
-        }
 
         @keyframes slideDownCentered {
             from {
@@ -451,7 +402,7 @@
         }
 
         .bio-card::after {
-            content: "Click to reload diffusion";
+            content: "Click to decode";
             position: absolute;
             top: 5px;
             right: 10px;
@@ -1631,151 +1582,103 @@
     <script>document.getElementById('copyright-year').textContent=new Date().getFullYear();</script>
 
     <script>
-        // Animate individual bio card
-        function animateSingleCard(cardElement) {
-            const paragraph = cardElement.querySelector('.bio-content');
+        // ===== Scramble / decode text reveal (monochrome) =====
+        const SCRAMBLE_GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#$%@?/=+*';
+
+        function randGlyph() {
+            return SCRAMBLE_GLYPHS.charAt(Math.floor(Math.random() * SCRAMBLE_GLYPHS.length));
+        }
+
+        function scrambleWord(word) {
+            let s = '';
+            for (let c = 0; c < word.length; c++) s += randGlyph();
+            return s;
+        }
+
+        // Decode one paragraph: instant scramble-noise, then each word locks
+        // in (random order), resolving left-to-right into the real text.
+        function scrambleParagraph(paragraph) {
             const originalText = paragraph.dataset.originalText || paragraph.textContent;
-            
-            // Store original text if not already stored
-            if (!paragraph.dataset.originalText) {
-                paragraph.dataset.originalText = originalText;
-            }
-            
-            // Reset to masked tokens
-            const words = originalText.split(' ');
-            const tokenizedHTML = words.map(word => 
-                `<span class="bio-token masked">▢</span>`
-            ).join(' ');
-            
-            paragraph.innerHTML = tokenizedHTML;
-            
-            // Start diffusion animation for this card only
-            setTimeout(() => {
-                animateCardDiffusion(cardElement);
-            }, 100);
-        }
+            paragraph.dataset.originalText = originalText;
 
-        // Diffusion animation for a single card
-        function animateCardDiffusion(card) {
-            const paragraph = card.querySelector('.bio-content');
-            const originalText = paragraph.dataset.originalText;
             const words = originalText.split(' ');
-            const tokens = paragraph.querySelectorAll('.bio-token');
-            
-            // Create array of available token indices for random selection
-            let availableIndices = Array.from({length: tokens.length}, (_, i) => i);
-            
-            // Faster diffusion-style random revelation
-            const revealInterval = setInterval(() => {
-                if (availableIndices.length === 0) {
-                    clearInterval(revealInterval);
-                    return;
+            const spread = 22; // ticks over which words BEGIN resolving (random-order stagger)
+            const tokens = words.map(word => ({
+                word: word,
+                len: word.length,
+                start: Math.floor(Math.random() * spread),
+                dur: Math.min(16, Math.max(6, word.length)),
+                done: word.length === 0
+            }));
+
+            paragraph.innerHTML = words
+                .map(() => '<span class="bio-token scrambling"></span>')
+                .join(' ');
+            const spans = paragraph.querySelectorAll('.bio-token');
+            words.forEach((word, i) => { spans[i].textContent = scrambleWord(word); });
+
+            // Restart cleanly if the card is re-triggered mid-decode.
+            if (paragraph._scramble) clearInterval(paragraph._scramble);
+
+            let tick = 0;
+            paragraph._scramble = setInterval(() => {
+                let active = false;
+                tokens.forEach((t, i) => {
+                    if (t.done) return;
+                    active = true;
+                    const span = spans[i];
+                    const elapsed = tick - t.start;
+                    if (elapsed < 0) {                     // not yet resolving: full noise
+                        span.textContent = scrambleWord(t.word);
+                        return;
+                    }
+                    const locked = Math.floor((elapsed / t.dur) * t.len) + 1;
+                    if (locked >= t.len) {                 // fully decoded
+                        span.textContent = t.word;
+                        span.classList.remove('scrambling');
+                        span.classList.add('revealed');
+                        t.done = true;
+                        return;
+                    }
+                    let out = t.word.slice(0, locked);      // locked prefix + scrambled tail
+                    for (let c = locked; c < t.len; c++) out += randGlyph();
+                    span.textContent = out;
+                });
+                tick++;
+                if (!active) {
+                    clearInterval(paragraph._scramble);
+                    paragraph._scramble = null;
                 }
-                
-                // Randomly select a token to reveal
-                const randomIndex = Math.floor(Math.random() * availableIndices.length);
-                const tokenIndex = availableIndices[randomIndex];
-                
-                // Remove this index from available pool
-                availableIndices.splice(randomIndex, 1);
-                
-                const token = tokens[tokenIndex];
-                const originalWord = words[tokenIndex];
-                
-                // Start revealing
-                token.classList.remove('masked');
-                token.classList.add('revealing');
-                token.textContent = originalWord;
-                
-                // Stabilize after a short delay
-                setTimeout(() => {
-                    token.classList.remove('revealing');
-                    token.classList.add('revealed');
-                }, 150); // Faster transition: 150ms instead of 600ms
-                
-            }, 30); // Faster reveal: 30ms instead of 120ms
+            }, 34);
         }
 
-        // Initialize bio paragraphs as masked tokens on page load
+        // Click a card to re-decode just that card.
+        function animateSingleCard(cardElement) {
+            scrambleParagraph(cardElement.querySelector('.bio-content'));
+        }
+
+        // On load: capture the real text and paint the scramble-noise state.
         function initializeBioTokens() {
-            const bioCards = document.querySelectorAll('.bio-card');
-            
-            bioCards.forEach(card => {
-                const paragraph = card.querySelector('.bio-content');
+            document.querySelectorAll('.bio-card .bio-content').forEach(paragraph => {
                 const originalText = paragraph.textContent;
-                
-                // Store original text
                 paragraph.dataset.originalText = originalText;
-                
-                // Split text into words and create masked tokens
                 const words = originalText.split(' ');
-                const tokenizedHTML = words.map(word => 
-                    `<span class="bio-token masked">▢</span>`
-                ).join(' ');
-                
-                paragraph.innerHTML = tokenizedHTML;
+                paragraph.innerHTML = words
+                    .map(() => '<span class="bio-token scrambling"></span>')
+                    .join(' ');
+                const spans = paragraph.querySelectorAll('.bio-token');
+                words.forEach((word, i) => { spans[i].textContent = scrambleWord(word); });
             });
         }
 
-        // Start full bio diffusion animation
+        // Auto-play on load: decode each card, staggered.
         function startBioDiffusion() {
-            const bioCards = document.querySelectorAll('.bio-card');
-            let currentCardIndex = 0;
-            
-            function animateCard(cardIndex) {
-                if (cardIndex >= bioCards.length) return;
-                
-                const card = bioCards[cardIndex];
-                const paragraph = card.querySelector('.bio-content');
-                const originalText = paragraph.dataset.originalText;
-                
-                // Split text into words
-                const words = originalText.split(' ');
-                
-                // Get all tokens for this paragraph
-                const tokens = paragraph.querySelectorAll('.bio-token');
-                
-                // Create array of available token indices for random selection
-                let availableIndices = Array.from({length: tokens.length}, (_, i) => i);
-                
-                // Faster diffusion-style random revelation
-                const revealInterval = setInterval(() => {
-                    if (availableIndices.length === 0) {
-                        clearInterval(revealInterval);
-                        // Start next card after current one is complete
-                        setTimeout(() => {
-                            animateCard(cardIndex + 1);
-                        }, 100); // Faster card transition: 100ms instead of 500ms
-                        return;
-                    }
-                    
-                    // Randomly select a token to reveal
-                    const randomIndex = Math.floor(Math.random() * availableIndices.length);
-                    const tokenIndex = availableIndices[randomIndex];
-                    
-                    // Remove this index from available pool
-                    availableIndices.splice(randomIndex, 1);
-                    
-                    const token = tokens[tokenIndex];
-                    const originalWord = words[tokenIndex];
-                    
-                    // Start revealing
-                    token.classList.remove('masked');
-                    token.classList.add('revealing');
-                    token.textContent = originalWord;
-                    
-                    // Stabilize after a short delay
-                    setTimeout(() => {
-                        token.classList.remove('revealing');
-                        token.classList.add('revealed');
-                    }, 150); // Faster transition: 150ms instead of 600ms
-                    
-                }, 30); // Faster reveal: 30ms instead of 120ms
-            }
-            
-            // Start with first card
-            animateCard(0);
+            const paragraphs = document.querySelectorAll('.bio-card .bio-content');
+            paragraphs.forEach((paragraph, i) => {
+                setTimeout(() => scrambleParagraph(paragraph), i * 650);
+            });
         }
+
 
         // Profile image toggle
         function toggleProfileImage(nameElement) {
