@@ -32,6 +32,14 @@
       --border-primary: #000000;
       --accent-light: #f0f0f0;
       --accent-lighter: #f9f9f9;
+      --page-gutter: clamp(20px, 4vw, 64px);
+      --signal: #008f43;
+      --signal-rgb: 0, 143, 67;
+      --grid-dot: rgba(0, 0, 0, 0.065);
+      --chart-text: #333333;
+      --chart-muted: #707070;
+      --chart-grid: #dddddd;
+      --surface-muted: #f7f7f7;
     }
 
   /* ===== Dark theme (shared toggle; syncs via localStorage 'theme') ===== */
@@ -42,6 +50,14 @@
     --border-primary: #3a3d42;
     --accent-light: #212327;
     --accent-lighter: #16171a;
+
+    --signal: #36e08a;
+    --signal-rgb: 54, 224, 138;
+    --grid-dot: rgba(255, 255, 255, 0.055);
+    --chart-text: #d7d9dc;
+    --chart-muted: #9aa0a6;
+    --chart-grid: #34373c;
+    --surface-muted: rgba(22, 23, 26, 0.9);
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -51,257 +67,579 @@
       --border-primary: #3a3d42;
       --accent-light: #212327;
       --accent-lighter: #16171a;
+
+      --signal: #36e08a;
+      --signal-rgb: 54, 224, 138;
+      --grid-dot: rgba(255, 255, 255, 0.055);
+      --chart-text: #d7d9dc;
+      --chart-muted: #9aa0a6;
+      --chart-grid: #34373c;
+      --surface-muted: rgba(22, 23, 26, 0.9);
     }
   }
-  body, .stn, .stn-nav, .stn-dd-menu, .panel { transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease; }
-  /* Charts carry baked-in light colors; float them on a light tile so they stay legible in dark mode. */
-  :root[data-theme="dark"] canvas { background: #ffffff; }
-  :root[data-theme="dark"] .panel img[src$=".png"] { background: #ffffff; }
-  /* Theme toggle button (namespaced .stn-*) */
-  .stn-toggle {
+  body, .site-header, .nav, .nav-dropdown-menu, .analytics-index, .panel { transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease; }
+  .theme-toggle {
     display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     background: none; border: none; cursor: pointer; color: var(--primary-text);
     padding: 6px; margin: 0; border-radius: 4px; transition: background 0.2s ease;
   }
-  .stn-toggle:hover { background: var(--accent-light); }
-  /* Back-to-top */
-  .stn-top {
-    position: fixed; right: 20px; bottom: 20px; z-index: 200;
-    width: 44px; height: 44px; padding: 0;
-    display: flex; align-items: center; justify-content: center;
-    background: var(--primary-bg); color: var(--primary-text);
-    border: 2px solid var(--border-primary); border-radius: 6px;
-    cursor: pointer; opacity: 0; pointer-events: none;
-    transform: translateY(8px);
-    transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
-  }
-  .stn-top.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
-  .stn-top:hover { background: var(--accent-light); }
-  .stn-top svg { width: 22px; height: 22px; display: block; }
-  @media print { .stn-top { display: none; } }
-  .stn-toggle svg { width: 20px; height: 20px; display: block; }
-  .stn-toggle .stn-ic-sun { display: none; }
-  :root[data-theme="dark"] .stn-toggle .stn-ic-sun { display: block; }
-  :root[data-theme="dark"] .stn-toggle .stn-ic-moon { display: none; }
-  .stn-toggle-label { display: none; }
-  .stn-toggle .stn-lbl-light { display: none; }
-  :root[data-theme="dark"] .stn-toggle .stn-lbl-light { display: inline; }
-  :root[data-theme="dark"] .stn-toggle .stn-lbl-dark { display: none; }
+  .theme-toggle:hover { background: var(--accent-light); }
+  .theme-toggle svg { width: 20px; height: 20px; display: block; }
+  .theme-toggle .ic-sun { display: none; }
+  :root[data-theme="dark"] .theme-toggle .ic-sun { display: block; }
+  :root[data-theme="dark"] .theme-toggle .ic-moon { display: none; }
+  .theme-toggle-label { display: none; }
+  .theme-toggle .lbl-light { display: none; }
+  :root[data-theme="dark"] .theme-toggle .lbl-light { display: inline; }
+  :root[data-theme="dark"] .theme-toggle .lbl-dark { display: none; }
   @media (max-width: 768px) {
-    .stn-nav .stn-toggle {
+    .nav .theme-toggle {
       width: 100%; justify-content: flex-start; gap: 12px;
       padding: 14px 0; min-height: 44px;
       border-bottom: 1px solid var(--accent-light);
       font-size: 0.88rem; font-weight: 500;
     }
-    .stn-nav .stn-toggle:hover { background: none; }
-    .stn-toggle-label { display: inline; }
+    .nav .theme-toggle:hover { background: none; }
+    .theme-toggle-label { display: inline; }
   }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
+    html {
+      overflow-y: scroll;
+      scrollbar-gutter: stable;
+      scroll-behavior: smooth;
+      scroll-padding-top: 56px;
+    }
+
     body {
       font-family: 'Source Code Pro', monospace;
-      background: var(--primary-bg);
+      position: relative;
+      background-color: var(--primary-bg);
+      background-image: radial-gradient(circle, var(--grid-dot) 1px, transparent 1px);
+      background-size: 34px 34px;
+      background-attachment: fixed;
       color: var(--primary-text);
       line-height: 1.6;
       min-height: 100vh;
     }
+  /* Shared site navigation and page-level analytics index. */
+  .site-header {
+    position: relative;
+    z-index: 1100;
+    background: transparent;
+  }
+  .site-header-inner {
+    position: relative;
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 18px var(--page-gutter);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    color: var(--primary-text);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .nav { display: flex; align-items: center; gap: clamp(16px, 2vw, 30px); }
+  .nav a,
+  .nav-dropdown-trigger {
+    color: var(--primary-text);
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    text-transform: uppercase;
+    padding: 8px 0;
+    border-bottom: 2px solid transparent;
+    transition: border-color 0.2s ease;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+  }
+  .nav a:hover,
+  .nav-dropdown-trigger:hover { border-bottom-color: var(--border-primary); }
+  .nav-dropdown { position: relative; }
+  .nav-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 220px;
+    margin-top: 8px;
+    border: 2px solid var(--border-primary);
+    border-radius: 4px;
+    background: var(--primary-bg);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    z-index: 1000;
+  }
+  .nav-dropdown-menu::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -9px;
+    height: 10px;
+  }
+  .nav-dropdown:hover .nav-dropdown-menu { display: block; }
+  .nav-dropdown-menu a {
+    display: block;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--accent-light);
+    color: var(--primary-text);
+    font-size: 0.78rem;
+    text-decoration: none;
+    transition: background 0.2s ease;
+  }
+  .nav-dropdown-menu a:last-child { border-bottom: none; }
+  .nav-dropdown-menu a:hover { background: var(--accent-light); }
+  .nav-dropdown-menu a[aria-current="page"] {
+    padding-left: 13px;
+    border-left: 3px solid var(--signal);
+    font-weight: 700;
+  }
+  .hamburger {
+    display: none;
+    z-index: 200;
+    padding: 8px;
+    border: none;
+    background: none;
+    cursor: pointer;
+  }
+  .hamburger-line {
+    display: block;
+    width: 24px;
+    height: 2px;
+    margin: 5px 0;
+    background: var(--primary-text);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+  .hamburger.open .hamburger-line:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger.open .hamburger-line:nth-child(2) { opacity: 0; }
+  .hamburger.open .hamburger-line:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-  /* ===== Standard analytics nav — mirrors the sensadvisor.com home menu
-     (brand + top-level links + Analytics dropdown, collapsing to a hamburger
-     on phones). Namespaced .stn-* so it can't collide with page/header CSS. */
-  .stn { background: var(--primary-bg); border-bottom: 2px solid var(--border-primary); position: relative; }
-  .stn-inner {
-    max-width: 1400px; margin: 0 auto; padding: 12px 20px;
-    display: flex; align-items: center; justify-content: space-between;
+  .analytics-index {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-bottom: 1px solid var(--border-primary);
+    background: color-mix(in srgb, var(--primary-bg) 94%, transparent);
+    backdrop-filter: blur(14px);
   }
-  .stn-brand { font-size: 1.05rem; font-weight: 700; color: var(--primary-text); text-decoration: none; white-space: nowrap; }
-  .stn-nav { display: flex; align-items: center; gap: 22px; }
-  .stn-nav a, .stn-dd-trigger {
-    color: var(--primary-text); font-size: 0.88rem; font-weight: 500;
-    text-decoration: none; padding: 6px 0;
-    border-bottom: 2px solid transparent; transition: border-color 0.2s ease;
-    cursor: pointer; user-select: none; white-space: nowrap;
+  .analytics-index-inner {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 0 var(--page-gutter);
   }
-  .stn-nav a:hover, .stn-dd-trigger:hover { border-bottom-color: var(--border-primary); }
-  .stn-dd { position: relative; }
-  .stn-dd-menu {
-    display: none; position: absolute; top: 100%; right: 0;
-    background: var(--primary-bg); border: 2px solid var(--border-primary);
-    border-radius: 4px; margin-top: 8px; min-width: 230px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12); z-index: 1000;
+  .analytics-index-label {
+    margin-right: auto;
+    color: var(--secondary-text);
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    white-space: nowrap;
   }
-  /* Transparent bridge spanning the 8px gap so the dropdown stays open while
-     the cursor travels from the trigger to the menu (fixes hover dead-zone). */
-  .stn-dd-menu::before { content: ""; position: absolute; left: 0; right: 0; top: -9px; height: 10px; }
-  .stn-dd:hover .stn-dd-menu { display: block; }
-  .stn-dd-menu a {
-    display: block; padding: 11px 16px; font-size: 0.85rem;
-    color: var(--primary-text); text-decoration: none;
-    border-bottom: 1px solid var(--accent-light); transition: background 0.2s ease;
+  .analytics-index a {
+    flex: 0 0 auto;
+    padding: 11px 0 10px;
+    border-bottom: 2px solid transparent;
+    color: var(--secondary-text);
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    text-transform: uppercase;
+    white-space: nowrap;
   }
-  .stn-dd-menu a:last-child { border-bottom: none; }
-  .stn-dd-menu a:hover { background: var(--accent-light); }
-  .stn-dd-menu a[aria-current="page"] { font-weight: 700; border-left: 3px solid var(--border-primary); padding-left: 13px; }
-  .stn-burger { display: none; background: none; border: none; cursor: pointer; padding: 6px; }
-  .stn-burger-line { display: block; width: 24px; height: 2px; background: var(--primary-text); margin: 5px 0; transition: transform 0.3s ease, opacity 0.3s ease; }
-  .stn-burger.open .stn-burger-line:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-  .stn-burger.open .stn-burger-line:nth-child(2) { opacity: 0; }
-  .stn-burger.open .stn-burger-line:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  .analytics-index a:hover,
+  .analytics-index a:focus-visible {
+    color: var(--primary-text);
+    border-bottom-color: var(--signal);
+  }
+
   @media (max-width: 768px) {
-    .stn-burger { display: block; }
-    .stn-nav {
-      display: none; position: absolute; left: 0; right: 0; top: 100%;
-      flex-direction: column; align-items: stretch; gap: 0;
-      background: var(--primary-bg); border-bottom: 2px solid var(--border-primary);
-      padding: 0 20px; z-index: 999;
+    .site-header-inner {
+      padding-top: 15px;
+      padding-bottom: 15px;
+      flex-wrap: wrap;
     }
-    .stn-nav.open { display: flex; }
-    .stn-nav > a, .stn-dd-trigger {
-      padding: 14px 0; min-height: 44px; display: flex; align-items: center;
+    .hamburger { display: block; }
+    .nav {
+      display: none;
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 100%;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      padding: 0 var(--page-gutter);
+      border-top: 2px solid var(--border-primary);
+      border-bottom: 1px solid var(--border-primary);
+      background: var(--primary-bg);
+      z-index: 999;
+    }
+    .nav.open { display: flex; }
+    .nav > a,
+    .nav-dropdown-trigger {
+      display: flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 14px 0;
       border-bottom: 1px solid var(--accent-light);
     }
-    .stn-dd { width: 100%; }
-    .stn-dd-menu {
-      position: static; border: none; border-radius: 0; box-shadow: none;
-      margin-top: 0; min-width: 0; background: var(--accent-lighter); display: none;
+    .nav-dropdown { width: 100%; }
+    .nav-dropdown-menu {
+      position: static;
+      display: none;
+      min-width: 0;
+      margin-top: 0;
+      border: none;
+      border-radius: 0;
+      background: var(--accent-lighter);
+      box-shadow: none;
     }
-    .stn-dd.open .stn-dd-menu { display: block; }
-    .stn-dd:hover .stn-dd-menu { display: none; }
-    .stn-dd-menu::before { content: none; }
-    .stn-dd.open:hover .stn-dd-menu { display: block; }
-    .stn-dd-menu a { padding: 13px 16px 13px 24px; min-height: 44px; }
+    .nav-dropdown.open .nav-dropdown-menu { display: block; }
+    .nav-dropdown:hover .nav-dropdown-menu { display: none; }
+    .nav-dropdown-menu::before { content: none; }
+    .nav-dropdown.open:hover .nav-dropdown-menu { display: block; }
+    .nav-dropdown-menu a {
+      min-height: 44px;
+      padding: 14px 16px 14px 24px;
+    }
+    .analytics-index-inner {
+      gap: 22px;
+      overflow-x: auto;
+      overscroll-behavior-inline: contain;
+      scrollbar-width: none;
+    }
+    .analytics-index-inner::-webkit-scrollbar { display: none; }
+    .analytics-index-label { display: none; }
   }
 
-    .site-footer { text-align: center; padding: 24px 20px; margin-top: 40px; border-top: 1px solid #ddd; font-size: 0.82rem; color: #555; }
-    .site-footer a { color: inherit; }
+    .footer {
+      padding: 30px 0 6px;
+      border-top: 1px solid var(--border-primary);
+      color: var(--secondary-text);
+      font-size: 0.68rem;
+      letter-spacing: 0.05em;
+      text-align: left;
+      text-transform: uppercase;
+    }
+    .footer a { color: inherit; }
 
-    .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+    .container {
+      position: relative;
+      max-width: 1480px;
+      margin: 0 auto;
+      padding: 0 var(--page-gutter);
+    }
 
-    .header {
-      position: sticky; top: 0;
+    .dashboard-header {
+      margin: clamp(40px, 7vw, 92px) 0 34px;
+      padding-bottom: 32px;
+      border-bottom: 1px solid var(--border-primary);
+    }
+    .dashboard-header .header-kicker {
+      display: block;
+      margin-bottom: 42px;
+    }
+    .dashboard-header .header-kicker,
+    .section-kicker {
+      color: var(--signal);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    .dashboard-header h1 {
+      max-width: 950px;
+      font-size: clamp(2.4rem, 5.4vw, 5.6rem);
+      font-weight: 600;
+      line-height: 0.98;
+      letter-spacing: -0.06em;
+    }
+    .dashboard-header .subtitle {
+      max-width: 820px;
+      margin-top: 20px;
+      color: var(--secondary-text);
+      font-size: clamp(0.86rem, 1.2vw, 1rem);
+    }
+    .data-meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1px;
+      margin-top: 34px;
+      border: 1px solid var(--border-primary);
+      background: var(--border-primary);
+    }
+    .data-meta-item {
+      min-width: 0;
+      padding: 13px 16px;
       background: var(--primary-bg);
-      border-bottom: 2px solid var(--border-primary);
-      margin-bottom: 40px; padding-bottom: 20px;
-      z-index: 100;
     }
-
-    .header-content {
-      display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
+    .data-meta-label {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--secondary-text);
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
     }
-
-    .logo { font-size: 1.5rem; font-weight: 700; color: var(--primary-text); text-decoration: none; }
-
-    .header-links {
-      display: flex; gap: 14px; align-items: center;
-      font-size: 0.85rem; color: var(--secondary-text);
+    .data-meta-value { display: block; font-size: 0.78rem; font-weight: 600; }
+    .data-meta-value.is-live::before {
+      content: "";
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      margin-right: 8px;
+      border-radius: 50%;
+      background: var(--signal);
+      box-shadow: 0 0 0 3px rgba(var(--signal-rgb), 0.13);
     }
-    .header-links a { font-weight: 600; text-decoration: underline; }
-
-    .header h1 { font-size: 1.8rem; font-weight: 600; margin-top: 15px; }
-    .header .subtitle { font-size: 0.9rem; color: var(--secondary-text); margin-top: 5px; font-weight: 400; }
 
     .overview {
-      background: var(--primary-bg); border: 2px solid var(--border-primary);
-      border-radius: 8px; padding: 25px; margin-bottom: 40px;
+      display: grid;
+      grid-template-columns: minmax(210px, 0.65fr) minmax(0, 1.35fr);
+      gap: clamp(28px, 5vw, 78px);
+      align-items: start;
+      padding: 28px 0 32px;
+      border-bottom: 1px solid var(--border-primary);
     }
-    .overview h2 { font-size: 1.3rem; font-weight: 600; margin-bottom: 15px; }
-    .overview p { font-size: 0.9rem; margin-bottom: 12px; line-height: 1.7; }
-    .overview ul { margin-left: 20px; margin-bottom: 12px; }
-    .overview li { font-size: 0.9rem; margin-bottom: 8px; line-height: 1.6; }
+    .overview h2 { max-width: 360px; margin-top: 6px; font-size: 1.35rem; line-height: 1.25; }
+    .overview p { max-width: 760px; font-size: 0.9rem; line-height: 1.8; }
+    .overview a { color: var(--primary-text); text-underline-offset: 3px; }
 
     .stats-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px; margin-bottom: 40px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 1px;
+      margin: 34px 0 72px;
+      border: 1px solid var(--border-primary);
+      background: var(--border-primary);
     }
-
     .stat-card {
-      background: var(--accent-lighter); border: 2px solid var(--border-primary);
-      border-radius: 8px; padding: 20px; transition: all 0.2s ease;
+      min-height: 145px;
+      padding: 20px;
+      background: var(--surface-muted);
     }
-    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
     .stat-card .label {
-      font-size: 0.75rem; color: var(--secondary-text); text-transform: uppercase;
-      letter-spacing: 0.5px; margin-bottom: 10px; font-weight: 600;
+      min-height: 2.8em;
+      margin-bottom: 18px;
+      color: var(--secondary-text);
+      font-size: 0.66rem;
+      font-weight: 600;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
     }
-    .stat-card .value { font-size: 2rem; font-weight: 700; margin-bottom: 5px; }
-    .stat-card .change { font-size: 0.8rem; margin-top: 8px; font-weight: 500; }
-    .change.positive { color: #00aa00; }
-    .change.negative { color: #cc0000; }
+    .stat-card .value { margin-bottom: 5px; font-size: clamp(1.55rem, 3vw, 2.35rem); font-weight: 700; line-height: 1; }
+    .stat-card .change { margin-top: 10px; font-size: 0.72rem; font-weight: 500; }
+    .change.positive { color: var(--signal); }
+    .change.negative { color: #d94848; }
 
+    .analysis-section {
+      margin-top: 76px;
+      scroll-margin-top: 56px;
+    }
+    #neighborhoods { scroll-margin-top: 56px; }
+    .section-heading {
+      display: grid;
+      grid-template-columns: minmax(220px, 0.65fr) minmax(0, 1.35fr);
+      gap: clamp(28px, 5vw, 78px);
+      align-items: end;
+      margin-bottom: 22px;
+    }
+    .section-heading h2 {
+      margin-top: 6px;
+      font-size: clamp(1.45rem, 2.6vw, 2.25rem);
+      line-height: 1.1;
+    }
+    .section-heading p {
+      max-width: 680px;
+      color: var(--secondary-text);
+      font-size: 0.82rem;
+    }
     .panel {
-      background: var(--primary-bg); border: 2px solid var(--border-primary);
-      border-radius: 8px; padding: 30px; margin-bottom: 40px; transition: all 0.2s ease;
+      padding: 24px 0 34px;
+      border: 0;
+      border-top: 1px solid var(--border-primary);
+      background: transparent;
     }
-    .panel:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
     .panel h2 {
-      font-size: 1.3rem; font-weight: 600; margin-bottom: 20px;
-      display: flex; align-items: center; justify-content: space-between;
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: baseline;
+      margin-bottom: 12px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
     }
-    .panel-note { font-size: 0.75rem; font-weight: 400; color: var(--secondary-text); }
-
+    .panel-note {
+      flex: 0 0 auto;
+      color: var(--secondary-text);
+      font-size: 0.65rem;
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
     .grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-      gap: 30px; margin-bottom: 40px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0 clamp(28px, 4vw, 58px);
     }
-
-    .loading { text-align: center; padding: 40px; color: var(--secondary-text); font-weight: 500; }
+    .grid-wide { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .loading { padding: 40px; color: var(--secondary-text); font-weight: 500; text-align: center; }
     .error {
-      background: #ffe6e6; color: #990000; padding: 15px; border-radius: 4px;
-      margin: 15px 0; border: 2px solid #cc0000; font-weight: 500;
+      margin: 15px 0;
+      padding: 12px 14px;
+      border-left: 3px solid #d94848;
+      background: color-mix(in srgb, #d94848 10%, var(--primary-bg));
+      color: var(--primary-text);
+      font-size: 0.78rem;
+      font-weight: 500;
     }
-    .empty-state { text-align: center; padding: 40px; color: var(--secondary-text); }
+    .empty-state { padding: 40px; color: var(--secondary-text); text-align: center; }
+    .panel canvas { max-height: 350px; margin-top: 8px; }
+    .panel-featured canvas { max-height: 410px; }
 
-    canvas { max-height: 350px; margin-top: 15px; }
-
-    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid #ddd; font-size: 0.85rem; }
+    .table-wrap { width: 100%; overflow-x: auto; }
+    table { width: 100%; min-width: 880px; margin-top: 8px; border-collapse: collapse; }
+    th, td {
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--accent-light);
+      font-size: 0.78rem;
+      text-align: left;
+      white-space: nowrap;
+    }
     th {
-      background: var(--accent-lighter); font-weight: 600; color: var(--primary-text);
-      text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px;
+      position: sticky;
+      top: 54px;
+      z-index: 2;
+      background: var(--primary-bg);
+      color: var(--secondary-text);
+      font-size: 0.64rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
     tbody tr { transition: background 0.15s ease; }
-    tbody tr:hover { background: var(--accent-light); }
+    tbody tr:hover { background: var(--surface-muted); }
 
-    a { color: var(--primary-text); text-decoration: underline; font-weight: 500; }
+    a { color: var(--primary-text); font-weight: 500; }
     a:hover { color: var(--secondary-text); }
-
     .disclaimer {
-      margin-top: 40px; padding-top: 30px; border-top: 2px solid var(--border-primary);
+      display: grid;
+      grid-template-columns: minmax(210px, 0.65fr) minmax(0, 1.35fr);
+      gap: clamp(28px, 5vw, 78px);
+      margin-top: 80px;
+      padding-top: 30px;
+      border-top: 1px solid var(--border-primary);
     }
-    .disclaimer h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; }
-    .disclaimer h3 { font-size: 0.95rem; font-weight: 700; margin-top: 16px; margin-bottom: 6px; }
-    .disclaimer p { font-size: 0.85rem; color: var(--secondary-text); margin-bottom: 10px; }
-
-    .footer {
-      border-top: 2px solid var(--border-primary); margin-top: 60px; padding-top: 20px;
-      text-align: center; color: var(--secondary-text); font-size: 0.85rem;
-    }
+    .disclaimer h2 { font-size: 1.1rem; font-weight: 700; }
+    .disclaimer-copy { columns: 2; column-gap: 36px; }
+    .disclaimer h3 { break-after: avoid; margin: 0 0 6px; font-size: 0.78rem; font-weight: 700; }
+    .disclaimer p { break-inside: avoid; margin-bottom: 18px; color: var(--secondary-text); font-size: 0.74rem; }
 
     @media (max-width: 768px) {
-      .header-content { flex-direction: column; gap: 15px; align-items: flex-start; }
-      .grid { grid-template-columns: 1fr; }
+      .dashboard-header .header-kicker { margin-bottom: 32px; }
+      .dashboard-header h1 { font-size: clamp(2.45rem, 13vw, 4.2rem); }
+      .data-meta { grid-template-columns: 1fr; }
+      .overview,
+      .section-heading,
+      .disclaimer { grid-template-columns: 1fr; }
+      .grid,
+      .grid-wide { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .disclaimer-copy { columns: 1; }
+    }
+    @media (max-width: 480px) {
       .stats-grid { grid-template-columns: 1fr; }
+      .stat-card { min-height: 0; }
+      .panel h2 { align-items: flex-start; flex-direction: column; gap: 4px; }
+    }
+
+    /* Scroll progress and quick return for a long analytical page. */
+    .back-to-top {
+      --top-progress: 0deg;
+      position: fixed;
+      right: clamp(18px, 2.2vw, 40px);
+      bottom: calc(clamp(18px, 2.2vw, 40px) + env(safe-area-inset-bottom, 0px));
+      z-index: 8000;
+      display: grid;
+      width: 58px;
+      height: 58px;
+      place-content: center;
+      gap: 1px;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background: conic-gradient(var(--signal) var(--top-progress), var(--accent-light) 0);
+      color: var(--primary-text);
+      font-family: inherit;
+      font-size: 0.58rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(12px) scale(0.94);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      isolation: isolate;
+    }
+    .back-to-top::before {
+      content: "";
+      position: absolute;
+      inset: 2px;
+      z-index: -1;
+      border-radius: inherit;
+      background: var(--primary-bg);
+      transition: background-color 0.25s ease;
+    }
+    .back-to-top .top-arrow { font-size: 0.9rem; line-height: 0.8; letter-spacing: 0; }
+    .back-to-top.is-visible { opacity: 0.9; pointer-events: auto; transform: translateY(0) scale(1); }
+    .back-to-top:hover { opacity: 1; transform: translateY(-3px) scale(1); }
+    .back-to-top:focus-visible { opacity: 1; outline: 2px solid var(--signal); outline-offset: 4px; }
+    @media print { .back-to-top { display: none; } }
+    @media (max-width: 480px) { .back-to-top { width: 52px; height: 52px; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .back-to-top { transition: none; }
     }
   </style>
 </head>
 
 <body>
-<nav class="stn" aria-label="Site">
-  <div class="stn-inner">
-    <a class="stn-brand" href="/">SENS ADVISOR</a>
-    <button class="stn-burger" aria-label="Toggle menu" aria-expanded="false">
-      <span class="stn-burger-line"></span>
-      <span class="stn-burger-line"></span>
-      <span class="stn-burger-line"></span>
+<button class="back-to-top" type="button" aria-label="Back to top" aria-hidden="true" tabindex="-1">
+  <span>Top</span>
+  <span class="top-arrow" aria-hidden="true">&#8593;</span>
+</button>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="logo"><span>SENS ADVISOR</span></a>
+    <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
     </button>
-    <div class="stn-nav">
-      <a href="/#research">Research</a>
+    <nav class="nav" aria-label="Site">
       <a href="/#services">Services</a>
-      <div class="stn-dd">
-        <span class="stn-dd-trigger" role="button" tabindex="0" aria-haspopup="true" aria-expanded="false">Analytics &#9662;</span>
-        <div class="stn-dd-menu">
+      <div class="nav-dropdown">
+        <span class="nav-dropdown-trigger" role="button" tabindex="0" aria-haspopup="true" aria-expanded="false">Analytics &#9662;</span>
+        <div class="nav-dropdown-menu">
           <a href="/rentals/" aria-current="page">San Juan Rentals</a>
           <a href="/recession/">US Recession Probability</a>
           <a href="/pr-lmci/">PR Labor Market Index</a>
@@ -310,59 +648,90 @@
           <a href="/reservoirs/">PR Reservoir Levels</a>
         </div>
       </div>
+      <a href="/#research">Research</a>
       <a href="/#about">About</a>
       <a href="https://github.com/jibarix" target="_blank" rel="noopener">Code</a>
       <a href="https://x.com/jorgearroyox" target="_blank" rel="noopener">Insights</a>
       <a href="/#contact">Contact</a>
-      <button class="stn-toggle" type="button" aria-label="Toggle dark mode" aria-pressed="false" title="Toggle dark mode">
-        <svg class="stn-ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        <svg class="stn-ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-        <span class="stn-toggle-label"><span class="stn-lbl-dark">Dark mode</span><span class="stn-lbl-light">Light mode</span></span>
+      <button class="theme-toggle" type="button" aria-label="Toggle dark mode" aria-pressed="false" title="Toggle dark mode">
+        <svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <span class="theme-toggle-label"><span class="lbl-dark">Dark mode</span><span class="lbl-light">Light mode</span></span>
       </button>
-    </div>
+    </nav>
+  </div>
+</header>
+
+<nav class="analytics-index" aria-label="Dashboard sections">
+  <div class="analytics-index-inner">
+    <span class="analytics-index-label">San Juan rentals</span>
+    <a href="#overview">Snapshot</a>
+    <a href="#market-direction">Market</a>
+    <a href="#neighborhoods">Neighborhoods</a>
+    <a href="#reductions">Price cuts</a>
+    <a href="#disclaimer">Methodology</a>
   </div>
 </nav>
+
 <script>
 (function () {
-  var burger = document.querySelector('.stn-burger');
-  var nav = document.querySelector('.stn-nav');
-  var dd = document.querySelector('.stn-dd');
-  var trigger = document.querySelector('.stn-dd-trigger');
-  if (!burger || !nav) return;
-  burger.addEventListener('click', function () {
-    burger.classList.toggle('open');
+  var hamburger = document.querySelector('.hamburger');
+  var nav = document.querySelector('.nav');
+  var dropdown = document.querySelector('.nav-dropdown');
+  var dropdownTrigger = document.querySelector('.nav-dropdown-trigger');
+
+  if (!hamburger || !nav) return;
+
+  hamburger.addEventListener('click', function () {
+    hamburger.classList.toggle('open');
     nav.classList.toggle('open');
-    burger.setAttribute('aria-expanded', nav.classList.contains('open'));
+    hamburger.setAttribute('aria-expanded', nav.classList.contains('open'));
   });
-  nav.querySelectorAll('a').forEach(function (a) {
-    a.addEventListener('click', function () {
-      burger.classList.remove('open');
+
+  nav.querySelectorAll('a').forEach(function (link) {
+    link.addEventListener('click', function () {
+      hamburger.classList.remove('open');
       nav.classList.remove('open');
-      burger.setAttribute('aria-expanded', 'false');
+      hamburger.setAttribute('aria-expanded', 'false');
     });
   });
-  if (trigger && dd) {
-    var toggleDd = function (e) {
-      if (window.innerWidth <= 768) { e.preventDefault(); e.stopPropagation(); dd.classList.toggle('open'); trigger.setAttribute('aria-expanded', dd.classList.contains('open')); }
-    };
-    trigger.addEventListener('click', toggleDd);
-    trigger.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') toggleDd(e); });
+
+  if (dropdown && dropdownTrigger) {
+    function toggleDropdown(event) {
+      if (window.innerWidth <= 768) {
+        event.preventDefault();
+        event.stopPropagation();
+        dropdown.classList.toggle('open');
+        dropdownTrigger.setAttribute('aria-expanded', dropdown.classList.contains('open'));
+      }
+    }
+
+    dropdownTrigger.addEventListener('click', toggleDropdown);
+    dropdownTrigger.addEventListener('keydown', function (event) {
+      if (event.key === 'Enter' || event.key === ' ') toggleDropdown(event);
+    });
   }
-  document.addEventListener('click', function (e) {
-    if (window.innerWidth <= 768 && !nav.contains(e.target) && !burger.contains(e.target)) {
-      burger.classList.remove('open'); nav.classList.remove('open');
-      burger.setAttribute('aria-expanded', 'false');
-      if (dd) dd.classList.remove('open');
+
+  document.addEventListener('click', function (event) {
+    if (window.innerWidth <= 768 && !nav.contains(event.target) && !hamburger.contains(event.target)) {
+      hamburger.classList.remove('open');
+      nav.classList.remove('open');
+      hamburger.setAttribute('aria-expanded', 'false');
+      if (dropdown) dropdown.classList.remove('open');
+      if (dropdownTrigger) dropdownTrigger.setAttribute('aria-expanded', 'false');
     }
   });
 })();
+
 (function () {
-  var toggle = document.querySelector('.stn-toggle');
+  var toggle = document.querySelector('.theme-toggle');
   if (!toggle) return;
+
   function sync() {
     var dark = document.documentElement.getAttribute('data-theme') === 'dark';
     toggle.setAttribute('aria-pressed', dark ? 'true' : 'false');
   }
+
   sync();
   toggle.addEventListener('click', function () {
     var dark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -370,38 +739,45 @@
     document.documentElement.setAttribute('data-theme', next);
     try { localStorage.setItem('theme', next); } catch (e) {}
     sync();
+    if (typeof window.refreshAnalyticsTheme === 'function') {
+      window.refreshAnalyticsTheme();
+    }
   });
 })();
 </script>
   <div class="container">
-    <header class="header">
-      <div class="header-content">
-        <div class="header-links">
-          <a href="#overview">Overview</a>
-          <a href="#reductions">Price Cuts</a>
-          <a href="#disclaimer">Disclaimer</a>
-        </div>
-      </div>
-      <h1>San Juan Rental Market Dashboard</h1>
+    <header class="dashboard-header">
+      <span class="header-kicker">Analytics / Housing</span>
+      <h1>San Juan Rental Market</h1>
       <div class="subtitle">
-        Condado/Miramar, Hato Rey, Santurce, Viejo San Juan &bull; $550&ndash;$2,000
+        A daily view of price, inventory, turnover and listing changes across San Juan’s primary rental submarkets.
+      </div>
+      <div class="data-meta" aria-label="Dataset coverage">
+        <div class="data-meta-item">
+          <span class="data-meta-label">Coverage</span>
+          <span class="data-meta-value">Condado / Miramar · Hato Rey · Santurce · Viejo San Juan</span>
+        </div>
+        <div class="data-meta-item">
+          <span class="data-meta-label">Observed range</span>
+          <span class="data-meta-value">$550–$2,000 monthly</span>
+        </div>
+        <div class="data-meta-item">
+          <span class="data-meta-label">Pipeline</span>
+          <span class="data-meta-value is-live">Daily refresh</span>
+        </div>
       </div>
     </header>
 
     <section id="overview" class="overview">
-      <h2>Dashboard Overview</h2>
+      <div>
+        <span class="section-kicker">Market snapshot</span>
+        <h2>Read the market before the listings.</h2>
+      </div>
       <p>
-        This dashboard tracks the San Juan rental market. Data is collected daily from public
-        listings across Condado/Miramar, Hato Rey, Santurce, and Viejo San Juan.
-      </p>
-      <ul>
-        <li><strong>Track Trends:</strong> Monitor median price changes over time by neighborhood</li>
-        <li><strong>Assess Market:</strong> Review price distribution and inventory levels</li>
-        <li><strong>Compare Neighborhoods:</strong> See price ranges across different areas</li>
-      </ul>
-      <p>
-        <strong>Important:</strong> This tool is for analysis and exploration only. Always verify listings
-        independently and consult professionals before making rental decisions.
+        Public rental listings are collected daily and organized into a comparable market view.
+        Use the indicators below to track direction, compare neighborhoods and identify changes in
+        active supply. Results are analytical estimates—not listing verification.
+        <a href="#disclaimer">Review the methodology and limitations.</a>
       </p>
     </section>
 
@@ -409,97 +785,139 @@
       <div class="loading">Initializing analytics...</div>
     </div>
 
-    <div class="panel">
-      <h2>Median Price Trends <span class="panel-note">Weekly</span></h2>
-      <canvas id="medianChart"></canvas>
-    </div>
-
-    <div class="grid">
-      <div class="panel">
-        <h2>Price Distribution <span class="panel-note">Current inventory</span></h2>
-        <canvas id="distChart"></canvas>
+    <section id="market-direction" class="analysis-section">
+      <div class="section-heading">
+        <div>
+          <span class="section-kicker">01 / Direction</span>
+          <h2>Price and supply</h2>
+        </div>
+        <p>
+          Weekly pricing direction and the shape of current inventory provide the clearest first
+          read on market conditions.
+        </p>
       </div>
 
-      <div class="panel">
-        <h2>Inventory by Neighborhood <span class="panel-note">Active listings</span></h2>
-        <canvas id="invChart"></canvas>
+      <div class="panel panel-featured">
+        <h2>Median price trends <span class="panel-note">Weekly</span></h2>
+        <canvas id="medianChart"></canvas>
       </div>
 
-      <div class="panel">
-        <h2>Days on Market <span class="panel-note">Active listings</span></h2>
-        <div id="daysError"></div>
-        <canvas id="daysChart"></canvas>
+      <div id="neighborhoods" class="grid">
+        <div class="panel">
+          <h2>Price distribution <span class="panel-note">Current inventory</span></h2>
+          <canvas id="distChart"></canvas>
+        </div>
+
+        <div class="panel">
+          <h2>Inventory by neighborhood <span class="panel-note">Active listings</span></h2>
+          <canvas id="invChart"></canvas>
+        </div>
+
+        <div class="panel">
+          <h2>Days on market <span class="panel-note">Active listings</span></h2>
+          <div id="daysError"></div>
+          <canvas id="daysChart"></canvas>
+        </div>
+
+        <div class="panel">
+          <h2>Price by neighborhood <span class="panel-note">Quartile analysis</span></h2>
+          <div id="boxplotError"></div>
+          <canvas id="boxplotChart"></canvas>
+        </div>
       </div>
-
-      <div class="panel">
-        <h2>Price by Neighborhood <span class="panel-note">Quartile analysis</span></h2>
-        <div id="boxplotError"></div>
-        <canvas id="boxplotChart"></canvas>
-      </div>
-    </div>
-
-    <!-- Price per Bedroom Trends -->
-    <div class="panel">
-      <h2>Median Price per Bedroom <span class="panel-note">Weekly</span></h2>
-      <canvas id="priceBedChart"></canvas>
-    </div>
-
-    <!-- Market Turnover -->
-    <div class="panel">
-      <h2>Market Turnover <span class="panel-note">Last 90 days</span></h2>
-      <div id="turnoverError"></div>
-      <canvas id="turnoverChart"></canvas>
-    </div>
-
-    <!-- Amenity Breakdown -->
-    <div class="panel">
-      <h2>Amenity Breakdown <span class="panel-note">Active listings</span></h2>
-      <div id="amenitiesError"></div>
-      <canvas id="amenitiesChart"></canvas>
-    </div>
-
-    <!-- Price Reductions -->
-    <div id="reductions" class="panel">
-      <h2>Recent Price Reductions <span class="panel-note">Last 30 days, still active</span></h2>
-      <div id="reductionsError"></div>
-      <table id="reductionsTable">
-        <thead>
-          <tr>
-            <th>Location</th>
-            <th>Beds/Baths</th>
-            <th>Was</th>
-            <th>Now</th>
-            <th>Savings</th>
-            <th>DOM</th>
-            <th>Date</th>
-            <th>Link</th>
-          </tr>
-        </thead>
-        <tbody><tr><td colspan="8" class="loading">Loading...</td></tr></tbody>
-      </table>
-    </div>
-
-    <section id="disclaimer" class="disclaimer">
-      <h2>Disclaimer</h2>
-
-      <h3>Data Sources</h3>
-      <p>
-        Data is collected from publicly available sources using automated extraction.
-        The dataset represents snapshots captured at specific points in time and may not reflect the most current state of listings or prices.
-      </p>
-
-      <h3>Data Limitations</h3>
-      <p>
-        The data may contain inaccuracies, missing fields, duplicates, or outdated information originating from source material or automated parsing.
-        Coverage may be uneven across regions, time periods, or listing types.
-      </p>
     </section>
 
-  </div>
+    <section id="market-structure" class="analysis-section">
+      <div class="section-heading">
+        <div>
+          <span class="section-kicker">02 / Structure</span>
+          <h2>Unit economics and movement</h2>
+        </div>
+        <p>
+          Bedroom-adjusted prices, listing turnover and amenity prevalence show where the apparent
+          headline market is being shaped by unit mix.
+        </p>
+      </div>
 
-  <footer class="site-footer">
-    <p>&copy; <span id="copyright-year">2026</span> Sens ABI LLC. All rights reserved.</p>
-  </footer>
+      <div class="grid grid-wide">
+        <div class="panel">
+          <h2>Median price per bedroom <span class="panel-note">Weekly</span></h2>
+          <canvas id="priceBedChart"></canvas>
+        </div>
+
+        <div class="panel">
+          <h2>Market turnover <span class="panel-note">Last 90 days</span></h2>
+          <div id="turnoverError"></div>
+          <canvas id="turnoverChart"></canvas>
+        </div>
+
+        <div class="panel">
+          <h2>Amenity breakdown <span class="panel-note">Active listings</span></h2>
+          <div id="amenitiesError"></div>
+          <canvas id="amenitiesChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <section id="reductions" class="analysis-section">
+      <div class="section-heading">
+        <div>
+          <span class="section-kicker">03 / Changes</span>
+          <h2>Recent price reductions</h2>
+        </div>
+        <p>
+          Active listings with observed asking-price reductions during the last 30 days.
+        </p>
+      </div>
+      <div class="panel">
+        <h2>Listing-level changes <span class="panel-note">Last 30 days · Still active</span></h2>
+        <div id="reductionsError"></div>
+        <div class="table-wrap">
+          <table id="reductionsTable">
+            <thead>
+              <tr>
+                <th>Location</th>
+                <th>Beds/Baths</th>
+                <th>Was</th>
+                <th>Now</th>
+                <th>Savings</th>
+                <th>DOM</th>
+                <th>Date</th>
+                <th>Link</th>
+              </tr>
+            </thead>
+            <tbody><tr><td colspan="8" class="loading">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="disclaimer" class="disclaimer">
+      <div>
+        <span class="section-kicker">Notes</span>
+        <h2>Methodology and limitations</h2>
+      </div>
+      <div class="disclaimer-copy">
+        <h3>Data sources</h3>
+        <p>
+          Data is collected from publicly available sources using automated extraction.
+          The dataset represents snapshots captured at specific points in time and may not reflect
+          the most current state of listings or prices.
+        </p>
+
+        <h3>Data limitations</h3>
+        <p>
+          The data may contain inaccuracies, missing fields, duplicates or outdated information
+          originating from source material or automated parsing. Coverage may be uneven across
+          regions, periods or listing types.
+        </p>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>&copy; <span id="copyright-year">2026</span> Sens ABI LLC. All rights reserved. | Standard W9/1099 Process for US Clients</p>
+    </footer>
+  </div>
   <script>document.getElementById('copyright-year').textContent=new Date().getFullYear();</script>
 
   <script>
@@ -507,8 +925,6 @@
 
     Chart.defaults.font.family = "'Source Code Pro', monospace";
     Chart.defaults.font.size = 11;
-    Chart.defaults.color = '#000000';
-    Chart.defaults.borderColor = '#dddddd';
 
     (() => {
       const box = window['chartjs-chart-boxplot'] || window.ChartBoxPlot || window.ChartBoxplot;
@@ -518,13 +934,37 @@
       if (ViolinController && Violin) Chart.register(ViolinController, Violin);
     })();
 
-    const colors = [
-      'rgba(0, 0, 0, 0.9)',
-      'rgba(51, 51, 51, 0.8)',
-      'rgba(102, 102, 102, 0.7)',
-      'rgba(153, 153, 153, 0.6)',
-      'rgba(204, 204, 204, 0.5)',
-    ];
+    let colors = [];
+    let chartText = '';
+    let chartGrid = '';
+
+    function syncChartTheme() {
+      const styles = getComputedStyle(document.documentElement);
+      const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+      chartText = styles.getPropertyValue('--chart-text').trim();
+      chartGrid = styles.getPropertyValue('--chart-grid').trim();
+      colors = dark ? [
+        'rgba(54, 224, 138, 0.9)',
+        'rgba(237, 237, 237, 0.8)',
+        'rgba(184, 188, 194, 0.72)',
+        'rgba(132, 137, 145, 0.66)',
+        'rgba(92, 97, 105, 0.6)',
+      ] : [
+        'rgba(0, 143, 67, 0.9)',
+        'rgba(0, 0, 0, 0.8)',
+        'rgba(64, 64, 64, 0.72)',
+        'rgba(112, 112, 112, 0.66)',
+        'rgba(158, 158, 158, 0.6)',
+      ];
+      Chart.defaults.color = chartText;
+      Chart.defaults.borderColor = chartGrid;
+    }
+
+    function withAlpha(color, alpha) {
+      return color.replace(/,\s*[\d.]+\)$/, ', ' + alpha + ')');
+    }
+
+    syncChartTheme();
 
     function fmt(n) { return n != null ? n.toLocaleString() : '\u2014'; }
     function fmtUSD(n) { return n != null ? '$' + Math.round(n).toLocaleString() : '\u2014'; }
@@ -592,7 +1032,7 @@
           label: m,
           data: grouped[m].map(d => ({ x: d.day, y: d.median_price })),
           borderColor: colors[i],
-          backgroundColor: colors[i].replace('0.9', '0.1'),
+          backgroundColor: withAlpha(colors[i], 0.1),
           borderWidth: 2, tension: 0.3, fill: false,
           pointRadius: 3, pointHoverRadius: 5,
         }));
@@ -609,8 +1049,8 @@
               tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${fmtUSD(ctx.parsed.y)}` } }
             },
             scales: {
-              y: { ticks: { callback: v => fmtUSD(v) }, grid: { color: '#f0f0f0' } },
-              x: { grid: { color: '#f0f0f0' } }
+              y: { ticks: { callback: v => fmtUSD(v) }, grid: { color: chartGrid } },
+              x: { grid: { color: chartGrid } }
             }
           }
         });
@@ -629,12 +1069,12 @@
           type: 'bar',
           data: {
             labels: data.bins,
-            datasets: [{ label: 'Listings', data: data.counts, backgroundColor: colors[0], borderColor: '#000', borderWidth: 1 }]
+            datasets: [{ label: 'Listings', data: data.counts, backgroundColor: colors[0], borderColor: chartText, borderWidth: 1 }]
           },
           options: {
             responsive: true,
             plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true, grid: { color: '#f0f0f0' } }, x: { grid: { display: false } } }
+            scales: { y: { beginAtZero: true, grid: { color: chartGrid } }, x: { grid: { display: false } } }
           }
         });
       } catch (e) { console.error('loadDistribution error:', e); }
@@ -652,12 +1092,12 @@
           type: 'bar',
           data: {
             labels: data.map(d => shortMuni(d.municipio)),
-            datasets: [{ label: 'Active Listings', data: data.map(d => d.count), backgroundColor: colors[1], borderColor: '#000', borderWidth: 1 }]
+            datasets: [{ label: 'Active Listings', data: data.map(d => d.count), backgroundColor: colors[1], borderColor: chartText, borderWidth: 1 }]
           },
           options: {
             indexAxis: 'y', responsive: true,
             plugins: { legend: { display: false } },
-            scales: { x: { grid: { color: '#f0f0f0' } }, y: { grid: { display: false } } }
+            scales: { x: { grid: { color: chartGrid } }, y: { grid: { display: false } } }
           }
         });
       } catch (e) { console.error('loadInventory error:', e); }
@@ -679,13 +1119,13 @@
           type: 'bar',
           data: {
             labels: data.map(d => d.bucket),
-            datasets: [{ label: 'Listings', data: data.map(d => d.count), backgroundColor: colors[3], borderColor: '#000', borderWidth: 1 }]
+            datasets: [{ label: 'Listings', data: data.map(d => d.count), backgroundColor: colors[3], borderColor: chartText, borderWidth: 1 }]
           },
           options: {
             responsive: true,
             plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${ctx.parsed.y} listings` } } },
             scales: {
-              y: { beginAtZero: true, grid: { color: '#f0f0f0' }, title: { display: true, text: 'Number of Listings' } },
+              y: { beginAtZero: true, grid: { color: chartGrid }, title: { display: true, text: 'Number of Listings' } },
               x: { grid: { display: false }, title: { display: true, text: 'Time on Market' } }
             }
           }
@@ -714,8 +1154,8 @@
             labels: data.map(d => shortMuni(d.municipio)),
             datasets: [{
               label: 'Price Distribution',
-              backgroundColor: 'rgba(0, 0, 0, 0.2)',
-              borderColor: 'rgba(0, 0, 0, 0.9)',
+              backgroundColor: withAlpha(colors[0], 0.2),
+              borderColor: colors[0],
               borderWidth: 2, outlierColor: 'rgba(204, 0, 0, 0.7)',
               padding: 10, itemRadius: 3,
               data: data.map(d => ({
@@ -744,7 +1184,7 @@
               }
             },
             scales: {
-              y: { title: { display: true, text: 'Monthly Rent (USD)' }, min: 400, max: 2500, ticks: { callback: v => fmtUSD(v) }, grid: { color: '#f0f0f0' } },
+              y: { title: { display: true, text: 'Monthly Rent (USD)' }, min: 400, max: 2500, ticks: { callback: v => fmtUSD(v) }, grid: { color: chartGrid } },
               x: { title: { display: true, text: 'Neighborhood' }, grid: { display: false } }
             }
           }
@@ -777,7 +1217,7 @@
           label: m,
           data: grouped[m].map(d => ({ x: d.day, y: d.median_price_per_bed })),
           borderColor: colors[i],
-          backgroundColor: colors[i].replace('0.9', '0.1'),
+          backgroundColor: withAlpha(colors[i], 0.1),
           borderWidth: 2, tension: 0.3, fill: false,
           pointRadius: 3, pointHoverRadius: 5,
         }));
@@ -794,8 +1234,8 @@
               tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${fmtUSD(ctx.parsed.y)}/bed` } }
             },
             scales: {
-              y: { ticks: { callback: v => fmtUSD(v) }, grid: { color: '#f0f0f0' } },
-              x: { grid: { color: '#f0f0f0' } }
+              y: { ticks: { callback: v => fmtUSD(v) }, grid: { color: chartGrid } },
+              x: { grid: { color: chartGrid } }
             }
           }
         });
@@ -844,8 +1284,8 @@
               tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y}` } }
             },
             scales: {
-              y: { beginAtZero: true, grid: { color: '#f0f0f0' }, title: { display: true, text: 'Listings' } },
-              x: { grid: { color: '#f0f0f0' } }
+              y: { beginAtZero: true, grid: { color: chartGrid }, title: { display: true, text: 'Listings' } },
+              x: { grid: { color: chartGrid } }
             }
           }
         });
@@ -874,7 +1314,7 @@
               label: 'Listings',
               data: data.map(d => d.count),
               backgroundColor: colors[2],
-              borderColor: '#000',
+              borderColor: chartText,
               borderWidth: 1,
             }]
           },
@@ -885,7 +1325,7 @@
               tooltip: { callbacks: { label: ctx => `${ctx.parsed.x} listings (${data[ctx.dataIndex].pct}%)` } }
             },
             scales: {
-              x: { beginAtZero: true, grid: { color: '#f0f0f0' } },
+              x: { beginAtZero: true, grid: { color: chartGrid } },
               y: { grid: { display: false } }
             }
           }
@@ -916,7 +1356,7 @@
               <td>${r.bedrooms || '\u2014'} / ${r.bathrooms || '\u2014'}</td>
               <td style="text-decoration: line-through; color: var(--secondary-text);">${fmtUSD(r.old_price)}</td>
               <td style="font-weight: 700;">${fmtUSD(r.new_price)}</td>
-              <td style="color: #00aa00; font-weight: 700;">-${fmtUSD(r.savings)}</td>
+              <td style="color: var(--signal); font-weight: 700;">-${fmtUSD(r.savings)}</td>
               <td>${r.days_on_market != null ? Math.round(r.days_on_market) + 'd' : '\u2014'}</td>
               <td>${r.reduced_at || '\u2014'}</td>
               <td><a href="${r.url}" target="_blank">View</a></td>
@@ -943,24 +1383,54 @@
       ]);
     }
 
+    window.refreshAnalyticsTheme = function () {
+      syncChartTheme();
+      return Promise.all([
+        loadMedianPrices(),
+        loadDistribution(),
+        loadInventory(),
+        loadDaysOnMarket(),
+        loadPriceBoxplot(),
+        loadPricePerBedroom(),
+        loadTurnover(),
+        loadAmenities(),
+      ]);
+    };
+
     refreshAll();
   </script>
-<button class="stn-top" type="button" aria-label="Back to top" title="Back to top">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
-</button>
 <script>
+  // Scroll-progress back-to-top control.
   (function () {
-    var btn = document.querySelector(".stn-top");
-    if (!btn) return;
-    var onScroll = function () {
-      if (window.scrollY > 400) btn.classList.add("show");
-      else btn.classList.remove("show");
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    btn.addEventListener("click", function () {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
+    var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var backToTop = document.querySelector('.back-to-top');
+    var topControlFrame = 0;
+
+    function syncBackToTop() {
+      topControlFrame = 0;
+      if (!backToTop) return;
+      var scrollable = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      var progress = Math.min(1, Math.max(0, window.scrollY / scrollable));
+      var revealAt = Math.max(420, window.innerHeight * 0.8);
+      var visible = window.scrollY > revealAt;
+      backToTop.style.setProperty('--top-progress', (progress * 360).toFixed(1) + 'deg');
+      backToTop.classList.toggle('is-visible', visible);
+      backToTop.setAttribute('aria-hidden', visible ? 'false' : 'true');
+      backToTop.tabIndex = visible ? 0 : -1;
+    }
+
+    function queueTopControlSync() {
+      if (!topControlFrame) { topControlFrame = window.requestAnimationFrame(syncBackToTop); }
+    }
+
+    if (backToTop) {
+      backToTop.addEventListener('click', function () {
+        window.scrollTo({ top: 0, behavior: reducedMotion ? 'auto' : 'smooth' });
+      });
+      syncBackToTop();
+      window.addEventListener('scroll', queueTopControlSync, { passive: true });
+      window.addEventListener('resize', queueTopControlSync, { passive: true });
+    }
   })();
 </script>
 </body>

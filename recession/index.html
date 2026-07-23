@@ -15,7 +15,7 @@
 })();
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Recession Probability Monitoring | SENS ADVISOR</title>
+<title>US Recession Risk | SENS ADVISOR</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,6 +29,14 @@
     --border-primary: #000000;
     --accent-light: #f0f0f0;
     --accent-lighter: #f9f9f9;
+    --page-gutter: clamp(20px, 4vw, 64px);
+    --signal: #008f43;
+    --signal-rgb: 0, 143, 67;
+    --grid-dot: rgba(0, 0, 0, 0.065);
+    --chart-text: #333333;
+    --chart-muted: #707070;
+    --chart-grid: #dddddd;
+    --surface-muted: #f7f7f7;
   }
 
   /* ===== Dark theme (shared toggle; syncs via localStorage 'theme') ===== */
@@ -39,6 +47,14 @@
     --border-primary: #3a3d42;
     --accent-light: #212327;
     --accent-lighter: #16171a;
+
+    --signal: #36e08a;
+    --signal-rgb: 54, 224, 138;
+    --grid-dot: rgba(255, 255, 255, 0.055);
+    --chart-text: #d7d9dc;
+    --chart-muted: #9aa0a6;
+    --chart-grid: #34373c;
+    --surface-muted: rgba(22, 23, 26, 0.9);
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -48,280 +64,581 @@
       --border-primary: #3a3d42;
       --accent-light: #212327;
       --accent-lighter: #16171a;
+
+      --signal: #36e08a;
+      --signal-rgb: 54, 224, 138;
+      --grid-dot: rgba(255, 255, 255, 0.055);
+      --chart-text: #d7d9dc;
+      --chart-muted: #9aa0a6;
+      --chart-grid: #34373c;
+      --surface-muted: rgba(22, 23, 26, 0.9);
     }
   }
-  body, .stn, .stn-nav, .stn-dd-menu, .panel { transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease; }
-  /* Charts carry baked-in light colors; float them on a light tile so they stay legible in dark mode. */
-  :root[data-theme="dark"] canvas { background: #ffffff; }
-  :root[data-theme="dark"] .panel img[src$=".png"] { background: #ffffff; }
-  /* Theme toggle button (namespaced .stn-*) */
-  .stn-toggle {
+  body, .site-header, .nav, .nav-dropdown-menu, .analytics-index, .panel { transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease; }
+  /* Theme toggle button */
+  .theme-toggle {
     display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     background: none; border: none; cursor: pointer; color: var(--primary-text);
     padding: 6px; margin: 0; border-radius: 4px; transition: background 0.2s ease;
   }
-  .stn-toggle:hover { background: var(--accent-light); }
-  /* Back-to-top */
-  .stn-top {
-    position: fixed; right: 20px; bottom: 20px; z-index: 200;
-    width: 44px; height: 44px; padding: 0;
-    display: flex; align-items: center; justify-content: center;
-    background: var(--primary-bg); color: var(--primary-text);
-    border: 2px solid var(--border-primary); border-radius: 6px;
-    cursor: pointer; opacity: 0; pointer-events: none;
-    transform: translateY(8px);
-    transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
-  }
-  .stn-top.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
-  .stn-top:hover { background: var(--accent-light); }
-  .stn-top svg { width: 22px; height: 22px; display: block; }
-  @media print { .stn-top { display: none; } }
-  .stn-toggle svg { width: 20px; height: 20px; display: block; }
-  .stn-toggle .stn-ic-sun { display: none; }
-  :root[data-theme="dark"] .stn-toggle .stn-ic-sun { display: block; }
-  :root[data-theme="dark"] .stn-toggle .stn-ic-moon { display: none; }
-  .stn-toggle-label { display: none; }
-  .stn-toggle .stn-lbl-light { display: none; }
-  :root[data-theme="dark"] .stn-toggle .stn-lbl-light { display: inline; }
-  :root[data-theme="dark"] .stn-toggle .stn-lbl-dark { display: none; }
+  .theme-toggle:hover { background: var(--accent-light); }
+  .theme-toggle svg { width: 20px; height: 20px; display: block; }
+  .theme-toggle .ic-sun { display: none; }
+  :root[data-theme="dark"] .theme-toggle .ic-sun { display: block; }
+  :root[data-theme="dark"] .theme-toggle .ic-moon { display: none; }
+  .theme-toggle-label { display: none; }
+  .theme-toggle .lbl-light { display: none; }
+  :root[data-theme="dark"] .theme-toggle .lbl-light { display: inline; }
+  :root[data-theme="dark"] .theme-toggle .lbl-dark { display: none; }
   @media (max-width: 768px) {
-    .stn-nav .stn-toggle {
+    .nav .theme-toggle {
       width: 100%; justify-content: flex-start; gap: 12px;
       padding: 14px 0; min-height: 44px;
       border-bottom: 1px solid var(--accent-light);
       font-size: 0.88rem; font-weight: 500;
     }
-    .stn-nav .stn-toggle:hover { background: none; }
-    .stn-toggle-label { display: inline; }
+    .nav .theme-toggle:hover { background: none; }
+    .theme-toggle-label { display: inline; }
+  }
+
+  /* Scroll progress and quick return for a long analytical page. */
+  .back-to-top {
+    --top-progress: 0deg;
+    position: fixed;
+    right: clamp(18px, 2.2vw, 40px);
+    bottom: calc(clamp(18px, 2.2vw, 40px) + env(safe-area-inset-bottom, 0px));
+    z-index: 8000;
+    display: grid;
+    width: 58px;
+    height: 58px;
+    place-content: center;
+    gap: 1px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: conic-gradient(var(--signal) var(--top-progress), var(--accent-light) 0);
+    color: var(--primary-text);
+    font-family: inherit;
+    font-size: 0.58rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(12px) scale(0.94);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    isolation: isolate;
+  }
+  .back-to-top::before {
+    content: "";
+    position: absolute;
+    inset: 2px;
+    z-index: -1;
+    border-radius: inherit;
+    background: var(--primary-bg);
+    transition: background-color 0.25s ease;
+  }
+  .back-to-top .top-arrow { font-size: 0.9rem; line-height: 0.8; letter-spacing: 0; }
+  .back-to-top.is-visible { opacity: 0.9; pointer-events: auto; transform: translateY(0) scale(1); }
+  .back-to-top:hover { opacity: 1; transform: translateY(-3px) scale(1); }
+  .back-to-top:focus-visible { opacity: 1; outline: 2px solid var(--signal); outline-offset: 4px; }
+  @media print { .back-to-top { display: none; } }
+  @media (max-width: 480px) { .back-to-top { width: 52px; height: 52px; } }
+  @media (prefers-reduced-motion: reduce) {
+    .back-to-top { transition: none; }
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
+  html {
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
+    scroll-behavior: smooth;
+    scroll-padding-top: 56px;
+  }
+
   body {
     font-family: 'Source Code Pro', monospace;
-    background: var(--primary-bg);
+    position: relative;
+    background-color: var(--primary-bg);
+    background-image: radial-gradient(circle, var(--grid-dot) 1px, transparent 1px);
+    background-size: 34px 34px;
+    background-attachment: fixed;
     color: var(--primary-text);
     line-height: 1.6;
     min-height: 100vh;
   }
 
-  /* ===== Standard analytics nav — mirrors the sensadvisor.com home menu
+  /* ===== Shared site navigation — mirrors the sensadvisor.com home menu
      (brand + top-level links + Analytics dropdown, collapsing to a hamburger
-     on phones). Namespaced .stn-* so it can't collide with page/header CSS. */
-  .stn { background: var(--primary-bg); border-bottom: 2px solid var(--border-primary); position: relative; }
-  .stn-inner {
-    max-width: 1400px; margin: 0 auto; padding: 12px 20px;
-    display: flex; align-items: center; justify-content: space-between;
+     on phones), plus a sticky per-page section index. ===== */
+  .site-header {
+    position: relative;
+    z-index: 1100;
+    background: transparent;
   }
-  .stn-brand { font-size: 1.05rem; font-weight: 700; color: var(--primary-text); text-decoration: none; white-space: nowrap; }
-  .stn-nav { display: flex; align-items: center; gap: 22px; }
-  .stn-nav a, .stn-dd-trigger {
-    color: var(--primary-text); font-size: 0.88rem; font-weight: 500;
-    text-decoration: none; padding: 6px 0;
-    border-bottom: 2px solid transparent; transition: border-color 0.2s ease;
-    cursor: pointer; user-select: none; white-space: nowrap;
+  .site-header-inner {
+    position: relative;
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 18px var(--page-gutter);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
-  .stn-nav a:hover, .stn-dd-trigger:hover { border-bottom-color: var(--border-primary); }
-  .stn-dd { position: relative; }
-  .stn-dd-menu {
-    display: none; position: absolute; top: 100%; right: 0;
-    background: var(--primary-bg); border: 2px solid var(--border-primary);
-    border-radius: 4px; margin-top: 8px; min-width: 230px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12); z-index: 1000;
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    color: var(--primary-text);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .nav { display: flex; align-items: center; gap: clamp(16px, 2vw, 30px); }
+  .nav a,
+  .nav-dropdown-trigger {
+    color: var(--primary-text);
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    text-transform: uppercase;
+    padding: 8px 0;
+    border-bottom: 2px solid transparent;
+    transition: border-color 0.2s ease;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+  }
+  .nav a:hover,
+  .nav-dropdown-trigger:hover { border-bottom-color: var(--border-primary); }
+  .nav-dropdown { position: relative; }
+  .nav-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 220px;
+    margin-top: 8px;
+    border: 2px solid var(--border-primary);
+    border-radius: 4px;
+    background: var(--primary-bg);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    z-index: 1000;
   }
   /* Transparent bridge spanning the 8px gap so the dropdown stays open while
      the cursor travels from the trigger to the menu (fixes hover dead-zone). */
-  .stn-dd-menu::before { content: ""; position: absolute; left: 0; right: 0; top: -9px; height: 10px; }
-  .stn-dd:hover .stn-dd-menu { display: block; }
-  .stn-dd-menu a {
-    display: block; padding: 11px 16px; font-size: 0.85rem;
-    color: var(--primary-text); text-decoration: none;
-    border-bottom: 1px solid var(--accent-light); transition: background 0.2s ease;
+  .nav-dropdown-menu::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -9px;
+    height: 10px;
   }
-  .stn-dd-menu a:last-child { border-bottom: none; }
-  .stn-dd-menu a:hover { background: var(--accent-light); }
-  .stn-dd-menu a[aria-current="page"] { font-weight: 700; border-left: 3px solid var(--border-primary); padding-left: 13px; }
-  .stn-burger { display: none; background: none; border: none; cursor: pointer; padding: 6px; }
-  .stn-burger-line { display: block; width: 24px; height: 2px; background: var(--primary-text); margin: 5px 0; transition: transform 0.3s ease, opacity 0.3s ease; }
-  .stn-burger.open .stn-burger-line:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-  .stn-burger.open .stn-burger-line:nth-child(2) { opacity: 0; }
-  .stn-burger.open .stn-burger-line:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  .nav-dropdown:hover .nav-dropdown-menu { display: block; }
+  .nav-dropdown-menu a {
+    display: block;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--accent-light);
+    color: var(--primary-text);
+    font-size: 0.78rem;
+    text-decoration: none;
+    transition: background 0.2s ease;
+  }
+  .nav-dropdown-menu a:last-child { border-bottom: none; }
+  .nav-dropdown-menu a:hover { background: var(--accent-light); }
+  .nav-dropdown-menu a[aria-current="page"] {
+    padding-left: 13px;
+    border-left: 3px solid var(--signal);
+    font-weight: 700;
+  }
+  .hamburger {
+    display: none;
+    z-index: 200;
+    padding: 8px;
+    border: none;
+    background: none;
+    cursor: pointer;
+  }
+  .hamburger-line {
+    display: block;
+    width: 24px;
+    height: 2px;
+    margin: 5px 0;
+    background: var(--primary-text);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+  .hamburger.open .hamburger-line:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger.open .hamburger-line:nth-child(2) { opacity: 0; }
+  .hamburger.open .hamburger-line:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  .analytics-index {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-bottom: 1px solid var(--border-primary);
+    background: color-mix(in srgb, var(--primary-bg) 94%, transparent);
+    backdrop-filter: blur(14px);
+  }
+  .analytics-index-inner {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 0 var(--page-gutter);
+  }
+  .analytics-index-label {
+    margin-right: auto;
+    color: var(--secondary-text);
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .analytics-index a {
+    flex: 0 0 auto;
+    padding: 11px 0 10px;
+    border-bottom: 2px solid transparent;
+    color: var(--secondary-text);
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .analytics-index a:hover,
+  .analytics-index a:focus-visible {
+    color: var(--primary-text);
+    border-bottom-color: var(--signal);
+  }
+
   @media (max-width: 768px) {
-    .stn-burger { display: block; }
-    .stn-nav {
-      display: none; position: absolute; left: 0; right: 0; top: 100%;
-      flex-direction: column; align-items: stretch; gap: 0;
-      background: var(--primary-bg); border-bottom: 2px solid var(--border-primary);
-      padding: 0 20px; z-index: 999;
+    .site-header-inner {
+      padding-top: 15px;
+      padding-bottom: 15px;
+      flex-wrap: wrap;
     }
-    .stn-nav.open { display: flex; }
-    .stn-nav > a, .stn-dd-trigger {
-      padding: 14px 0; min-height: 44px; display: flex; align-items: center;
+    .hamburger { display: block; }
+    .nav {
+      display: none;
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 100%;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      padding: 0 var(--page-gutter);
+      border-top: 2px solid var(--border-primary);
+      border-bottom: 1px solid var(--border-primary);
+      background: var(--primary-bg);
+      z-index: 999;
+    }
+    .nav.open { display: flex; }
+    .nav > a,
+    .nav-dropdown-trigger {
+      display: flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 14px 0;
       border-bottom: 1px solid var(--accent-light);
     }
-    .stn-dd { width: 100%; }
-    .stn-dd-menu {
-      position: static; border: none; border-radius: 0; box-shadow: none;
-      margin-top: 0; min-width: 0; background: var(--accent-lighter); display: none;
+    .nav-dropdown { width: 100%; }
+    .nav-dropdown-menu {
+      position: static;
+      display: none;
+      min-width: 0;
+      margin-top: 0;
+      border: none;
+      border-radius: 0;
+      background: var(--accent-lighter);
+      box-shadow: none;
     }
-    .stn-dd.open .stn-dd-menu { display: block; }
-    .stn-dd:hover .stn-dd-menu { display: none; }
-    .stn-dd-menu::before { content: none; }
-    .stn-dd.open:hover .stn-dd-menu { display: block; }
-    .stn-dd-menu a { padding: 13px 16px 13px 24px; min-height: 44px; }
+    .nav-dropdown.open .nav-dropdown-menu { display: block; }
+    .nav-dropdown:hover .nav-dropdown-menu { display: none; }
+    .nav-dropdown-menu::before { content: none; }
+    .nav-dropdown.open:hover .nav-dropdown-menu { display: block; }
+    .nav-dropdown-menu a {
+      min-height: 44px;
+      padding: 14px 16px 14px 24px;
+    }
+    .analytics-index-inner {
+      gap: 22px;
+      overflow-x: auto;
+      overscroll-behavior-inline: contain;
+      scrollbar-width: none;
+    }
+    .analytics-index-inner::-webkit-scrollbar { display: none; }
+    .analytics-index-label { display: none; }
   }
 
-  .site-footer { text-align: center; padding: 24px 20px; margin-top: 40px; border-top: 1px solid #ddd; font-size: 0.82rem; color: #555; }
-  .site-footer a { color: inherit; }
+  .footer {
+    padding: 30px 0 6px;
+    border-top: 1px solid var(--border-primary);
+    color: var(--secondary-text);
+    font-size: 0.68rem;
+    letter-spacing: 0.05em;
+    text-align: left;
+    text-transform: uppercase;
+  }
+  .footer a { color: inherit; }
 
   .container {
-    max-width: 1400px;
+    max-width: 1480px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 0 var(--page-gutter);
   }
 
   .header {
-    position: sticky;
-    top: 0;
-    background: var(--primary-bg);
-    border-bottom: 2px solid var(--border-primary);
-    margin-bottom: 30px;
-    padding-bottom: 16px;
-    z-index: 100;
+    background: transparent;
+    margin: clamp(52px, 9vw, 128px) 0 clamp(48px, 8vw, 104px);
   }
 
-  .header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-    gap: 12px;
-  }
-
-  .logo {
-    font-size: 1.5rem;
+  .header-kicker {
+    display: block;
+    margin-bottom: clamp(18px, 2vw, 28px);
+    color: var(--signal);
+    font-size: 0.7rem;
     font-weight: 700;
-    color: var(--primary-text);
-    text-decoration: none;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
   }
-
-  .header-links {
-    display: flex;
-    gap: 14px;
-    align-items: center;
-    font-size: 0.85rem;
-    color: var(--secondary-text);
-    flex-wrap: wrap;
-  }
-
-  .header-links a {
-    font-weight: 600;
-    text-decoration: underline;
-    color: var(--primary-text);
-    transition: color 0.2s ease;
-  }
-
-  .header-links a:hover { color: var(--secondary-text); }
 
   .header h1 {
-    font-size: 1.8rem;
+    max-width: 1050px;
+    font-size: clamp(3.25rem, 8.2vw, 8.8rem);
     font-weight: 600;
-    margin-top: 10px;
+    line-height: 0.88;
+    letter-spacing: -0.075em;
+    text-wrap: balance;
   }
 
   .header .subtitle {
-    font-size: 0.9rem;
+    max-width: 860px;
+    font-size: clamp(0.9rem, 1.25vw, 1.08rem);
     color: var(--secondary-text);
-    margin-top: 4px;
+    margin-top: clamp(24px, 4vw, 48px);
     font-weight: 400;
   }
 
   .meta {
-    margin-top: 8px;
-    font-size: 0.85rem;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-top: clamp(26px, 4vw, 48px);
+    border-top: 1px solid var(--border-primary);
+    border-bottom: 1px solid var(--border-primary);
     color: var(--secondary-text);
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .meta span {
+    padding: 14px 16px 14px 0;
+  }
+
+  .meta span + span {
+    padding-left: 16px;
+    border-left: 1px solid var(--accent-light);
+  }
+
+  .meta strong {
+    color: var(--primary-text);
+    font-weight: 600;
   }
 
   .panel {
-    background: var(--primary-bg);
-    border: 2px solid var(--border-primary);
-    border-radius: 8px;
-    padding: 26px;
-    margin-bottom: 34px;
-    transition: all 0.2s ease;
+    display: grid;
+    grid-template-columns: minmax(210px, 0.28fr) minmax(0, 1fr);
+    gap: clamp(28px, 6vw, 96px);
+    padding: clamp(42px, 7vw, 96px) 0;
+    border-top: 1px solid var(--border-primary);
+    scroll-margin-top: 62px;
   }
 
-  .panel:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  .panel-heading {
+    align-self: start;
+    position: sticky;
+    top: 74px;
   }
 
   .panel h2 {
-    font-size: 1.25rem;
+    max-width: 290px;
+    font-size: clamp(1.35rem, 2vw, 2.05rem);
     font-weight: 600;
-    margin-bottom: 14px;
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 12px;
-    flex-wrap: wrap;
+    line-height: 1.08;
+    letter-spacing: -0.035em;
   }
 
   .panel-note {
+    display: block;
+    max-width: 240px;
+    margin-top: 12px;
     font-size: 0.75rem;
     font-weight: 400;
     color: var(--secondary-text);
+    line-height: 1.45;
   }
 
-  img {
+  .panel-body {
+    min-width: 0;
+  }
+
+  .figure-frame {
+    width: 100%;
+    margin: clamp(26px, 4vw, 52px) 0 0;
+    padding: clamp(8px, 1.3vw, 18px);
+    overflow: hidden;
+    border: 1px solid var(--accent-light);
+    background: #ffffff;
+  }
+
+  .figure-frame img {
+    display: block;
     width: 100%;
     height: auto;
-    border-radius: 4px;
-    margin-top: 14px;
-    background: var(--accent-lighter);
-    border: 1px solid var(--accent-light);
+  }
+
+  :root[data-theme="dark"] .figure-frame {
+    background: #111216;
+  }
+
+  :root[data-theme="dark"] .figure-frame img {
+    filter: invert(0.91) hue-rotate(180deg);
+    mix-blend-mode: screen;
   }
 
   code {
-    background: #f6f6f6;
+    background: var(--accent-light);
     padding: 0.15rem 0.35rem;
-    border-radius: 4px;
     font-family: 'Source Code Pro', monospace;
     font-size: 0.9em;
   }
 
   .explain {
     color: var(--secondary-text);
-    font-size: 0.95rem;
+    font-size: clamp(0.88rem, 1vw, 0.98rem);
   }
 
   .explain p { margin: 10px 0; }
 
-  .callout {
-    margin-top: 14px;
-    padding: 16px;
-    border: 2px solid var(--border-primary);
-    border-radius: 8px;
-    background: var(--accent-lighter);
+  .explain-columns {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(22px, 4vw, 54px);
   }
 
-  .callout-title {
-    font-weight: 700;
-    margin-bottom: 10px;
+  .signal-readout {
+    display: grid;
+    grid-template-columns: minmax(250px, 0.8fr) minmax(380px, 1.2fr);
+    border-top: 2px solid var(--border-primary);
+    border-bottom: 1px solid var(--border-primary);
   }
 
-  .label {
-    font-size: 0.75rem;
+  .signal-primary {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: clamp(26px, 4vw, 52px) clamp(24px, 4vw, 54px) clamp(26px, 4vw, 52px) 0;
+    border-right: 1px solid var(--border-primary);
+  }
+
+  .signal-label,
+  .signal-vintage,
+  .component span,
+  .component small {
     color: var(--secondary-text);
-    margin-bottom: 4px;
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
 
-  .value {
-    font-size: 1.05rem;
+  .signal-value {
+    margin: 14px 0 4px;
+    font-size: clamp(4.5rem, 9vw, 9rem);
+    font-weight: 500;
+    line-height: 0.86;
+    letter-spacing: -0.09em;
+  }
+
+  .signal-status {
+    color: var(--signal);
+    font-size: clamp(0.92rem, 1.3vw, 1.15rem);
     font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .signal-vintage {
+    margin-top: 26px;
+  }
+
+  .signal-components {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .component {
+    display: flex;
+    min-height: 132px;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: clamp(18px, 3vw, 32px);
+    border-bottom: 1px solid var(--accent-light);
+  }
+
+  .component:nth-child(odd) {
+    border-right: 1px solid var(--accent-light);
+  }
+
+  .component strong {
+    margin-top: 18px;
+    font-size: clamp(1.5rem, 3vw, 2.8rem);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.05em;
+  }
+
+  .component-wide {
+    grid-column: span 2;
+    min-height: 116px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px 24px;
+    border-right: 0 !important;
+    border-bottom: 0;
+  }
+
+  .component-wide strong {
+    margin: 0;
+    text-align: right;
+  }
+
+  .component-wide small {
+    grid-column: 1 / -1;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .interpretation {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(20px, 3vw, 40px);
+    margin-top: clamp(28px, 4vw, 48px);
+    color: var(--secondary-text);
+    font-size: 0.84rem;
+  }
+
+  .interpretation strong {
+    display: block;
+    margin-bottom: 7px;
+    color: var(--primary-text);
   }
 
   .muted {
@@ -339,9 +656,8 @@
   .missing {
     margin-top: 14px;
     padding: 14px;
-    border-radius: 8px;
     border: 1px dashed var(--border-primary);
-    background: #fff;
+    background: var(--primary-bg);
     color: var(--secondary-text);
     font-size: 0.92rem;
   }
@@ -359,14 +675,15 @@
   }
 
   table.mini th, table.mini td {
-    border: 1px solid var(--accent-light);
-    padding: 10px 10px;
+    border-bottom: 1px solid var(--accent-light);
+    padding: 14px 12px;
     text-align: left;
     vertical-align: top;
   }
 
   table.mini thead th {
-    background: var(--accent-lighter);
+    border-top: 1px solid var(--border-primary);
+    border-bottom-color: var(--border-primary);
     font-weight: 700;
   }
 
@@ -374,10 +691,9 @@
 
   .gauge-bar {
     position: relative;
-    height: 12px;
+    height: 8px;
     border: 1px solid var(--border-primary);
-    border-radius: 999px;
-    background: #fff;
+    background: var(--accent-light);
   }
 
   .gauge-marker {
@@ -396,48 +712,50 @@
     color: var(--secondary-text);
   }
 
-  .footer {
-    border-top: 2px solid var(--border-primary);
-    margin-top: 50px;
-    padding-top: 18px;
-    text-align: center;
-    color: var(--secondary-text);
-    font-size: 0.85rem;
+  @media (max-width: 900px) {
+    .panel { grid-template-columns: 1fr; gap: 24px; }
+    .panel-heading { position: static; }
+    .panel h2, .panel-note { max-width: none; }
+    .signal-readout { grid-template-columns: 1fr; }
+    .signal-primary { border-right: 0; border-bottom: 1px solid var(--border-primary); }
   }
 
-  .latest-cards {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-top: 14px;
-  }
-
-  @media (max-width: 768px) {
-    .header-content {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-    .panel { padding: 18px; }
-    .latest-cards { grid-template-columns: 1fr; }
+  @media (max-width: 680px) {
+    .header { margin-top: 42px; }
+    .header h1 { font-size: clamp(3rem, 15vw, 5.1rem); }
+    .meta { grid-template-columns: 1fr; }
+    .meta span { padding: 11px 0; }
+    .meta span + span { padding-left: 0; border-left: 0; border-top: 1px solid var(--accent-light); }
+    .signal-value { font-size: clamp(4.4rem, 23vw, 7rem); }
+    .signal-components { grid-template-columns: 1fr; }
+    .component { min-height: 105px; border-right: 0 !important; }
+    .component-wide { grid-column: auto; grid-template-columns: 1fr; }
+    .component-wide strong { text-align: left; }
+    .component-wide small { grid-column: auto; }
+    .interpretation, .explain-columns { grid-template-columns: 1fr; }
+    table.mini { font-size: 0.78rem; }
   }
 </style>
 </head>
 
 <body>
-<nav class="stn" aria-label="Site">
-  <div class="stn-inner">
-    <a class="stn-brand" href="/">SENS ADVISOR</a>
-    <button class="stn-burger" aria-label="Toggle menu" aria-expanded="false">
-      <span class="stn-burger-line"></span>
-      <span class="stn-burger-line"></span>
-      <span class="stn-burger-line"></span>
+<button class="back-to-top" type="button" aria-label="Back to top" aria-hidden="true" tabindex="-1">
+  <span>Top</span>
+  <span class="top-arrow" aria-hidden="true">&#8593;</span>
+</button>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="logo"><span>SENS ADVISOR</span></a>
+    <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
     </button>
-    <div class="stn-nav">
-      <a href="/#research">Research</a>
+    <nav class="nav" aria-label="Site">
       <a href="/#services">Services</a>
-      <div class="stn-dd">
-        <span class="stn-dd-trigger" role="button" tabindex="0" aria-haspopup="true" aria-expanded="false">Analytics &#9662;</span>
-        <div class="stn-dd-menu">
+      <div class="nav-dropdown">
+        <span class="nav-dropdown-trigger" role="button" tabindex="0" aria-haspopup="true" aria-expanded="false">Analytics &#9662;</span>
+        <div class="nav-dropdown-menu">
           <a href="/rentals/">San Juan Rentals</a>
           <a href="/recession/" aria-current="page">US Recession Probability</a>
           <a href="/pr-lmci/">PR Labor Market Index</a>
@@ -446,59 +764,90 @@
           <a href="/reservoirs/">PR Reservoir Levels</a>
         </div>
       </div>
+      <a href="/#research">Research</a>
       <a href="/#about">About</a>
       <a href="https://github.com/jibarix" target="_blank" rel="noopener">Code</a>
       <a href="https://x.com/jorgearroyox" target="_blank" rel="noopener">Insights</a>
       <a href="/#contact">Contact</a>
-      <button class="stn-toggle" type="button" aria-label="Toggle dark mode" aria-pressed="false" title="Toggle dark mode">
-        <svg class="stn-ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        <svg class="stn-ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-        <span class="stn-toggle-label"><span class="stn-lbl-dark">Dark mode</span><span class="stn-lbl-light">Light mode</span></span>
+      <button class="theme-toggle" type="button" aria-label="Toggle dark mode" aria-pressed="false" title="Toggle dark mode">
+        <svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <span class="theme-toggle-label"><span class="lbl-dark">Dark mode</span><span class="lbl-light">Light mode</span></span>
       </button>
-    </div>
+    </nav>
+  </div>
+</header>
+
+<nav class="analytics-index" aria-label="Dashboard sections">
+  <div class="analytics-index-inner">
+    <span class="analytics-index-label">US recession</span>
+    <a href="#main">Signal</a>
+    <a href="#overview">How it works</a>
+    <a href="#dashboard">Indicators</a>
+    <a href="#gate">Mixture weight</a>
+    <a href="#model-design">Model design</a>
+    <a href="#limitations">Limitations</a>
   </div>
 </nav>
 <script>
 (function () {
-  var burger = document.querySelector('.stn-burger');
-  var nav = document.querySelector('.stn-nav');
-  var dd = document.querySelector('.stn-dd');
-  var trigger = document.querySelector('.stn-dd-trigger');
-  if (!burger || !nav) return;
-  burger.addEventListener('click', function () {
-    burger.classList.toggle('open');
+  var hamburger = document.querySelector('.hamburger');
+  var nav = document.querySelector('.nav');
+  var dropdown = document.querySelector('.nav-dropdown');
+  var dropdownTrigger = document.querySelector('.nav-dropdown-trigger');
+
+  if (!hamburger || !nav) return;
+
+  hamburger.addEventListener('click', function () {
+    hamburger.classList.toggle('open');
     nav.classList.toggle('open');
-    burger.setAttribute('aria-expanded', nav.classList.contains('open'));
+    hamburger.setAttribute('aria-expanded', nav.classList.contains('open'));
   });
-  nav.querySelectorAll('a').forEach(function (a) {
-    a.addEventListener('click', function () {
-      burger.classList.remove('open');
+
+  nav.querySelectorAll('a').forEach(function (link) {
+    link.addEventListener('click', function () {
+      hamburger.classList.remove('open');
       nav.classList.remove('open');
-      burger.setAttribute('aria-expanded', 'false');
+      hamburger.setAttribute('aria-expanded', 'false');
     });
   });
-  if (trigger && dd) {
-    var toggleDd = function (e) {
-      if (window.innerWidth <= 768) { e.preventDefault(); e.stopPropagation(); dd.classList.toggle('open'); trigger.setAttribute('aria-expanded', dd.classList.contains('open')); }
-    };
-    trigger.addEventListener('click', toggleDd);
-    trigger.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') toggleDd(e); });
+
+  if (dropdown && dropdownTrigger) {
+    function toggleDropdown(event) {
+      if (window.innerWidth <= 768) {
+        event.preventDefault();
+        event.stopPropagation();
+        dropdown.classList.toggle('open');
+        dropdownTrigger.setAttribute('aria-expanded', dropdown.classList.contains('open'));
+      }
+    }
+
+    dropdownTrigger.addEventListener('click', toggleDropdown);
+    dropdownTrigger.addEventListener('keydown', function (event) {
+      if (event.key === 'Enter' || event.key === ' ') toggleDropdown(event);
+    });
   }
-  document.addEventListener('click', function (e) {
-    if (window.innerWidth <= 768 && !nav.contains(e.target) && !burger.contains(e.target)) {
-      burger.classList.remove('open'); nav.classList.remove('open');
-      burger.setAttribute('aria-expanded', 'false');
-      if (dd) dd.classList.remove('open');
+
+  document.addEventListener('click', function (event) {
+    if (window.innerWidth <= 768 && !nav.contains(event.target) && !hamburger.contains(event.target)) {
+      hamburger.classList.remove('open');
+      nav.classList.remove('open');
+      hamburger.setAttribute('aria-expanded', 'false');
+      if (dropdown) dropdown.classList.remove('open');
+      if (dropdownTrigger) dropdownTrigger.setAttribute('aria-expanded', 'false');
     }
   });
 })();
+
 (function () {
-  var toggle = document.querySelector('.stn-toggle');
+  var toggle = document.querySelector('.theme-toggle');
   if (!toggle) return;
+
   function sync() {
     var dark = document.documentElement.getAttribute('data-theme') === 'dark';
     toggle.setAttribute('aria-pressed', dark ? 'true' : 'false');
   }
+
   sync();
   toggle.addEventListener('click', function () {
     var dark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -506,103 +855,111 @@
     document.documentElement.setAttribute('data-theme', next);
     try { localStorage.setItem('theme', next); } catch (e) {}
     sync();
+    if (typeof window.refreshAnalyticsTheme === 'function') {
+      window.refreshAnalyticsTheme();
+    }
   });
 })();
 </script>
 <div class="container">
 
   <header class="header">
-    <div class="header-content">
-      <div class="header-links">
-        <a href="#overview">Overview</a>
-        <a href="#main">Probability</a>
-        <a href="#dashboard">Indicators</a>
-        <a href="#gate">Mixture weight</a>
-        <a href="#model-design">Model design</a>
-        <a href="#limitations">Limitations</a>
-      </div>
-    </div>
-    <h1>Recession Probability Monitoring</h1>
+    <span class="header-kicker">Analytics / Macro</span>
+    <h1>US Recession Risk</h1>
     <div class="subtitle">
-      Baseline: yield-curve probit &bull; Augmented: additive macro-finance model &bull; Hybrid: reliability-weighted mixture
+      A regime-aware, 12-month monitoring signal combining the yield curve with macro-finance conditions.
     </div>
     <div class="meta">
-      <span><strong>Last updated (UTC):</strong> 2026-07-01 12:44 UTC</span>
-      <span><strong>Next scheduled update:</strong> 2026-08-01 10:00 UTC</span>
-      <span><strong>Time window:</strong> next 12 months</span>
+      <span><strong>Model vintage</strong><br>2026-05-01</span>
+      <span><strong>Dashboard generated</strong><br>2026-07-22 17:27 UTC</span>
+      <span><strong>Next scheduled release</strong><br>2026-08-01 10:00 UTC</span>
     </div>
   </header>
 
   
-    <div class="panel" id="overview">
-      <h2>Overview <span class="panel-note">What this dashboard is measuring</span></h2>
+    <section class="panel" id="main">
+      <div class="panel-heading">
+        <h2>Current signal</h2>
+        <span class="panel-note">Latest estimate and historical context</span>
+      </div>
+      <div class="panel-body">
+        
       
-      <div class="explain">
-        <p><strong>What you are looking at:</strong> a recession risk monitor that combines a classic yield-curve signal with broader measures of financial stress.</p>
-        <p><strong>Why a "regime-aware" approach:</strong> the yield curve is historically useful, but on its own it can send prolonged
-        warnings without broad economic stress. This system pairs the classic curve signal with a broader macro-finance model and
-        learns which has been more reliable out-of-sample.</p>
-        <p><strong>Two models, one gate:</strong></p>
+    <div class="signal-readout">
+      <div class="signal-primary">
+        <span class="signal-label">12-month recession probability</span>
+        <strong class="signal-value">5.0%</strong>
+        <span class="signal-status">Elevated risk</span>
+        <span class="signal-vintage">Model vintage 2026-05-01</span>
+      </div>
+      <div class="signal-components">
+        <div class="component">
+          <span>Yield curve</span>
+          <strong>8.9%</strong>
+        </div>
+        <div class="component">
+          <span>Macro-finance</span>
+          <strong>4.0%</strong>
+        </div>
+        <div class="component">
+          <span>Reliability weight</span>
+          <strong>0.80</strong>
+        </div>
+        <div class="component component-wide">
+          <span>Weight sensitivity</span>
+          <strong>5.5% &rarr; 4.5%</strong>
+          <small>Leaning toward macro-finance signals</small>
+        </div>
+      </div>
+    </div>
+      <div class="interpretation">
+        <p><strong>Read the level.</strong> Higher values indicate conditions that historically preceded recessions.</p>
+        <p><strong>Read the direction.</strong> A rising line means risk is building; a falling line means it is easing.</p>
+        <p><strong>Keep the uncertainty.</strong> This is a monitoring signal, not a guaranteed outcome or calendar forecast.</p>
+      </div>
+        
+            <figure class="figure-frame">
+              <img src="fig1_recession_prob.png" alt="Current signal">
+            </figure>
+      </div>
+    </section>
+  
+    <section class="panel" id="overview">
+      <div class="panel-heading">
+        <h2>How the signal works</h2>
+        <span class="panel-note">Two models and a reliability gate</span>
+      </div>
+      <div class="panel-body">
+        
+      <div class="explain explain-columns">
+        <div>
+          <p><strong>What it measures</strong></p>
+          <p>A monitoring signal that combines a classic yield-curve model with broader measures of financial and labor-market stress.</p>
+        </div>
+        <div>
+          <p><strong>Why regime-aware</strong></p>
+          <p>The curve can warn for a long time without broad stress. A learned gate shifts weight toward the model that has been more reliable out-of-sample.</p>
+        </div>
+        <div>
+          <p><strong>What drives it</strong></p>
         <ul style="margin:8px 0 8px 20px;">
-          <li><strong>Baseline:</strong> a yield-curve-only probit &mdash; the classic, pure term-spread signal.</li>
-          <li><strong>Augmented:</strong> a macro-finance elastic-net using the term spread together with credit stress,
-          financial conditions, and labor-market indicators &mdash; a broader read on whether the curve signal is corroborated by real stress.</li>
-          <li><strong>Reliability gate:</strong> a learned mixture weight <code>w</code> that decides how much to trust each model at a given time.</li>
+          <li><strong>Baseline:</strong> yield-curve probit.</li>
+          <li><strong>Augmented:</strong> macro-finance elastic-net.</li>
+          <li><strong>Gate:</strong> learned mixture weight <code>w</code>.</li>
         </ul>
-        <p><strong>Reading tip:</strong> start with the probability chart, then check the mixture weight panel to see which model is driving today's reading.</p>
-      </div>
-      
-    </div>
-  
-    <div class="panel" id="main">
-      <h2>Recession Probability <span class="panel-note">How risk evolves over time</span></h2>
-      
-      <div class="explain">
-        <p><strong>Why it matters:</strong> This chart is the main "risk thermometer." It shows the system's recession probability through time.</p>
-        <p><strong>How to read:</strong> Higher values mean the model sees conditions that historically preceded recessions.
-        Shaded bands mark past recessions. A rising line means risk is increasing; a falling line means risk is easing.</p>
-        <p><strong>Important:</strong> A high probability does not mean a recession is guaranteed, and a low probability does not mean one is impossible.
-        This is a monitoring signal based on history, not a calendar prediction.</p>
-      </div>
-      
-    <div class="callout">
-      <div class="callout-title" style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:6px;">
-        <span>Latest update</span>
-        <span class="muted" style="font-weight:500; font-size:0.85rem;">As of 2026-05-01</span>
-      </div>
-      <div class="latest-cards">
-        <div style="border:2px solid var(--border-primary); border-radius:8px; padding:18px; text-align:center;">
-          <div style="font-size:2.2rem; font-weight:700; line-height:1.1;">5.0%</div>
-          <div style="font-size:1.0rem; font-weight:600; margin-top:4px; color:var(--secondary-text);">
-            Elevated risk
-          </div>
-          <div class="muted" style="margin-top:8px; font-size:0.82rem;">12-month recession probability</div>
-        </div>
-        <div style="border:1px solid var(--accent-light); border-radius:8px; padding:14px;">
-          <div style="display:grid; grid-template-columns:auto 1fr; gap:4px 12px; font-size:0.92rem;">
-            <span class="muted">Yield-curve model</span>
-            <span style="font-weight:600; text-align:right;">8.9%</span>
-            <span class="muted">Macro-finance model</span>
-            <span style="font-weight:600; text-align:right;">4.0%</span>
-            <span class="muted">Reliability weight (w)</span>
-            <span style="font-weight:600; text-align:right;">0.80</span>
-          </div>
-          <div class="muted" style="margin-top:10px; font-size:0.82rem; border-top:1px solid var(--accent-light); padding-top:8px;">
-            Leaning toward macro-finance signals
-          </div>
-          <div style="margin-top:8px; font-size:0.82rem;">
-            <span class="muted">Sensitivity (w &plusmn; 0.1):</span>
-            <span style="font-weight:600;">5.5% &rarr; 4.5%</span>
-          </div>
         </div>
       </div>
-    </div>
-      <img src="fig1_recession_prob.png" alt="Recession Probability">
-    </div>
+        
+      </div>
+    </section>
   
-    <div class="panel" id="dashboard">
-      <h2>Indicator Dashboard <span class="panel-note">What inputs look like right now</span></h2>
-      
+    <section class="panel" id="dashboard">
+      <div class="panel-heading">
+        <h2>Indicator Dashboard</h2>
+        <span class="panel-note">What inputs look like right now</span>
+      </div>
+      <div class="panel-body">
+        
       <div class="explain">
         <p><strong>What you see:</strong> the four key inputs standardized as z-scores for visual comparison.</p>
       </div>
@@ -621,12 +978,20 @@
         <strong>Note:</strong> The augmented model combines the term spread with these macro-finance signals in a single
         elastic-net. See the <a href="#model-design">Model Design</a> panel for how it relates to the baseline.
       </div>
-      <img src="fig2_indicator_dashboard.png" alt="Indicator Dashboard">
-    </div>
+        
+            <figure class="figure-frame">
+              <img src="fig2_indicator_dashboard.png" alt="Indicator Dashboard">
+            </figure>
+      </div>
+    </section>
   
-    <div class="panel" id="gate">
-      <h2>Reliability Gate (Mixture Weight) <span class="panel-note">Which model the system trusts right now</span></h2>
-      
+    <section class="panel" id="gate">
+      <div class="panel-heading">
+        <h2>Reliability Gate (Mixture Weight)</h2>
+        <span class="panel-note">Which model the system trusts right now</span>
+      </div>
+      <div class="panel-body">
+        
       <div class="explain">
         <p><strong>What this is:</strong> The reliability gate outputs <code>w</code>, the weight placed on the macro-finance model when forming the hybrid probability.</p>
         <p><strong>How to read:</strong> When <code>w</code> is near 0, the system is mostly trusting the yield curve. When <code>w</code> is near 1, it is mostly trusting credit and labor-market stress signals.</p>
@@ -646,17 +1011,25 @@
         <strong>Current w:</strong> 0.80 &bull; Leaning toward macro-finance signals
       </div>
     </div>
-      <img src="fig3_regime_weight.png" alt="Reliability Gate (Mixture Weight)">
-    </div>
+        
+            <figure class="figure-frame">
+              <img src="fig3_regime_weight.png" alt="Reliability Gate (Mixture Weight)">
+            </figure>
+      </div>
+    </section>
   
-    <div class="panel" id="model-design">
-      <h2>Model Design <span class="panel-note">What goes into each model — and why it stays simple</span></h2>
-      
+    <section class="panel" id="model-design">
+      <div class="panel-heading">
+        <h2>Model Design</h2>
+        <span class="panel-note">What goes into each model — and why it stays simple</span>
+      </div>
+      <div class="panel-body">
+        
       <div class="explain">
         <p><strong>Two models:</strong> The baseline uses the yield-curve spread as its only input &mdash; the classic
         Estrella-style recession probit. The augmented model is an additive macro-finance specification: the same spread
         plus five broader stress measures.</p>
-        <div style="margin:10px 0; padding:8px 12px; background:#f6f6f6; border-radius:4px; font-size:0.9rem;">
+        <div style="margin:16px 0; padding:12px 14px; background:var(--accent-light); font-size:0.9rem;">
           Augmented features: SPREAD, CREDIT_Z, CREDIT_CHG3M, NFCI, NFCI_CHG3M, CLAIMS_SIG
         </div>
 
@@ -677,12 +1050,17 @@
         <strong>Regularization:</strong> The elastic-net's L1 penalty shrinks unhelpful coefficients toward zero, so the
         macro features have to earn their place. All inputs are constructed to be leakage-free as of each scoring date.
       </div>
-      
-    </div>
+        
+      </div>
+    </section>
   
-    <div class="panel" id="limitations">
-      <h2>Known Limitations <span class="panel-note">What this model cannot do</span></h2>
-      
+    <section class="panel" id="limitations">
+      <div class="panel-heading">
+        <h2>Known Limitations</h2>
+        <span class="panel-note">What this model cannot do</span>
+      </div>
+      <div class="panel-body">
+        
       <div class="explain">
         <p><strong>Why this section exists:</strong> Transparency about model limitations is as important as
         the headline probability.</p>
@@ -717,31 +1095,47 @@
         it cannot anticipate unprecedented shocks (e.g., a pandemic), and it should never be used as the sole basis
         for financial decisions. It is one input among many.</p>
       </div>
-      
-    </div>
+        
+      </div>
+    </section>
 
+  <footer class="footer">
+    <p>&copy; <span id="copyright-year">2026</span> Sens ABI LLC. All rights reserved. | Standard W9/1099 Process for US Clients</p>
+  </footer>
 </div>
-
-<footer class="site-footer">
-  <p>&copy; <span id="copyright-year">2026</span> Sens ABI LLC. All rights reserved.</p>
-</footer>
 <script>document.getElementById('copyright-year').textContent=new Date().getFullYear();</script>
-<button class="stn-top" type="button" aria-label="Back to top" title="Back to top">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
-</button>
 <script>
+  // Scroll-progress back-to-top control.
   (function () {
-    var btn = document.querySelector(".stn-top");
-    if (!btn) return;
-    var onScroll = function () {
-      if (window.scrollY > 400) btn.classList.add("show");
-      else btn.classList.remove("show");
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    btn.addEventListener("click", function () {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
+    var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var backToTop = document.querySelector('.back-to-top');
+    var topControlFrame = 0;
+
+    function syncBackToTop() {
+      topControlFrame = 0;
+      if (!backToTop) return;
+      var scrollable = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      var progress = Math.min(1, Math.max(0, window.scrollY / scrollable));
+      var revealAt = Math.max(420, window.innerHeight * 0.8);
+      var visible = window.scrollY > revealAt;
+      backToTop.style.setProperty('--top-progress', (progress * 360).toFixed(1) + 'deg');
+      backToTop.classList.toggle('is-visible', visible);
+      backToTop.setAttribute('aria-hidden', visible ? 'false' : 'true');
+      backToTop.tabIndex = visible ? 0 : -1;
+    }
+
+    function queueTopControlSync() {
+      if (!topControlFrame) { topControlFrame = window.requestAnimationFrame(syncBackToTop); }
+    }
+
+    if (backToTop) {
+      backToTop.addEventListener('click', function () {
+        window.scrollTo({ top: 0, behavior: reducedMotion ? 'auto' : 'smooth' });
+      });
+      syncBackToTop();
+      window.addEventListener('scroll', queueTopControlSync, { passive: true });
+      window.addEventListener('resize', queueTopControlSync, { passive: true });
+    }
   })();
 </script>
 
