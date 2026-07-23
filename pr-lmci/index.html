@@ -61,6 +61,21 @@
     padding: 6px; margin: 0; border-radius: 4px; transition: background 0.2s ease;
   }
   .stn-toggle:hover { background: var(--accent-light); }
+  /* Back-to-top */
+  .stn-top {
+    position: fixed; right: 20px; bottom: 20px; z-index: 200;
+    width: 44px; height: 44px; padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--primary-bg); color: var(--primary-text);
+    border: 2px solid var(--border-primary); border-radius: 6px;
+    cursor: pointer; opacity: 0; pointer-events: none;
+    transform: translateY(8px);
+    transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
+  }
+  .stn-top.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+  .stn-top:hover { background: var(--accent-light); }
+  .stn-top svg { width: 22px; height: 22px; display: block; }
+  @media print { .stn-top { display: none; } }
   .stn-toggle svg { width: 20px; height: 20px; display: block; }
   .stn-toggle .stn-ic-sun { display: none; }
   :root[data-theme="dark"] .stn-toggle .stn-ic-sun { display: block; }
@@ -727,6 +742,24 @@
   <p>&copy; <span id="copyright-year">2026</span> Sens ABI LLC. All rights reserved.</p>
 </footer>
 <script>document.getElementById('copyright-year').textContent=new Date().getFullYear();</script>
+<button class="stn-top" type="button" aria-label="Back to top" title="Back to top">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
+</button>
+<script>
+  (function () {
+    var btn = document.querySelector(".stn-top");
+    if (!btn) return;
+    var onScroll = function () {
+      if (window.scrollY > 400) btn.classList.add("show");
+      else btn.classList.remove("show");
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    btn.addEventListener("click", function () {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  })();
+</script>
 
 </body>
 </html>
