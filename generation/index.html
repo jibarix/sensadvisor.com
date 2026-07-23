@@ -333,10 +333,6 @@
 
   /* Two-up grid for fuel mix + type breakdown */
   .split-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 34px; }
-  .fuel-legend { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; font-size: 0.82rem; }
-  .fuel-legend-item { display: flex; align-items: center; gap: 8px; }
-  .fuel-legend-swatch { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
-  .fuel-legend-item .fl-pct { margin-left: auto; font-weight: 700; font-variant-numeric: tabular-nums; }
 
   .type-bar-row { margin-bottom: 12px; }
   .type-bar-head { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; }
@@ -493,8 +489,7 @@
     <div class="split-grid">
       <div>
         <div class="panel-note" style="margin-bottom:8px">By fuel (share of generation)</div>
-        <div class="chart-container short"><canvas id="chart-fuel"></canvas></div>
-        <div class="fuel-legend" id="fuel-legend"></div>
+        <div id="fuel-bars"></div>
       </div>
       <div>
         <div class="panel-note" style="margin-bottom:8px">By plant type (MW online now)</div>
@@ -741,7 +736,7 @@
   };
 
   // --- State ---
-  let chartFuel = null, chartHistory = null, chartHourly = null, chartCost = null;
+  let chartHistory = null, chartHourly = null, chartCost = null;
   let latestMetrics = null, unitRows = [];
   let allHistory = [], costHistory = [];
   let adequacy = null, largestOnlineMw = null, hourly = null;
@@ -756,7 +751,7 @@
     document.getElementById("status-hero").style.borderColor = "#d5d3cd";
     document.getElementById("stats-grid").innerHTML = "";
     document.getElementById("type-bars").innerHTML = '<div class="no-data">No data.</div>';
-    document.getElementById("fuel-legend").innerHTML = "";
+    document.getElementById("fuel-bars").innerHTML = '<div class="no-data">No data.</div>';
     document.getElementById("units-summary").innerHTML = "";
     document.getElementById("hourly-note").textContent = "";
     document.querySelector("#unit-table tbody").innerHTML = '<tr><td colspan="9" class="no-data">No data.</td></tr>';
@@ -974,33 +969,17 @@
     });
   }
 
-  // --- Fuel mix donut ---
+  // --- Fuel mix (horizontal bars) ---
   function renderFuelMix(fuelMix) {
-    if (chartFuel) chartFuel.destroy();
-    const labels = fuelMix.map(f => FUEL_LABELS[f.fuel] || f.fuel);
-    const data = fuelMix.map(f => f.pct);
-    const colors = fuelMix.map(f => FUEL_COLORS[f.fuel] || OTHER_COLOR);
-
-    chartFuel = new Chart(document.getElementById("chart-fuel"), {
-      type: "doughnut",
-      data: { labels, datasets: [{ data, backgroundColor: colors, borderColor: "#fff", borderWidth: 2 }] },
-      options: {
-        responsive: true, maintainAspectRatio: false, cutout: "58%",
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            titleFont: chartFont, bodyFont: chartFont,
-            callbacks: { label: c => ` ${c.label}: ${c.parsed}%` },
-          },
-        },
-      },
-    });
-
-    document.getElementById("fuel-legend").innerHTML = fuelMix.map(f => `
-      <div class="fuel-legend-item">
-        <span class="fuel-legend-swatch" style="background:${FUEL_COLORS[f.fuel] || OTHER_COLOR}"></span>
-        ${FUEL_LABELS[f.fuel] || f.fuel}
-        <span class="fl-pct">${fmt(f.pct)}%</span>
+    const el = document.getElementById("fuel-bars");
+    if (!fuelMix.length) { el.innerHTML = '<div class="no-data">No data.</div>'; return; }
+    const max = Math.max(...fuelMix.map(f => f.pct));
+    el.innerHTML = fuelMix.map(f => `
+      <div class="type-bar-row">
+        <div class="type-bar-head"><span>${FUEL_LABELS[f.fuel] || f.fuel}</span><span class="num">${fmt(f.pct)}%</span></div>
+        <div class="type-bar-track">
+          <div class="type-bar-fill" style="width:${max ? (f.pct / max * 100) : 0}%;background:${FUEL_COLORS[f.fuel] || OTHER_COLOR}"></div>
+        </div>
       </div>`).join("");
   }
 
