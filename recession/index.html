@@ -90,16 +90,6 @@
   .theme-toggle .lbl-light { display: none; }
   :root[data-theme="dark"] .theme-toggle .lbl-light { display: inline; }
   :root[data-theme="dark"] .theme-toggle .lbl-dark { display: none; }
-  @media (max-width: 768px) {
-    .nav .theme-toggle {
-      width: 100%; justify-content: flex-start; gap: 12px;
-      padding: 14px 0; min-height: 44px;
-      border-bottom: 1px solid var(--accent-light);
-      font-size: 0.88rem; font-weight: 500;
-    }
-    .nav .theme-toggle:hover { background: none; }
-    .theme-toggle-label { display: inline; }
-  }
 
   /* Scroll progress and quick return for a long analytical page. */
   .back-to-top {
@@ -170,26 +160,36 @@
     min-height: 100vh;
   }
 
-  /* ===== Shared site navigation — mirrors the sensadvisor.com home menu
-     (brand + top-level links + Analytics dropdown, collapsing to a hamburger
-     on phones), plus a sticky per-page section index. ===== */
+  /* ===== Shared site navigation - mirrors the sensadvisor.com home
+     menu (brand + top-level links + Analytics dropdown, collapsing to
+     a menu button + floating sheet on phones), plus a sticky per-page
+     section index. ===== */
   .site-header {
     position: relative;
     z-index: 1100;
+    display: flex;
+    align-items: center;
+    height: var(--nav-h);
+    padding: 0 var(--page-gutter);
     background: transparent;
   }
   .site-header-inner {
     position: relative;
-    max-width: 1480px;
-    margin: 0 auto;
-    padding: 18px var(--page-gutter);
     display: flex;
     align-items: center;
+    /* Three slots, so space-between is what centres the link row. An auto
+       margin on .nav would collapse it against the actions instead. */
     justify-content: space-between;
+    gap: clamp(16px, 3vw, 40px);
+    width: 100%;
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 0;
   }
   .logo {
     display: inline-flex;
     align-items: center;
+    gap: 10px;
     color: var(--primary-text);
     font-size: 1rem;
     font-weight: 700;
@@ -213,68 +213,299 @@
     user-select: none;
     white-space: nowrap;
   }
+  /* 85% of the ink, which is what the home bar's rgba(255,255,255,.85) comes
+     to once the blend has resolved it - not --border-primary, which is a hard
+     #000 here because it draws the 2px brutalist panel rules. */
   .nav a:hover,
-  .nav-dropdown-trigger:hover { border-bottom-color: var(--border-primary); }
+  .nav-dropdown-trigger:hover,
+  .nav-dropdown-trigger[aria-expanded="true"] {
+    border-bottom-color: var(--nav-rule);
+  }
+  /* A real <button> now that JS drives it. Reset only the UA chrome: the type
+     comes from the shared rule above, so `font: inherit` here would desync its
+     size from the sibling links. */
+  .nav-dropdown-trigger {
+    background: none;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    font-family: inherit;
+    line-height: inherit;
+  }
   .nav-dropdown { position: relative; }
+  /* Same skin as the home panel: hairline rule, 12px radius, the sheet
+     surface, one deep soft shadow. It was a 2px hard-black box on a 4px
+     radius, which is the dashboards' data-panel treatment, not the menu's.
+     It can stay a child of its trigger here; on the home page it has to be a
+     fixed sibling of the bar, because an opaque panel inside a blended bar
+     paints |page - panel| and the page ghosts straight through it. */
   .nav-dropdown-menu {
-    display: none;
     position: absolute;
-    top: 100%;
+    top: calc(100% + 8px);
     left: 0;
-    min-width: 220px;
-    margin-top: 8px;
-    border: 2px solid var(--border-primary);
-    border-radius: 4px;
-    background: var(--primary-bg);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
     z-index: 1000;
+    min-width: 240px;
+    border: 1px solid var(--sheet-line);
+    border-radius: 12px;
+    background: var(--sheet-bg);
+    box-shadow: 0 18px 40px var(--sheet-shadow);
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    /* visibility/opacity rather than display:none - display cannot animate. */
+    transition: opacity 0.18s ease, transform 0.18s ease,
+                visibility 0s linear 0.18s;
   }
-  /* Transparent bridge spanning the 8px gap so the dropdown stays open while
-     the cursor travels from the trigger to the menu (fixes hover dead-zone). */
-  .nav-dropdown-menu::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: -9px;
-    height: 10px;
+  .nav-dropdown.open .nav-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition: opacity 0.18s ease, transform 0.18s ease;
   }
-  .nav-dropdown:hover .nav-dropdown-menu { display: block; }
   .nav-dropdown-menu a {
     display: block;
     padding: 12px 16px;
-    border-bottom: 1px solid var(--accent-light);
-    color: var(--primary-text);
-    font-size: 0.78rem;
+    border-bottom: 1px solid var(--sheet-line);
+    color: var(--sheet-fg);
+    font-size: 0.82rem;
     text-decoration: none;
     transition: background 0.2s ease;
   }
   .nav-dropdown-menu a:last-child { border-bottom: none; }
-  .nav-dropdown-menu a:hover { background: var(--accent-light); }
+  .nav-dropdown-menu a:hover { background: var(--sheet-soft); }
+  /* No equivalent on the home page, where no dashboard is ever the current
+     one. Same marker the sheet's sub-list uses. */
   .nav-dropdown-menu a[aria-current="page"] {
-    padding-left: 13px;
-    border-left: 3px solid var(--signal);
+    color: var(--sheet-fg);
     font-weight: 700;
+    box-shadow: inset 3px 0 0 var(--signal);
   }
-  .hamburger {
-    display: none;
-    z-index: 200;
-    padding: 8px;
-    border: none;
-    background: none;
+  /* Menu button + floating sheet. Replaces the old inline drawer, which
+     pushed the page down as it opened. The sheet is a fixed overlay so the
+     page stays put; the bar is not fixed, so JS parks the sheet under it.
+
+     Geometry, timings, structure AND palette are copied from the home page's
+     sheet, so the opened panel is the same object on both.
+
+     The bar chrome carries its own surface tokens rather than borrowing the
+     page's. The page tokens look like the right roles but are not:
+     --border-primary is #000 here (it draws the 2px brutalist panel rules), so
+     reusing it would rule the sheet in hard black where the home sheet uses a
+     13% hairline; --secondary-text is #333 against a 55%-alpha grey. Same
+     declarations, very different weight. */
+  :root {
+    --nav-h: 64px;
+    --nav-rule: rgba(19, 19, 21, 0.85);
+    --nav-wash: rgba(19, 19, 21, 0.14);
+    --sheet-gap: 6px;
+    --sheet-radius: 16px;
+    --sheet-bg: #f3f1ec;
+    --sheet-fg: #131315;
+    --sheet-line: rgba(19, 19, 21, 0.13);
+    --sheet-dim: rgba(19, 19, 21, 0.55);
+    --sheet-soft: rgba(19, 19, 21, 0.06);
+    --sheet-scrim: rgba(19, 19, 21, 0.34);
+    --sheet-shadow: rgba(0, 0, 0, 0.45);
+  }
+  :root[data-theme="dark"] {
+    --nav-rule: rgba(237, 237, 237, 0.85);
+    --nav-wash: rgba(255, 255, 255, 0.14);
+    --sheet-bg: #17181b;
+    --sheet-fg: #ededed;
+    --sheet-line: rgba(255, 255, 255, 0.13);
+    --sheet-dim: rgba(237, 237, 237, 0.55);
+    --sheet-soft: rgba(255, 255, 255, 0.05);
+    --sheet-scrim: rgba(0, 0, 0, 0.5);
+    --sheet-shadow: rgba(0, 0, 0, 0.5);
+  }
+  /* The head script always stamps data-theme, so this is only the no-JS net -
+     but every other token here is declared all three ways, so these are too. */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --nav-rule: rgba(237, 237, 237, 0.85);
+      --nav-wash: rgba(255, 255, 255, 0.14);
+      --sheet-bg: #17181b;
+      --sheet-fg: #ededed;
+      --sheet-line: rgba(255, 255, 255, 0.13);
+      --sheet-dim: rgba(237, 237, 237, 0.55);
+      --sheet-soft: rgba(255, 255, 255, 0.05);
+      --sheet-scrim: rgba(0, 0, 0, 0.5);
+      --sheet-shadow: rgba(0, 0, 0, 0.5);
+    }
+  }
+
+  /* Action cluster: equal bounded slots, like a set of instrument keys. The
+     page's own .theme-toggle is a 6px pad on a 4px radius; inside the bar it
+     becomes a 40px key, the same one the home page uses. Scoped to
+     .site-header so any other toggle on the page keeps its own shape. */
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .site-header .theme-toggle,
+  .menu-btn {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--primary-text);
     cursor: pointer;
+    transition: background-color 0.2s ease;
   }
-  .hamburger-line {
+  .site-header .theme-toggle:hover,
+  .menu-btn:hover { background: var(--nav-wash); }
+  .site-header .theme-toggle:focus-visible,
+  .menu-btn:focus-visible {
+    outline: 2px solid var(--signal);
+    outline-offset: 2px;
+  }
+  .site-header .theme-toggle svg { width: 18px; height: 18px; }
+  .site-header .theme-toggle-label { display: none; }
+  .menu-btn { display: none; }
+  .menu-icon { display: grid; gap: 5px; width: 18px; }
+  .menu-icon span {
     display: block;
-    width: 24px;
-    height: 2px;
-    margin: 5px 0;
-    background: var(--primary-text);
-    transition: transform 0.3s ease, opacity 0.3s ease;
+    width: 100%;
+    height: 1.5px;
+    background: currentColor;
+    border-radius: 2px;
+    transition: transform 0.34s cubic-bezier(.16, 1, .3, 1),
+                opacity 0.2s ease;
   }
-  .hamburger.open .hamburger-line:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-  .hamburger.open .hamburger-line:nth-child(2) { opacity: 0; }
-  .hamburger.open .hamburger-line:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  .menu-btn[aria-expanded="true"] .menu-icon span:nth-child(1) {
+    transform: translateY(3.25px) rotate(45deg);
+  }
+  .menu-btn[aria-expanded="true"] .menu-icon span:nth-child(2) {
+    transform: translateY(-3.25px) rotate(-45deg);
+  }
+
+  /* Both sit below .site-header (z-index 1100), so the bar stays lit and the
+     button stays clickable to close. */
+  .navscrim {
+    position: fixed;
+    inset: 0;
+    z-index: 1090;
+    background: var(--sheet-scrim);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.32s ease, visibility 0s linear 0.32s;
+  }
+  .navsheet {
+    position: fixed;
+    /* The home bar is fixed so it can key off --nav-h; this one scrolls, so
+       JS writes --sheet-top from the bar's live position instead. */
+    top: var(--sheet-top, 64px);
+    left: var(--sheet-gap);
+    z-index: 1095;
+    width: calc(100% - (var(--sheet-gap) * 2));
+    /* svh, not vh: mobile browser chrome would otherwise clip the sheet. */
+    max-height: calc(100svh - var(--sheet-top, 64px) - var(--sheet-gap));
+    padding: 8px;
+    border-radius: var(--sheet-radius);
+    background: var(--sheet-bg);
+    color: var(--sheet-fg);
+    box-shadow: 0 24px 60px var(--sheet-shadow);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    /* visibility/opacity rather than display:none - display can't animate. */
+    transition: opacity 0.32s cubic-bezier(.16, 1, .3, 1),
+                transform 0.32s cubic-bezier(.16, 1, .3, 1),
+                visibility 0s linear 0.32s;
+  }
+  html.sheet-open .navscrim,
+  html.sheet-open .navsheet {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
+  }
+  html.sheet-open .navsheet { transform: translateY(0); }
+  /* The scroll container is <html>; locking <body> alone will not hold it. */
+  html.sheet-open,
+  html.sheet-open body { overflow: hidden; }
+
+  .sheet-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+    min-height: 56px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: inherit;
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.18s ease;
+  }
+  .sheet-row + .sheet-row,
+  .sheet-group + .sheet-row,
+  .sheet-row + .sheet-group,
+  .sheet-group + .sheet-group { border-top: 1px solid var(--sheet-line); }
+  .sheet-row:hover { background: var(--sheet-soft); }
+  .sheet-row:focus-visible {
+    outline: 2px solid var(--signal);
+    outline-offset: -2px;
+  }
+  .sheet-ind {
+    color: var(--sheet-dim);
+    font-size: 0.95rem;
+    line-height: 1;
+    transition: transform 0.3s cubic-bezier(.16, 1, .3, 1);
+  }
+  .sheet-disc[aria-expanded="true"] .sheet-ind { transform: rotate(45deg); }
+  /* 0fr -> 1fr animates to the content's real height, no magic numbers. */
+  .sheet-sub {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.34s cubic-bezier(.16, 1, .3, 1);
+  }
+  .sheet-disc[aria-expanded="true"] + .sheet-sub { grid-template-rows: 1fr; }
+  .sheet-sub-inner { overflow: hidden; }
+  .sheet-sub a {
+    display: flex;
+    align-items: center;
+    min-height: 46px;
+    padding: 0 14px 0 28px;
+    color: var(--sheet-dim);
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    border-radius: 8px;
+  }
+  .sheet-sub a:hover { background: var(--sheet-soft); color: var(--sheet-fg); }
+  /* Not on the home page, where no dashboard is ever the current one. */
+  .sheet-sub a[aria-current="page"] {
+    color: var(--sheet-fg);
+    font-weight: 700;
+    box-shadow: inset 3px 0 0 var(--signal);
+  }
+  @media (min-width: 769px) {
+    /* Never leave the sheet stranded open on resize to desktop. */
+    .navsheet, .navscrim { display: none; }
+  }
+  @media print {
+    .navsheet, .navscrim { display: none !important; }
+  }
 
   .analytics-index {
     position: sticky;
@@ -325,50 +556,8 @@
       padding-bottom: 15px;
       flex-wrap: wrap;
     }
-    .hamburger { display: block; }
-    .nav {
-      display: none;
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: 100%;
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0;
-      padding: 0 var(--page-gutter);
-      border-top: 2px solid var(--border-primary);
-      border-bottom: 1px solid var(--border-primary);
-      background: var(--primary-bg);
-      z-index: 999;
-    }
-    .nav.open { display: flex; }
-    .nav > a,
-    .nav-dropdown-trigger {
-      display: flex;
-      align-items: center;
-      min-height: 44px;
-      padding: 14px 0;
-      border-bottom: 1px solid var(--accent-light);
-    }
-    .nav-dropdown { width: 100%; }
-    .nav-dropdown-menu {
-      position: static;
-      display: none;
-      min-width: 0;
-      margin-top: 0;
-      border: none;
-      border-radius: 0;
-      background: var(--accent-lighter);
-      box-shadow: none;
-    }
-    .nav-dropdown.open .nav-dropdown-menu { display: block; }
-    .nav-dropdown:hover .nav-dropdown-menu { display: none; }
-    .nav-dropdown-menu::before { content: none; }
-    .nav-dropdown.open:hover .nav-dropdown-menu { display: block; }
-    .nav-dropdown-menu a {
-      min-height: 44px;
-      padding: 14px 16px 14px 24px;
-    }
+    .menu-btn { display: grid; }
+    .nav { display: none; }
     .analytics-index-inner {
       gap: 22px;
       overflow-x: auto;
@@ -746,15 +935,10 @@
 <header class="site-header">
   <div class="site-header-inner">
     <a href="/" class="logo"><span>SENS ADVISOR</span></a>
-    <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
-      <span class="hamburger-line"></span>
-      <span class="hamburger-line"></span>
-      <span class="hamburger-line"></span>
-    </button>
     <nav class="nav" aria-label="Site">
       <a href="/#services">Services</a>
       <div class="nav-dropdown">
-        <span class="nav-dropdown-trigger" role="button" tabindex="0" aria-haspopup="true" aria-expanded="false">Analytics &#9662;</span>
+        <button class="nav-dropdown-trigger" type="button" aria-haspopup="true" aria-expanded="false">Analytics &#9662;</button>
         <div class="nav-dropdown-menu">
           <a href="/rentals/">San Juan Rentals</a>
           <a href="/recession/" aria-current="page">US Recession Probability</a>
@@ -769,14 +953,45 @@
       <a href="https://github.com/jibarix" target="_blank" rel="noopener">Code</a>
       <a href="https://x.com/jorgearroyox" target="_blank" rel="noopener">Insights</a>
       <a href="/#contact">Contact</a>
+    </nav>
+    <div class="nav-actions">
       <button class="theme-toggle" type="button" aria-label="Toggle dark mode" aria-pressed="false" title="Toggle dark mode">
         <svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
         <span class="theme-toggle-label"><span class="lbl-dark">Dark mode</span><span class="lbl-light">Light mode</span></span>
       </button>
-    </nav>
+      <button class="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="navsheet">
+        <span class="menu-icon" aria-hidden="true"><span></span><span></span></span>
+      </button>
+    </div>
   </div>
 </header>
+<div class="navscrim" aria-hidden="true"></div>
+<div class="navsheet" id="navsheet" role="dialog" aria-modal="true" aria-label="Site menu">
+  <nav aria-label="Site menu">
+    <a class="sheet-row" href="/#services"><span>Services</span><span class="sheet-ind" aria-hidden="true">&#8594;</span></a>
+    <div class="sheet-group">
+      <button class="sheet-row sheet-disc" type="button" aria-expanded="false">
+        <span>Analytics</span><span class="sheet-ind" aria-hidden="true">+</span>
+      </button>
+      <div class="sheet-sub">
+        <div class="sheet-sub-inner">
+            <a href="/rentals/">San Juan Rentals</a>
+            <a href="/recession/" aria-current="page">US Recession Probability</a>
+            <a href="/pr-lmci/">PR Labor Market Index</a>
+            <a href="/outages/">PR Outage Status</a>
+            <a href="/generation/">PR Generation Status</a>
+            <a href="/reservoirs/">PR Reservoir Levels</a>
+        </div>
+      </div>
+    </div>
+    <a class="sheet-row" href="/#research"><span>Research</span><span class="sheet-ind" aria-hidden="true">&#8594;</span></a>
+    <a class="sheet-row" href="/#about"><span>About</span><span class="sheet-ind" aria-hidden="true">&#8594;</span></a>
+    <a class="sheet-row" href="https://github.com/jibarix" target="_blank" rel="noopener"><span>Code</span><span class="sheet-ind" aria-hidden="true">&#8599;</span></a>
+    <a class="sheet-row" href="https://x.com/jorgearroyox" target="_blank" rel="noopener"><span>Insights</span><span class="sheet-ind" aria-hidden="true">&#8599;</span></a>
+    <a class="sheet-row" href="/#contact"><span>Contact</span><span class="sheet-ind" aria-hidden="true">&#8594;</span></a>
+  </nav>
+</div>
 
 <nav class="analytics-index" aria-label="Dashboard sections">
   <div class="analytics-index-inner">
@@ -791,52 +1006,127 @@
 </nav>
 <script>
 (function () {
-  var hamburger = document.querySelector('.hamburger');
-  var nav = document.querySelector('.nav');
+  var btn = document.querySelector('.menu-btn');
+  var header = document.querySelector('.site-header');
+  var sheet = document.querySelector('.navsheet');
+  var scrim = document.querySelector('.navscrim');
   var dropdown = document.querySelector('.nav-dropdown');
   var dropdownTrigger = document.querySelector('.nav-dropdown-trigger');
+  var root = document.documentElement;
 
-  if (!hamburger || !nav) return;
+  if (btn && header && sheet && scrim) {
+    var disc = sheet.querySelector('.sheet-disc');
 
-  hamburger.addEventListener('click', function () {
-    hamburger.classList.toggle('open');
-    nav.classList.toggle('open');
-    hamburger.setAttribute('aria-expanded', nav.classList.contains('open'));
-  });
+    var isOpen = function () { return root.classList.contains('sheet-open'); };
 
-  nav.querySelectorAll('a').forEach(function (link) {
-    link.addEventListener('click', function () {
-      hamburger.classList.remove('open');
-      nav.classList.remove('open');
-      hamburger.setAttribute('aria-expanded', 'false');
-    });
-  });
+    // The bar is not fixed, so park the sheet under wherever it currently is.
+    var place = function () {
+      var bottom = header.getBoundingClientRect().bottom;
+      root.style.setProperty('--sheet-top', Math.max(6, Math.round(bottom + 6)) + 'px');
+    };
 
-  if (dropdown && dropdownTrigger) {
-    function toggleDropdown(event) {
-      if (window.innerWidth <= 768) {
-        event.preventDefault();
-        event.stopPropagation();
-        dropdown.classList.toggle('open');
-        dropdownTrigger.setAttribute('aria-expanded', dropdown.classList.contains('open'));
+    var setOpen = function (open) {
+      if (open) place();
+      root.classList.toggle('sheet-open', open);
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+      if (open) {
+        var first = sheet.querySelector('.sheet-row');
+        if (first) first.focus({ preventScroll: true });
+      } else if (disc) {
+        // Collapse the disclosure so it reopens in a known state.
+        disc.setAttribute('aria-expanded', 'false');
       }
+    };
+
+    btn.addEventListener('click', function () {
+      var next = !isOpen();
+      setOpen(next);
+      if (!next) btn.focus({ preventScroll: true });
+    });
+
+    scrim.addEventListener('click', function () {
+      setOpen(false);
+      btn.focus({ preventScroll: true });
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && isOpen()) {
+        setOpen(false);
+        btn.focus({ preventScroll: true });
+      }
+    });
+
+    if (disc) {
+      disc.addEventListener('click', function () {
+        disc.setAttribute(
+          'aria-expanded',
+          disc.getAttribute('aria-expanded') === 'true' ? 'false' : 'true'
+        );
+      });
     }
 
-    dropdownTrigger.addEventListener('click', toggleDropdown);
-    dropdownTrigger.addEventListener('keydown', function (event) {
-      if (event.key === 'Enter' || event.key === ' ') toggleDropdown(event);
+    // Any destination closes the sheet (in-page links scroll behind it).
+    sheet.querySelectorAll('a').forEach(function (link) {
+      link.addEventListener('click', function () { setOpen(false); });
     });
+
+    // Crossing to desktop must not strand it open: the sheet is display:none
+    // there and the page would stay scroll-locked.
+    var mq = window.matchMedia('(min-width: 769px)');
+    var onChange = function (e) { if (e.matches && isOpen()) setOpen(false); };
+    if (mq.addEventListener) mq.addEventListener('change', onChange);
+    else if (mq.addListener) mq.addListener(onChange);
   }
 
-  document.addEventListener('click', function (event) {
-    if (window.innerWidth <= 768 && !nav.contains(event.target) && !hamburger.contains(event.target)) {
-      hamburger.classList.remove('open');
-      nav.classList.remove('open');
-      hamburger.setAttribute('aria-expanded', 'false');
-      if (dropdown) dropdown.classList.remove('open');
-      if (dropdownTrigger) dropdownTrigger.setAttribute('aria-expanded', 'false');
-    }
-  });
+  // Desktop Analytics panel, same model as the home page's. It used to open
+  // on a CSS :hover with an invisible bridge element spanning the gap, and a
+  // keyboard toggle gated to <=768px - exactly where the links are now hidden
+  // entirely. Now JS owns it: a grace period on leave, so a diagonal cursor
+  // path across the gap survives; click to pin; Escape and outside clicks
+  // close. The trigger is a real <button>, so no Enter/Space handler.
+  if (dropdown && dropdownTrigger) {
+    var ddOpen = false, hideTimer = null;
+
+    var setDropdown = function (next) {
+      if (next === ddOpen) return;
+      ddOpen = next;
+      dropdown.classList.toggle('open', next);
+      dropdownTrigger.setAttribute('aria-expanded', next ? 'true' : 'false');
+    };
+    var show = function () { clearTimeout(hideTimer); setDropdown(true); };
+    var hideSoon = function () {
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(function () { setDropdown(false); }, 140);
+    };
+
+    // mouseenter/leave follow the DOM, not geometry, so the panel counts as
+    // inside .nav-dropdown even though it hangs outside its box.
+    dropdown.addEventListener('mouseenter', show);
+    dropdown.addEventListener('mouseleave', hideSoon);
+
+    dropdownTrigger.addEventListener('click', function () {
+      clearTimeout(hideTimer);
+      setDropdown(!ddOpen);
+    });
+    // Keyboard arrival only - a mouse click already toggles above.
+    dropdownTrigger.addEventListener('focus', function () {
+      if (dropdownTrigger.matches(':focus-visible')) show();
+    });
+    dropdown.addEventListener('focusout', function (event) {
+      if (!dropdown.contains(event.relatedTarget)) setDropdown(false);
+    });
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && ddOpen) {
+        setDropdown(false);
+        dropdownTrigger.focus({ preventScroll: true });
+      }
+    });
+    document.addEventListener('click', function (event) {
+      if (ddOpen && !dropdown.contains(event.target)) setDropdown(false);
+    });
+  }
 })();
 
 (function () {
