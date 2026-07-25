@@ -129,7 +129,7 @@
             }
         }
         /* Smooth theme switch on the main surfaces */
-        body, .header, .nav, .nav-dropdown-menu, .monitor, .monitor-head, .contact {
+        body, .header, .nav, .navdrop, .monitor, .monitor-head, .contact {
             transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
         }
         /* Theme toggle button */
@@ -173,17 +173,8 @@
             padding: 20px;
         }
 
-        /* Header */
-        .header {
-            position: sticky;
-            top: 0;
-            background: var(--primary-bg);
-            border-bottom: 2px solid var(--border-primary);
-            margin-bottom: 40px;
-            padding-bottom: 20px;
-            z-index: 100;
-        }
-
+        /* Header — geometry lives in the nav block further down (fixed bar +
+           mix-blend-mode); only the inner layout is declared here. */
         .header-content {
             display: flex;
             justify-content: space-between;
@@ -233,44 +224,6 @@
 
         .nav-dropdown-trigger:hover {
             border-bottom-color: var(--border-primary);
-        }
-
-        .nav-dropdown-menu {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            background: var(--primary-bg);
-            border: 2px solid var(--border-primary);
-            border-radius: 4px;
-            margin-top: 8px;
-            min-width: 220px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-            z-index: 1000;
-        }
-
-        .nav-dropdown:hover .nav-dropdown-menu {
-            display: block;
-        }
-
-        .nav-dropdown-menu a {
-            display: block;
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--accent-light);
-            text-decoration: none;
-            border-left: none;
-            border-right: none;
-            border-top: none;
-            transition: all 0.2s ease;
-        }
-
-        .nav-dropdown-menu a:last-child {
-            border-bottom: none;
-        }
-
-        .nav-dropdown-menu a:hover {
-            background: var(--accent-light);
-            border-bottom-color: var(--accent-light);
         }
 
         /* Scramble / decode text reveal (monochrome, on-brand) */
@@ -764,122 +717,12 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
-        /* Hamburger Button */
-        .hamburger {
-            display: none;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 8px;
-            z-index: 200;
-        }
-
-        .hamburger-line {
-            display: block;
-            width: 24px;
-            height: 2px;
-            background: var(--primary-text);
-            margin: 5px 0;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-        }
-
-        .hamburger.open .hamburger-line:nth-child(1) {
-            transform: translateY(7px) rotate(45deg);
-        }
-
-        .hamburger.open .hamburger-line:nth-child(2) {
-            opacity: 0;
-        }
-
-        .hamburger.open .hamburger-line:nth-child(3) {
-            transform: translateY(-7px) rotate(-45deg);
-        }
-
-        /* Responsive Design */
+        /* Responsive Design
+           NOTE: the old .hamburger button and the mobile .nav drawer it opened
+           were removed with the nav rebuild — below 768px the desktop .nav is
+           hidden outright and .navsheet (see NAV CHROME, below) is the
+           mobile menu. */
         @media (max-width: 768px) {
-            .hamburger {
-                display: block;
-            }
-
-            .header-content {
-                flex-wrap: wrap;
-                align-items: center;
-            }
-
-            .header {
-                padding-bottom: 10px;
-                margin-bottom: 20px;
-            }
-
-            .nav {
-                display: none;
-                flex-direction: column;
-                width: 100%;
-                gap: 0;
-                background: var(--primary-bg);
-                border-top: 2px solid var(--border-primary);
-                margin-top: 10px;
-            }
-
-            .nav.open {
-                display: flex;
-            }
-
-            .nav a {
-                padding: 14px 0;
-                min-height: 44px;
-                display: flex;
-                align-items: center;
-                border-bottom: 1px solid var(--accent-light);
-            }
-
-            .nav a:last-child {
-                border-bottom: none;
-            }
-
-            .nav-dropdown {
-                width: 100%;
-            }
-
-            .nav-dropdown-trigger {
-                padding: 14px 0;
-                min-height: 44px;
-                display: flex;
-                align-items: center;
-                border-bottom: 1px solid var(--accent-light);
-            }
-
-            .nav-dropdown-menu {
-                position: static;
-                transform: none;
-                border: none;
-                border-radius: 0;
-                box-shadow: none;
-                margin-top: 0;
-                min-width: 0;
-                display: none;
-                background: var(--accent-lighter);
-            }
-
-            .nav-dropdown.open .nav-dropdown-menu {
-                display: block;
-            }
-
-            .nav-dropdown:hover .nav-dropdown-menu {
-                display: none;
-            }
-
-            .nav-dropdown.open:hover .nav-dropdown-menu {
-                display: block;
-            }
-
-            .nav-dropdown-menu a {
-                padding: 14px 16px 14px 24px;
-                min-height: 44px;
-                display: flex;
-                align-items: center;
-            }
-
             .about-content {
                 grid-template-columns: 1fr;
                 gap: 20px;
@@ -951,10 +794,14 @@
             }
         }
 
-        /* Accessibility */
-        .button:focus,
-        a:focus {
-            outline: 2px solid #ff0000;
+        /* Accessibility.
+           :focus-visible, not :focus - a plain :focus ring also fires on mouse
+           and touch, which is what put a box around whatever you had just
+           tapped (most visibly the sheet row JS focuses when the menu opens).
+           Keyboard users still get the ring; pointer users no longer do. */
+        .button:focus-visible,
+        a:focus-visible {
+            outline: 2px solid var(--signal);
             outline-offset: 2px;
         }
 
@@ -1231,16 +1078,6 @@
         }
         html.intro-pending .logo > span {
             opacity: 0;
-        }
-        .header {
-            top: 0;
-            margin: 0 calc(var(--page-gutter) * -1);
-            padding: 18px var(--page-gutter);
-            border-bottom: 1px solid transparent;
-            background: transparent;
-        }
-        .header.is-scrolled {
-            border-bottom-color: var(--border-primary);
         }
         .logo {
             display: inline-flex;
@@ -1615,9 +1452,6 @@
             .hero-foot { grid-column: 1; }
         }
         @media (max-width: 768px) {
-            .header { padding-top: 15px; padding-bottom: 15px; }
-            .header-content { width: 100%; }
-            .nav { background: var(--primary-bg); }
             .hero { padding-top: 48px; gap: 34px; }
             .hero h1 {
                 max-width: 100%;
@@ -1674,6 +1508,348 @@
                 opacity: 0.35;
             }
         }
+
+        /* =====================================================================
+           NAV CHROME
+           Loaded last so it wins the cascade without touching the rules above.
+
+           1. The bar is fixed and mix-blend-difference, so the wordmark and
+              controls invert themselves against whatever they sit on - light
+              theme, dark theme, or any dark section. No JS, no scroll
+              listener, no state class, no flicker.
+           2. The menu button is icon-only in a bounded slot and opens a
+              floating sheet over a blurred scrim - not an inline list that
+              shoves the page down.
+           ===================================================================== */
+
+        :root {
+            --nav-h: 64px;
+            --sheet-gap: 6px;
+            --sheet-radius: 16px;
+            /* Hover wash for sheet/dropdown rows, so it has to read against
+               --sheet-bg: ink here, ivory in dark mode. */
+            --tone-soft: rgba(19, 19, 21, 0.06);
+            --tone-shadow: rgba(0, 0, 0, 0.45);
+            /* Mobile sheet surface. */
+            --sheet-bg: #f3f1ec;
+            --sheet-fg: #131315;
+            --sheet-dim: rgba(19, 19, 21, 0.55);
+            --sheet-line: rgba(19, 19, 21, 0.13);
+            --scrim: rgba(19, 19, 21, 0.34);
+        }
+        /* The sheet is a lifted surface at night rather than an ivory card. */
+        :root[data-theme="dark"] {
+            --tone-soft: rgba(255, 255, 255, 0.05);
+            --tone-shadow: rgba(0, 0, 0, 0.5);
+            --sheet-bg: #17181b;
+            --sheet-fg: #ededed;
+            --sheet-dim: rgba(237, 237, 237, 0.55);
+            --sheet-line: rgba(255, 255, 255, 0.13);
+            --scrim: rgba(0, 0, 0, 0.5);
+        }
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --tone-soft: rgba(255, 255, 255, 0.05);
+                --tone-shadow: rgba(0, 0, 0, 0.5);
+                --sheet-bg: #17181b;
+                --sheet-fg: #ededed;
+                --sheet-dim: rgba(237, 237, 237, 0.55);
+                --sheet-line: rgba(255, 255, 255, 0.13);
+                --scrim: rgba(0, 0, 0, 0.5);
+            }
+        }
+
+        /* ---------- 1. Fixed, self-inverting nav chrome ---------- */
+        /* The blend lives on .header itself, not its children: a fixed element
+           with a z-index makes its own stacking context, so a child would only
+           blend against the bar's own (transparent) backdrop and render solid
+           white. Blending the whole bar as one group is what makes it work. */
+        .header {
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 0;
+            z-index: 900;
+            display: flex;
+            align-items: center;
+            height: var(--nav-h);
+            margin: 0;
+            padding: 0 var(--page-gutter);
+            border: 0;
+            background: transparent;
+            color: #ffffff;
+            mix-blend-mode: difference;
+        }
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: clamp(16px, 3vw, 40px);
+            width: 100%;
+            max-width: 1480px;
+            margin: 0 auto;
+            padding: 0;
+        }
+        /* Everything in the bar is plain white; the blend does the rest. */
+        .header .logo,
+        .header .nav a,
+        .header .nav-dropdown-trigger,
+        .header .theme-toggle { color: #ffffff; }
+        .header .nav a { border-bottom-color: transparent; }
+        .header .nav a:hover,
+        .header .nav-dropdown-trigger:hover {
+            color: #ffffff;
+            border-bottom-color: rgba(255, 255, 255, 0.85);
+        }
+        /* The Analytics panel CANNOT live inside .header. difference-blending
+           applies to the bar as one group, so an opaque child panel paints
+           |page - panel| and the page ghosts straight through it. isolation
+           does not help: it stops descendants blending OUT of an element, it
+           does not exempt an element from an ANCESTOR's group blend. So the
+           panel is a sibling of .header - a normal opaque surface - and JS is
+           what keeps it parked under its trigger. */
+        /* It is a real <button> now that JS drives it. Reset only the UA
+           chrome - the type comes from the shared .nav-dropdown-trigger rule,
+           so `font: inherit` here would desync its size from the links. */
+        .header .nav-dropdown-trigger {
+            background: none;
+            border: 0;
+            border-bottom: 2px solid transparent;
+            font-family: inherit;
+            line-height: inherit;
+        }
+        .header .nav-dropdown-trigger[aria-expanded="true"] {
+            border-bottom-color: rgba(255, 255, 255, 0.85);
+        }
+        .navdrop {
+            position: fixed;
+            top: var(--nav-h);
+            left: var(--page-gutter);
+            z-index: 1000;
+            min-width: 240px;
+            border: 1px solid var(--sheet-line);
+            border-radius: 12px;
+            background: var(--sheet-bg);
+            box-shadow: 0 18px 40px var(--tone-shadow);
+            overflow: hidden;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-6px);
+            transition: opacity 0.18s ease, transform 0.18s ease,
+                        visibility 0s linear 0.18s;
+        }
+        .navdrop.open {
+            opacity: 1;
+            visibility: visible;
+            transform: none;
+            transition: opacity 0.18s ease, transform 0.18s ease;
+        }
+        /* Bridges the gap to the trigger so travelling the cursor down from
+           the bar does not fall through a dead zone and close the panel. */
+        .navdrop::before {
+            content: "";
+            position: absolute;
+            right: 0;
+            bottom: 100%;
+            left: 0;
+            height: 10px;
+        }
+        .navdrop a {
+            display: block;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--sheet-line);
+            color: var(--sheet-fg);
+            font-size: 0.82rem;
+            text-decoration: none;
+            transition: background 0.2s ease;
+        }
+        .navdrop a:last-child { border-bottom: none; }
+        .navdrop a:hover { background: var(--tone-soft); }
+        @media (max-width: 768px) {
+            /* The link row is gone here; the sheet carries Analytics instead. */
+            .navdrop { display: none; }
+        }
+
+        /* Action cluster: equal bounded slots, like a set of instrument keys. */
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        .header .theme-toggle,
+        .menu-btn {
+            display: grid;
+            place-items: center;
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border: 0;
+            border-radius: 10px;
+            background: transparent;
+            color: #ffffff;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .header .theme-toggle:hover,
+        .menu-btn:hover { background: rgba(255, 255, 255, 0.16); }
+        .header .theme-toggle:focus-visible,
+        .menu-btn:focus-visible {
+            outline: 2px solid #ffffff;
+            outline-offset: 2px;
+        }
+        .header .theme-toggle svg { width: 18px; height: 18px; }
+        .header .theme-toggle-label { display: none; }
+        .menu-btn { display: none; }
+        .menu-icon {
+            display: grid;
+            gap: 5px;
+            width: 18px;
+        }
+        .menu-icon span {
+            display: block;
+            height: 1.5px;
+            width: 100%;
+            background: currentColor;
+            border-radius: 2px;
+            transition: transform 0.34s cubic-bezier(.16, 1, .3, 1),
+                        opacity 0.2s ease;
+        }
+        .menu-btn[aria-expanded="true"] .menu-icon span:nth-child(1) {
+            transform: translateY(3.25px) rotate(45deg);
+        }
+        .menu-btn[aria-expanded="true"] .menu-icon span:nth-child(2) {
+            transform: translateY(-3.25px) rotate(-45deg);
+        }
+
+        /* The bar is outside .container now, so content needs its own clearance. */
+        .container { padding-top: var(--nav-h); }
+        .hero { min-height: calc(100svh - var(--nav-h)); }
+        html { scroll-padding-top: calc(var(--nav-h) + 16px); }
+        /* Keep the bar out of the opening choreography. */
+        html.intro-pending .header { opacity: 0; }
+        html.intro-reveal .header {
+            opacity: 1;
+            transition: opacity 0.7s 0.12s cubic-bezier(.16, 1, .3, 1);
+        }
+
+        /* ---------- 2. Floating sheet + blurred scrim ---------- */
+        /* Both live outside .header so the blend never touches them. */
+        .navscrim {
+            position: fixed;
+            inset: 0;
+            z-index: 870;
+            background: var(--scrim);
+            -webkit-backdrop-filter: blur(4px);
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.32s ease, visibility 0s linear 0.32s;
+        }
+        .navsheet {
+            position: fixed;
+            top: calc(var(--nav-h) + var(--sheet-gap));
+            left: var(--sheet-gap);
+            z-index: 880;
+            width: calc(100% - (var(--sheet-gap) * 2));
+            /* svh, not vh — mobile browser chrome otherwise clips the sheet. */
+            max-height: calc(100svh - var(--nav-h) - (var(--sheet-gap) * 2));
+            padding: 8px;
+            border-radius: var(--sheet-radius);
+            background: var(--sheet-bg);
+            color: var(--sheet-fg);
+            box-shadow: 0 24px 60px var(--tone-shadow);
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            /* visibility/opacity rather than display:none — display can't animate. */
+            transition: opacity 0.32s cubic-bezier(.16, 1, .3, 1),
+                        transform 0.32s cubic-bezier(.16, 1, .3, 1),
+                        visibility 0s linear 0.32s;
+        }
+        html.sheet-open .navscrim,
+        html.sheet-open .navsheet {
+            opacity: 1;
+            visibility: visible;
+            transition-delay: 0s;
+        }
+        html.sheet-open .navsheet { transform: translateY(0); }
+        /* The lock goes on <html>: it carries overflow-y:scroll, so it is the
+           scroll container and body{overflow:hidden} would not hold the page.
+           scrollbar-gutter:stable is already set, so nothing shifts. */
+        html.sheet-open,
+        html.sheet-open body { overflow: hidden; }
+
+        .sheet-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            width: 100%;
+            min-height: 56px;
+            padding: 0 14px;
+            border: 0;
+            border-radius: 10px;
+            background: transparent;
+            color: inherit;
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            text-decoration: none;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 0.18s ease;
+        }
+        .sheet-row + .sheet-row,
+        .sheet-group + .sheet-row,
+        .sheet-row + .sheet-group,
+        .sheet-group + .sheet-group { border-top: 1px solid var(--sheet-line); }
+        .sheet-row:hover { background: var(--tone-soft); }
+        .sheet-row:focus-visible {
+            outline: 2px solid var(--signal);
+            outline-offset: -2px;
+        }
+        .sheet-ind {
+            color: var(--sheet-dim);
+            font-size: 0.95rem;
+            line-height: 1;
+            transition: transform 0.3s cubic-bezier(.16, 1, .3, 1);
+        }
+        .sheet-disc[aria-expanded="true"] .sheet-ind { transform: rotate(45deg); }
+        /* 0fr -> 1fr animates to the content's real height, no magic numbers. */
+        .sheet-sub {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.34s cubic-bezier(.16, 1, .3, 1);
+        }
+        .sheet-disc[aria-expanded="true"] + .sheet-sub { grid-template-rows: 1fr; }
+        .sheet-sub > div { overflow: hidden; }
+        .sheet-sub a {
+            display: flex;
+            align-items: center;
+            min-height: 46px;
+            padding: 0 14px 0 28px;
+            color: var(--sheet-dim);
+            font-size: 0.78rem;
+            letter-spacing: 0.04em;
+            text-decoration: none;
+            border-radius: 8px;
+        }
+        .sheet-sub a:hover { background: var(--tone-soft); color: var(--sheet-fg); }
+
+        @media (max-width: 768px) {
+            .menu-btn { display: grid; }
+            .header .nav { display: none; }
+        }
+        @media (min-width: 769px) {
+            /* Never leave the sheet stranded open on resize to desktop. */
+            .navsheet, .navscrim { display: none; }
+        }
+
     </style>
 </head>
 <body>
@@ -1686,42 +1862,72 @@
         <span>Top</span>
         <span class="top-arrow" aria-hidden="true">↑</span>
     </button>
-    <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-content">
-                <a href="/" class="logo"><span>SENS ADVISOR</span></a>
-                <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
-                    <span class="hamburger-line"></span>
-                    <span class="hamburger-line"></span>
-                    <span class="hamburger-line"></span>
+    <!-- Header sits OUTSIDE .container on purpose: .container is its own
+         stacking context, and mix-blend-mode only blends against the backdrop
+         within its own context. From here the bar can see the page behind it. -->
+    <header class="header">
+        <div class="header-content">
+            <a href="/" class="logo"><span>SENS ADVISOR</span></a>
+            <nav class="nav">
+                <a href="#services">Services</a>
+                <div class="nav-dropdown">
+                    <button class="nav-dropdown-trigger" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="navdrop">Analytics ▾</button>
+                </div>
+                <a href="#research">Research</a>
+                <a href="#about">About</a>
+                <a href="https://github.com/jibarix" target="_blank">Code</a>
+                <a href="https://x.com/jorgearroyox" target="_blank">Insights</a>
+                <a href="#contact">Contact</a>
+            </nav>
+            <div class="nav-actions">
+                <button class="theme-toggle" type="button" aria-label="Toggle dark mode" aria-pressed="false" title="Toggle dark mode">
+                    <svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                    <span class="theme-toggle-label"><span class="lbl-dark">Dark mode</span><span class="lbl-light">Light mode</span></span>
                 </button>
-                <nav class="nav">
-                    <a href="#services">Services</a>
-                    <div class="nav-dropdown">
-                        <span class="nav-dropdown-trigger">Analytics ▾</span>
-                        <div class="nav-dropdown-menu">
-                            <a href="rentals/">San Juan Rentals</a>
-                            <a href="recession/">US Recession Probability</a>
-                            <a href="pr-lmci/">PR Labor Market Index</a>
-                            <a href="outages/">PR Outage Status</a>
-                            <a href="generation/">PR Generation Status</a>
-                            <a href="reservoirs/">PR Reservoir Levels</a>
-                        </div>
-                    </div>
-                    <a href="#research">Research</a>
-                    <a href="#about">About</a>
-                    <a href="https://github.com/jibarix" target="_blank">Code</a>
-                    <a href="https://x.com/jorgearroyox" target="_blank">Insights</a>
-                    <a href="#contact">Contact</a>
-                    <button class="theme-toggle" type="button" aria-label="Toggle dark mode" aria-pressed="false" title="Toggle dark mode">
-                        <svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-                        <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-                        <span class="theme-toggle-label"><span class="lbl-dark">Dark mode</span><span class="lbl-light">Light mode</span></span>
-                    </button>
-                </nav>
+                <button class="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="navsheet">
+                    <span class="menu-icon" aria-hidden="true"><span></span><span></span></span>
+                </button>
             </div>
-        </header>
+        </div>
+    </header>
+
+    <!-- Dropdown, sheet and scrim all live outside .header: the bar blends as
+         one group, so anything opaque inside it would go photo-negative. -->
+    <div class="navdrop" id="navdrop">
+        <a href="rentals/">San Juan Rentals</a>
+        <a href="recession/">US Recession Probability</a>
+        <a href="pr-lmci/">PR Labor Market Index</a>
+        <a href="outages/">PR Outage Status</a>
+        <a href="generation/">PR Generation Status</a>
+        <a href="reservoirs/">PR Reservoir Levels</a>
+    </div>
+    <div class="navscrim" aria-hidden="true"></div>
+    <div class="navsheet" id="navsheet" role="dialog" aria-modal="true" aria-label="Site menu">
+        <nav class="navsheet-inner">
+            <a class="sheet-row" href="#services"><span>Services</span><span class="sheet-ind" aria-hidden="true">→</span></a>
+            <div class="sheet-group">
+                <button class="sheet-row sheet-disc" type="button" aria-expanded="false">
+                    <span>Analytics</span><span class="sheet-ind" aria-hidden="true">+</span>
+                </button>
+                <div class="sheet-sub"><div>
+                    <a href="rentals/">San Juan Rentals</a>
+                    <a href="recession/">US Recession Probability</a>
+                    <a href="pr-lmci/">PR Labor Market Index</a>
+                    <a href="outages/">PR Outage Status</a>
+                    <a href="generation/">PR Generation Status</a>
+                    <a href="reservoirs/">PR Reservoir Levels</a>
+                </div></div>
+            </div>
+            <a class="sheet-row" href="#research"><span>Research</span><span class="sheet-ind" aria-hidden="true">→</span></a>
+            <a class="sheet-row" href="#about"><span>About</span><span class="sheet-ind" aria-hidden="true">→</span></a>
+            <a class="sheet-row" href="https://github.com/jibarix" target="_blank"><span>Code</span><span class="sheet-ind" aria-hidden="true">↗</span></a>
+            <a class="sheet-row" href="https://x.com/jorgearroyox" target="_blank"><span>Insights</span><span class="sheet-ind" aria-hidden="true">↗</span></a>
+            <a class="sheet-row" href="#contact"><span>Contact</span><span class="sheet-ind" aria-hidden="true">→</span></a>
+        </nav>
+    </div>
+
+    <div class="container">
 
 
 
@@ -2536,46 +2742,139 @@
             });
         });
 
-        // Mobile hamburger menu toggle
-        (function() {
-            const hamburger = document.querySelector('.hamburger');
-            const nav = document.querySelector('.nav');
-            const dropdown = document.querySelector('.nav-dropdown');
-            const dropdownTrigger = document.querySelector('.nav-dropdown-trigger');
+        // Mobile menu: icon button -> floating sheet over a blurred scrim.
+        (function () {
+            var btn = document.querySelector('.menu-btn');
+            var sheet = document.querySelector('.navsheet');
+            var scrim = document.querySelector('.navscrim');
+            if (!btn || !sheet || !scrim) return;
 
-            hamburger.addEventListener('click', function() {
-                hamburger.classList.toggle('open');
-                nav.classList.toggle('open');
-                hamburger.setAttribute('aria-expanded', nav.classList.contains('open'));
+            var disc = sheet.querySelector('.sheet-disc');
+
+            function isOpen() {
+                return document.documentElement.classList.contains('sheet-open');
+            }
+
+            function setOpen(open) {
+                document.documentElement.classList.toggle('sheet-open', open);
+                btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+                btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+                if (open) {
+                    var first = sheet.querySelector('.sheet-row');
+                    if (first) first.focus({ preventScroll: true });
+                } else {
+                    // Collapse the disclosure so the sheet reopens in a known state.
+                    if (disc) disc.setAttribute('aria-expanded', 'false');
+                }
+            }
+
+            btn.addEventListener('click', function () {
+                var next = !isOpen();
+                setOpen(next);
+                // Returning focus to the trigger only makes sense on close.
+                if (!next) btn.focus({ preventScroll: true });
             });
 
-            // Close nav when a nav link is clicked (smooth scroll UX)
-            nav.querySelectorAll('a').forEach(function(link) {
-                link.addEventListener('click', function() {
-                    hamburger.classList.remove('open');
-                    nav.classList.remove('open');
-                    hamburger.setAttribute('aria-expanded', 'false');
+            scrim.addEventListener('click', function () {
+                setOpen(false);
+                btn.focus({ preventScroll: true });
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && isOpen()) {
+                    setOpen(false);
+                    btn.focus({ preventScroll: true });
+                }
+            });
+
+            // Analytics disclosure inside the sheet.
+            if (disc) {
+                disc.addEventListener('click', function () {
+                    disc.setAttribute(
+                        'aria-expanded',
+                        disc.getAttribute('aria-expanded') === 'true' ? 'false' : 'true'
+                    );
                 });
+            }
+
+            // Any destination closes the sheet (in-page links scroll behind it).
+            sheet.querySelectorAll('a').forEach(function (link) {
+                link.addEventListener('click', function () { setOpen(false); });
             });
 
-            // Toggle Analytics dropdown on tap for mobile
-            dropdownTrigger.addEventListener('click', function(e) {
-                if (window.innerWidth <= 768) {
-                    e.stopPropagation();
-                    dropdown.classList.toggle('open');
-                }
-            });
-
-            // Close mobile menu when clicking outside
-            document.addEventListener('click', function(e) {
-                if (window.innerWidth <= 768 && !nav.contains(e.target) && !hamburger.contains(e.target)) {
-                    hamburger.classList.remove('open');
-                    nav.classList.remove('open');
-                    hamburger.setAttribute('aria-expanded', 'false');
-                    dropdown.classList.remove('open');
-                }
-            });
+            // Crossing into the desktop breakpoint must not strand it open,
+            // since the sheet is display:none there and body stays scroll-locked.
+            var mq = window.matchMedia('(min-width: 769px)');
+            var onChange = function (e) { if (e.matches && isOpen()) setOpen(false); };
+            if (mq.addEventListener) mq.addEventListener('change', onChange);
+            else if (mq.addListener) mq.addListener(onChange);
         })();
+
+        // Desktop Analytics panel. It is a sibling of the bar rather than a
+        // child (see .navdrop), so nothing anchors it to its trigger but this.
+        (function () {
+            var wrap = document.querySelector('.nav-dropdown');
+            var trigger = document.querySelector('.nav-dropdown-trigger');
+            var panel = document.getElementById('navdrop');
+            if (!wrap || !trigger || !panel) return;
+
+            var EDGE = 12, GAP = 8;
+            var open = false, hideTimer = null;
+
+            function place() {
+                var r = trigger.getBoundingClientRect();
+                var limit = document.documentElement.clientWidth - panel.offsetWidth - EDGE;
+                panel.style.top = Math.round(r.bottom + GAP) + 'px';
+                panel.style.left = Math.round(Math.max(EDGE, Math.min(r.left, limit))) + 'px';
+            }
+
+            function setOpen(next) {
+                if (next === open) return;
+                open = next;
+                if (next) place();  // measure before it can be seen
+                panel.classList.toggle('open', next);
+                trigger.setAttribute('aria-expanded', next ? 'true' : 'false');
+            }
+
+            function show() { clearTimeout(hideTimer); setOpen(true); }
+            // A grace period, so a diagonal cursor path to the panel survives.
+            function hideSoon() {
+                clearTimeout(hideTimer);
+                hideTimer = setTimeout(function () { setOpen(false); }, 140);
+            }
+
+            [wrap, panel].forEach(function (el) {
+                el.addEventListener('mouseenter', show);
+                el.addEventListener('mouseleave', hideSoon);
+            });
+            trigger.addEventListener('click', function () {
+                clearTimeout(hideTimer);
+                setOpen(!open);
+            });
+            // Keyboard arrival only: a mouse click already toggles above.
+            trigger.addEventListener('focus', function () {
+                if (trigger.matches(':focus-visible')) show();
+            });
+            panel.addEventListener('focusout', function (e) {
+                if (!panel.contains(e.relatedTarget) && e.relatedTarget !== trigger) {
+                    setOpen(false);
+                }
+            });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && open) {
+                    setOpen(false);
+                    trigger.focus({ preventScroll: true });
+                }
+            });
+            document.addEventListener('click', function (e) {
+                if (open && !panel.contains(e.target) && !wrap.contains(e.target)) {
+                    setOpen(false);
+                }
+            });
+            window.addEventListener('resize', function () { if (open) place(); },
+                                    { passive: true });
+        })();
+
         // Dark mode toggle
         (function () {
             var toggle = document.querySelector('.theme-toggle');
@@ -2953,13 +3252,6 @@
                 }
                 drawCursor();
             }
-
-            var header = document.querySelector('.header');
-            function syncHeader() {
-                if (header) header.classList.toggle('is-scrolled', window.scrollY > 12);
-            }
-            syncHeader();
-            window.addEventListener('scroll', syncHeader, { passive: true });
 
             var backToTop = document.querySelector('.back-to-top');
             var hero = document.querySelector('.hero');
