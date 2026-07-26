@@ -2984,6 +2984,8 @@
         })();
 
         // Ambient neural field adapted from the neuron identity prototype.
+        // Each node carries a dendrite outline so the field reads as tissue
+        // rather than a constellation.
         (function () {
             var canvas = document.getElementById('neural-field');
             if (!canvas) return;
@@ -3002,6 +3004,57 @@
             var pointer = { x: -9999, y: -9999, active: false };
             var lastFrame = 0;
             var colors = readFieldColors();
+
+            // Neuron form. Dendrites are built once per node in local
+            // coordinates and stroked through a translate, so a drifting node
+            // carries its own shape with it.
+            var form = { alpha: 1, reach: 1, branches: 4 };
+
+            function growBranch(trunk, twig, x, y, angle, length, depth) {
+                var path = depth === 0 ? trunk : twig;
+                var segments = Math.max(3, Math.round(length / 6));
+                var direction = angle;
+                var forkAt = 1 + Math.floor(Math.random() * (segments - 1));
+                var forkX = x;
+                var forkY = y;
+                var forkDirection = direction;
+
+                path.moveTo(x, y);
+                for (var s = 1; s <= segments; s++) {
+                    direction += (Math.random() - 0.5) * 0.32;
+                    var step = (length / segments) * (0.8 + Math.random() * 0.4);
+                    x += Math.cos(direction) * step;
+                    y += Math.sin(direction) * step;
+                    path.lineTo(x, y);
+                    if (s === forkAt) {
+                        forkX = x;
+                        forkY = y;
+                        forkDirection = direction;
+                    }
+                }
+
+                if (depth === 0) {
+                    var forks = Math.random() < 0.72 ? 2 : 1;
+                    for (var f = 0; f < forks; f++) {
+                        growBranch(trunk, twig, forkX, forkY,
+                            forkDirection + (f ? 1 : -1) * (0.38 + Math.random() * 0.5),
+                            length * (0.34 + Math.random() * 0.3), depth + 1);
+                    }
+                }
+            }
+
+            function buildDendrites() {
+                var trunk = new Path2D();
+                var twig = new Path2D();
+                var count = Math.max(2, Math.round(form.branches + (Math.random() - 0.5) * 1.6));
+                var rotation = Math.random() * Math.PI * 2;
+                for (var b = 0; b < count; b++) {
+                    var angle = rotation + (b / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.7;
+                    growBranch(trunk, twig, 0, 0, angle,
+                        (15 + Math.random() * 19) * form.reach, 0);
+                }
+                return { trunk: trunk, twig: twig };
+            }
 
             function readFieldColors() {
                 var styles = getComputedStyle(root);
@@ -3034,13 +3087,16 @@
                 nodes = [];
                 signals = [];
                 for (var i = 0; i < count; i++) {
+                    var dendrites = buildDendrites();
                     nodes.push({
                         x: Math.random() * width,
                         y: Math.random() * height,
                         vx: (Math.random() - 0.5) * 2.4,
                         vy: (Math.random() - 0.5) * 2.4,
                         radius: 0.8 + Math.random() * 1.1,
-                        energy: 0
+                        energy: 0,
+                        trunk: dendrites.trunk,
+                        twig: dendrites.twig
                     });
                 }
             }
@@ -3139,6 +3195,21 @@
                 for (i = 0; i < nodes.length; i++) {
                     var node = nodes[i];
                     var nodeAlpha = colors.nodeAlpha * (0.52 + node.energy * 0.65);
+
+                    var formInk = node.energy > 0.05 ? colors.signal : colors.node;
+                    var formAlpha = colors.lineAlpha * (1.25 + node.energy * 1.6) * form.alpha;
+                    context.save();
+                    context.translate(node.x, node.y);
+                    context.lineCap = 'round';
+                    context.lineJoin = 'round';
+                    context.lineWidth = 0.75;
+                    context.strokeStyle = 'rgba(' + formInk + ',' + formAlpha.toFixed(3) + ')';
+                    context.stroke(node.trunk);
+                    context.lineWidth = 0.5;
+                    context.strokeStyle = 'rgba(' + formInk + ',' + (formAlpha * 0.62).toFixed(3) + ')';
+                    context.stroke(node.twig);
+                    context.restore();
+
                     context.fillStyle = node.energy > 0.05
                         ? 'rgba(' + colors.signal + ',' + Math.min(0.8, 0.24 + node.energy * 0.5).toFixed(3) + ')'
                         : 'rgba(' + colors.node + ',' + nodeAlpha.toFixed(3) + ')';
