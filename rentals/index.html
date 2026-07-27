@@ -1641,10 +1641,16 @@
         document.getElementById('reductionsError').innerHTML = '';
         tbody.innerHTML = '';
         data.forEach(r => {
+          // `||` here was reading a studio as missing data: 0 is falsy, so an
+          // apartment with zero bedrooms rendered as an em dash, indistinguishable
+          // from a listing whose bedroom count we never scraped. Two of the
+          // forty-three rows currently on the page are studios. `??` only falls
+          // through on null/undefined, which is what "we do not know" actually
+          // looks like in this JSON.
           tbody.innerHTML += `
             <tr>
               <td>${shortMuni(r.municipio) || '\u2014'}</td>
-              <td>${r.bedrooms || '\u2014'} / ${r.bathrooms || '\u2014'}</td>
+              <td>${r.bedrooms === 0 ? 'Studio' : (r.bedrooms ?? '\u2014')} / ${r.bathrooms ?? '\u2014'}</td>
               <td style="text-decoration: line-through; color: var(--secondary-text);">${fmtUSD(r.old_price)}</td>
               <td style="font-weight: 700;">${fmtUSD(r.new_price)}</td>
               <td style="color: var(--signal); font-weight: 700;">-${fmtUSD(r.savings)}</td>
