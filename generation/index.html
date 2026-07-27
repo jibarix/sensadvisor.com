@@ -20,15 +20,11 @@
 <meta name="description" content="Real-time electricity generation for Puerto Rico with a grid-adequacy indicator: reserves, next-hour forecast vs available capacity, load-shedding (relevos de carga) risk, hourly generation profile, and which units are online vs offline — from the PREPA/Genera operational feed.">
 <meta property="og:title" content="PR Generation Status">
 <meta property="og:description" content="Grid-adequacy indicator for Puerto Rico — reserves, relevos-de-carga risk, hourly generation profile, and units online vs offline.">
-<meta property="og:image" content="https://sensadvisor.com/outages/og-image.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://sensadvisor.com/generation/">
-<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="PR Generation Status">
 <meta name="twitter:description" content="Grid-adequacy indicator for Puerto Rico — reserves, relevos-de-carga risk, hourly generation profile, and units online vs offline.">
-<meta name="twitter:image" content="https://sensadvisor.com/outages/og-image.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -947,6 +943,96 @@
     .stat-tile { min-height: 108px; border-right: 0 !important; border-bottom: 1px solid var(--accent-light) !important; }
     .panel .chart-container { height: 280px; min-height: 280px; }
   }
+
+  /* ===== 7-day demand outlook cards (patterned on the reservoir runway cards) ===== */
+  .oc-estimate {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    font-style: italic; color: var(--secondary-text);
+    border: 1px dashed var(--chart-muted); border-radius: 10px; padding: 2px 9px;
+    margin-bottom: 14px;
+  }
+  .outlook-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+  }
+  .oc-card {
+    display: flex; flex-direction: column; gap: 9px;
+    padding: 14px 15px 12px;
+    border: 2px solid var(--border-primary); border-radius: 10px;
+    background: var(--primary-bg);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+  .oc-card:hover { transform: translateY(-2px); box-shadow: 0 5px 18px rgba(0,0,0,0.10); }
+  .oc-card.top { border-color: var(--warn); }
+  .oc-card.wknd { background: var(--accent-lighter); }
+  .oc-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .oc-day { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+  .oc-date { font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--secondary-text); margin-left: 5px; }
+  .oc-badge {
+    font-size: 0.56rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+    white-space: nowrap; padding: 2px 7px; border-radius: 10px;
+    background: rgba(var(--signal-rgb), 0.14); color: var(--signal);
+    border: 1px solid rgba(var(--signal-rgb), 0.4);
+  }
+  .oc-card.top .oc-badge { background: rgba(250,167,42,0.16); color: var(--warn); border-color: rgba(250,167,42,0.55); }
+  .oc-card.wknd .oc-badge { background: var(--accent-light); color: var(--secondary-text); border-color: var(--chart-muted); }
+  .oc-peak {
+    font-size: 1.5rem; font-weight: 700; line-height: 1;
+    font-variant-numeric: tabular-nums; letter-spacing: -0.02em;
+  }
+  .oc-peak small { font-size: 0.56rem; font-weight: 600; color: var(--secondary-text); margin-left: 4px; letter-spacing: 0.03em; }
+  .oc-spark { display: block; width: 100%; height: auto; margin: 1px 0; }
+  .oc-foot {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+    font-size: 0.68rem; color: var(--secondary-text); font-variant-numeric: tabular-nums;
+    border-top: 1px solid var(--accent-light); padding-top: 8px;
+  }
+  .oc-foot b { color: var(--primary-text); font-weight: 700; }
+  .oc-temp { color: #e8823a; font-weight: 700; }
+
+  /* ===== Forecast accuracy: Sensadvisor vs Genera head-to-head ===== */
+  .sb-lead { font-size: 0.92rem; line-height: 1.5; margin-bottom: 16px; }
+  .sb-lead b { color: var(--signal); }
+  .sb-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 14px;
+  }
+  .sb-card {
+    display: flex; flex-direction: column; gap: 8px;
+    padding: 16px 16px 14px;
+    border: 2px solid var(--border-primary); border-radius: 10px;
+    background: var(--primary-bg);
+  }
+  .sb-card.win { border-color: var(--signal); background: rgba(var(--signal-rgb), 0.05); }
+  .sb-chead { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .sb-name { font-size: 0.82rem; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; }
+  .sb-tag {
+    font-size: 0.55rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+    white-space: nowrap; padding: 2px 7px; border-radius: 10px;
+    background: var(--accent-light); color: var(--secondary-text); border: 1px solid var(--chart-muted);
+  }
+  .sb-card.win .sb-tag {
+    background: rgba(var(--signal-rgb), 0.14); color: var(--signal); border-color: rgba(var(--signal-rgb), 0.4);
+  }
+  .sb-mape { font-size: 2.1rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+  .sb-mape small { font-size: 0.62rem; font-weight: 600; color: var(--secondary-text); margin-left: 5px; letter-spacing: 0.04em; text-transform: uppercase; }
+  .sb-mae { font-size: 0.72rem; color: var(--secondary-text); font-variant-numeric: tabular-nums; }
+  .sb-bar { height: 7px; border-radius: 4px; background: var(--accent-light); overflow: hidden; margin-top: 2px; }
+  .sb-bar > i { display: block; height: 100%; border-radius: 4px; }
+  .sb-win {
+    display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap;
+    margin-top: 15px; padding: 12px 15px;
+    border: 1px solid rgba(var(--signal-rgb), 0.35); border-radius: 10px;
+    background: rgba(var(--signal-rgb), 0.06);
+  }
+  .sb-win-num { font-size: 1.5rem; font-weight: 700; color: var(--signal); line-height: 1; font-variant-numeric: tabular-nums; }
+  .sb-win-txt { font-size: 0.82rem; color: var(--primary-text); }
+  .sb-foot { margin-top: 14px; font-size: 0.68rem; line-height: 1.55; color: var(--secondary-text); }
+  .sb-foot b { color: var(--primary-text); font-weight: 700; }
+  .sb-base { font-variant-numeric: tabular-nums; }
 </style>
 </head>
 <body>
@@ -1019,6 +1105,8 @@
   <div class="analytics-index-inner">
     <span class="analytics-index-label">PR generation</span>
     <a href="#now">Adequacy</a>
+    <a href="#outlook">Outlook</a>
+    <a href="#accuracy">Accuracy</a>
     <a href="#hourly">Hourly</a>
     <a href="#mix">Fuel mix</a>
     <a href="#history">History</a>
@@ -1200,6 +1288,28 @@
     <div class="stats-grid" id="stats-grid"></div>
   </div>
 
+  <span class="nav-anchor" id="outlook"></span>
+  <div class="panel" id="outlook-panel" style="display:none">
+    <h2>7-Day Outlook
+      <span class="panel-note">Sensadvisor model<br>demand shape + weather context</span>
+    </h2>
+    <div class="explain"><p id="outlook-note" style="margin-bottom:14px"></p></div>
+    <div class="oc-estimate">Sensadvisor model · not an official forecast</div>
+    <div class="outlook-cards" id="outlook-cards"></div>
+    <div class="chart-container" style="height:300px;margin-top:22px"><canvas id="chart-outlook"></canvas></div>
+  </div>
+
+  <span class="nav-anchor" id="accuracy"></span>
+  <div class="panel" id="scoreboard-panel" style="display:none">
+    <h2>Forecast Accuracy
+      <span class="panel-note">Sensadvisor vs. Genera<br>1-hour-ahead demand</span>
+    </h2>
+    <div class="explain"><p class="sb-lead" id="sb-lead"></p></div>
+    <div class="sb-grid" id="sb-grid"></div>
+    <div class="sb-win" id="sb-win"></div>
+    <div class="sb-foot" id="sb-foot"></div>
+  </div>
+
   <span class="nav-anchor" id="hourly"></span>
   <div class="panel">
     <h2>Hourly profile
@@ -1261,7 +1371,7 @@
     </h2>
     <div class="units-summary" id="units-summary"></div>
     <div class="panel-note" style="margin-bottom:14px">
-      <select id="type-filter" style="font-family:inherit;font-size:0.8rem;padding:2px 6px;border:2px solid #000;border-radius:4px;background:#fff">
+      <select id="type-filter" style="font-family:inherit;font-size:0.8rem;padding:2px 6px;border:2px solid var(--border-primary);border-radius:4px;background:var(--primary-bg);color:var(--primary-text)">
         <option value="">All types</option>
       </select>
     </div>
@@ -1290,6 +1400,7 @@
     <h2>Methodology</h2>
     <p><b>Source</b> — PREPA's operational generation feed (operated by Genera PR), the data behind <a href="https://genera-pr.com/data-generacion">genera-pr.com/data-generacion</a>. A snapshot is captured about every 15 minutes and stored. "Now" figures read the most recent snapshot; history and hourly baselines read the stored snapshots.</p>
     <p><b>Grid adequacy indicator</b> — A supply-adequacy indicator computed from the feed, <i>not</i> an official PREPA/Genera declaration. It combines two tests: (1) <b>Forecast balance</b> — the feed's next-hour demand forecast vs. available capacity; a projected shortfall means load-shedding (<b>relevos de carga</b>) may be needed. (2) <b>N-1 reserve</b> — whether operating reserve covers the single largest online unit (the N-1 reserve benchmark). This is a reserve comparison, not a full contingency simulation. <b>Critical</b> = projected shortfall or near-zero reserve; <b>Tight</b> = reserve below the largest online unit; <b>Adequate</b> = reserve covers it.</p>
+    <p><b>7-day outlook</b> — Sensadvisor's own projection of grid-supplied demand, since the feed itself forecasts only the next hour. A statistical model learns the typical daily <b>load shape</b> — a Fourier fit over hour-of-day plus a weekday/weekend term — from roughly the last few weeks of stored snapshots, and projects that shape forward to give a demand curve, a daily peak (the highest projected hour, which falls in the evening after rooftop solar fades), and projected daily energy. <b>Weather is shown as context, not yet as a model input.</b> The measured series is <i>net</i> of behind-the-meter rooftop solar, so over this short window apparent temperature correlates with solar output rather than clean demand and fits with the "wrong" (negative) sign; a calibrated weather sensitivity is being developed from the long monthly history and an explicit rooftop-solar adjustment before it drives the numbers. The apparent-temperature line and each day's high are therefore contextual. This is a model estimate, not an official forecast, and it sharpens as more history accumulates.</p>
     <p><b>Hourly generation profile</b> — For each hour of the day (AST), the shaded band is the 10th–90th percentile of generation across stored days and the solid line is the median; today's actual is overlaid. This shows whether the system is running above or below its usual level for the time of day, and — in the <b>Reserve</b> view — <i>when</i> reserves are typically thinnest (usually the evening peak, as solar fades and demand rises). The baseline currently spans roughly two weeks of data and sharpens as more accumulate; today is excluded from the "typical" band.</p>
     <p><b>Reserves</b> — <b>Spinning reserve</b> is synchronized capacity ready immediately; <b>operating reserve</b> is total reserve available. Both are the cushion between what is generating and what could be called on.</p>
     <p><b>Units online vs. offline</b> — The feed lists every generating unit each snapshot with its output. A unit is counted <b>online</b> when it is producing at least 1 MW and <b>offline</b> otherwise (idle, down, or — for solar — simply nighttime). The feed reports output, not the <i>reason</i> a unit is at zero, so "offline" does not distinguish a planned outage from a forced one from normal diurnal cycling.</p>
@@ -1324,6 +1435,29 @@
   // payload and future growth — the metrics poller writes every ~10 min, so an
   // unfiltered pull grows without limit. Buffered so the 90d view is never edge-clipped.
   const HISTORY_MAX_DAYS = 90;
+
+  // --- 7-day demand outlook (Sensadvisor's own forecast) ---
+  // Genera publishes nothing past the next hour, so this is the page's only
+  // multi-day view of demand. The model learns the typical daily LOAD SHAPE (a
+  // Fourier fit over hour-of-day plus a weekday/weekend term) from the last few
+  // weeks of snapshots and projects it forward. Apparent temperature is shown as
+  // context only — deliberately NOT a model input: on this short window the
+  // apparent-temp coefficient is confounded by behind-the-meter rooftop solar
+  // (it fits negative on net load), so per the project's assumptions ledger the
+  // deployable model is the diurnal shape (the part that beats Genera at 1h); the
+  // calibrated weather sensitivity (Steps 0 & 2) is still being built.
+  const OUTLOOK = {
+    lat: 18.4375, lon: -66.0041, // San Juan metro (matches the offline pipeline)
+    K: 3,                        // Fourier harmonics for the daily shape
+    fitDays: 35,                 // history window the shape model is fit on
+    horizonDays: 7,              // days projected forward
+  };
+  // One keyless, CORS-friendly call for apparent-temperature context: a few past
+  // days (recent-temp line) plus 8 forecast days (today + 7 forward). Times come
+  // back as naive AST local strings (fixed UTC-4, no DST).
+  const WEATHER_URL = `https://api.open-meteo.com/v1/forecast?latitude=${OUTLOOK.lat}&longitude=${OUTLOOK.lon}`
+    + `&hourly=apparent_temperature&temperature_unit=fahrenheit`
+    + `&past_days=3&forecast_days=8&timezone=America%2FPuerto_Rico`;
 
   // "Critical" dispatchable units — ones that historically carry meaningful load,
   // so their being offline is a real loss of dispatchable output (unlike solar/wind at
@@ -1401,6 +1535,7 @@
     refreshChartTheme(chartHourly);
     refreshChartTheme(chartHistory);
     refreshChartTheme(chartCost);
+    refreshChartTheme(chartOutlook);
   };
 
   // --- Supabase fetch helper (paginates to bypass server max-rows cap) ---
@@ -1425,6 +1560,9 @@
     (n === null || n === undefined || isNaN(n)) ? "—"
       : Number(n).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
   const signed = (n, d = 0) => (n === null || n === undefined || isNaN(n)) ? "—" : (n >= 0 ? "+" : "") + fmt(n, d);
+  // Escape upstream feed strings (plant/unit/fuel/type) before they go through innerHTML.
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g,
+    c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
   // "43m ago" / "3h ago" / "2d ago" from an ISO timestamp.
   function relTime(iso) {
@@ -1446,6 +1584,16 @@
     }).formatToParts(d).reduce((o, p) => (o[p.type] = p.value, o), {});
     return { date: `${parts.year}-${parts.month}-${parts.day}`, hour: parseInt(parts.hour, 10) % 24 };
   }
+  // Fractional AST hour (hour + minute/60) and AST weekend flag, for the demand
+  // outlook's Fourier features. AST is a fixed UTC-4 offset, so the weekday is
+  // exact from the shifted-UTC day (0 = Sun … 6 = Sat).
+  function astHourFloat(d) {
+    const p = new Intl.DateTimeFormat("en-CA", {
+      timeZone: AST_TZ, hour: "2-digit", minute: "2-digit", hour12: false,
+    }).formatToParts(d).reduce((o, x) => (o[x.type] = x.value, o), {});
+    return (parseInt(p.hour, 10) % 24) + parseInt(p.minute, 10) / 60;
+  }
+  const astIsWeekend = (d) => { const w = new Date(d.getTime() - 4 * 3600000).getUTCDay(); return w === 0 || w === 6; };
   const HOUR_LABELS = Array.from({ length: 24 }, (_, h) => {
     const ap = h < 12 ? "a" : "p";
     const hr = h % 12 === 0 ? 12 : h % 12;
@@ -1478,7 +1626,7 @@
       for (let t = first; t <= x.max; t += stepDays * DAY) {
         const px = x.getPixelForValue(t);
         if (px < chartArea.left || px > chartArea.right) continue;
-        ctx.strokeStyle = "rgba(0,0,0,0.10)";
+        ctx.strokeStyle = chartGridColor();
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(px, chartArea.top);
@@ -1486,7 +1634,7 @@
         ctx.stroke();
         const label = new Date(t).toLocaleDateString("en-US", { timeZone: AST_TZ, month: "short", day: "numeric" });
         const w = ctx.measureText(label).width;
-        ctx.fillStyle = "#888";
+        ctx.fillStyle = chartCss("--chart-muted") || "#888";
         ctx.fillText(label, (px + 4 + w > chartArea.right) ? px - 4 - w : px + 4, chartArea.top + 2);
       }
       ctx.restore();
@@ -1494,9 +1642,9 @@
   };
 
   // --- State ---
-  let chartHistory = null, chartHourly = null, chartCost = null;
+  let chartHistory = null, chartHourly = null, chartCost = null, chartOutlook = null;
   let latestMetrics = null, unitRows = [];
-  let allHistory = [], costHistory = [];
+  let allHistory = [], costHistory = [], weatherRaw = null;
   let adequacy = null, largestOnlineMw = null, hourly = null;
   let hourMode = "gen", statusFilter = "", historyDays = 1, costDays = 1;
 
@@ -1515,6 +1663,314 @@
     document.querySelector("#unit-table tbody").innerHTML = '<tr><td colspan="9" class="no-data">No data.</td></tr>';
   }
 
+  // ================= 7-Day Demand Outlook =================
+  // Sensadvisor's own forecast. Genera publishes nothing past the next hour, so
+  // this is the page's only multi-day view of PR demand. We fit the daily load
+  // shape (Fourier over hour-of-day + weekend) plus an apparent-temperature term
+  // on the last ~35 days of snapshots, then project it forward on the Open-Meteo
+  // weather forecast. This mirrors the offline Python pipeline; peaks land in the
+  // evening (after rooftop solar fades), which is where the heat sensitivity shows.
+
+  // Householder QR least squares — stable for the mildly-collinear Fourier design
+  // matrix (the same solver the offline pipeline uses; avoids fragile normal eqns).
+  function qrLstsq(A, b) {
+    const m = A.length, n = A[0].length;
+    const R = A.map(r => r.slice()), bb = b.slice();
+    for (let k = 0; k < n; k++) {
+      let nx = 0; for (let i = k; i < m; i++) nx += R[i][k] * R[i][k];
+      nx = Math.sqrt(nx); if (nx === 0) continue;
+      const alpha = R[k][k] >= 0 ? -nx : nx;
+      const v = new Array(m).fill(0); v[k] = R[k][k] - alpha;
+      for (let i = k + 1; i < m; i++) v[i] = R[i][k];
+      let vn = 0; for (let i = k; i < m; i++) vn += v[i] * v[i];
+      if (vn === 0) continue;
+      for (let j = k; j < n; j++) {
+        let s = 0; for (let i = k; i < m; i++) s += v[i] * R[i][j];
+        s = 2 * s / vn; for (let i = k; i < m; i++) R[i][j] -= s * v[i];
+      }
+      let s = 0; for (let i = k; i < m; i++) s += v[i] * bb[i];
+      s = 2 * s / vn; for (let i = k; i < m; i++) bb[i] -= s * v[i];
+    }
+    const x = new Array(n).fill(0);
+    for (let i = n - 1; i >= 0; i--) {
+      let s = bb[i]; for (let j = i + 1; j < n; j++) s -= R[i][j] * x[j];
+      x[i] = Math.abs(R[i][i]) < 1e-10 ? 0 : s / R[i][i];
+    }
+    return x;
+  }
+
+  // Feature row for the load SHAPE only: [1, sin/cos harmonics 1..K, weekend].
+  // Weather is intentionally absent (see the OUTLOOK note): fitting it on this
+  // short net-load window yields a confounded coefficient, so the deployable
+  // model is the diurnal shape and weather is shown only as context.
+  function outlookFeatures(d) {
+    const hod = astHourFloat(d);
+    const row = [1];
+    for (let k = 1; k <= OUTLOOK.K; k++) {
+      row.push(Math.sin(2 * Math.PI * k * hod / 24));
+      row.push(Math.cos(2 * Math.PI * k * hod / 24));
+    }
+    row.push(astIsWeekend(d) ? 1 : 0);
+    return row;
+  }
+
+  // Wrap the Open-Meteo payload for apparent-temp CONTEXT only (interpolate by
+  // epoch). Returns null if the payload is missing/short — the outlook still
+  // renders its shape forecast, just without the temperature overlay.
+  function buildWeather(raw) {
+    const H = raw && raw.hourly;
+    if (!H || !H.time) return null;
+    const pts = H.time.map((t, i) => ({
+      epoch: new Date(t + ":00-04:00").getTime(),   // naive AST string -> epoch
+      appT: num(H.apparent_temperature[i]),
+    })).filter(p => !isNaN(p.epoch) && p.appT != null);
+    if (pts.length < 24) return null;
+    pts.sort((a, b) => a.epoch - b.epoch);
+    const eps = pts.map(p => p.epoch);
+    const idx = (epoch) => {
+      let lo = 0, hi = eps.length;
+      while (lo < hi) { const mid = (lo + hi) >> 1; if (eps[mid] < epoch) lo = mid + 1; else hi = mid; }
+      return lo;
+    };
+    const appTat = (epoch) => {
+      const i = idx(epoch);
+      if (i <= 0) return pts[0].appT;
+      if (i >= pts.length) return pts[pts.length - 1].appT;
+      const a = pts[i - 1], b = pts[i];
+      const f = b.epoch > a.epoch ? (epoch - a.epoch) / (b.epoch - a.epoch) : 0;
+      return a.appT + f * (b.appT - a.appT);
+    };
+    return { pts, appTat, minEpoch: eps[0], maxEpoch: eps[eps.length - 1] };
+  }
+
+  // Fit the load shape on recent history, then project a self-generated hourly
+  // grid forward (independent of the weather feed). Returns null if there is not
+  // enough history. Weather, when present, decorates the result with context.
+  function buildOutlook() {
+    if (!allHistory.length) return null;
+    const wx = buildWeather(weatherRaw); // context only; may be null
+
+    const fitCut = Date.now() - OUTLOOK.fitDays * 86400000;
+    const train = allHistory.filter(r => {
+      const t = new Date(r.observed_at).getTime();
+      return t >= fitCut && num(r.total_generation_mw) != null;
+    });
+    if (train.length < 200) return null;
+
+    const X = train.map(r => outlookFeatures(new Date(r.observed_at)));
+    const y = train.map(r => num(r.total_generation_mw));
+    const beta = qrLstsq(X, y);
+    const predict = (d) => { const f = outlookFeatures(d);
+      let s = 0; for (let j = 0; j < beta.length; j++) s += f[j] * beta[j]; return s; };
+
+    const lastObs = new Date(allHistory[allHistory.length - 1].observed_at).getTime();
+    const todayStart = new Date(astParts(new Date()).date + "T00:00:00-04:00").getTime();
+    const horizonEnd = todayStart + (OUTLOOK.horizonDays + 1) * 86400000; // start of day+8
+
+    // Continuous forecast line: whole hours from just after the last reading to
+    // the end of the horizon, so it connects to the recent-actual trace.
+    const series = [];
+    const firstHour = Math.ceil(lastObs / 3600000) * 3600000;
+    for (let e = firstHour; e < horizonEnd; e += 3600000) {
+      series.push({ x: new Date(e), y: predict(new Date(e)) });
+    }
+
+    // Per-day aggregates for days +1..+7. Each day is exactly 24 hourly intervals
+    // (00–23 AST), so energy = sum of hourly MW in MWh — no gap-bridging, no
+    // dropped boundary intervals.
+    const days = [];
+    for (let off = 1; off <= OUTLOOK.horizonDays; off++) {
+      const dayStart = todayStart + off * 86400000;
+      const g = { date: astParts(new Date(dayStart)).date, peak: -Infinity, peakAt: null, peakIdx: 0, energy: 0, appTmax: null, hours: [] };
+      for (let h = 0; h < 24; h++) {
+        const d = new Date(dayStart + h * 3600000);
+        const mw = predict(d);
+        g.hours.push(mw);
+        if (mw > g.peak) { g.peak = mw; g.peakAt = d; g.peakIdx = h; }
+        g.energy += mw; // hourly MW -> MWh
+        if (wx) { const at = wx.appTat(d.getTime()); if (at != null && (g.appTmax == null || at > g.appTmax)) g.appTmax = at; }
+      }
+      days.push(g);
+    }
+    // Shared MW range so each card's mini load curve is height-comparable across the week.
+    let loMW = Infinity, hiMW = -Infinity;
+    for (const g of days) for (const v of g.hours) { if (v < loMW) loMW = v; if (v > hiMW) hiMW = v; }
+
+    const recentCut = lastObs - 48 * 3600000;
+    const actual = allHistory
+      .filter(r => new Date(r.observed_at).getTime() >= recentCut && num(r.total_generation_mw) != null)
+      .map(r => ({ x: new Date(r.observed_at), y: num(r.total_generation_mw) }));
+    const appTline = wx
+      ? wx.pts.filter(p => p.epoch >= recentCut && p.epoch < horizonEnd).map(p => ({ x: new Date(p.epoch), y: p.appT }))
+      : [];
+
+    return { days, series, actual, appTline, nTrain: train.length, loMW, hiMW };
+  }
+
+  // Inline mini load curve for a day card: 24 hourly MW values normalized to the
+  // week's shared [lo,hi] range, with the evening peak dotted. CSS vars in the
+  // stroke/fill resolve against the live theme (same trick as the reservoir page).
+  function ocSpark(hours, lo, hi, peakIdx) {
+    const n = hours.length, W = 132, H = 34, pad = 4;
+    const rng = (hi - lo) || 1;
+    const x = (i) => pad + (W - 2 * pad) * i / (n - 1);
+    const yv = (v) => pad + (H - 2 * pad) * (1 - (v - lo) / rng);
+    const pts = hours.map((v, i) => `${x(i).toFixed(1)},${yv(v).toFixed(1)}`).join(" ");
+    const area = `${x(0).toFixed(1)},${(H - pad).toFixed(1)} ${pts} ${x(n - 1).toFixed(1)},${(H - pad).toFixed(1)}`;
+    return `<svg class="oc-spark" viewBox="0 0 ${W} ${H}" role="img" aria-label="Projected load by hour of day, evening peak marked">`
+      + `<polygon points="${area}" fill="rgba(var(--signal-rgb),0.12)"/>`
+      + `<polyline points="${pts}" fill="none" stroke="var(--signal)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>`
+      + `<circle cx="${x(peakIdx).toFixed(1)}" cy="${yv(hours[peakIdx]).toFixed(1)}" r="2.6" fill="var(--signal)"/></svg>`;
+  }
+
+  function renderOutlook() {
+    const panel = document.getElementById("outlook-panel");
+    let o = null;
+    try { o = buildOutlook(); } catch (e) { console.error("outlook", e); }
+    if (!o) { if (panel) panel.style.display = "none"; return; }
+    panel.style.display = "";
+
+    // Day cards.
+    const topIdx = o.days.reduce((bi, g, i, a) => g.peak > a[bi].peak ? i : bi, 0);
+    document.getElementById("outlook-cards").innerHTML = o.days.map((g, i) => {
+      const noon = new Date(g.date + "T16:00:00Z"); // 12:00 AST that day
+      const wd = noon.toLocaleDateString("en-US", { timeZone: AST_TZ, weekday: "short" });
+      const md = noon.toLocaleDateString("en-US", { timeZone: AST_TZ, month: "short", day: "numeric" });
+      const wknd = wd === "Sat" || wd === "Sun";
+      const isTop = i === topIdx;
+      const peakHr = g.peakAt.toLocaleTimeString("en-US", { timeZone: AST_TZ, hour: "numeric" });
+      const badge = isTop ? "week high" : `peak ${peakHr}`;
+      const cls = isTop ? " top" : (wknd ? " wknd" : "");
+      const temp = g.appTmax != null ? `<span class="oc-temp">${fmt(g.appTmax, 0)}°F high</span>` : "";
+      return `<div class="oc-card${cls}">
+        <div class="oc-head"><span class="oc-day">${wd}<span class="oc-date">${md}</span></span><span class="oc-badge">${badge}</span></div>
+        <div class="oc-peak">${fmt(g.peak)}<small>MW PEAK</small></div>
+        ${ocSpark(g.hours, o.loMW, o.hiMW, g.peakIdx)}
+        <div class="oc-foot"><span><b>${fmt(g.energy / 1000, 1)}</b> GWh</span>${temp}</div>
+      </div>`;
+    }).join("");
+
+    // Headline.
+    const top = o.days.reduce((a, g) => g.peak > a.peak ? g : a, o.days[0]);
+    const topDay = new Date(top.date + "T16:00:00Z").toLocaleDateString("en-US", { timeZone: AST_TZ, weekday: "long" });
+    document.getElementById("outlook-note").innerHTML =
+      `Sensadvisor's own projection of grid-supplied demand for the next ${o.days.length} days — Genera forecasts only the next hour. `
+      + `It projects forward the typical daily load shape (by hour and weekday) learned over the last ${Math.round(o.nTrain / 144)} days; peaks land in the evening, after rooftop solar fades. `
+      + `Highest projected peak: <b>${fmt(top.peak)} MW</b> on ${topDay}. `
+      + `<span style="color:var(--secondary-text)">Apparent temperature (below) is shown for context, not yet as a forecast input: on this short window it correlates with rooftop-solar output rather than clean demand, so the calibrated weather sensitivity is still being built. `
+      + `With only about ${Math.round(o.nTrain / 144)} days of history so far, day-ahead-to-7-day accuracy is not yet validated on a large enough sample — treat these as directional, not measured. `
+      + `This is a model estimate, not an official forecast.</span>`;
+
+    // Chart: recent actual -> shape forecast, with apparent temp as context on a 2nd axis.
+    const datasets = [
+      { label: "Recent actual", data: o.actual, borderColor: "#e63946", borderWidth: 2, pointRadius: 0, tension: 0.3, fill: false },
+      { label: "Forecast (Sensadvisor)", data: o.series, borderColor: "#4361ee", backgroundColor: "rgba(67,97,238,0.10)", borderWidth: 2, borderDash: [6, 3], pointRadius: 0, tension: 0.3, fill: true },
+    ];
+    if (o.appTline.length) {
+      datasets.push({ label: "Apparent temp (context)", data: o.appTline, borderColor: "#e8823a", borderWidth: 1.5, pointRadius: 0, tension: 0.3, fill: false, yAxisID: "y1" });
+    }
+    if (chartOutlook) chartOutlook.destroy();
+    chartOutlook = new Chart(document.getElementById("chart-outlook"), {
+      type: "line",
+      plugins: [dayDividers],
+      data: { datasets },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { intersect: false, mode: "nearest", axis: "x" },
+        plugins: {
+          legend: { labels: { font: { ...chartFont, size: 11 }, color: chartTextColor() } },
+          tooltip: {
+            titleFont: chartFont, bodyFont: chartFont,
+            callbacks: {
+              title: (items) => items.length ? new Date(items[0].parsed.x).toLocaleString("en-US", { timeZone: AST_TZ, dateStyle: "medium", timeStyle: "short" }) + " AST" : "",
+              label: (c) => c.dataset.yAxisID === "y1"
+                ? ` ${c.dataset.label}: ${fmt(c.parsed.y, 0)}°F`
+                : ` ${c.dataset.label}: ${fmt(c.parsed.y)} MW`,
+            },
+          },
+        },
+        scales: {
+          x: { type: "time", time: { unit: "day" }, ticks: { font: { ...chartFont, size: 10 }, color: chartTextColor() }, grid: { color: chartGridColor() } },
+          y: { ticks: { font: { ...chartFont, size: 10 }, color: chartTextColor(), callback: (v) => v + " MW" }, grid: { color: chartGridColor() }, title: { display: true, text: "Demand (MW)", font: { ...chartFont, size: 10 }, color: chartTextColor() } },
+          ...(o.appTline.length ? { y1: { position: "right", ticks: { font: { ...chartFont, size: 10 }, color: chartTextColor(), callback: (v) => v + "°" }, grid: { drawOnChartArea: false }, title: { display: true, text: "Apparent °F", font: { ...chartFont, size: 10 }, color: chartTextColor() } } } : {}),
+        },
+      },
+    });
+  }
+
+  // ===== Forecast accuracy: Sensadvisor vs Genera (1-hour-ahead) =====
+  // The head-to-head is computed by the local daily job (read-only, server-side)
+  // and shipped as a static JSON — no live DB view exposes Genera's historical
+  // next-hour forecast, so nothing new is queried from the database here. When
+  // served over http(s) the page fetches the freshest numbers; opened as a local
+  // file it can't fetch a sibling, so it falls back to this embedded snapshot.
+  // Aggregate accuracy figures only — no keys, no raw rows.
+  const SCOREBOARD_FALLBACK = {
+    horizon: "1-hour-ahead",
+    n_pairs: 2677,
+    window_start: "2026-07-06",
+    scores: {
+      sensadvisor: { mape_pct: 1.48, mae_mw: 35.5, beats_genera_pct: 69.5 },
+      genera:      { mape_pct: 3.01, mae_mw: 71.0 },
+      persistence: { mape_pct: 3.47, mae_mw: 83.7 },
+    },
+  };
+
+  function renderScoreboard(d) {
+    const panel = document.getElementById("scoreboard-panel");
+    if (!panel || !d || !d.scores) return;
+    const s = d.scores.sensadvisor, g = d.scores.genera, p = d.scores.persistence;
+    if (!s || !g) return;
+    panel.style.display = "";
+
+    // Bars scale to the worst error shown, so the shortest bar is the winner.
+    const maxMape = Math.max(s.mape_pct, g.mape_pct, p ? p.mape_pct : 0) || 1;
+    const bar = (mape, color) =>
+      `<div class="sb-bar"><i style="width:${(mape / maxMape * 100).toFixed(0)}%;background:${color}"></i></div>`;
+    const card = (name, tag, sc, color, win) =>
+      `<div class="sb-card${win ? " win" : ""}">
+        <div class="sb-chead"><span class="sb-name">${name}</span><span class="sb-tag">${tag}</span></div>
+        <div class="sb-mape">${fmt(sc.mape_pct, 2)}<small>% avg error</small></div>
+        <div class="sb-mae">${fmt(sc.mae_mw, 1)} MW average miss (MAE)</div>
+        ${bar(sc.mape_pct, color)}
+      </div>`;
+
+    document.getElementById("sb-grid").innerHTML =
+      card("Sensadvisor", "Our model", s, "var(--signal)", true) +
+      card("Genera", "Utility forecast", g, "var(--chart-muted)", false);
+
+    const better = g.mape_pct > 0 ? Math.round((1 - s.mape_pct / g.mape_pct) * 100) : 0;
+    document.getElementById("sb-lead").innerHTML =
+      `Every 15 minutes Genera publishes one forward-looking number — its <b>next-hour</b> demand forecast. `
+      + `We forecast the same hour and score both against what actually happened. `
+      + `Head to head, Sensadvisor's average error is <b>${better}% lower</b>.`;
+
+    document.getElementById("sb-win").innerHTML =
+      `<span class="sb-win-num">${fmt(s.beats_genera_pct, 1)}%</span>`
+      + `<span class="sb-win-txt">of matched forecasts, our next-hour call lands closer than Genera's own.</span>`;
+
+    const since = d.window_start
+      ? new Date(d.window_start + "T12:00:00Z").toLocaleDateString("en-US", { timeZone: AST_TZ, month: "short", day: "numeric", year: "numeric" })
+      : null;
+    const baseline = p ? `Naïve baseline (last reading held flat) errs <span class="sb-base">${fmt(p.mape_pct, 2)}%</span>. ` : "";
+    document.getElementById("sb-foot").innerHTML =
+      `Based on <b>${fmt(d.n_pairs, 0)}</b> matched next-hour forecasts${since ? `, ${since} to now` : ""} `
+      + `(one per snapshot, issued about every 10–15 minutes — not one per clock hour), `
+      + `scored on an expanding window with no look-ahead (a fair, leakage-free comparison). ${baseline}`
+      + `Comparison is 1-hour-ahead only — Genera publishes no longer-range forecast, so the 7-day outlook above has no utility number to compare against. `
+      + `Independent Sensadvisor analysis; not affiliated with or endorsed by Genera PR.`;
+  }
+
+  // Best-effort: render the embedded snapshot immediately (works offline / as a
+  // local file), then upgrade to the freshest numbers when actually served.
+  function loadScoreboard() {
+    renderScoreboard(SCOREBOARD_FALLBACK);
+    fetch("data/scoreboard.json", { cache: "no-store" })
+      .then(r => r.ok ? r.json() : null)
+      .catch(() => null)
+      .then(d => { if (d && d.scores) renderScoreboard(d); });
+  }
+
   // --- Load ---
   async function init() {
     const historySince = new Date(Date.now() - (HISTORY_MAX_DAYS + 2) * 86400000).toISOString();
@@ -1524,7 +1980,7 @@
     // alongside the core queries keeps them off the critical path. They used to
     // run serially *after* the main load, adding ~4 extra round-trips before
     // anything rendered.
-    const [latestRows, uRows, hist, costRes, statsRes] = await Promise.all([
+    const [latestRows, uRows, hist, costRes, statsRes, wxRes] = await Promise.all([
       sbQuery("v_generation_latest", "select=*"),
       sbQuery("v_generation_units", "select=*"),
       sbQuery("v_generation_metrics_history",
@@ -1533,6 +1989,9 @@
         `select=observed_at,waec_per_mwh&observed_at=gte.${historySince}&order=observed_at.asc`).catch(() => null),
       sbQuery("v_generation_unit_stats",
         "select=plant_type,plant,unit,avg_online_mw,last_online_at").catch(() => null),
+      // Keyless Open-Meteo forecast for the 7-day outlook. A failed fetch leaves
+      // the outlook hidden; the rest of the page is unaffected.
+      fetch(WEATHER_URL).then(r => r.ok ? r.json() : null).catch(() => null),
     ]);
     if (!latestRows.length) { showNoData(); return; }
 
@@ -1543,6 +2002,7 @@
     unitRows.forEach(r => { r._online = r._mw >= ONLINE_MW; const c = CRITICAL_UNITS[critKey(r)]; r._crit = c ? { ...c } : null; });
     imputeUnitCost();
     allHistory = hist || [];
+    weatherRaw = wxRes || null;
 
     // Optional enhancements — need the cost-history / unit-stats views deployed.
     // A null result (fetch failed / view absent) leaves the feature hidden.
@@ -1573,6 +2033,8 @@
     renderHourly();
     renderHistory();
     renderCost();
+    renderOutlook();
+    loadScoreboard();
   }
 
   // --- Derived: largest online unit + adequacy classification ---
@@ -1586,8 +2048,21 @@
     const marginNext = (cap != null && nextHr != null) ? cap - nextHr : null; // forecast headroom
     const n1 = largestOnlineMw;
 
-    let level = "adequate", label = "Adequate reserves", reason = "";
-    if ((marginNext != null && marginNext < 0) || (opRes != null && opRes < 50)) {
+    // Fail closed: if the core metrics are missing or the latest reading is stale,
+    // do NOT default to a reassuring "Adequate" — surface the degraded state instead.
+    const obsMs = m.observed_at ? new Date(m.observed_at).getTime() : null;
+    const ageMs = obsMs != null ? Date.now() - obsMs : null;
+    const STALE_MS = 60 * 60 * 1000;   // feed refreshes ~15 min; >60 min old = degraded
+    const coreMissing = cap == null || (opRes == null && marginNext == null);
+
+    let level, label, reason;
+    if (obsMs == null || coreMissing) {
+      level = "unknown"; label = "Status unavailable";
+      reason = "Live operating metrics are missing from the latest feed, so grid adequacy can't be assessed right now. Treat the readings below as unconfirmed.";
+    } else if (ageMs > STALE_MS) {
+      level = "unknown"; label = "Reading stale";
+      reason = `The latest operational reading is ${relTime(m.observed_at)} (the feed refreshes about every 15 minutes), so current adequacy can't be confirmed. Treat the readings below as unconfirmed.`;
+    } else if ((marginNext != null && marginNext < 0) || (opRes != null && opRes < 50)) {
       level = "critical"; label = "Reserves critically low";
       if (marginNext != null && marginNext < 0)
         reason = `Next-hour forecast ${fmt(nextHr)} MW exceeds available capacity ${fmt(cap)} MW — a projected ${fmt(Math.abs(marginNext))} MW shortfall. Load-shedding (relevos de carga) may be needed to balance the grid.`;
@@ -1595,15 +2070,37 @@
         reason = `Operating reserve is only ${fmt(opRes)} MW — the system has almost no cushion, so any unit trip could force load-shedding (relevos de carga).`;
     } else if ((n1 != null && opRes != null && opRes < n1) || (n1 != null && marginNext != null && marginNext < n1)) {
       level = "tight"; label = "Thin reserves";
-      reason = `Operating reserve ${fmt(opRes)} MW is below the largest online unit (${fmt(n1)} MW) — reserve would not cover the loss of that unit (below the N-1 benchmark).`;
+      const orBelow = opRes != null && opRes < n1;
+      const marginBelow = marginNext != null && marginNext < n1;
+      if (orBelow && marginBelow)
+        reason = `Both operating reserve (${fmt(opRes)} MW) and next-hour forecast headroom (${fmt(marginNext)} MW) are below the largest online unit (${fmt(n1)} MW) — reserves would not cover the loss of that unit (below the N-1 benchmark).`;
+      else if (orBelow)
+        reason = `Operating reserve ${fmt(opRes)} MW is below the largest online unit (${fmt(n1)} MW) — reserve would not cover the loss of that unit (below the N-1 benchmark).`;
+      else
+        reason = `Next-hour forecast headroom ${fmt(marginNext)} MW is below the largest online unit (${fmt(n1)} MW) — projected reserve would not cover the loss of that unit (below the N-1 benchmark).`;
     } else {
       level = "adequate"; label = "Adequate reserves";
       reason = n1 != null
         ? `Operating reserve ${fmt(opRes)} MW covers the largest online unit (${fmt(n1)} MW), and the next-hour forecast fits within available capacity.`
         : `Reserves are within normal range and the next-hour forecast fits within available capacity.`;
     }
+    // True "Peak Today": the highest reading so far today (AST), computed from the
+    // stored 10-min snapshots. The feed's own peakTodayMw field is a stale
+    // multi-day rolling max (its timestamp can freeze for weeks), so it is not a
+    // real daily peak; the snapshot maximum recovers it to within ~0.3%.
+    const todayDate = astParts(new Date()).date;
+    let peakToday = null, peakTodayAt = null;
+    for (const r of allHistory) {
+      if (astParts(new Date(r.observed_at)).date !== todayDate) continue;
+      const g = num(r.total_generation_mw);
+      if (g != null && (peakToday == null || g > peakToday)) { peakToday = g; peakTodayAt = r.observed_at; }
+    }
+    // Include the latest live reading in case it is newer than the last history row.
+    if (gen != null && (peakToday == null || gen > peakToday)) { peakToday = gen; peakTodayAt = m.observed_at; }
+
     adequacy = { level, label, reason, gen, cap, opRes, nextHr, marginNow, marginNext, n1,
-      color: level === "critical" ? "#e04343" : level === "tight" ? "#faa72a" : "#76ad2a" };
+      peakToday, peakTodayAt,
+      color: level === "critical" ? "#e04343" : level === "tight" ? "#faa72a" : level === "adequate" ? "#76ad2a" : "#8a9199" };
   }
 
   // --- Hero ---
@@ -1658,7 +2155,7 @@
   // --- Stat tiles ---
   function renderStatTiles() {
     const m = latestMetrics, a = adequacy;
-    const resAccent = a.level === "critical" ? "accent-crit" : a.level === "tight" ? "accent-warn" : "accent-ok";
+    const resAccent = a.level === "critical" ? "accent-crit" : a.level === "tight" ? "accent-warn" : a.level === "adequate" ? "accent-ok" : "";
     const marginAccent = a.marginNext == null ? "" : a.marginNext < 0 ? "accent-crit" : a.marginNext < (a.n1 || 0) ? "accent-warn" : "accent-ok";
     const tiles = [
       { label: "Total Generation", value: fmt(m.totalGeneration), unit: "MW" },
@@ -1669,8 +2166,10 @@
         sub: a.nextHr != null ? `next hour ${fmt(a.nextHr)} MW vs capacity` : "" },
       { label: "Renewable Share", value: fmt(m.renewablePct), unit: "%",
         sub: m.totalGeneration != null && m.renewablePct != null ? `${fmt(m.totalGeneration * m.renewablePct / 100)} MW` : "" },
-      { label: "Peak Today", value: fmt(m.peakTodayMw), unit: "MW",
-        sub: m.peakAnnualMw != null ? `annual peak ${fmt(m.peakAnnualMw)} MW` : "" },
+      { label: "Peak Today", value: fmt(a.peakToday), unit: "MW",
+        sub: a.peakTodayAt != null
+          ? `highest reading today · ${new Date(a.peakTodayAt).toLocaleTimeString("en-US", { timeZone: AST_TZ, hour: "numeric", minute: "2-digit" })} AST`
+          : "highest reading today" },
     ];
     document.getElementById("stats-grid").innerHTML = tiles.map(t => `
       <div class="stat-tile ${t.accent || ""}">
@@ -1765,7 +2264,7 @@
     const max = rows[0].pct;
     el.innerHTML = rows.map(f => `
       <div class="type-bar-row">
-        <div class="type-bar-head"><span>${FUEL_LABELS[f.fuel] || f.fuel}</span><span class="num">${fmt(f.pct)}%</span></div>
+        <div class="type-bar-head"><span>${esc(FUEL_LABELS[f.fuel] || f.fuel)}</span><span class="num">${fmt(f.pct)}%</span></div>
         <div class="type-bar-track">
           <div class="type-bar-fill" style="width:${max ? (f.pct / max * 100) : 0}%;background:${FUEL_COLORS[f.fuel] || OTHER_COLOR}"></div>
         </div>
@@ -1783,7 +2282,7 @@
     const max = Math.max(...entries.map(e => e[1]));
     document.getElementById("type-bars").innerHTML = entries.map(([type, mw]) => `
       <div class="type-bar-row">
-        <div class="type-bar-head"><span>${type}</span><span class="num">${fmt(mw, 1)} MW</span></div>
+        <div class="type-bar-head"><span>${esc(type)}</span><span class="num">${fmt(mw, 1)} MW</span></div>
         <div class="type-bar-track">
           <div class="type-bar-fill" style="width:${max ? (mw / max * 100) : 0}%;background:${TYPE_COLORS[type] || OTHER_COLOR}"></div>
         </div>
@@ -1898,7 +2397,7 @@
   function setupTypeFilter() {
     const types = [...new Set(unitRows.map(u => u.plant_type))].sort();
     const sel = document.getElementById("type-filter");
-    sel.innerHTML = '<option value="">All types</option>' + types.map(t => `<option value="${t}">${t}</option>`).join("");
+    sel.innerHTML = '<option value="">All types</option>' + types.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join("");
     sel.addEventListener("change", () => { typeFilter = sel.value; renderUnitTable(); });
   }
 
@@ -1960,13 +2459,13 @@
     };
     const costCell = (r) => {
       if (r._costEff == null) return "—";
-      if (r._costImputed) return `<span style="color:#999;font-style:italic" title="No price reported — imputed from the ${r.plant_type} average">~${fmt(r._costEff, 2)}</span>`;
+      if (r._costImputed) return `<span style="color:#999;font-style:italic" title="No price reported — imputed from the ${esc(r.plant_type)} average">~${fmt(r._costEff, 2)}</span>`;
       return fmt(r._costEff, 2);
     };
     tbody.innerHTML = rows.map(r => `<tr class="${(r._crit && !r._online) ? "row-crit-off" : ""}">
-        <td><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${TYPE_COLORS[r.plant_type] || OTHER_COLOR};margin-right:6px"></span>${r.plant}</td>
-        <td>${r.plant_type}</td>
-        <td>${r.unit}</td>
+        <td><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${TYPE_COLORS[r.plant_type] || OTHER_COLOR};margin-right:6px"></span>${esc(r.plant)}</td>
+        <td>${esc(r.plant_type)}</td>
+        <td>${esc(r.unit)}</td>
         <td><span class="badge ${r._online ? "badge-online" : "badge-offline"}">${r._online ? "Online" : "Offline"}</span>${r._crit ? `<span class="badge ${r._online ? "badge-critical" : "badge-critical-off"}" title="Critical dispatchable unit — usually ~${r._crit.baselineMw} MW (${r._crit.region})">◆ Critical</span>` : ""}</td>
         <td class="num">${fmt(r.mw, 2)}</td>
         <td class="num">${r._crit ? "~" + fmt(r._crit.baselineMw) : "—"}</td>
@@ -1974,7 +2473,7 @@
         <td class="num">${costCell(r)}</td>
         <td>${lastCell(r)}</td>
       </tr>`).join("") + `<tr style="font-weight:700;border-top:2px solid #000">
-        <td>Total${typeFilter ? " (" + typeFilter + ")" : ""}</td><td></td>
+        <td>Total${typeFilter ? " (" + esc(typeFilter) + ")" : ""}</td><td></td>
         <td class="num">${rows.length} units</td>
         <td>${onlineCount} online</td>
         <td class="num">${fmt(totalMw, 1)}</td>
