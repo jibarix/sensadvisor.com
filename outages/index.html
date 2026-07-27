@@ -996,6 +996,7 @@
   <div class="analytics-index-inner">
     <span class="analytics-index-label">PR outages</span>
     <a href="#status">Status</a>
+    <a href="#grid-risk">Reserve stress</a>
     <a href="#grid-history">Grid history</a>
     <a href="#notable">Notable</a>
     <a href="#clients">Clients</a>
@@ -1180,6 +1181,221 @@
       <div class="status-stale" id="status-stale" style="display:none"></div>
     </div>
   </div>
+
+  <!-- ===== Reserve Stress Association (grid-risk nowcast) ===== -->
+  <style>
+  .grid-risk{ --gr-crit:#c62828; --gr-elev:#a56a00; --gr-norm:var(--signal);
+    --gr-norm-w:rgba(var(--signal-rgb),.12); }
+  :root[data-theme="dark"] .grid-risk{ --gr-crit:#ff5a5f; --gr-elev:#f2c14e; }
+  .grid-risk .gr-grid{display:grid; grid-template-columns:minmax(220px,1fr) 1.1fr; gap:26px; align-items:start}
+  @media (max-width:720px){.grid-risk .gr-grid{grid-template-columns:1fr; gap:20px}}
+  .grid-risk .gr-pill{display:inline-flex; align-items:center; gap:8px; font-weight:700; font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; padding:6px 12px; color:#fff}
+  .grid-risk .gr-big{font-size:clamp(2.6rem,8vw,4rem); font-weight:700; line-height:.92; letter-spacing:-.02em; margin:12px 0 0}
+  .grid-risk .gr-big small{display:block; font-size:.22em; font-weight:500; color:var(--secondary-text); letter-spacing:0; margin-top:10px; line-height:1.5; max-width:42ch}
+  .grid-risk .gr-ts{font-size:.7rem; color:var(--secondary-text); margin:12px 0 0; line-height:1.5}
+  .grid-risk .gr-ts b{color:var(--primary-text); font-weight:600}
+  .grid-risk .gr-ts.warn{color:var(--gr-elev)}
+  .grid-risk .gr-ts.bad{color:var(--gr-crit)}
+  .grid-risk .gr-stats{display:grid; grid-template-columns:repeat(2,1fr); gap:10px}
+  .grid-risk .gr-stat{border:1px solid var(--border-primary); background:var(--surface-muted); padding:10px 12px}
+  .grid-risk .gr-k{font-size:.62rem; letter-spacing:.08em; text-transform:uppercase; color:var(--secondary-text); margin-bottom:3px}
+  .grid-risk .gr-v{font-size:1.1rem; font-weight:600}
+  .grid-risk .gr-v small{font-size:.6em; color:var(--secondary-text)}
+  /* No overflow:hidden here. The band used to carry it, which silently ate the
+     one thing on this row the reader needs: .gr-mark overhangs the band by 6px
+     top and bottom on purpose, and its "NOW" label sits 16px above that, so all
+     of it was clipped and the marker rendered as an unexplained tick. The clip
+     belongs on the segments instead -- they are the only children that can
+     overflow, and only sideways, when a narrow band's label outgrows it.
+     margin-top leaves room for the label to sit above the band. */
+  .grid-risk .gr-band{position:relative; height:24px; border:1px solid var(--border-primary); margin-top:34px;
+    background:linear-gradient(90deg,var(--gr-crit) 0 6.25%,var(--gr-elev) 6.25% 25%,var(--gr-norm) 25% 100%);}
+  .grid-risk .gr-seg{position:absolute; top:0; bottom:0; display:flex; align-items:center; justify-content:center; overflow:hidden; font-size:.6rem; font-weight:700; color:#fff; text-shadow:0 1px 1px rgba(0,0,0,.4)}
+  .grid-risk .gr-mark{position:absolute; top:-6px; bottom:-6px; width:3px; background:var(--primary-text); box-shadow:0 0 0 2px var(--primary-bg)}
+  .grid-risk .gr-mark::after{content:"NOW"; position:absolute; top:-16px; left:50%; transform:translateX(-50%); font-size:.58rem; font-weight:700; letter-spacing:.1em; color:var(--primary-text); white-space:nowrap}
+  .grid-risk .gr-axis{display:flex; justify-content:space-between; font-size:.62rem; color:var(--secondary-text); margin-top:8px}
+  .grid-risk svg{display:block; width:100%; height:auto}
+  .grid-risk table{width:100%; border-collapse:collapse; font-size:.82rem; margin-top:4px}
+  .grid-risk th,.grid-risk td{text-align:right; padding:8px 10px; border-bottom:1px solid var(--border-primary); white-space:nowrap}
+  .grid-risk th:first-child,.grid-risk td:first-child{text-align:left}
+  .grid-risk th{font-size:.62rem; letter-spacing:.06em; text-transform:uppercase; color:var(--secondary-text); font-weight:700}
+  .grid-risk tr.gr-here td{background:var(--gr-norm-w)}
+  .grid-risk .gr-sw{display:inline-block; width:10px; height:10px; margin-right:8px; vertical-align:middle}
+  .grid-risk .gr-sec{font-size:.66rem; letter-spacing:.08em; text-transform:uppercase; color:var(--secondary-text); margin:24px 0 8px; font-weight:700}
+  </style>
+
+  <span class="nav-anchor" id="grid-risk"></span>
+  <div class="panel grid-risk">
+    <h2>Reserve Stress Association <span class="panel-note">live &middot; historical co-occurrence, not a forecast</span></h2>
+    <div class="gr-grid">
+      <div>
+        <span class="gr-pill" id="gr-pill">&mdash;</span>
+        <div class="gr-big" id="gr-big">&mdash;<small id="gr-big-note">Connecting to live feed&hellip;</small></div>
+        <p class="gr-ts" id="gr-ts">&nbsp;</p>
+      </div>
+      <div>
+        <div class="gr-stats">
+          <div class="gr-stat"><div class="gr-k">Reserve margin now</div><div class="gr-v" id="gr-res">&mdash;</div></div>
+          <div class="gr-stat"><div class="gr-k">Clients out now</div><div class="gr-v" id="gr-out">&mdash;</div></div>
+          <div class="gr-stat"><div class="gr-k">Operating reserve</div><div class="gr-v" id="gr-op">&mdash;</div></div>
+          <div class="gr-stat"><div class="gr-k">Available capacity</div><div class="gr-v" id="gr-av">&mdash;</div></div>
+        </div>
+        <div class="gr-band">
+          <span class="gr-seg" style="left:0;width:6.25%">&lt;2.5</span>
+          <span class="gr-seg" style="left:6.25%;width:18.75%">2.5&ndash;10</span>
+          <span class="gr-seg" style="left:25%;width:75%">&ge;10% reserve</span>
+          <div class="gr-mark" id="gr-mark" style="left:0; display:none"></div>
+        </div>
+        <div class="gr-axis"><span>0%</span><span>10%</span><span>20%</span><span>30%</span><span>40%+</span></div>
+      </div>
+    </div>
+
+    <div class="gr-sec">Share of days with a 50k+ client outage, by reserve margin <span class="panel-note">whiskers = 95% CI</span></div>
+    <svg id="gr-bars" viewBox="0 0 900 260" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Share of days with a 50k-plus client outage by reserve margin band, with 95 percent confidence intervals"></svg>
+
+    <div class="gr-sec">By reserve margin band <span class="panel-note" id="gr-window">&nbsp;</span></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Reserve margin</th><th>Days</th><th>Days w/ 50k+</th><th>Share (95% CI)</th></tr></thead>
+        <tbody id="gr-tbody"></tbody>
+      </table>
+    </div>
+    <div class="panel-note" style="margin-top:12px" id="gr-method">Reserve margin = operating reserve &divide; available capacity (Genera, polled every 10&nbsp;min). Each day is placed in one band by its tightest reserve; the share is the fraction of those days that also saw a 50,000+ client outage. This is a coincident association, not a forecast. &ldquo;50k+ client outage&rdquo; is a lower bar than this page&rsquo;s &ldquo;major&rdquo; grid status (&ge;10% of clients, &asymp;147k).</div>
+  </div>
+
+  <script>
+  (function(){
+    var MUT="var(--secondary-text)", GRID="var(--chart-grid)";
+    // Display metadata keyed by the view's tier name. Bands/counts come live from
+    // v_grid_risk_tiers / v_grid_risk_meta — nothing statistical is hardcoded here.
+    var DISP={
+      CRITICAL:{label:"HIGH STRESS", range:"< 2.5%",  desc:"fell below 2.5%",          color:"var(--gr-crit)"},
+      ELEVATED:{label:"ELEVATED",    range:"2.5–10%", desc:"dipped to 2.5–10%",        color:"var(--gr-elev)"},
+      NORMAL:  {label:"LOW STRESS",  range:"≥ 10%",   desc:"stayed at or above 10%",   color:"var(--gr-norm)"}
+    };
+    var SB="https://grovomkpsqgzakfuvuii.supabase.co/rest/v1";
+    var KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdyb3ZvbWtwc3FnemFrZnV2dWlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NzkxMjgsImV4cCI6MjA5MDE1NTEyOH0.U_ZH5gJij5NLkU786mV58uJ0orHZ6ElMkCtyoyuCvBg";
+    var STALE_MS=45*60*1000, SKEW_MS=30*60*1000;
+    var TIERS=null;
+    var fmt=function(n){return Math.round(n).toLocaleString('en-US');};
+    var MOS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    function fmtDate(s){ if(!s) return '?'; var p=String(s).split('-'); return p.length<3?s:MOS[(+p[1])-1]+' '+(+p[2]); }
+    function wilson(k,n){ if(!n) return [0,0]; var z=1.96,p=k/n,z2=z*z,d=1+z2/n;
+      var c=(p+z2/(2*n))/d, h=(z*Math.sqrt(p*(1-p)/n + z2/(4*n*n)))/d;
+      return [Math.max(0,c-h)*100, Math.min(1,c+h)*100]; }
+    function ci(t){return wilson(t.k,t.days);}
+    function share(t){return t.days? 100*t.k/t.days : 0;}
+    function tierOf(p){ if(!TIERS) return null; for(var i=0;i<TIERS.length;i++){ if(p>=TIERS[i].lo && p<TIERS[i].hi) return TIERS[i]; } return TIERS[TIERS.length-1]; }
+    function buildTiers(rows){
+      return rows.slice().sort(function(a,b){return a.tier_order-b.tier_order;}).map(function(r){
+        var d=DISP[r.name]||{label:r.name,range:r.band,desc:"was in this band",color:MUT};
+        return {name:r.name, label:d.label, range:d.range, desc:d.desc, color:d.color,
+                lo:+r.lo, hi:+r.hi, days:+r.days, k:+r.days_50k};
+      });
+    }
+
+    function fillTable(active){
+      var tb=document.getElementById('gr-tbody'); tb.innerHTML='';
+      if(!TIERS){ tb.innerHTML='<tr><td colspan="4">Historical breakdown unavailable.</td></tr>'; return; }
+      TIERS.forEach(function(x){
+        var c=ci(x), tr=document.createElement('tr'); if(x===active)tr.className='gr-here';
+        tr.innerHTML='<td><span class="gr-sw" style="background:'+x.color+'"></span>'+x.range+' &middot; '+x.name+'</td>'+
+          '<td>'+x.days+'</td><td>'+x.k+'</td>'+
+          '<td>'+Math.round(share(x))+'% ('+Math.round(c[0])+'&ndash;'+Math.round(c[1])+'%)</td>';
+        tb.appendChild(tr);
+      });
+    }
+    function drawBars(){
+      if(!TIERS) return;
+      var NS="http://www.w3.org/2000/svg";
+      function el(t,a){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);return e;}
+      var svg=document.getElementById('gr-bars'); while(svg.firstChild) svg.removeChild(svg.firstChild);
+      var W=900,H=260,L=52,R=20,T=16,B=52,iw=W-L-R,ih=H-T-B;
+      function y(v){return T+ih*(1-v/100);}
+      [0,25,50,75,100].forEach(function(v){svg.appendChild(el('line',{x1:L,x2:W-R,y1:y(v),y2:y(v),stroke:GRID,'stroke-width':1}));
+        var tx=el('text',{x:L-8,y:y(v)+4,'text-anchor':'end',fill:MUT,'font-size':12}); tx.textContent=v+'%'; svg.appendChild(tx);});
+      var bw=iw/TIERS.length, pad=bw*0.28;
+      TIERS.forEach(function(x,i){
+        var c=ci(x), s=share(x), cx=L+bw*i+bw/2, x0=L+bw*i+pad, w=bw-2*pad;
+        svg.appendChild(el('rect',{x:x0,y:y(s),width:w,height:Math.max(0,y(0)-y(s)),fill:x.color,opacity:.85}));
+        svg.appendChild(el('line',{x1:cx,x2:cx,y1:y(c[1]),y2:y(c[0]),stroke:'var(--primary-text)','stroke-width':2}));
+        svg.appendChild(el('line',{x1:cx-8,x2:cx+8,y1:y(c[1]),y2:y(c[1]),stroke:'var(--primary-text)','stroke-width':2}));
+        svg.appendChild(el('line',{x1:cx-8,x2:cx+8,y1:y(c[0]),y2:y(c[0]),stroke:'var(--primary-text)','stroke-width':2}));
+        var val=el('text',{x:cx,y:y(c[1])-8,'text-anchor':'middle',fill:'var(--primary-text)','font-size':13,'font-weight':'700'}); val.textContent=Math.round(s)+'%'; svg.appendChild(val);
+        var lab=el('text',{x:cx,y:H-30,'text-anchor':'middle',fill:MUT,'font-size':12}); lab.textContent=x.range; svg.appendChild(lab);
+        var lab2=el('text',{x:cx,y:H-14,'text-anchor':'middle',fill:MUT,'font-size':11}); lab2.textContent=x.k+' of '+x.days+' days'; svg.appendChild(lab2);
+      });
+    }
+    function applyMeta(m){
+      document.getElementById('gr-window').textContent=m.total_days+' days observed · '+fmtDate(m.window_start)+'–'+fmtDate(m.window_end);
+      document.getElementById('gr-method').innerHTML=
+        'Reserve margin = operating reserve &divide; available capacity (Genera, polled every 10&nbsp;min). Each day is placed in one band by its <b>tightest</b> reserve; the share is the fraction of those days that also saw a 50,000+ client outage. The independent unit is the <b>day</b> &mdash; 10-minute samples within one outage repeat &mdash; so the Wilson 95% intervals are wide: only '+m.days_any_50k+' of '+m.total_days+' days had any 50k+ outage.'+
+        '<br>This is a <b>coincident association, not a forecast</b>: pairing reserve at hour <i>t</i> with outage onset at <i>t</i>+1 (excluding hours already in a 50k+ outage) shows no lead signal &mdash; '+m.crit_onset+' onset across '+m.crit_atrisk+' critical-tier hours, '+m.elev_onset+' across '+m.elev_atrisk+' elevated. Low reserve and outages arrive together.'+
+        '<br>&ldquo;50k+ client outage&rdquo; here is a lower bar than this page&rsquo;s &ldquo;major&rdquo; grid status (&ge;10% of clients, &asymp;147k).';
+    }
+
+    function showLive(res,out,op,av){
+      var t=tierOf(res);
+      document.getElementById('gr-res').innerHTML=res.toFixed(1)+'<small> %</small>';
+      document.getElementById('gr-out').textContent=fmt(out);
+      document.getElementById('gr-op').innerHTML=fmt(op)+'<small> MW</small>';
+      document.getElementById('gr-av').innerHTML=fmt(av)+'<small> MW</small>';
+      var mk=document.getElementById('gr-mark'); mk.style.display='block'; mk.style.left=Math.max(0,Math.min(res/40*100,100))+'%';
+      if(!t){ // live ok but historical breakdown missing
+        var p0=document.getElementById('gr-pill'); p0.textContent='RESERVE '+res.toFixed(1)+'%'; p0.style.background=MUT;
+        document.getElementById('gr-big').firstChild.textContent='—';
+        document.getElementById('gr-big-note').textContent='Historical breakdown unavailable; live reserve shown above.';
+        return;
+      }
+      var c=ci(t), s=Math.round(share(t));
+      var pill=document.getElementById('gr-pill'); pill.textContent=t.label; pill.style.background=t.color;
+      document.getElementById('gr-big').firstChild.textContent=s+'%';
+      document.getElementById('gr-big-note').innerHTML='of the '+t.days+' days reserves '+t.desc+' had a 50k+ client outage underway ('+t.k+' of '+t.days+'; 95% CI '+Math.round(c[0])+'&ndash;'+Math.round(c[1])+'%). Historical association at a similar reserve margin &mdash; not a forecast.';
+      fillTable(t);
+    }
+    function showUnavailable(reason){
+      var pill=document.getElementById('gr-pill'); pill.textContent='RISK UNAVAILABLE'; pill.style.background=MUT;
+      document.getElementById('gr-big').firstChild.textContent='—';
+      document.getElementById('gr-big-note').innerHTML=reason+' No estimate is shown rather than a stale or assumed one.';
+      ['gr-res','gr-out','gr-op','gr-av'].forEach(function(id){document.getElementById(id).textContent='—';});
+      document.getElementById('gr-mark').style.display='none';
+    }
+    function ago(ts){ var t=Date.parse(ts); if(isNaN(t)) return null; return Date.now()-t; }
+    function mins(ms){ return Math.round(ms/60000); }
+
+    var HDR={apikey:KEY,Authorization:'Bearer '+KEY};
+    function grab(url){ return fetch(url,{headers:HDR}).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); }); }
+    function grabSafe(url){ return grab(url).then(function(x){return x;}, function(){return null;}); }
+    Promise.all([
+      grabSafe(SB+'/v_grid_risk_tiers?select=*&order=tier_order.asc'),
+      grabSafe(SB+'/v_grid_risk_meta?select=*&limit=1'),
+      grabSafe(SB+'/v_generation_metrics_history?select=operating_reserve_mw,available_capacity_mw,observed_at&order=observed_at.desc&limit=1'),
+      grabSafe(SB+'/v_outage_snapshots_slim?select=snapshot,observed_at&order=observed_at.desc&limit=1')
+    ]).then(function(r){
+      TIERS=(r[0]&&r[0].length)? buildTiers(r[0]) : null;
+      if(r[1]&&r[1][0]) applyMeta(r[1][0]);
+      drawBars(); fillTable(null);
+
+      var g=(r[2]&&r[2][0])||null, o=(r[3]&&r[3][0])||null, ts=document.getElementById('gr-ts');
+      if(!g||!o){ ts.textContent=''; showUnavailable('Live grid or outage feed returned no rows.'); return; }
+      var gAge=ago(g.observed_at), oAge=ago(o.observed_at);
+      var op=+g.operating_reserve_mw, av=+g.available_capacity_mw;
+      var out=(o.snapshot&&o.snapshot.total&&o.snapshot.total.without)||0;
+      var stale=(gAge==null||oAge==null||gAge>STALE_MS||oAge>STALE_MS);
+      var skew =(gAge!=null&&oAge!=null&&Math.abs(gAge-oAge)>SKEW_MS);
+      ts.className='gr-ts'+(stale?' bad':(skew?' warn':''));
+      ts.innerHTML='Generation <b>'+(gAge==null?'unknown':mins(gAge)+'m ago')+'</b> &middot; Outages <b>'+(oAge==null?'unknown':mins(oAge)+'m ago')+'</b>'+
+        (stale?' &mdash; feed stale (&gt;45m)':(skew?' &mdash; sources &gt;30m apart':''));
+      if(!(op>0&&av>0)){ showUnavailable('Live generation feed is missing reserve/capacity values.'); return; }
+      if(stale){ showUnavailable('Live feed is stale (older than 45 minutes).'); return; }
+      showLive(op/av*100, out, op, av);
+    }).catch(function(e){
+      document.getElementById('gr-ts').textContent='';
+      showUnavailable('Live feed unavailable ('+(e&&e.message?e.message:'network error')+').');
+    });
+  })();
+  </script>
+  <!-- ===== end Reserve Stress Association ===== -->
 
   <span class="nav-anchor" id="grid-history"></span>
   <div class="panel">
@@ -1820,29 +2036,92 @@
     const lvl = classifyUnplannedPct(pct);
 
     document.getElementById("status-dot").style.background = lvl.color;
+
+    // A region counts toward the headline at Partial Outage or worse, not at the
+    // Degraded cutoff one band below it. Measured over the 145 snapshots this
+    // page loads (a rolling 24h, so the exact counts drift): at the 1% cutoff
+    // some region was over the line in 74 of them, and 49 of those were San Juan
+    // alone, sitting just above 1% as its baseline. A headline that flips half
+    // the time is one nobody reads by the time it matters. At 3% the same window
+    // fires 23 times, and 21 of those are one sustained Arecibo event -- an
+    // actual thing that happened rather than the usual state of the capital.
+    //
+    // The 1% band is not discarded: it still colors the region on the grid
+    // history, and the worst region is named in the breakdown below with its
+    // real share, so a region sitting at 1.4% stays visible without the banner
+    // shouting about it.
+    //
+    // The threshold is read off the scale rather than written as 3, so the gate
+    // and the wording it implies cannot drift apart if the bands are ever
+    // retuned. Computed before the label so the label can't call the island calm
+    // while a region is out (island-wide share reads operational at 0.3% even
+    // with one region well past 3%).
+    const REGION_ALERT_MIN_PCT =
+      STATUS_LEVELS.find(l => l.key === "partial").minPct;
+    const regionNames = Object.keys(REGION_COLORS);
+    const latestRegions = latest.regions || {};
+    // Sorted worst-first: the same pass feeds both the count and the name below.
+    const regionStats = regionNames
+      .map(name => {
+        const r = latestRegions[name];
+        if (!r || !r.total) return null;
+        const rUnplanned = Math.max(0, (r.without || 0) - (r.planned || 0));
+        return { name, pct: rUnplanned / r.total * 100 };
+      })
+      .filter(Boolean)
+      .sort((a, b) => b.pct - a.pct);
+    const regionsAffected =
+      regionStats.filter(r => r.pct >= REGION_ALERT_MIN_PCT).length;
+    const worstRegion = regionStats[0] || null;
+
+    // Both branches name the same denominator, so the headline says one thing and
+    // says it the same way whichever way it goes. It used to lead with
+    // "Island-Wide Operational ·" and hang the exception off the end, which read
+    // as a contradiction: "island-wide" is a qualifier meaning "in aggregate",
+    // but at headline size it scans as "everywhere", and the tail then denies it.
+    // The aggregate is still on the page -- the dot is green and the summary line
+    // below prints the island-wide percentage -- it just no longer opens with a
+    // reassurance it then takes back.
+    //
+    // "in Service" / "in Outage" rather than "Operational" / "Degraded" because
+    // both of those are names of specific bands on STATUS_LEVELS, and the gate
+    // now sits at Partial. Borrowing the band names would make the zero branch
+    // read "All 7 Regions Operational" while the breakdown underneath printed a
+    // region at 1.4%, which classifies as Degraded -- the same contradiction in a
+    // smaller font. These two words claim only what the gate actually tests.
     document.getElementById("status-label").textContent =
-      lvl.key === "operational" ? "All Regions Operational" : `Grid Status: ${lvl.label}`;
+      lvl.key !== "operational" ? `Grid Status: ${lvl.label}`
+        : regionsAffected === 0 ? `All ${regionNames.length} Regions in Service`
+        : `${regionsAffected} of ${regionNames.length} Regions in Outage`;
     document.getElementById("status-summary").textContent =
       `${pct.toFixed(2)}% unplanned outage across ${total.toLocaleString()} clients`;
     document.getElementById("outage-primary-value").textContent =
       latest.total.without.toLocaleString();
     document.getElementById("outage-primary-share").textContent =
       `${pct.toFixed(2)}% unplanned · ${lvl.label}`;
-    // Regions "affected" = unplanned share at Degraded or worse (>= 1%), the same
-    // cutoff the grid history uses to color a region. Counting any unplanned > 0
-    // would sit near 7/7 on baseline noise, so we gate on the classification.
-    const regionNames = Object.keys(REGION_COLORS);
-    const latestRegions = latest.regions || {};
-    const regionsAffected = regionNames.filter(name => {
-      const r = latestRegions[name];
-      if (!r || !r.total) return false;
-      const rUnplanned = Math.max(0, (r.without || 0) - (r.planned || 0));
-      return classifyUnplannedPct(rUnplanned / r.total * 100).key !== "operational";
-    }).length;
+    // Third slot names the worst region instead of recounting how many are out.
+    // The count is already the headline twelve lines up, at four times the type
+    // size; printing "1 of 7" again here spent the widest column on the page
+    // restating it. Which region it is, and by how much, is the thing the reader
+    // can't get anywhere else on the hero -- and it is the slot that stays
+    // informative in the quiet case, where the headline has nothing to report but
+    // some region is still worst. Region names come from REGION_COLORS, a literal
+    // in this file, so they go into innerHTML unescaped like the numbers beside
+    // them.
+    //
+    // Caption stops at the percentage rather than repeating "unplanned": the
+    // column is only wide enough for about twenty characters before it wraps, and
+    // a third stat two lines tall next to two one-line ones reads as a mistake.
+    // Every share in this hero is unplanned -- the number to the left is labelled
+    // that way and so is the summary line directly above.
+    const worstCell = worstRegion
+      ? `<span class="num">${worstRegion.name}</span> ` +
+        `worst region · ${worstRegion.pct.toFixed(2)}%`
+      : `<span class="num">&mdash;</span> no regional data`;
     document.getElementById("status-breakdown").innerHTML =
       `<span><span class="num">${unplanned.toLocaleString()}</span> unplanned</span>` +
       `<span><span class="num">${planned.toLocaleString()}</span> planned</span>` +
-      `<span><span class="num">${regionsAffected} of ${regionNames.length}</span> regions affected</span>`;
+      `<span>${worstCell}</span>`;
     document.getElementById("status-hero").style.borderColor = lvl.color;
 
     // Change line: direction of clients-without-power over the last hour, so the
