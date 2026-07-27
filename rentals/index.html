@@ -18,7 +18,6 @@
   <title>San Juan Rent Analytics | SENS ADVISOR</title>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@sgratzl/chartjs-chart-boxplot@4.4.5/build/index.umd.min.js"></script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -809,6 +808,198 @@
       html { scroll-behavior: auto; }
       .back-to-top { transition: none; }
     }
+
+    /* ===== v3 additions ===== */
+    .panel-caption {
+      max-width: 78ch;
+      margin-top: 14px;
+      color: var(--secondary-text);
+      font-size: 0.74rem;
+      line-height: 1.75;
+    }
+    .muted { color: var(--secondary-text); }
+    /* Narrow tables should not inherit the 880px floor meant for wide ones. */
+    table.table-tight { min-width: 0; }
+    .fact-list { margin: 10px 0 0; padding: 0; list-style: none; }
+    .fact-list li {
+      position: relative;
+      margin-bottom: 14px;
+      padding-left: 18px;
+      color: var(--secondary-text);
+      font-size: 0.76rem;
+      line-height: 1.75;
+    }
+    .fact-list li::before {
+      content: "";
+      position: absolute;
+      top: 0.62em;
+      left: 0;
+      width: 6px;
+      height: 6px;
+      background: var(--signal);
+    }
+    .fact-list strong { color: var(--primary-text); }
+
+    /* District cards open section 01. They are the answer to "where should I
+       look", so they sit above the charts and read as cards, not as a table. */
+    .sub-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 1px;
+      margin-bottom: 34px;
+      border: 1px solid var(--border-primary);
+      background: var(--border-primary);
+    }
+    .sub-card { padding: 22px 20px 18px; background: var(--surface-muted); }
+    .sub-name {
+      margin-bottom: 12px;
+      color: var(--secondary-text);
+      font-size: 0.68rem;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+    .sub-rent {
+      font-size: 1.65rem;
+      font-weight: 600;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+    .sub-range {
+      margin-top: 4px;
+      color: var(--secondary-text);
+      font-size: 0.7rem;
+    }
+    .sub-facts {
+      margin: 16px 0 0;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-primary);
+    }
+    .sub-facts > div {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 3px 0;
+    }
+    .sub-facts dt { color: var(--secondary-text); font-size: 0.7rem; }
+    .sub-facts dd { margin: 0; font-size: 0.72rem; font-weight: 600; }
+    /* Interval charts carry one row per feature or segment and cannot be
+       squeezed into the shared canvas ceiling without the labels colliding. */
+    .chart-tall { height: 660px; margin-top: 8px; }
+    .chart-xtall { height: 860px; }
+    .chart-tall canvas { max-height: none !important; margin-top: 0; }
+    @media (max-width: 700px) {
+      .chart-tall { height: 560px; }
+      .chart-xtall { height: 720px; }
+    }
+
+    /* The shared chrome pins table headers with `th { position: sticky;
+       top: 54px }`, meaning "park under the section-index strip". It does not
+       work, and it has not been working: .table-wrap carries overflow-x:auto,
+       which makes the wrapper -- not the page -- the scrollport that sticky
+       resolves against. That wrapper never scrolls vertically, so the 54px
+       offset has nothing to scroll away from and simply displaces the header
+       downward by 54px minus the table's 8px top margin. Measured in Chromium:
+       the header row lands 46px into the first data row and sits on top of it,
+       on every table on the page, at every viewport width.
+
+       Pinning at the wrapper's own top puts the header back where it belongs.
+       Nothing is lost, because the floating behaviour the 54px was reaching for
+       was never reachable from inside a scroll container. The strip is 40.9px
+       tall, not 54px, so that number was wrong on its own terms too. */
+    .table-wrap th { top: 0; }
+
+    /* The negotiation grid is read cell by cell, so the cells carry a second
+       line and the shading has to stay light enough to read text through.
+       Building and neighborhood rows carry the same two-line cells -- a rent
+       above the count that produced it -- so they align the same way:
+       middle-aligning a one-line number against a two-line name staggers the
+       row. */
+    #negGrid td, #bldTable td, #areaTable td { vertical-align: top; }
+    .cell-sub {
+      display: block;
+      margin-top: 3px;
+      color: var(--secondary-text);
+      font-size: 0.68rem;
+    }
+    /* Dimension separators inside the segment table: a label, not a data row. */
+    .dim-row td {
+      padding-top: 20px;
+      color: var(--secondary-text);
+      font-size: 0.68rem;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+    tr:first-child.dim-row td { padding-top: 12px; }
+
+    /* The appendix is reference material, not a headline: let it breathe less.
+       It held two panels until the QA table and the artifact list came out of
+       it; the canvas rule that sat here went with them. */
+    #appendix .disclaimer-copy { margin-top: 26px; }
+
+    /* ── Header ticker ──────────────────────────────────────────────────
+       .data-meta is repeat(3, 1fr) and the header carries four facts, so
+       "Last updated" wrapped onto its own row with two empty cells beside
+       it. The ticker occupies exactly those two. */
+    .data-meta-item.is-ticker { grid-column: span 2; overflow: hidden; }
+    .ticker-viewport {
+      overflow: hidden;
+      /* A hard clip mid-word reads as a rendering fault; the fade says the line
+         continues past the cell. Both edges, because items leave on the left as
+         well as arrive on the right -- shallower there, since the only thing it
+         costs is the leading item fading in once on a fresh load. Unsupported
+         means no fade, which is where this started. */
+      -webkit-mask-image: linear-gradient(to right, transparent 0, #000 3%, #000 88%, transparent 100%);
+      mask-image: linear-gradient(to right, transparent 0, #000 3%, #000 88%, transparent 100%);
+    }
+    .ticker-track {
+      display: flex;
+      width: max-content;
+      animation: ticker-scroll var(--ticker-duration, 60s) linear infinite;
+    }
+    .ticker-run { display: flex; flex: none; }
+    /* Stopping is the only way to read a moving line properly, and hovering is
+       what a reader does when something catches their eye. focus-within covers
+       arriving by keyboard. */
+    .is-ticker:hover .ticker-track,
+    .is-ticker:focus-within .ticker-track { animation-play-state: paused; }
+    @keyframes ticker-scroll {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+    .ticker-item {
+      flex: none;
+      padding-right: 30px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .ticker-item .tk-place { color: var(--secondary-text); font-weight: 500; }
+    .ticker-item .tk-old {
+      color: var(--secondary-text);
+      font-weight: 500;
+      text-decoration: line-through;
+    }
+    .ticker-item .tk-pct { color: var(--signal); }
+    .ticker-empty {
+      display: block;
+      color: var(--secondary-text);
+      font-size: 0.78rem;
+      font-weight: 500;
+    }
+
+    /* Motion here is decoration -- the same listings are readable by scrolling
+       the strip -- so it is removed rather than slowed, and the duplicate run
+       that exists only to hide the animation's seam goes with it. */
+    @media (prefers-reduced-motion: reduce) {
+      .ticker-track { animation: none; }
+      .ticker-viewport { overflow-x: auto; }
+      .ticker-run[aria-hidden="true"] { display: none; }
+    }
+    /* Below this the strip is a single column, and a two-column span would
+       conjure an implicit second one and break the whole grid. */
+    @media (max-width: 748px) {
+      .data-meta-item.is-ticker { grid-column: auto; }
+    }
   </style>
 </head>
 
@@ -882,10 +1073,12 @@
   <div class="analytics-index-inner">
     <span class="analytics-index-label">San Juan rentals</span>
     <a href="#overview">Snapshot</a>
-    <a href="#market-direction">Market</a>
-    <a href="#neighborhoods">Neighborhoods</a>
-    <a href="#reductions">Price cuts</a>
-    <a href="#disclaimer">Methodology</a>
+    <a href="#submarkets">Where</a>
+    <a href="#cost">What it costs</a>
+    <a href="#speed">How fast</a>
+    <a href="#negotiate">Negotiate</a>
+    <a href="#direction">Direction</a>
+    <a href="#appendix">Method</a>
   </div>
 </nav>
 
@@ -1041,20 +1234,40 @@
       <span class="header-kicker">Analytics / Housing</span>
       <h1>San Juan Rental Market</h1>
       <div class="subtitle">
-        A daily view of price, inventory, turnover and listing changes across San Juan’s primary rental submarkets.
+        What apartments are asking, which neighborhoods cost what, and how quickly listings
+        disappear &mdash; across Condado &amp; Miramar, Hato Rey, Santurce and Old San Juan.
+        Rebuilt from the ads themselves rather than from a portal&rsquo;s own summary.
       </div>
       <div class="data-meta" aria-label="Dataset coverage">
         <div class="data-meta-item">
           <span class="data-meta-label">Coverage</span>
-          <span class="data-meta-value">Condado / Miramar · Hato Rey · Santurce · Viejo San Juan</span>
+          <span class="data-meta-value">Condado / Miramar &middot; Hato Rey &middot; Santurce &middot; Viejo San Juan</span>
         </div>
         <div class="data-meta-item">
-          <span class="data-meta-label">Observed range</span>
-          <span class="data-meta-value">$550–$2,000 monthly</span>
+          <span class="data-meta-label">Rents tracked</span>
+          <span class="data-meta-value" id="metaBand">&mdash;</span>
         </div>
         <div class="data-meta-item">
-          <span class="data-meta-label">Pipeline</span>
-          <span class="data-meta-value is-live">Daily refresh</span>
+          <span class="data-meta-label">Observed</span>
+          <span class="data-meta-value" id="metaWindow">&mdash;</span>
+        </div>
+        <!-- Every number on this page is a reading of a moving market, and
+             nothing on it said when the reading was taken. meta.json has
+             carried generated_at since the first export; the page simply never
+             showed it, so a stale deploy and a fresh one looked identical. -->
+        <div class="data-meta-item">
+          <span class="data-meta-label">Last updated</span>
+          <span class="data-meta-value is-live" id="metaGenerated">&mdash;</span>
+        </div>
+        <!-- The strip is three columns wide and the four facts above leave two
+             of them blank on the second row. This fills them, and it is the one
+             thing on the page that changes between two visits in the same week:
+             the individual price cuts every panel below turns into a rate. -->
+        <div class="data-meta-item is-ticker">
+          <span class="data-meta-label">Asking prices cut <span id="tickerNote"></span></span>
+          <div class="ticker-viewport" id="tickerViewport">
+            <span class="ticker-empty">&mdash;</span>
+          </div>
         </div>
       </div>
     </header>
@@ -1062,13 +1275,14 @@
     <section id="overview" class="overview">
       <div>
         <span class="section-kicker">Market snapshot</span>
-        <h2>Read the market before the listings.</h2>
+        <h2>What renting in San Juan costs right now.</h2>
       </div>
-      <p>
-        Public rental listings are collected daily and organized into a comparable market view.
-        Use the indicators below to track direction, compare neighborhoods and identify changes in
-        active supply. Results are analytical estimates—not listing verification.
-        <a href="#disclaimer">Review the methodology and limitations.</a>
+      <p id="overviewCopy">
+        The headline number is the median asking rent on everything currently listed. The number
+        under it &mdash; the median on listings posted in the last four weeks &mdash; is usually
+        lower, and it is the more useful one: whatever is still sitting on the market after months
+        is still sitting there for a reason.
+        <a href="#appendix">How this is measured.</a>
       </p>
     </section>
 
@@ -1076,131 +1290,451 @@
       <div class="loading">Initializing analytics...</div>
     </div>
 
-    <section id="market-direction" class="analysis-section">
+    <!-- ══ 01 Where ══════════════════════════════════════════════════════ -->
+    <section id="submarkets" class="analysis-section">
       <div class="section-heading">
         <div>
-          <span class="section-kicker">01 / Direction</span>
-          <h2>Price and supply</h2>
+          <span class="section-kicker">01 / Where</span>
+          <h2>The four San Juan rental markets</h2>
         </div>
         <p>
-          Weekly pricing direction and the shape of current inventory provide the clearest first
-          read on market conditions.
+          People do not shop &ldquo;San Juan&rdquo; &mdash; they shop Santurce, or Condado, or Hato Rey,
+          and the gap between them is larger than any month-to-month move. Each district is priced,
+          supplied and cleared separately below, then broken down into the named neighborhoods inside it.
+        </p>
+      </div>
+
+      <div id="subError"></div>
+      <div class="sub-grid" id="subGrid">
+        <div class="loading">Loading submarkets...</div>
+      </div>
+
+      <div class="grid">
+        <div class="panel">
+          <h2>Asking rent by district <span class="panel-note">Median &middot; bar spans P25&ndash;P75</span></h2>
+          <div id="subPriceError"></div>
+          <canvas id="subPriceChart"></canvas>
+        </div>
+        <div class="panel">
+          <h2>How fast each district clears <span class="panel-note">Share pulled within 30 days</span></h2>
+          <div id="subSpeedError"></div>
+          <canvas id="subSpeedChart"></canvas>
+          <p class="panel-caption">
+            &ldquo;Pulled&rdquo; means a person took the listing down, which is the closest observable
+            thing to renting it. Ads that simply timed out are counted separately and are not
+            included here &mdash; see <a href="#speed">how fast it moves</a>.
+          </p>
+        </div>
+      </div>
+
+      <div class="panel panel-featured">
+        <h2>Which districts are getting more expensive <span class="panel-note" id="subTrendNote">Indexed &middot; new listings</span></h2>
+        <div id="subTrendError"></div>
+        <canvas id="subTrendChart"></canvas>
+        <p class="panel-caption" id="subTrendCaption"></p>
+      </div>
+
+      <div class="panel">
+        <h2>Neighborhoods <span class="panel-note" id="areaNote">Named areas inside each district</span></h2>
+        <div id="areaError"></div>
+        <div class="table-wrap">
+          <table id="areaTable">
+            <thead>
+              <tr>
+                <th>Neighborhood</th><th>District</th><th>Asking now</th><th>Typical range</th>
+                <th>Per bedroom</th><th>Listings since Mar</th><th>Live now</th><th>Pulled in 30d</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="panel-caption" id="areaCaption"></p>
+      </div>
+    </section>
+
+    <!-- ══ 02 What it costs ══════════════════════════════════════════════ -->
+    <section id="cost" class="analysis-section">
+      <div class="section-heading">
+        <div>
+          <span class="section-kicker">02 / What it costs</span>
+          <h2>Rent by size, and what the extras add</h2>
+        </div>
+        <p>
+          Bedroom count explains more of the price than anything except location. Studios are pulled
+          out of the one-bedroom pile where the ad text says so, because the source site has no studio
+          category and files them all as one-bedrooms.
+        </p>
+      </div>
+
+      <div class="grid">
+        <div class="panel">
+          <h2>Rent by bedroom count <span class="panel-note">Bar spans P25&ndash;P75</span></h2>
+          <div id="bedError"></div>
+          <canvas id="bedChart"></canvas>
+          <p class="panel-caption" id="bedCaption"></p>
+        </div>
+        <div class="panel">
+          <h2>What is actually on the market <span class="panel-note">Live listings by price</span></h2>
+          <div id="distError"></div>
+          <canvas id="distChart"></canvas>
+          <p class="panel-caption" id="distCaption"></p>
+        </div>
+      </div>
+
+      <div class="panel panel-featured">
+        <h2>What the extras cost <span class="panel-note">Rent gap, with 95% confidence range</span></h2>
+        <div id="effectError"></div>
+        <div class="chart-tall chart-xtall"><canvas id="effectChart"></canvas></div>
+        <p class="panel-caption" id="effectCaption"></p>
+        <p class="panel-caption">
+          Read the bar, not the dot. The dot is the measured gap; the bar is the range the gap could
+          plausibly be given how many listings it rests on. A bar that crosses the zero line means the
+          difference is within what splitting this many apartments would produce by chance, whatever
+          the dot says. The darker bar compares like for like &mdash; same district, same bedroom
+          count &mdash; because buildings with a pool are also the buildings with three-bedroom units
+          and they are in Condado rather than R&iacute;o Piedras, so without that adjustment the pool
+          is charging for the extra bedroom and the postcode. Hover a row to see which comparison it
+          got. Neither bar makes this a price tag: it is what listings with the feature ask, not what
+          the feature is worth.
+        </p>
+      </div>
+
+      <div class="panel">
+        <h2>How common each feature is <span class="panel-note">Live listings</span></h2>
+        <div id="featError"></div>
+        <div class="table-wrap">
+          <table id="featTable">
+            <thead>
+              <tr>
+                <th>Feature</th><th>Says yes</th><th>Says no</th><th>Does not say</th>
+                <th>Of those who say</th><th>Of all listings</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="panel-caption">
+          Three answers, not two. Most ads simply never mention parking, and counting that silence as
+          a &ldquo;no&rdquo; would be inventing data &mdash; so the last two columns give both readings:
+          the share among ads that addressed it, and the share of the whole market.
+        </p>
+      </div>
+    </section>
+
+    <!-- ══ 03 How fast it moves ══════════════════════════════════════════ -->
+    <section id="speed" class="analysis-section">
+      <div class="section-heading">
+        <div>
+          <span class="section-kicker">03 / How fast it moves</span>
+          <h2>How long a listing lasts</h2>
+        </div>
+        <p>
+          A listing can leave the market two ways, and they mean opposite things. Somebody can take it
+          down &mdash; which usually means it rented &mdash; or it can hit the source site&rsquo;s
+          27-day expiry clock and vanish on its own. Both are tracked here separately, because a
+          market where ads expire is not a market where apartments rent.
         </p>
       </div>
 
       <div class="panel panel-featured">
-        <h2>Median price trends <span class="panel-note">Weekly</span></h2>
-        <canvas id="medianChart"></canvas>
+        <h2>What happens to a listing <span class="panel-note">Share by day, all listings</span></h2>
+        <div id="cifError"></div>
+        <canvas id="cifChart"></canvas>
+        <p class="panel-caption" id="cifCaption"></p>
       </div>
 
-      <div id="neighborhoods" class="grid">
-        <div class="panel">
-          <h2>Price distribution <span class="panel-note">Current inventory</span></h2>
-          <canvas id="distChart"></canvas>
-        </div>
-
-        <div class="panel">
-          <h2>Inventory by neighborhood <span class="panel-note">Active listings</span></h2>
-          <canvas id="invChart"></canvas>
-        </div>
-
-        <div class="panel">
-          <h2>Days on market <span class="panel-note">Active listings</span></h2>
-          <div id="daysError"></div>
-          <canvas id="daysChart"></canvas>
-        </div>
-
-        <div class="panel">
-          <h2>Price by neighborhood <span class="panel-note">Quartile analysis</span></h2>
-          <div id="boxplotError"></div>
-          <canvas id="boxplotChart"></canvas>
-        </div>
-      </div>
-    </section>
-
-    <section id="market-structure" class="analysis-section">
-      <div class="section-heading">
-        <div>
-          <span class="section-kicker">02 / Structure</span>
-          <h2>Unit economics and movement</h2>
-        </div>
-        <p>
-          Bedroom-adjusted prices, listing turnover and amenity prevalence show where the apparent
-          headline market is being shaped by unit mix.
+      <div class="panel panel-featured">
+        <h2>What actually rents <span class="panel-note">Distance from the market&rsquo;s own 30-day rate</span></h2>
+        <div id="clearError"></div>
+        <div class="chart-tall"><canvas id="clearChart"></canvas></div>
+        <p class="panel-caption" id="clearCaption"></p>
+        <p class="panel-caption">
+          Zero is the whole market. A segment sitting to the right gets taken down faster than average,
+          to the left slower &mdash; and the bar is again the range, so only a bar clear of the zero
+          line is a difference worth acting on. &ldquo;Taken down&rdquo; excludes listings that simply
+          hit the site&rsquo;s expiry clock, which is why a segment full of ads nobody touched cannot
+          show up here as a segment that cleared.
         </p>
       </div>
 
-      <div class="grid grid-wide">
-        <div class="panel">
-          <h2>Median price per bedroom <span class="panel-note">Weekly</span></h2>
-          <canvas id="priceBedChart"></canvas>
-        </div>
-
-        <div class="panel">
-          <h2>Market turnover <span class="panel-note">Last 90 days</span></h2>
-          <div id="turnoverError"></div>
-          <canvas id="turnoverChart"></canvas>
-        </div>
-
-        <div class="panel">
-          <h2>Amenity breakdown <span class="panel-note">Active listings</span></h2>
-          <div id="amenitiesError"></div>
-          <canvas id="amenitiesChart"></canvas>
-        </div>
-      </div>
-    </section>
-
-    <section id="reductions" class="analysis-section">
-      <div class="section-heading">
-        <div>
-          <span class="section-kicker">03 / Changes</span>
-          <h2>Recent price reductions</h2>
-        </div>
-        <p>
-          Active listings with observed asking-price reductions during the last 30 days.
-        </p>
-      </div>
       <div class="panel">
-        <h2>Listing-level changes <span class="panel-note">Last 30 days · Still active</span></h2>
-        <div id="reductionsError"></div>
+        <h2>Does advertising an amenity help it rent <span class="panel-note">Listings that mention it vs listings that do not</span></h2>
+        <div id="clearFeatError"></div>
         <div class="table-wrap">
-          <table id="reductionsTable">
+          <table id="clearFeatTable">
             <thead>
               <tr>
-                <th>Location</th>
-                <th>Beds/Baths</th>
-                <th>Was</th>
-                <th>Now</th>
-                <th>Savings</th>
-                <th>DOM</th>
-                <th>Date</th>
-                <th>Link</th>
+                <th>Advertised</th><th>Listings</th><th>Median rent</th>
+                <th>Taken down by day 30</th><th>Without it</th><th>Gap</th>
               </tr>
             </thead>
-            <tbody><tr><td colspan="8" class="loading">Loading...</td></tr></tbody>
+            <tbody></tbody>
           </table>
+        </div>
+        <p class="panel-caption" id="clearFeatCaption"></p>
+      </div>
+
+      <div class="grid">
+        <div class="panel">
+          <h2>Still listed at day N <span class="panel-note">Counted, not modeled</span></h2>
+          <div id="stillError"></div>
+          <div class="table-wrap">
+            <table id="stillTable" class="table-tight">
+              <thead>
+                <tr><th>Day</th><th>Still up</th><th>Listings old enough</th><th>Share</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <p class="panel-caption">
+            No model at all: a unit either was or was not still up on day N. Listings too young to have
+            reached day N are left out rather than counted as gone.
+          </p>
+        </div>
+        <div class="panel">
+          <h2>How stale is the current inventory <span class="panel-note">Days since first listed</span></h2>
+          <div id="ageError"></div>
+          <canvas id="ageChart"></canvas>
+          <p class="panel-caption" id="ageCaption"></p>
         </div>
       </div>
     </section>
 
-    <section id="disclaimer" class="disclaimer">
-      <div>
-        <span class="section-kicker">Notes</span>
-        <h2>Methodology and limitations</h2>
-      </div>
-      <div class="disclaimer-copy">
-        <h3>Data sources</h3>
+    <!-- ══ 04 Where the ask is soft ══════════════════════════════════════ -->
+    <section id="negotiate" class="analysis-section">
+      <div class="section-heading">
+        <div>
+          <span class="section-kicker">04 / Where the ask is soft</span>
+          <h2>How much room there is to negotiate</h2>
+        </div>
         <p>
-          Data is collected from publicly available sources using automated extraction.
-          The dataset represents snapshots captured at specific points in time and may not reflect
-          the most current state of listings or prices.
+          Every price change is recorded, so this is not a survey of what landlords say they would
+          accept &mdash; it is what they have already done, in public, on their own listing. Two
+          numbers matter and they behave differently: how often an asking price gets cut, which
+          varies enormously by segment, and how deep the cut goes when it happens, which barely
+          varies at all. The section closes inside single buildings, which are the only comparables
+          that really compare: same lobby, same view, same commute, so the difference left over is
+          the price.
+        </p>
+      </div>
+
+      <div class="panel panel-featured">
+        <h2>Room to negotiate arrives on a clock <span class="panel-note">Share already cut, by how long the listing has been up</span></h2>
+        <div id="negAgeError"></div>
+        <canvas id="negAgeChart"></canvas>
+        <p class="panel-caption" id="negAgeCaption"></p>
+      </div>
+
+      <div class="panel panel-featured">
+        <h2>The negotiation table <span class="panel-note" id="negGridNote">Odds the price has already been cut</span></h2>
+        <div id="negGridError"></div>
+        <div class="table-wrap">
+          <table id="negGrid">
+            <thead><tr id="negGridHead"></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="panel-caption" id="negGridCaption"></p>
+        <p class="panel-caption">
+          Find the column for what you are looking at and read down to how long it has been listed.
+          Every listing in a cell had been up at least that long &mdash; not exactly that long &mdash;
+          because grouping by final lifespan would count only the listings that came down inside the
+          window, and load every cell with the ones that ended there. The second figure is the cut
+          rate multiplied by the typical depth: what an offer at asking is worth giving up on average,
+          across everyone in that cell, including the majority who never moved a dollar.
+        </p>
+      </div>
+
+      <div class="panel">
+        <h2>Who moves on price <span class="panel-note">Share that has ever cut, with the 95% range</span></h2>
+        <div id="negSegError"></div>
+        <div class="table-wrap">
+          <table id="negSegTable">
+            <thead>
+              <tr>
+                <th>Segment</th><th>Listings</th><th>Have cut</th><th>95% range</th>
+                <th>Typical cut</th><th>In dollars</th><th>Expected off asking</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="panel-caption" id="negSegCaption"></p>
+      </div>
+
+      <div class="grid">
+        <div class="panel">
+          <h2>How deep the cuts go <span class="panel-note">Every recorded reduction</span></h2>
+          <div id="negDepthError"></div>
+          <canvas id="negDepthChart"></canvas>
+          <p class="panel-caption" id="negDepthCaption"></p>
+        </div>
+        <div class="panel">
+          <h2>Sitting, and still asking full price <span class="panel-note" id="softNote">Live listings past the point most have moved</span></h2>
+          <div id="softError"></div>
+          <ul class="fact-list" id="softList"></ul>
+        </div>
+      </div>
+
+      <div class="panel panel-featured">
+        <h2>Building comparables <span class="panel-note">Priced against the same district and bedroom count</span></h2>
+        <div id="bldError"></div>
+        <div class="table-wrap">
+          <table id="bldTable">
+            <thead>
+              <tr>
+                <th>Building</th><th>District</th><th>Live now</th>
+                <th>Asking now</th><th>vs same size nearby</th>
+                <th>Have cut</th><th>Sitting firm</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="panel-caption" id="bldCaption"></p>
+        <p class="panel-caption" id="bldSampleCaption"></p>
+      </div>
+    </section>
+
+    <!-- ══ 05 Which way it is going ══════════════════════════════════════ -->
+    <section id="direction" class="analysis-section">
+      <div class="section-heading">
+        <div>
+          <span class="section-kicker">05 / Which way it&rsquo;s going</span>
+          <h2>Where prices are heading</h2>
+        </div>
+        <p>
+          Measured on newly posted listings only. Tracking the price of everything currently listed
+          sounds more complete but is not: expensive apartments sit longer, so they pile up in the
+          standing inventory and drag its median around for reasons that have nothing to do with the
+          market. New listings are a clean weekly sample of what landlords are asking today.
+        </p>
+      </div>
+
+      <div class="panel panel-featured">
+        <h2>Asking rent on new listings <span class="panel-note" id="trendNote">Rolling median</span></h2>
+        <div id="trendError"></div>
+        <canvas id="trendChart"></canvas>
+        <p class="panel-caption" id="trendCaption"></p>
+      </div>
+
+      <div class="panel panel-featured">
+        <h2>When landlords change the price <span class="panel-note">Cuts vs increases per month</span></h2>
+        <div id="momentumError"></div>
+        <canvas id="momentumChart"></canvas>
+        <p class="panel-caption" id="momentumCaption"></p>
+      </div>
+
+      <div class="panel">
+        <h2>How much is on the market <span class="panel-note">Live listings per day</span></h2>
+        <div id="invError"></div>
+        <canvas id="invChart"></canvas>
+        <p class="panel-caption" id="invCaption"></p>
+      </div>
+    </section>
+
+    <!-- ══ Appendix ══════════════════════════════════════════════════════ -->
+    <section id="appendix" class="analysis-section">
+      <div class="section-heading">
+        <div>
+          <span class="section-kicker">Appendix</span>
+          <h2>How this is measured</h2>
+        </div>
+        <p>
+          Everything above rests on choices about what to count and what to throw away. They are stated
+          here in full, including the ones that cost us data.
+        </p>
+      </div>
+
+      <!-- A "Field coverage" table (field / missing / share) and a "Collection
+           artifacts" list used to open this section. Both were written for
+           whoever maintains the pipeline: knowing that 3.1% of rows have no
+           telephone number is a fact about the scrape, not about the market,
+           and a reader who has just been told what to offer on a Condado
+           two-bedroom cannot do anything with it. The three items in them that
+           did change how the numbers should be read -- how much of the
+           taken-down/expired split is measured rather than inferred, how many
+           bedroom counts were recovered from ad text, and what leaks in above
+           the price band -- have moved into the prose below, where they sit
+           next to the argument they qualify. data_quality.json is still
+           exported in full; it is just no longer the first thing in the
+           appendix. -->
+      <div class="disclaimer-copy">
+        <h3>One apartment, not three ads</h3>
+        <p>
+          Source ads expire after about 27 days whether or not the apartment rented, so landlords
+          repost. Ads sharing a phone number, price, bedroom count and district &mdash; or an identical
+          description &mdash; that never overlap in time and reappear within 21 days are treated as one
+          apartment relisted. Ads that <em>do</em> overlap are kept apart: that is a landlord marketing
+          several similar apartments at once, not one apartment posted twice. Every count on this page
+          is a count of apartments.
         </p>
 
-        <h3>Data limitations</h3>
+        <h3>Delisted is not the same as rented</h3>
         <p>
-          The data may contain inaccuracies, missing fields, duplicates or outdated information
-          originating from source material or automated parsing. Coverage may be uneven across
-          regions, periods or listing types.
+          When a listing disappears, the ad&rsquo;s own page is re-fetched to find out why. A page that
+          redirects away has been taken down deliberately; a page showing an expiry notice timed out on
+          its own. That distinction is measured for <span id="outcomeCoverage">a growing share of</span>
+          closed listings and inferred from
+          the timing of the 27-day cliff for the rest. Because expiry removes a listing from the site
+          entirely, it cannot be treated as a listing we merely stopped watching &mdash; the two
+          outcomes are estimated together, which is why section 03 reports shares by day rather than a
+          single &ldquo;average days to rent&rdquo;.
+        </p>
+
+        <h3>One collection window, not two</h3>
+        <p id="windowCopy">
+          The price band being collected widened partway through, and rents before that change are
+          medians of a narrower slice of the market by construction. Comparing across that date would
+          show a jump that never happened, so everything here starts at the change instead.
+        </p>
+
+        <h3>Why the trend uses new listings only</h3>
+        <p>
+          A panel that starts empty fills up over one full time-on-market cycle, and expensive units
+          linger while cheap ones turn over, so the standing inventory takes months to settle. Reading
+          the trend off standing inventory produced an apparent citywide decline of roughly 20% &mdash;
+          and an apparent 33% collapse in Santurce &mdash; entirely from the sample filling in. Measured
+          on new listings, which is an independent sample every week, asking rents have been
+          approximately flat. Both readings are exported; the page draws the second.
+        </p>
+
+        <h3>Missing bedroom counts are recovered, not dropped</h3>
+        <p>
+          Where the bedroom field is blank but the description states the count in Spanish or English,
+          the count is read from the text. Where the ad describes a studio or efficiency, it is counted
+          as a studio even though the site filed it as a one-bedroom. Rent-per-bedroom treats a studio
+          as one sleeping space rather than zero, since dividing by zero would drop the cheapest segment
+          off the chart entirely. <span id="bedRecovery"></span>
+        </p>
+
+        <h3>Listings that were already up when we started</h3>
+        <p>
+          The first day of collection captures apartments that had already been listed for an unknown
+          length of time. Their measured age is not their real age, so they take no part in any duration
+          or trend figure while still counting toward inventory. <span id="sweepCopy"></span>
+        </p>
+
+        <h3>What sits above the price band</h3>
+        <p id="bandLeakCopy">
+          Collection targets a price band, and every figure on this page is computed inside it. A few
+          listings above the ceiling arrive anyway, because the source site&rsquo;s own price filter
+          leaks on featured placements.
+        </p>
+
+        <h3>Features are claims, not inspections</h3>
+        <p>
+          Feature flags reflect what an ad says, parsed with attention to negation and scope
+          (&ldquo;includes water, does not include electricity&rdquo; is read as two different answers).
+          Nothing here is verified against the property.
+        </p>
+
+        <h3>Data sources</h3>
+        <p>
+          Collected from publicly available listings by automated extraction. The dataset is a series of
+          snapshots and may not reflect the current state of any listing. Coverage may be uneven across
+          districts, periods and listing types. Results are analytical estimates, not listing
+          verification, and nothing here is an appraisal or an offer.
         </p>
       </div>
     </section>
@@ -1217,23 +1751,17 @@
     Chart.defaults.font.family = "'Source Code Pro', monospace";
     Chart.defaults.font.size = 11;
 
-    (() => {
-      const box = window['chartjs-chart-boxplot'] || window.ChartBoxPlot || window.ChartBoxplot;
-      if (!box) return;
-      const { BoxPlotController, BoxAndWiskers, ViolinController, Violin } = box;
-      if (BoxPlotController && BoxAndWiskers) Chart.register(BoxPlotController, BoxAndWiskers);
-      if (ViolinController && Violin) Chart.register(ViolinController, Violin);
-    })();
-
     let colors = [];
     let chartText = '';
     let chartGrid = '';
+    let signal = '';
 
     function syncChartTheme() {
       const styles = getComputedStyle(document.documentElement);
       const dark = document.documentElement.getAttribute('data-theme') === 'dark';
       chartText = styles.getPropertyValue('--chart-text').trim();
       chartGrid = styles.getPropertyValue('--chart-grid').trim();
+      signal = styles.getPropertyValue('--signal').trim();
       colors = dark ? [
         'rgba(54, 224, 138, 0.9)',
         'rgba(237, 237, 237, 0.8)',
@@ -1250,448 +1778,1472 @@
       Chart.defaults.color = chartText;
       Chart.defaults.borderColor = chartGrid;
     }
+    syncChartTheme();
+
+    const DANGER = 'rgba(217, 72, 72, 0.85)';
 
     function withAlpha(color, alpha) {
       return color.replace(/,\s*[\d.]+\)$/, ', ' + alpha + ')');
     }
-
-    syncChartTheme();
-
-    function fmt(n) { return n != null ? n.toLocaleString() : '\u2014'; }
-    function fmtUSD(n) { return n != null ? '$' + Math.round(n).toLocaleString() : '\u2014'; }
-    function fmtPct(n) { return n != null ? (n * 100).toFixed(1) + '%' : '\u2014'; }
-    function shortMuni(s) { return s ? s.replace(/^San Juan\s*-\s*/i, '') : s; }
-
+    function fmt(n) { return n != null ? n.toLocaleString() : '—'; }
+    function fmtUSD(n) { return n != null ? '$' + Math.round(n).toLocaleString() : '—'; }
+    function fmtPct1(n) { return n != null ? n.toFixed(1) + '%' : '—'; }
+    function fmtPct0(n) { return n != null ? Math.round(n) + '%' : '—'; }
+    function fmtDays(n) { return n != null ? n + 'd' : 'not reached'; }
+    function fmtSigned(n, unit) {
+      if (n == null) return '—';
+      return (n > 0 ? '+' : '') + n.toFixed(1) + (unit || '');
+    }
+    function monthName(week) {
+      const d = new Date(week + 'T00:00:00');
+      return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    }
     function destroyChart(id) {
       if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+    }
+    function showError(id, e) {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = `<div class="error">Could not load: ${e.message}</div>`;
+    }
+    async function getJSON(name) {
+      const res = await fetch('./data/' + name);
+      if (!res.ok) throw new Error(`HTTP ${res.status} on ${name}`);
+      return res.json();
+    }
+
+    // Shared axis presets, so every chart reads the same way.
+    const AX = () => ({
+      grid: { color: chartGrid, drawTicks: false },
+      border: { display: false },
+      ticks: { color: chartText },
+    });
+    const AX_X = () => ({
+      grid: { display: false },
+      border: { color: chartGrid },
+      ticks: { color: chartText, autoSkipPadding: 12 },
+    });
+    const USD_AX = () => {
+      const a = AX();
+      return { ...a, ticks: { ...a.ticks, callback: v => '$' + v.toLocaleString() } };
+    };
+
+    // ── Header + headline stats ──────────────────────────────────────────
+    async function loadMeta() {
+      try {
+        const d = await getJSON('meta.json');
+        document.getElementById('metaBand').textContent =
+          `$${d.band_low.toLocaleString()}–$${d.band_high.toLocaleString()} monthly`;
+        document.getElementById('metaWindow').textContent =
+          `${d.observation_start} → ${d.observation_end}`;
+        // Rendered in the reader's own timezone, because "is this current"
+        // is a question about their afternoon, not about UTC. Falls back to
+        // the raw string rather than printing "Invalid Date".
+        const gen = d.generated_at ? new Date(d.generated_at) : null;
+        document.getElementById('metaGenerated').textContent =
+          gen && !isNaN(gen) ? gen.toLocaleString(undefined, {
+            year: 'numeric', month: 'short', day: 'numeric',
+            hour: 'numeric', minute: '2-digit',
+          }) : (d.generated_at || '—');
+        const w = document.getElementById('windowCopy');
+        if (w) {
+          w.textContent =
+            `The price band being collected widened on ${d.window_start} (the ceiling moved to ` +
+            `$${d.band_high.toLocaleString()}), and rents recorded before that date are medians of a ` +
+            `narrower slice of the market by construction. Comparing across that date would show a ` +
+            `jump that never happened, so every figure on this page starts at ${d.window_start}.`;
+        }
+      } catch (e) { /* header degrades quietly */ }
     }
 
     async function loadStats() {
       try {
-        const res = await fetch('./data/stats.json');
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-
+        const d = await getJSON('stats.json');
+        const gap = (d.median_rent != null && d.median_new_listing != null)
+          ? d.median_rent - d.median_new_listing : null;
         document.getElementById('statsGrid').innerHTML = `
           <div class="stat-card">
-            <div class="label">Active Listings</div>
-            <div class="value">${fmt(data.total_listings)}</div>
-            <div class="change positive">+${fmt(data.new_this_week)} this week</div>
+            <div class="label">Median asking rent</div>
+            <div class="value">${fmtUSD(d.median_rent)}</div>
+            <div class="change">across ${fmt(d.active_units)} apartments listed now</div>
           </div>
           <div class="stat-card">
-            <div class="label">Median Price</div>
-            <div class="value">${fmtUSD(data.median_price)}</div>
-            <div class="change ${data.price_change_pct >= 0 ? 'positive' : 'negative'}">
-              ${data.price_change_pct >= 0 ? '+' : ''}${fmtPct(data.price_change_pct)} vs last month
-            </div>
+            <div class="label">Median on new listings</div>
+            <div class="value">${fmtUSD(d.median_new_listing)}</div>
+            <div class="change">${fmt(d.n_new_listings)} posted in the last ${d.new_listing_weeks} weeks${
+              gap ? ` &middot; ${fmtUSD(Math.abs(gap))} ${gap > 0 ? 'below' : 'above'} the market` : ''}</div>
           </div>
           <div class="stat-card">
-            <div class="label">Avg Bedrooms</div>
-            <div class="value">${data.avg_bedrooms != null ? data.avg_bedrooms.toFixed(1) : '\u2014'}</div>
+            <div class="label">Per bedroom</div>
+            <div class="value">${fmtUSD(d.median_rent_per_bedroom)}</div>
+            <div class="change">studio counted as one bedroom</div>
+          </div>
+          <!-- Not "rented within 30 days". Nothing in the data records a signed
+               lease; what is recorded is that a person removed the listing, which
+               is the nearest observable thing and not the same thing. The rest of
+               the page has said "taken down" throughout -- this card was the one
+               place still promising a measurement nobody took. -->
+          <div class="stat-card">
+            <div class="label">Taken down within 30 days</div>
+            <div class="value">${fmtPct1(d.pulled_by_30d)}</div>
+            <div class="change">removed on purpose, so probably rented &middot; typically after ${fmtDays(d.median_days_when_pulled)}</div>
           </div>
           <div class="stat-card">
-            <div class="label">Avg Days on Market</div>
-            <div class="value">${data.avg_days_on_market != null ? Math.round(data.avg_days_on_market) : '\u2014'}</div>
-            <div class="change">Listed to delisted</div>
+            <div class="label">New apartments this week</div>
+            <div class="value">${fmt(d.new_units_7d)}</div>
+            <div class="change">${fmtPct1(d.relisted_pct)} of all listings are reposts</div>
           </div>
         `;
       } catch (e) {
-        document.getElementById('statsGrid').innerHTML = `<div class="error">Error loading stats: ${e.message}</div>`;
+        document.getElementById('statsGrid').innerHTML =
+          `<div class="error">Error loading stats: ${e.message}</div>`;
       }
     }
 
-    async function loadMedianPrices() {
+    // ── 01 Where ─────────────────────────────────────────────────────────
+    // The district cards, both district charts and the neighborhood table all
+    // read one payload. Cache the promise rather than the result: the loaders
+    // run concurrently, so caching the result still fetches it twice.
+    let SUBMARKETS = null;
+    const submarkets = () => (SUBMARKETS = SUBMARKETS || getJSON('submarkets.json'));
+
+    async function loadSubmarkets() {
       try {
-        const res = await fetch('./data/median_price.json');
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const rows = await res.json();
-        if (!rows || rows.length === 0) return;
+        const d = await submarkets();
+        const rows = d.districts;
 
-        const grouped = {};
-        rows.forEach(r => {
-          const muni = shortMuni(r.municipio);
-          if (!grouped[muni]) grouped[muni] = [];
-          grouped[muni].push(r);
-        });
+        // District cards lead the section: this is the first thing somebody
+        // shopping San Juan wants, and it should not be a chart. All four
+        // districts carry well over a hundred live listings, so the fallback
+        // below is a guard rather than a case anyone sees today.
+        document.getElementById('subGrid').innerHTML = rows.map(r => `
+          <div class="sub-card">
+            <div class="sub-name">${r.district}</div>
+            <div class="sub-rent">${fmtUSD(r.median_rent ?? r.median_rent_period)}</div>
+            <div class="sub-range">${r.median_rent != null
+              ? `typical ${fmtUSD(r.p25)}&ndash;${fmtUSD(r.p75)}`
+              : 'since March; too few listed now'}</div>
+            <dl class="sub-facts">
+              <div><dt>Per bedroom</dt><dd>${fmtUSD(r.median_rent_per_bedroom)}</dd></div>
+              <div><dt>Live now</dt><dd>${fmt(r.n_active)}</dd></div>
+              <div><dt>New in 30d</dt><dd>${fmt(r.new_units_30d)}</dd></div>
+              <div><dt>Pulled in 30d</dt><dd>${fmtPct0(r.pulled_by_30d)}</dd></div>
+            </dl>
+          </div>`).join('');
 
-        const volumes = Object.entries(grouped).map(([m, data]) => ({
-          municipio: m, total: data.reduce((sum, d) => sum + d.n, 0)
-        })).sort((a, b) => b.total - a.total);
-
-        const top = volumes.slice(0, 5).map(v => v.municipio);
-        const datasets = top.map((m, i) => ({
-          label: m,
-          data: grouped[m].map(d => ({ x: d.day, y: d.median_price })),
-          borderColor: colors[i],
-          backgroundColor: withAlpha(colors[i], 0.1),
-          borderWidth: 2, tension: 0.3, fill: false,
-          pointRadius: 3, pointHoverRadius: 5,
-        }));
-
-        const days = [...new Set(rows.map(r => r.day))].sort();
-        destroyChart('medianChart');
-        charts.medianChart = new Chart(document.getElementById('medianChart').getContext('2d'), {
-          type: 'line',
-          data: { labels: days, datasets },
+        destroyChart('subPrice');
+        charts.subPrice = new Chart(document.getElementById('subPriceChart'), {
+          data: {
+            labels: rows.map(r => r.district),
+            datasets: [
+              { type: 'bar', label: 'P25–P75', data: rows.map(r => [r.p25, r.p75]),
+                backgroundColor: withAlpha(colors[0], 0.3), borderColor: colors[0],
+                borderWidth: 1, borderSkipped: false },
+              { type: 'scatter', label: 'Median',
+                data: rows.map((r, i) => ({ x: i, y: r.median_rent })),
+                borderColor: colors[1], backgroundColor: colors[1],
+                pointRadius: 7, pointStyle: 'line', rotation: 90, borderWidth: 3 },
+            ],
+          },
           options: {
-            responsive: true, maintainAspectRatio: true,
-            plugins: {
-              legend: { position: 'bottom', labels: { boxWidth: 12, padding: 10, font: { size: 10 } } },
-              tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${fmtUSD(ctx.parsed.y)}` } }
-            },
-            scales: {
-              y: { ticks: { callback: v => fmtUSD(v) }, grid: { color: chartGrid } },
-              x: { grid: { color: chartGrid } }
-            }
-          }
+            responsive: true, maintainAspectRatio: false,
+            plugins: { tooltip: { callbacks: {
+              label: c => c.dataset.label === 'Median'
+                ? `Median ${fmtUSD(c.parsed.y)}`
+                : `Half of listings fall between ${fmtUSD(c.raw[0])} and ${fmtUSD(c.raw[1])}`,
+              afterBody: items => {
+                const r = rows[items[0].dataIndex];
+                return `${fmt(r.n_active)} live now  ·  ${fmtUSD(r.median_rent_per_bedroom)}/bedroom`;
+              },
+            } } },
+            scales: { y: USD_AX(), x: AX_X() },
+          },
         });
-      } catch (e) { console.error('loadMedianPrices error:', e); }
+
+        // Sorted by speed rather than by price: the point of the panel is that
+        // the fastest district is not the cheapest one.
+        const speed = rows.filter(r => r.pulled_by_30d != null)
+          .slice().sort((a, b) => b.pulled_by_30d - a.pulled_by_30d);
+        destroyChart('subSpeed');
+        charts.subSpeed = new Chart(document.getElementById('subSpeedChart'), {
+          type: 'bar',
+          data: {
+            labels: speed.map(r => r.district),
+            datasets: [
+              { label: 'Taken down within 30 days', data: speed.map(r => r.pulled_by_30d),
+                backgroundColor: colors[0] },
+              { label: 'Still listed at 30 days', data: speed.map(r => r.still_listed_30d),
+                backgroundColor: colors[3] },
+            ],
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+            plugins: { tooltip: { callbacks: {
+              label: c => `${c.dataset.label}: ${fmtPct1(c.parsed.x)}`,
+              afterBody: items => {
+                const r = speed[items[0].dataIndex];
+                return `when pulled, typically after ${fmtDays(r.median_days_when_pulled)}`;
+              },
+            } } },
+            scales: {
+              x: { ...AX(), beginAtZero: true, max: 100,
+                   ticks: { ...AX().ticks, callback: v => v + '%' } },
+              y: AX_X(),
+            },
+          },
+        });
+      } catch (e) { showError('subError', e); showError('subPriceError', e); showError('subSpeedError', e); }
+    }
+
+    async function loadAreas() {
+      try {
+        const d = await submarkets();
+        // An area with too few listings still on the site does not get to quote
+        // a current rent, and without one it has nothing left worth a row. The
+        // remaining columns are period statistics over a sample that only just
+        // cleared the entry rule -- Perez Morris carries no turnover figure at
+        // all, and the two that do quote a rate off thirteen and seventeen
+        // apartments with no interval beside it. A row of blanks and a rate
+        // nobody should act on is worse than no row: the reader has to work out
+        // that the space where the price should be is the point.
+        const shown = d.areas.filter(a => a.median_rent != null);
+        const held = d.areas.length - shown.length;
+        document.querySelector('#areaTable tbody').innerHTML = shown.map(a => `
+          <tr>
+            <td><strong>${a.area}</strong></td>
+            <td class="muted">${a.district}</td>
+            <td><strong>${fmtUSD(a.median_rent)}</strong>
+                <span class="cell-sub">${fmt(a.n_priced_live)} live</span></td>
+            <td class="muted">${a.p25 != null
+                  ? `${fmtUSD(a.p25)}&ndash;${fmtUSD(a.p75)}` : '—'}</td>
+            <td>${fmtUSD(a.median_rent_per_bedroom)}</td>
+            <td>${fmt(a.n_units)}</td>
+            <td>${fmt(a.n_active)}</td>
+            <td>${fmtPct0(a.pulled_by_30d)}</td>
+          </tr>`).join('');
+        document.getElementById('areaNote').textContent =
+          `${shown.length} areas with enough live listings to price`;
+        document.getElementById('areaCaption').textContent =
+          `Areas are subsets of the districts above and do not add up to them — Ocean Park sits ` +
+          `inside Condado & Miramar, so the two tables must not be summed. Only ${d.area_coverage_pct}% ` +
+          `of listings name an area at all; the rest give only a condominium name, which is a building ` +
+          `rather than a neighborhood and appears under buildings instead. Areas with fewer than ` +
+          `${d.min_group} listings are left out, because below that a median moves more with which ` +
+          `single listing expired than with the market. "Asking now" is the median of listings still ` +
+          `on the site` +
+          (held ? `, which needs at least ${d.min_live} of them: ${held} further ` +
+                  `${held === 1 ? 'area is' : 'areas are'} tracked but not shown, because an area ` +
+                  `with three apartments left is three landlords rather than a neighborhood` : '') +
+          `. The listing counts and the pulled-in-30-days column cover the whole period since March, ` +
+          `which is what makes them worth reading at all.`;
+      } catch (e) { showError('areaError', e); }
+    }
+
+    async function loadSubmarketTrend() {
+      try {
+        const d = await getJSON('submarket_trend.json');
+        const series = d.series;
+        destroyChart('subTrend');
+        charts.subTrend = new Chart(document.getElementById('subTrendChart'), {
+          type: 'line',
+          data: {
+            labels: series[0] ? series[0].points.map(p => p.week) : [],
+            datasets: series.map((s, i) => ({
+              label: s.district,
+              data: s.points.map(p => p.index),
+              borderColor: colors[i % colors.length],
+              backgroundColor: colors[i % colors.length],
+              borderWidth: 2, pointRadius: 0, tension: 0.3,
+            })),
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: { tooltip: { callbacks: {
+              label: c => {
+                const s = series[c.datasetIndex];
+                const p = s.points[c.dataIndex];
+                return `${s.district}: ${fmtUSD(p.median)} (${p.index > 100 ? '+' : ''}` +
+                       `${(p.index - 100).toFixed(1)}% vs ${monthName(s.base_week)})`;
+              },
+            } } },
+            scales: {
+              y: { ...AX(), title: { display: true, text: 'Indexed to first point = 100', color: chartText } },
+              x: AX_X(),
+            },
+          },
+        });
+        document.getElementById('subTrendNote').textContent =
+          `${d.roll_weeks}-week rolling median of new listings`;
+        const moves = series.map(s => `${s.district} ${fmtSigned(s.change_pct, '%')}`).join(', ');
+        document.getElementById('subTrendCaption').textContent =
+          `Each line is the median asking rent on listings posted in the trailing ${d.roll_weeks} ` +
+          `weeks, indexed to its own starting point so districts $700 apart can share an axis. ` +
+          `Since ${monthName(series[0] ? series[0].base_week : '')}: ${moves}. ` +
+          `Districts are wide and diverse, so a few points of movement here is closer to noise than ` +
+          `to a trend — the useful reading is the gap between the lines, not the wobble in any one.`;
+      } catch (e) { showError('subTrendError', e); }
+    }
+
+    // ── 02 What it costs ─────────────────────────────────────────────────
+    async function loadPerBedroom() {
+      try {
+        const d = await getJSON('per_bedroom.json');
+        const rows = d.segments;
+        destroyChart('bed');
+        charts.bed = new Chart(document.getElementById('bedChart'), {
+          data: {
+            labels: rows.map(r => r.segment),
+            datasets: [
+              { type: 'bar', label: 'P25–P75', data: rows.map(r => [r.p25, r.p75]),
+                backgroundColor: withAlpha(colors[0], 0.3), borderColor: colors[0],
+                borderWidth: 1, borderSkipped: false },
+              { type: 'scatter', label: 'Median', data: rows.map((r, i) => ({ x: i, y: r.median_rent })),
+                borderColor: colors[1], backgroundColor: colors[1],
+                pointRadius: 6, pointStyle: 'line', rotation: 90, borderWidth: 3 },
+            ],
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { tooltip: { callbacks: {
+              label: c => c.dataset.label === 'Median'
+                ? `Median ${fmtUSD(c.parsed.y)}`
+                : `Half of listings fall between ${fmtUSD(c.raw[0])} and ${fmtUSD(c.raw[1])}`,
+              afterBody: items => {
+                const r = rows[items[0].dataIndex];
+                const per = r.median_per_bedroom != null
+                  ? `  ·  ${fmtUSD(r.median_per_bedroom)} per bedroom` : '';
+                return `${fmt(r.n)} listings${per}`;
+              },
+            } } },
+            scales: { y: USD_AX(), x: AX_X() },
+          },
+        });
+
+        const src = d.bed_sources || {};
+        const one = rows.find(r => r.segment === '1BR');
+        const two = rows.find(r => r.segment === '2BR');
+        const bits = [];
+        if (one && two && one.median_rent) {
+          bits.push(`The step from one bedroom to two costs ` +
+            `${fmtUSD(two.median_rent - one.median_rent)} ` +
+            `(${(100 * (two.median_rent - one.median_rent) / one.median_rent).toFixed(0)}%).`);
+        }
+        if (src.studio) {
+          bits.push(`${fmt(src.studio)} of these were filed by the source site as one-bedrooms and ` +
+            `moved to the studio column because the ad text calls them studios or efficiencies — the ` +
+            `site has no studio category at all.`);
+        }
+        if (src.text) {
+          bits.push(`${fmt(src.text)} had a blank bedroom field and the count was read out of the ` +
+            `description.`);
+        }
+        if (src.unknown) {
+          bits.push(`${fmt(src.unknown)} never state a size and are shown separately rather than ` +
+            `guessed at.`);
+        }
+        document.getElementById('bedCaption').textContent = bits.join(' ');
+      } catch (e) { showError('bedError', e); }
     }
 
     async function loadDistribution() {
       try {
-        const res = await fetch('./data/distribution.json');
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        if (!data || !data.bins || data.bins.length === 0) return;
+        const d = await getJSON('distribution.json');
+        const labels = [];
+        for (let i = 0; i < d.counts.length; i++) {
+          labels.push('$' + (d.edges[i] / 1000).toFixed(1) + 'k');
+        }
+        destroyChart('dist');
+        charts.dist = new Chart(document.getElementById('distChart'), {
+          type: 'bar',
+          data: { labels, datasets: [{
+            label: 'Listings', data: d.counts, backgroundColor: colors[0], borderWidth: 0,
+          }] },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: { callbacks: {
+                title: items => {
+                  const i = items[0].dataIndex;
+                  return `$${d.edges[i].toLocaleString()} – $${d.edges[i + 1].toLocaleString()}`;
+                },
+                label: c => `${c.parsed.y} listings`,
+              } },
+            },
+            scales: { y: AX(), x: { ...AX_X(), ticks: { ...AX_X().ticks, maxRotation: 0 } } },
+          },
+        });
 
-        destroyChart('distChart');
-        charts.distChart = new Chart(document.getElementById('distChart').getContext('2d'), {
+        // Where the middle of the market actually sits, in plain counts.
+        const total = d.counts.reduce((a, b) => a + b, 0);
+        let under = 0;
+        for (let i = 0; i < d.counts.length; i++) {
+          if (d.edges[i] < 1500) under += d.counts[i];
+        }
+        document.getElementById('distCaption').textContent =
+          `${fmtPct0(100 * under / total)} of what is listed right now asks under $1,500. ` +
+          `Collection targets $${d.band_low.toLocaleString()}–$${d.band_high.toLocaleString()} a ` +
+          `month, so this is the more affordable end of San Juan rather than the whole city` +
+          `${d.above_top_edge ? `; a further ${d.above_top_edge} listings ask more than ` +
+          `$${d.edges[d.edges.length - 1].toLocaleString()} and run off the right edge of the chart, ` +
+          `counted in every total but not drawn` : ''}.`;
+      } catch (e) { showError('distError', e); }
+    }
+
+    // Names come from the exporter, which holds the single map. This is only the
+    // fallback for a feature the extractor gains before anyone gives it a name:
+    // "Ocean view" is a worse label than the curated one but a far better one
+    // than amen_ocean_view, which is what the reader used to get.
+    const featLabel = k => {
+      const base = String(k).replace(/^(amen_|util_|is_)/, '').replace(/_/g, ' ');
+      const s = base.charAt(0).toUpperCase() + base.slice(1);
+      return String(k).startsWith('util_') ? `${s} included` : s;
+    };
+
+    async function loadFeatures() {
+      try {
+        const d = await getJSON('features.json');
+        document.querySelector('#featTable tbody').innerHTML = d.features.map(f => `
+          <tr>
+            <td>${f.label || featLabel(f.feature)}</td>
+            <td>${fmt(f.yes)}</td>
+            <td>${f.no ? fmt(f.no) : '<span class="muted">0</span>'}</td>
+            <td><span class="muted">${fmt(f.unstated)}</span></td>
+            <td>${fmtPct1(f.pct_of_mentions)}</td>
+            <td><strong>${fmtPct1(f.pct_of_all)}</strong></td>
+          </tr>`).join('');
+      } catch (e) { showError('featError', e); }
+    }
+
+    // A signed dollar figure, for gaps that go both ways.
+    function fmtUSDSigned(n) {
+      if (n == null) return '—';
+      return (n > 0 ? '+$' : n < 0 ? '-$' : '$') + Math.abs(Math.round(n)).toLocaleString();
+    }
+    // Cuts read better in prose as a magnitude than as a negative number:
+    // "9.2% off", not "-9.2%".
+    function fmtOff(n) { return n != null ? Math.abs(n).toFixed(1) + '%' : '—'; }
+    function fmtUSDOff(n) {
+      return n != null ? '$' + Math.abs(Math.round(n)).toLocaleString() : '—';
+    }
+
+    async function loadFeatureEffect() {
+      try {
+        const d = await getJSON('feature_price_effect.json');
+
+        // The adjusted figure is the one plotted, because the raw gap for an
+        // amenity is mostly where the apartment is and how big it is. Which
+        // adjustment each row got is carried in `adjusted_by`: district x size
+        // where the sample supported it, size alone where the cells got too
+        // thin. Where neither worked the raw figure stands in, flagged in the
+        // tooltip. Saying which one is not pedantry -- ocean view is the case
+        // that cannot be adjusted for district, because there is no ocean view
+        // in Hato Rey to compare against.
+        const rows = d.features.map(r => {
+          const adj = r.delta_adjusted != null && r.adj_ci_low != null;
+          return { ...r,
+            name: r.label || featLabel(r.feature),
+            est: adj ? r.delta_adjusted : r.delta,
+            lo: adj ? r.adj_ci_low : r.ci_low,
+            hi: adj ? r.adj_ci_high : r.ci_high,
+            sig: adj ? r.adjusted_significant : r.significant,
+            adj,
+          };
+        }).sort((a, b) => (b.est ?? 0) - (a.est ?? 0));
+
+        // Grey for anything whose range covers zero: the eye should skip it.
+        const barColor = r => (r.sig ? (r.est >= 0 ? colors[0] : DANGER) : colors[4]);
+
+        destroyChart('effect');
+        charts.effect = new Chart(document.getElementById('effectChart'), {
           type: 'bar',
           data: {
-            labels: data.bins,
-            datasets: [{ label: 'Listings', data: data.counts, backgroundColor: colors[0], borderColor: chartText, borderWidth: 1 }]
+            labels: rows.map(r => r.name),
+            datasets: [
+              { label: '95% range',
+                data: rows.map(r => (r.lo == null ? null : [r.lo, r.hi])),
+                backgroundColor: rows.map(r => withAlpha(barColor(r), 0.28)),
+                borderColor: rows.map(barColor),
+                borderWidth: 1, borderSkipped: false, barPercentage: 0.62 },
+              { type: 'scatter', label: 'Like-for-like estimate',
+                data: rows.map((r, i) => ({ x: r.est, y: i })),
+                borderColor: rows.map(barColor), backgroundColor: rows.map(barColor),
+                pointRadius: 6, pointStyle: 'line', rotation: 0, borderWidth: 3 },
+              { type: 'scatter', label: 'Before adjusting',
+                data: rows.map((r, i) => ({ x: r.delta, y: i })),
+                borderColor: colors[2], backgroundColor: 'transparent',
+                pointRadius: 3.5, pointStyle: 'circle', borderWidth: 1.5 },
+            ],
           },
           options: {
-            responsive: true,
-            plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true, grid: { color: chartGrid } }, x: { grid: { display: false } } }
+            indexAxis: 'y',
+            responsive: true, maintainAspectRatio: false,
+            interaction: { mode: 'index', axis: 'y', intersect: false },
+            plugins: { tooltip: { callbacks: {
+              label: c => {
+                const r = rows[c.dataIndex];
+                if (c.dataset.label === 'Like-for-like estimate') {
+                  return `${fmtUSDSigned(r.est)} a month` +
+                         (r.sig ? '' : '  (range covers zero)') +
+                         (r.adj ? '' : '  (too thin to adjust — raw gap)');
+                }
+                if (c.dataset.label === 'Before adjusting') {
+                  return `Before adjusting: ${fmtUSDSigned(r.delta)}`;
+                }
+                return r.lo == null ? 'No usable range'
+                  : `95% range ${fmtUSDSigned(r.lo)} to ${fmtUSDSigned(r.hi)}`;
+              },
+              afterBody: items => {
+                const r = rows[items[0].dataIndex];
+                const lines = [
+                  `${fmtUSD(r.median_with)} with vs ${fmtUSD(r.median_without)} without`,
+                  r.mode === 'stated'
+                    ? `${fmt(r.n_with)} ads say yes, ${fmt(r.n_without)} say no`
+                    : `${fmt(r.n_with)} ads mention it, ${fmt(r.n_without)} never do`,
+                ];
+                if (r.adj && r.adjusted_by) {
+                  lines.push(`Compared within ${r.adjusted_by === 'district x size'
+                    ? 'district and bedroom count' : 'bedroom count'}` +
+                    (r.n_adjusted ? ` (${fmt(r.n_adjusted)} of the listings fit a cell)` : ''));
+                }
+                // A gap carried by a handful of landlords is a fact about them.
+                if (r.n_landlords_with != null) {
+                  lines.push(`${fmt(r.n_landlords_with)} different landlords advertise it`);
+                }
+                return lines;
+              },
+            } } },
+            scales: {
+              y: { ...AX_X(), ticks: { ...AX_X().ticks, autoSkip: false } },
+              x: { ...AX(), ticks: { ...AX().ticks, callback: v => fmtUSDSigned(v) },
+                   title: { display: true, color: chartText,
+                            text: 'Difference in median asking rent' } },
+            },
+          },
+        });
+
+        // Say out loud how many findings this many comparisons would produce on
+        // their own, so the reader can price the whole panel rather than one row.
+        const shrunk = rows
+          .filter(r => r.adj && r.significant && !r.adjusted_significant)
+          .map(r => r.name);
+        const grew = rows
+          .filter(r => r.adj && Math.abs(r.delta_adjusted) - Math.abs(r.delta) > 200)
+          .map(r => r.name);
+        const stated = rows.filter(r => r.mode === 'stated').length;
+        const cheapest = rows.filter(r => r.sig && r.est < 0 && /^(amen_|util_)/.test(r.feature))
+          .sort((a, b) => a.est - b.est)[0];
+        // Features whose yes-group is concentrated enough in a few districts
+        // that district x size left no comparable cells to work in.
+        const sizeOnly = rows.filter(r => r.adj && r.adjusted_by === 'size').map(r => r.name);
+
+        document.getElementById('effectCaption').innerHTML =
+          `Of ${d.n_tested} features tested, <strong>${d.n_significant_adjusted}</strong> still show a ` +
+          `gap once district and bedroom count are held constant &mdash; against roughly ` +
+          `${d.n_expected_by_chance} that would look real at this many comparisons anyway. ` +
+          (shrunk.length
+            ? `${shrunk.join(' and ')} ${shrunk.length > 1 ? 'do' : 'does'} not survive that ` +
+              `adjustment: the gap was measuring where the apartment is and how big it is. `
+            : '') +
+          (grew.length
+            ? `${grew.join(' and ')} ${grew.length > 1 ? 'get' : 'gets'} larger after it, because ` +
+              `those units are smaller or in cheaper districts than average and the raw gap was ` +
+              `hiding it. `
+            : '') +
+          (sizeOnly.length
+            ? `${sizeOnly.join(', ')} ${sizeOnly.length > 1 ? 'are' : 'is'} adjusted for bedroom ` +
+              `count only: ${sizeOnly.length > 1 ? 'they cluster' : 'it clusters'} into too few ` +
+              `districts to compare like for like within one, so ` +
+              `${sizeOnly.length > 1 ? 'those figures' : 'that figure'} still carries the ` +
+              `neighbourhood. `
+            : '') +
+          `${stated} of the comparisons are against listings that explicitly say no; the rest are ` +
+          `against listings that simply never mention it, because too few ads bother to state a ` +
+          `negative. Silence is not denial` +
+          (cheapest
+            ? `, and the most likely reading of ${cheapest.name.toLowerCase()} showing up as a ` +
+              `discount (${fmtUSDSigned(cheapest.est)}) is that the expensive listings take it for ` +
+              `granted and never bother to advertise it`
+            : '') +
+          `. Based on ${fmt(d.n_units)} apartments.`;
+      } catch (e) { showError('effectError', e); }
+    }
+
+    // ── 03 How fast it moves ─────────────────────────────────────────────
+    async function loadClearance() {
+      try {
+        const d = await getJSON('days_on_market.json');
+        const pts = (key, scale) => d.curve.map(p => ({ x: p.t, y: p[key] * (scale || 100) }));
+
+        // Stacked areas rather than three lines: the three shares partition the
+        // cohort at every day, and stacking is what makes that legible.
+        destroyChart('cif');
+        charts.cif = new Chart(document.getElementById('cifChart'), {
+          type: 'line',
+          data: { datasets: [
+            { label: 'Taken down (likely rented)', data: pts('cif_withdrawn'),
+              borderColor: colors[0], backgroundColor: withAlpha(colors[0], 0.5),
+              borderWidth: 1.5, pointRadius: 0, stepped: 'after', fill: 'origin' },
+            { label: 'Expired on the site', data: pts('cif_expired'),
+              borderColor: DANGER, backgroundColor: withAlpha(DANGER, 0.35),
+              borderWidth: 1.5, pointRadius: 0, stepped: 'after', fill: '-1' },
+            { label: 'Still listed', data: pts('still_listed'),
+              borderColor: colors[2], backgroundColor: 'transparent',
+              borderWidth: 2, pointRadius: 0, stepped: 'after', borderDash: [5, 3] },
+          ] },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            interaction: { mode: 'nearest', axis: 'x', intersect: false },
+            plugins: { tooltip: { callbacks: {
+              title: items => `Day ${Math.round(items[0].parsed.x)}`,
+              label: c => `${c.dataset.label}: ${c.parsed.y.toFixed(1)}%`,
+            } } },
+            scales: {
+              y: { ...AX(), min: 0, max: 100, stacked: false,
+                   ticks: { ...AX().ticks, callback: v => v + '%' },
+                   title: { display: true, text: 'Share of all listings', color: chartText } },
+              x: { ...AX_X(), type: 'linear', min: 0, max: d.horizon,
+                   title: { display: true, text: 'Days since first listed', color: chartText } },
+            },
+          },
+        });
+
+        const at30 = d.incidence['30'] || {};
+        const at60 = d.incidence['60'] || {};
+        const meas = d.outcome_sources || {};
+        document.getElementById('cifCaption').textContent =
+          `Of every 100 apartments listed, ${(at30.withdrawn * 100).toFixed(0)} have been taken down ` +
+          `within 30 days, ${(at30.expired * 100).toFixed(0)} have expired without anyone touching ` +
+          `them, and ${(at30.still_listed * 100).toFixed(0)} are still up. By day 60 that is ` +
+          `${(at60.withdrawn * 100).toFixed(0)} taken down and ${(at60.expired * 100).toFixed(0)} ` +
+          `expired. The expiry wall at day 27 is the source site's, not the market's. ` +
+          `When a listing does get pulled it has usually been up ${fmtDays(d.median_days_when_pulled)}, ` +
+          `and ${fmtPct1(d.withdrawn_share)} of everything that has left the market left because ` +
+          `somebody removed it. Based on ${fmt(d.n_units)} apartments` +
+          `${meas.measured ? `, ${fmt(meas.measured)} of which were re-checked directly on the source site` : ''}.`;
+
+        const tb = document.querySelector('#stillTable tbody');
+        tb.innerHTML = d.still_listed.map(s => `
+          <tr><td>${s.day}</td><td>${fmt(s.n_still)}</td><td>${fmt(s.n_eligible)}</td>
+          <td><strong>${fmtPct1(s.pct)}</strong></td></tr>`).join('');
+      } catch (e) { showError('cifError', e); showError('stillError', e); }
+    }
+
+    // Lists read as prose: "a, b and c" — or "a, b or c" after a negative.
+    function joinList(items, conj) {
+      if (!items.length) return '';
+      if (items.length === 1) return items[0];
+      return items.slice(0, -1).join(', ') + ` ${conj || 'and'} ` + items[items.length - 1];
+    }
+
+    async function loadClearProfile() {
+      try {
+        const d = await getJSON('clearance_profile.json');
+        const base = d.market_pulled_30d;
+
+        // Plotted as distance from the rest of that same dimension, not from
+        // the market as a whole. The market rate includes the segment being
+        // measured -- two-bedrooms are a third of it -- so a big segment used to
+        // drag the line it was being compared against toward itself. `ref` is
+        // the disjoint comparison group, and it is what the zero line means.
+        const rows = [];
+        d.dimensions.forEach(dim => dim.levels.forEach(l =>
+          rows.push({ ...l, dim: dim.dimension,
+                      ref: l.pulled_rest != null ? l.pulled_rest : base,
+                      gap: l.vs_rest_pp != null ? l.vs_rest_pp : l.vs_market_pp })));
+
+        const barColor = r => (r.differs
+          ? (r.gap >= 0 ? colors[0] : DANGER) : colors[4]);
+
+        destroyChart('clear');
+        charts.clear = new Chart(document.getElementById('clearChart'), {
+          type: 'bar',
+          data: {
+            labels: rows.map(r => [r.label, r.dim.toLowerCase()]),
+            datasets: [
+              { label: '95% range',
+                data: rows.map(r => (r.ci_low == null ? null
+                                     : [r.ci_low - r.ref, r.ci_high - r.ref])),
+                backgroundColor: rows.map(r => withAlpha(barColor(r), 0.28)),
+                borderColor: rows.map(barColor),
+                borderWidth: 1, borderSkipped: false, barPercentage: 0.62 },
+              { type: 'scatter', label: 'Measured',
+                data: rows.map((r, i) => ({ x: r.gap, y: i })),
+                borderColor: rows.map(barColor), backgroundColor: rows.map(barColor),
+                pointRadius: 6, pointStyle: 'line', rotation: 0, borderWidth: 3 },
+            ],
+          },
+          options: {
+            indexAxis: 'y',
+            responsive: true, maintainAspectRatio: false,
+            interaction: { mode: 'index', axis: 'y', intersect: false },
+            plugins: { tooltip: { callbacks: {
+              title: items => rows[items[0].dataIndex].label,
+              label: c => {
+                const r = rows[c.dataIndex];
+                if (c.dataset.label === 'Measured') {
+                  return `${fmtPct1(r.pulled_30d)} taken down by day 30` +
+                         (r.pulled_rest != null
+                           ? ` (rest of ${r.dim.toLowerCase()} ${fmtPct1(r.pulled_rest)})`
+                           : ` (market ${fmtPct1(base)})`);
+                }
+                return r.ci_low == null ? 'No usable range'
+                  : `95% range ${fmtPct1(r.ci_low)} to ${fmtPct1(r.ci_high)}`;
+              },
+              afterBody: items => {
+                const r = rows[items[0].dataIndex];
+                const out = [
+                  `${fmtPct1(r.expired_30d)} expired instead of being taken down`,
+                  `${fmt(r.n)} listings · median ask ${fmtUSD(r.median_rent)}` +
+                  (r.median_days_when_pulled != null
+                    ? ` · usually pulled after ${fmtDays(r.median_days_when_pulled)}` : ''),
+                ];
+                // Both sides of the comparison, so the flag is checkable.
+                if (r.rest_ci_low != null) {
+                  out.push(`compared with ${fmt(r.n_rest)} others: ` +
+                    `${fmtPct1(r.pulled_rest)} [${fmtPct1(r.rest_ci_low)}–` +
+                    `${fmtPct1(r.rest_ci_high)}]` + (r.differs ? '' : ', ranges overlap'));
+                }
+                return out;
+              },
+            } } },
+            scales: {
+              y: { ...AX_X(), ticks: { ...AX_X().ticks, autoSkip: false } },
+              x: { ...AX(), ticks: { ...AX().ticks, callback: v => fmtSigned(v, 'pp') },
+                   title: { display: true, color: chartText,
+                            text: 'Percentage points vs the rest of that group' } },
+            },
+          },
+        });
+
+        const segSep = rows.filter(r => r.differs);
+        const featSep = d.features.filter(f => f.separated);
+        const byChance = Math.round(0.05 * d.n_comparisons);
+        // Dimension names are column headings, not English; rename the ones
+        // that do not survive being dropped into a sentence.
+        const inProse = { 'Listed by': 'who lists it', 'Size': 'apartment size',
+                          'Asking price': 'asking price', 'District': 'district' };
+        const quiet = d.dimensions
+          .filter(dim => !dim.levels.some(l => l.differs))
+          .map(dim => inProse[dim.dimension] || dim.dimension.toLowerCase());
+
+        // What the price ladder actually does, read off it rather than asserted.
+        // "Cheapest clears fastest" is worth saying when it is true and worth
+        // not saying when the bands run out of order, which they currently do.
+        const bands = (d.dimensions.find(x => x.key === 'band') || {}).levels || [];
+        const bandNote = bands.length < 3 ? '' : (() => {
+          const first = bands[0], last = bands[bands.length - 1];
+          const monotone = bands.every((b, i) => i === 0 || b.pulled_30d <= bands[i - 1].pulled_30d);
+          const top = [...bands].sort((a, b) => b.pulled_30d - a.pulled_30d)[0];
+          if (monotone) {
+            return `Price runs the way you would expect: the cheapest band clears fastest at ` +
+                   `${fmtPct1(first.pulled_30d)} and the rate falls at every step up, to ` +
+                   `${fmtPct1(last.pulled_30d)} at the top.`;
+          }
+          return `The cheapest band clears fastest &mdash; ${fmtPct1(first.pulled_30d)} against ` +
+                 `${fmtPct1(last.pulled_30d)} at the top of the range &mdash; but the ladder does ` +
+                 `not run in order in between` +
+                 (top !== first ? ` (${top.label} is the quickest of all at ` +
+                   `${fmtPct1(top.pulled_30d)})` : '') +
+                 (bands.some(b => b.differs) ? '.'
+                   : `, and no band separates from the rest, so read the direction and not the ` +
+                     `steps.`);
+        })();
+
+        // Agencies repost expiring ads and owners let them lapse, so the two
+        // channels are not observed the same way. Saying so under the chart
+        // rather than in the appendix, because the chart invites the comparison.
+        const ch = d.dimensions.find(x => x.key === 'channel');
+        const chWarn = (ch && ch.levels.length === 2) ? (() => {
+          const [hi, lo] = [...ch.levels].sort((a, b) => b.expired_30d - a.expired_30d);
+          return ` One comparison to make carefully: ${hi.label.toLowerCase()} listings expire at ` +
+                 `${fmtPct1(hi.expired_30d)} by day 30 against ${fmtPct1(lo.expired_30d)} for ` +
+                 `${lo.label.toLowerCase()} ones. Agencies repost an ad before the clock runs out ` +
+                 `and owners let it lapse, so the two channels are not watched under the same ` +
+                 `conditions and their takedown rates are not quite like for like.`;
+        })() : '';
+
+        document.getElementById('clearCaption').innerHTML =
+          `Across the whole market, <strong>${fmtPct1(base)}</strong> of listings are taken down ` +
+          `within 30 days (95% range ${fmtPct1(d.market_ci_low)}&ndash;${fmtPct1(d.market_ci_high)}). ` +
+          // Each bar is measured against the other apartments in its own group,
+          // not against the market line quoted above: a segment is part of the
+          // market, so testing it against a total that contains it lets a large
+          // segment move its own benchmark. The market rate stays in the
+          // sentence because it is the number a reader wants first, but it is
+          // not what decides which bars are marked.
+          `Every segment below is compared with the rest of its own group &mdash; two-bedrooms ` +
+          `against the other sizes, Santurce against the other districts &mdash; and marked only ` +
+          `where both ranges miss each other entirely. ` +
+          `Of the ${d.n_comparisons} comparisons on this section &mdash; ${rows.length} segments and ` +
+          `${d.features.length} advertised features &mdash; ` +
+          (segSep.length + featSep.length
+            ? `<strong>${segSep.length + featSep.length}</strong> separate that cleanly: ` +
+              joinList(segSep.map(r => `${r.label} (${fmtSigned(r.gap, 'pp')})`)
+                .concat(featSep.map(f => `${f.label} (${fmtSigned(f.gap_pp, 'pp')})`))) + '. '
+            : 'not one separates that cleanly. ') +
+          `At ${d.n_comparisons} comparisons about ${byChance} would separate by chance alone, so ` +
+          `treat even those as leads. That test is deliberately strict, so a bar can sit clear of ` +
+          `the zero line and still be grey: the group it is being compared with has a range of its ` +
+          `own, and the two have to miss. ` +
+          (quiet.length
+            ? `Nothing in ${joinList(quiet, 'or')} moves the rate more than splitting ` +
+              `${fmt(d.n_units)} apartments this many ways would move it on its own. `
+            : '') +
+          // Read off the bands rather than asserted. The sentence here used to
+          // claim the rate fell at every step up the price ladder; it does not,
+          // and a hard-coded finding survives the data that produced it.
+          bandNote + chWarn;
+
+        const tb = document.querySelector('#clearFeatTable tbody');
+        tb.innerHTML = d.features.map(f => `
+          <tr>
+            <td>${f.label}${f.separated ? ' <strong>*</strong>' : ''}</td>
+            <td>${fmt(f.n_with)}</td>
+            <td>${fmtUSD(f.median_rent)}</td>
+            <td><strong>${fmtPct1(f.pulled_with)}</strong>
+                <span class="muted">${f.ci_low == null ? ''
+                  : `[${fmtPct1(f.ci_low)}–${fmtPct1(f.ci_high)}]`}</span></td>
+            <td><span class="muted">${fmtPct1(f.pulled_without)}</span></td>
+            <td>${f.separated ? `<strong>${fmtSigned(f.gap_pp, 'pp')}</strong>`
+                              : `<span class="muted">${fmtSigned(f.gap_pp, 'pp')}</span>`}</td>
+          </tr>`).join('');
+
+        const widest = [...d.features].sort((a, b) => Math.abs(b.gap_pp) - Math.abs(a.gap_pp))[0];
+        const featChance = Math.round(0.05 * d.features.length) || 1;
+        document.getElementById('clearFeatCaption').innerHTML =
+          (featSep.length
+            ? `Only ${joinList(featSep.map(f =>
+                `${f.label.toLowerCase()} (${Math.abs(f.gap_pp).toFixed(1)} points ` +
+                `${f.gap_pp < 0 ? 'less' : 'more'} often)`))} separates from the listings it is ` +
+              `compared against, marked * on the table. Across ${d.features.length} features, ` +
+              `about ${featChance} gap that size turns up by chance anyway. `
+            : `Not one of these ${d.features.length} features shifts the takedown rate by more than ` +
+              `its own sample can support. `) +
+          (widest
+            ? `The widest gap on the table, ${widest.label.toLowerCase()} at ` +
+              `${fmtSigned(widest.gap_pp, 'pp')}, rests on ${fmt(widest.n_with)} listings and its ` +
+              `range overlaps the comparison group throughout. `
+            : '') +
+          `The useful reading is the negative one: what an ad advertises does not predict whether ` +
+          `the apartment goes &mdash; price and location do. Listings that never mention a feature ` +
+          `are the comparison group, since almost no ad states a feature it lacks.`;
+      } catch (e) { showError('clearError', e); showError('clearFeatError', e); }
+    }
+
+    // ── 04 Where the ask is soft ─────────────────────────────────────────
+    async function loadNegotiation() {
+      try {
+        const d = await getJSON('negotiation.json');
+
+        // How often the ask has already been cut, by how long the listing has
+        // been up. Bar is the range, tick is the measured share -- the same
+        // reading as every other interval on the page.
+        destroyChart('negAge');
+        charts.negAge = new Chart(document.getElementById('negAgeChart'), {
+          type: 'bar',
+          data: {
+            labels: d.by_age.map(a => `Day ${a.day}`),
+            datasets: [
+              { label: '95% range',
+                data: d.by_age.map(a => (a.ci_low == null ? null : [a.ci_low, a.ci_high])),
+                backgroundColor: withAlpha(colors[0], 0.28), borderColor: colors[0],
+                borderWidth: 1, borderSkipped: false, barPercentage: 0.5 },
+              { type: 'scatter', label: 'Share already cut',
+                data: d.by_age.map((a, i) => ({ x: i, y: a.pct })),
+                borderColor: colors[1], backgroundColor: colors[1],
+                pointRadius: 9, pointStyle: 'line', rotation: 90, borderWidth: 3 },
+            ],
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { tooltip: { callbacks: {
+              label: () => null,
+              afterBody: items => {
+                const a = d.by_age[items[0].dataIndex];
+                return [
+                  `${fmtPct1(a.pct)} had cut by day ${a.day}`,
+                  a.ci_low == null ? '' : `95% range ${fmtPct1(a.ci_low)}–${fmtPct1(a.ci_high)}`,
+                  `${fmt(a.n_cut)} of ${fmt(a.n_eligible)} listings that lasted that long`,
+                  `Typical cut ${fmtPct1(a.median_cut_pct)}`,
+                ].filter(Boolean);
+              },
+            } } },
+            scales: {
+              y: { ...AX(), min: 0, ticks: { ...AX().ticks, callback: v => v + '%' },
+                   title: { display: true, color: chartText,
+                            text: 'Share whose price has been cut' } },
+              x: AX_X(),
+            },
+          },
+        });
+
+        const at = day => d.by_age.find(a => a.day === day);
+        // The depth of a cut hardly changes with age; quote the observed spread
+        // rather than a single figure, so "barely moves" is checkable.
+        const depths = d.by_age.map(a => a.median_cut_pct).filter(x => x != null)
+          .map(Math.abs);
+        document.getElementById('negAgeCaption').innerHTML =
+          `A listing that went up this week is not negotiable yet: only ` +
+          `<strong>${fmtPct1((at(14) || {}).pct)}</strong> have moved by day 14. By day 30 it is ` +
+          `<strong>${fmtPct1((at(30) || {}).pct)}</strong> and by day 60 ` +
+          `<strong>${fmtPct1((at(60) || {}).pct)}</strong>. Each bar counts only listings that ` +
+          `lasted at least that long, so the rise is landlords changing their minds, not short ` +
+          `listings dropping out of the sample. ` +
+          (depths.length
+            ? `The size of the cut does not follow: every one of these buckets sits between ` +
+              `${fmtOff(Math.min(...depths))} and ${fmtOff(Math.max(...depths))} off, whether the ` +
+              `listing is two weeks or three months old. Waiting changes the odds of a cut, not ` +
+              `how deep it goes.`
+            : '');
+
+        // ── the grid ──────────────────────────────────────────────────────
+        document.getElementById('negGridHead').innerHTML =
+          '<th>Listed for</th>' + d.grid_bands.map(b => `<th>${b}</th>`).join('');
+        const maxRate = Math.max(...d.grid.flatMap(r => r.cells.map(c => c.cut_rate || 0)), 1);
+        document.querySelector('#negGrid tbody').innerHTML = d.grid.map(r => `
+          <tr>
+            <td><strong>${r.day}+ days</strong></td>
+            ${r.cells.map(c => (c.cut_rate == null
+              ? `<td><span class="muted">${fmt(c.n)} listings — too few</span></td>`
+              : `<td style="background: rgba(var(--signal-rgb), ${
+                    (0.30 * c.cut_rate / maxRate).toFixed(3)})">
+                   <strong>${fmtPct1(c.cut_rate)}</strong>
+                   <span class="cell-sub">${fmtPct1(c.expected_markdown_pct)} expected ·
+                     n=${fmt(c.n)}</span>
+                 </td>`)).join('')}
+          </tr>`).join('');
+
+        // Describe the pattern down the columns rather than crowning the single
+        // highest cell: the bottom row is the thinnest, so the maximum of twenty
+        // cells lands there for reasons that have nothing to do with the market.
+        const top = d.grid[0], bottom = d.grid[d.grid.length - 1];
+        let climb = null;
+        d.grid_bands.forEach((band, i) => {
+          const a = top.cells[i], b = bottom.cells[i];
+          if (a.cut_rate == null || b.cut_rate == null) return;
+          if (!climb || b.cut_rate - a.cut_rate > climb.rise) {
+            climb = { band, rise: b.cut_rate - a.cut_rate, from: a.cut_rate, to: b.cut_rate,
+                      markdown: b.expected_markdown_pct, n: b.n };
           }
         });
-      } catch (e) { console.error('loadDistribution error:', e); }
+        const thinnest = Math.min(...bottom.cells.map(c => c.n));
+        document.getElementById('negGridCaption').innerHTML = climb
+          ? `Every column climbs, and the bands between the two extremes climb fastest. A ` +
+            `<strong>${climb.band}</strong> listing has been cut ${fmtPct1(climb.from)} of the time ` +
+            `by day ${top.day} and ${fmtPct1(climb.to)} of the time once it has been up ` +
+            `${bottom.day} days &mdash; at which point offering asking price costs about ` +
+            `${fmtOff(climb.markdown)} on average. The cheapest and the most expensive bands stay ` +
+            `firm at every age. For the cheap end the reason is visible one section up &mdash; it ` +
+            `clears fastest, so it rarely has to cut. For the top end the data does not say; the ` +
+            `obvious guess is an owner under less pressure. Shading tracks the cut rate. The bottom ` +
+            `row is the thinnest &mdash; as few as ${fmt(thinnest)} listings in a cell &mdash; so ` +
+            `read it as a direction, not a probability.`
+          : '';
+
+        // ── segments ──────────────────────────────────────────────────────
+        const seg = document.querySelector('#negSegTable tbody');
+        seg.innerHTML = d.dimensions.map(dim => `
+          <tr class="dim-row"><td colspan="7">${dim.dimension}</td></tr>` +
+          dim.levels.map(l => `
+            <tr>
+              <td>${l.label}</td>
+              <td>${fmt(l.n)}</td>
+              <td><strong>${fmtPct1(l.cut_rate)}</strong></td>
+              <td><span class="muted">${l.ci_low == null ? '—'
+                : `${fmtPct1(l.ci_low)}–${fmtPct1(l.ci_high)}`}</span></td>
+              <td>${fmtPct1(l.median_cut_pct)}</td>
+              <td>${fmtUSDSigned(l.median_cut_usd)}</td>
+              <td><strong>${fmtPct1(l.expected_markdown_pct)}</strong></td>
+            </tr>`).join('')).join('');
+
+        // The widest gap with intervals that do not touch is the only segment
+        // split worth leading with.
+        const segDepths = d.dimensions.flatMap(dim => dim.levels)
+          .map(l => l.median_cut_pct).filter(x => x != null).map(Math.abs);
+        let split = null;
+        d.dimensions.forEach(dim => {
+          const ok = dim.levels.filter(l => l.ci_low != null);
+          if (ok.length < 2) return;
+          const hi = ok.reduce((a, b) => (b.cut_rate > a.cut_rate ? b : a));
+          const lo = ok.reduce((a, b) => (b.cut_rate < a.cut_rate ? b : a));
+          if (hi.ci_low > lo.ci_high && (!split || hi.cut_rate - lo.cut_rate > split.spread)) {
+            split = { dim: dim.dimension.toLowerCase(), hi, lo, spread: hi.cut_rate - lo.cut_rate };
+          }
+        });
+        document.getElementById('negSegCaption').innerHTML =
+          `<strong>${fmtPct1(d.cut_rate)}</strong> of the ${fmt(d.n_units)} apartments tracked have ` +
+          `cut their asking price at least once (95% range ${fmtPct1(d.cut_rate_ci[0])}&ndash;` +
+          `${fmtPct1(d.cut_rate_ci[1])}); ${fmt(d.n_raised)} went the other way and raised it. ` +
+          (split
+            ? `The sharpest split is ${split.dim}: <strong>${split.hi.label}</strong> at ` +
+              `${fmtPct1(split.hi.cut_rate)} against <strong>${split.lo.label}</strong> at ` +
+              `${fmtPct1(split.lo.cut_rate)}, with ranges that do not touch. `
+            : '') +
+          (segDepths.length
+            ? `Depth is the opposite story &mdash; every segment on this table lands between ` +
+              `${fmtOff(Math.min(...segDepths))} and ${fmtOff(Math.max(...segDepths))} off, so ` +
+              `the question is almost never how much, only whether. `
+            : '') +
+          `The last column multiplies the two: what asking full price costs on average across ` +
+          `everyone in that segment, including the majority who never move.`;
+
+        // ── depth ─────────────────────────────────────────────────────────
+        const h = d.depth_hist;
+        destroyChart('negDepth');
+        charts.negDepth = new Chart(document.getElementById('negDepthChart'), {
+          type: 'bar',
+          data: {
+            labels: h.counts.map((_, i) => `${h.edges[i]}%`),
+            datasets: [{ label: 'Listings', data: h.counts, backgroundColor: colors[0] }],
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { tooltip: { callbacks: {
+              title: items => `${h.edges[items[0].dataIndex]}% to ${h.edges[items[0].dataIndex + 1]}%`,
+              label: c => `${c.parsed.y} listings`,
+            } } },
+            scales: { y: AX(), x: { ...AX_X(), ticks: { ...AX_X().ticks, maxRotation: 0 } } },
+          },
+        });
+
+        const total = h.counts.reduce((x, y) => x + y, 0);
+        const deep = h.counts.reduce((s, c, i) => s + (h.edges[i + 1] <= -10 ? c : 0), 0);
+        const token = h.counts.reduce((s, c, i) => s + (h.edges[i] >= -4 ? c : 0), 0);
+        document.getElementById('negDepthCaption').innerHTML =
+          `${fmt(d.n_cut)} recorded reductions. The middle one takes ` +
+          `<strong>${fmtOff(d.median_cut_pct)}</strong> off the ask ` +
+          `(${fmtUSDOff(d.median_cut_usd)} a month), a quarter go past ` +
+          `${fmtOff(d.p25_cut_pct)}, and ${fmtPct0(100 * deep / total)} are 10% or deeper. ` +
+          `The deepest on record is ${fmtOff(d.deepest_cut_pct)}. Only ` +
+          `${fmtPct0(100 * token / total)} come in under 4% &mdash; when a landlord decides to move, ` +
+          `they move far enough for it to register, which is why the negotiating question is ` +
+          `whether they have reached that decision rather than how far they will go.`;
+
+        // ── the soft-ask pool ─────────────────────────────────────────────
+        const s = d.soft_asks;
+        document.getElementById('softNote').textContent =
+          `Live, listed ${d.stale_days}+ days, never repriced`;
+        const items = [
+          `<strong>${fmt(s.n_firm)} of ${fmt(s.n_stale)} listings</strong> still on the market past ` +
+          `day ${d.stale_days} have never touched their asking price, though ` +
+          `${fmtPct1(s.peer_cut_pct)} of listings that reached day ${s.peer_day} had already cut.`,
+          `Their median ask is <strong>${fmtUSD(s.median_ask)}</strong> a month.`,
+        ];
+        if (s.by_district && s.by_district.length) {
+          items.push(`Where they are: ` + joinList(s.by_district.map(x =>
+            `<strong>${x.label}</strong> (${x.n})`)) + `.`);
+        }
+        if (s.by_band && s.by_band.length) {
+          items.push(`What they ask: ` + joinList(s.by_band.map(x =>
+            `<strong>${x.label}</strong> (${x.n})`)) + `.`);
+        }
+        items.push(`This is a list of sellers who have not moved yet, not proof any of them will. ` +
+          `Some are priced right and waiting for the right tenant; some have an owner who is not ` +
+          `in a hurry. It is where an offer below asking has the most room to be considered.`);
+        document.getElementById('softList').innerHTML =
+          items.map(t => `<li>${t}</li>`).join('');
+      } catch (e) {
+        ['negAgeError', 'negGridError', 'negSegError', 'negDepthError', 'softError']
+          .forEach(id => showError(id, e));
+      }
+    }
+
+    async function loadAgePyramid() {
+      try {
+        const rows = await getJSON('age_pyramid.json');
+        destroyChart('age');
+        charts.age = new Chart(document.getElementById('ageChart'), {
+          data: {
+            labels: rows.map(r => r.bucket),
+            datasets: [
+              { type: 'bar', label: 'Listings', data: rows.map(r => r.n),
+                backgroundColor: colors[0], yAxisID: 'y' },
+              { type: 'line', label: 'Median rent', data: rows.map(r => r.median_rent),
+                borderColor: colors[1], backgroundColor: colors[1],
+                borderWidth: 2, pointRadius: 3, yAxisID: 'y2', tension: 0.25 },
+            ],
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: { tooltip: { callbacks: {
+              label: c => c.dataset.label === 'Median rent'
+                ? `Median rent ${fmtUSD(c.parsed.y)}`
+                : `${c.parsed.y} listings (${rows[c.dataIndex].pct}%)`,
+            } } },
+            scales: {
+              y: { ...AX(), beginAtZero: true },
+              y2: { position: 'right', grid: { display: false }, border: { display: false },
+                    ticks: { color: chartText, callback: v => '$' + (v / 1000).toFixed(1) + 'k' } },
+              x: AX_X(),
+            },
+          },
+        });
+        // Buckets arrive oldest-last, so take the tail rather than matching label
+        // strings — those are the exporter's to rename.
+        const oldest = rows[rows.length - 1];
+        const freshest = rows[0];
+        if (oldest && freshest && oldest.median_rent != null && freshest.median_rent != null) {
+          const gap = oldest.median_rent - freshest.median_rent;
+          const dir = gap > 0 ? 'more' : 'less';
+          document.getElementById('ageCaption').textContent =
+            `${fmt(oldest.n)} apartments (${fmtPct1(oldest.pct)} of what is listed) have been up ` +
+            `${oldest.bucket.replace('+', ' or longer')} and ask a median of ` +
+            `${fmtUSD(oldest.median_rent)} — ${fmtUSD(Math.abs(gap))} ${dir} than the ones that just ` +
+            `arrived. If you are negotiating, this is the inventory with the weakest hand.`;
+        }
+      } catch (e) { showError('ageError', e); }
+    }
+
+    // ── 04 Which way it's going ──────────────────────────────────────────
+    async function loadTrend() {
+      try {
+        const d = await getJSON('price_trend.json');
+        const rows = d.new;
+        destroyChart('trend');
+        charts.trend = new Chart(document.getElementById('trendChart'), {
+          type: 'line',
+          data: {
+            labels: rows.map(r => r.week),
+            datasets: [
+              { label: 'P75', data: rows.map(r => r.p75), borderColor: 'transparent',
+                backgroundColor: withAlpha(colors[0], 0.12), fill: '+1',
+                pointRadius: 0, tension: 0.25 },
+              { label: 'P25', data: rows.map(r => r.p25), borderColor: 'transparent',
+                backgroundColor: 'transparent', pointRadius: 0, tension: 0.25 },
+              { label: 'Median, new listings', data: rows.map(r => r.median),
+                borderColor: colors[0], backgroundColor: colors[0], borderWidth: 2,
+                pointRadius: 0, tension: 0.25 },
+            ],
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+              legend: { labels: { filter: i => i.text.startsWith('Median') } },
+              tooltip: { callbacks: {
+                label: c => `${c.dataset.label}: ${fmtUSD(c.parsed.y)}`,
+                afterBody: items => `${rows[items[0].dataIndex].n} new listings in the window`,
+              } },
+            },
+            scales: { y: USD_AX(), x: AX_X() },
+          },
+        });
+        document.getElementById('trendNote').textContent =
+          `${d.roll_weeks}-week rolling median &middot; shaded band is P25–P75`;
+        const move = d.change_pct;
+        const verdict = (move == null) ? 'has not moved measurably'
+          : Math.abs(move) < 5 ? `has been flat (${fmtSigned(move, '%')} over the whole window, which is inside the noise)`
+          : `has moved ${fmtSigned(move, '%')} over the window`;
+        document.getElementById('trendCaption').textContent =
+          `The median asking rent on newly posted listings ${verdict}. ` +
+          `Read the shaded band, not just the line: half of new listings fall inside it, and it is ` +
+          `roughly $1,000 wide — the spread across San Juan is far larger than any move over time. ` +
+          `The same series computed on all standing inventory instead reads ` +
+          `${fmtSigned(d.stock_change_pct, '%')} once the sample has settled, but during its first ` +
+          `three months it fell about 20% for no reason other than the sample filling in, which is ` +
+          `why this panel uses new listings.`;
+      } catch (e) { showError('trendError', e); }
+    }
+
+    async function loadMomentum() {
+      try {
+        const d = await getJSON('momentum.json');
+        const rows = d.months;
+        destroyChart('momentum');
+        charts.momentum = new Chart(document.getElementById('momentumChart'), {
+          data: {
+            labels: rows.map(r => r.month),
+            datasets: [
+              { type: 'bar', label: 'Cuts', data: rows.map(r => r.cuts),
+                backgroundColor: DANGER, stack: 'chg', order: 2 },
+              { type: 'bar', label: 'Increases', data: rows.map(r => r.hikes),
+                backgroundColor: colors[0], stack: 'chg', order: 2 },
+              { type: 'line', label: 'Share that were cuts', data: rows.map(r => r.cut_share),
+                borderColor: colors[1], backgroundColor: colors[1], borderWidth: 2,
+                pointRadius: 3, yAxisID: 'y2', order: 1, tension: 0.25 },
+            ],
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: { tooltip: { callbacks: {
+              label: c => c.dataset.label.startsWith('Share')
+                ? `Share that were cuts: ${fmtPct1(c.parsed.y)}`
+                : `${c.dataset.label}: ${c.parsed.y}`,
+              afterBody: items => {
+                const r = rows[items[0].dataIndex];
+                const bits = [];
+                if (r.median_cut_pct != null) bits.push(`median cut ${r.median_cut_pct}%`);
+                if (r.median_hike_pct != null) bits.push(`median increase +${r.median_hike_pct}%`);
+                return bits.join('  ·  ');
+              },
+            } } },
+            scales: {
+              y: { ...AX(), stacked: true, title: { display: true, text: 'Price changes', color: chartText } },
+              y2: { position: 'right', min: 0, max: 100, grid: { display: false },
+                    border: { display: false },
+                    ticks: { color: chartText, callback: v => v + '%' } },
+              x: { ...AX_X(), stacked: true },
+            },
+          },
+        });
+        document.getElementById('momentumCaption').textContent =
+          `Only ${d.pct_ads_ever_changed}% of listings (${fmt(d.n_ads_ever_changed)} of ` +
+          `${fmt(d.n_ads)}) ever change price at all — most are posted once and left alone until they ` +
+          `expire. So this is not "the market is falling": it is that among the one in five landlords ` +
+          `who react, nearly all react by cutting. Treat it as a measure of who is under pressure, not ` +
+          `of where rents are.`;
+      } catch (e) { showError('momentumError', e); }
     }
 
     async function loadInventory() {
       try {
-        const res = await fetch('./data/inventory.json');
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        if (!data || data.length === 0) return;
-
-        destroyChart('invChart');
-        charts.invChart = new Chart(document.getElementById('invChart').getContext('2d'), {
-          type: 'bar',
-          data: {
-            labels: data.map(d => shortMuni(d.municipio)),
-            datasets: [{ label: 'Active Listings', data: data.map(d => d.count), backgroundColor: colors[1], borderColor: chartText, borderWidth: 1 }]
-          },
-          options: {
-            indexAxis: 'y', responsive: true,
-            plugins: { legend: { display: false } },
-            scales: { x: { grid: { color: chartGrid } }, y: { grid: { display: false } } }
-          }
-        });
-      } catch (e) { console.error('loadInventory error:', e); }
-    }
-
-    async function loadDaysOnMarket() {
-      try {
-        const res = await fetch('./data/days_on_market.json');
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        if (!data || data.length === 0) {
-          document.getElementById('daysError').innerHTML = '<div class="empty-state">No days-on-market data yet.</div>';
-          return;
-        }
-
-        document.getElementById('daysError').innerHTML = '';
-        destroyChart('daysChart');
-        charts.daysChart = new Chart(document.getElementById('daysChart').getContext('2d'), {
-          type: 'bar',
-          data: {
-            labels: data.map(d => d.bucket),
-            datasets: [{ label: 'Listings', data: data.map(d => d.count), backgroundColor: colors[3], borderColor: chartText, borderWidth: 1 }]
-          },
-          options: {
-            responsive: true,
-            plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${ctx.parsed.y} listings` } } },
-            scales: {
-              y: { beginAtZero: true, grid: { color: chartGrid }, title: { display: true, text: 'Number of Listings' } },
-              x: { grid: { display: false }, title: { display: true, text: 'Time on Market' } }
-            }
-          }
-        });
-      } catch (e) {
-        document.getElementById('daysError').innerHTML = `<div class="error">Error: ${e.message}</div>`;
-      }
-    }
-
-    async function loadPriceBoxplot() {
-      try {
-        const res = await fetch('./data/price_by_neighborhood.json');
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        if (!data || data.length === 0) {
-          document.getElementById('boxplotError').innerHTML = '<div class="empty-state">No neighborhood price data yet.</div>';
-          return;
-        }
-
-        data.sort((a, b) => b.median - a.median);
-        document.getElementById('boxplotError').innerHTML = '';
-        destroyChart('boxplotChart');
-        charts.boxplotChart = new Chart(document.getElementById('boxplotChart').getContext('2d'), {
-          type: 'boxplot',
-          data: {
-            labels: data.map(d => shortMuni(d.municipio)),
-            datasets: [{
-              label: 'Price Distribution',
-              backgroundColor: withAlpha(colors[0], 0.2),
-              borderColor: colors[0],
-              borderWidth: 2, outlierColor: 'rgba(204, 0, 0, 0.7)',
-              padding: 10, itemRadius: 3,
-              data: data.map(d => ({
-                min: d.min_price, q1: d.q1, median: d.median,
-                q3: d.q3, max: d.max_price, mean: d.mean_price, items: []
-              }))
-            }]
-          },
-          options: {
-            responsive: true, maintainAspectRatio: true,
-            plugins: {
-              legend: { display: false },
-              tooltip: {
-                callbacks: {
-                  label: (ctx) => {
-                    const d = data[ctx.dataIndex];
-                    return [
-                      `Median: ${fmtUSD(d.median)}`,
-                      `Q1-Q3: ${fmtUSD(d.q1)} - ${fmtUSD(d.q3)}`,
-                      `Range: ${fmtUSD(d.min_price)} - ${fmtUSD(d.max_price)}`,
-                      `Mean: ${fmtUSD(Math.round(d.mean_price))}`,
-                      `Count: ${d.count} listings`
-                    ];
-                  }
-                }
-              }
-            },
-            scales: {
-              y: { title: { display: true, text: 'Monthly Rent (USD)' }, min: 400, max: 2500, ticks: { callback: v => fmtUSD(v) }, grid: { color: chartGrid } },
-              x: { title: { display: true, text: 'Neighborhood' }, grid: { display: false } }
-            }
-          }
-        });
-      } catch (e) {
-        document.getElementById('boxplotError').innerHTML = `<div class="error">Error: ${e.message}</div>`;
-      }
-    }
-
-    async function loadPricePerBedroom() {
-      try {
-        const res = await fetch('./data/price_per_bedroom.json');
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const rows = await res.json();
-        if (!rows || rows.length === 0) return;
-
-        const grouped = {};
-        rows.forEach(r => {
-          const muni = shortMuni(r.municipio);
-          if (!grouped[muni]) grouped[muni] = [];
-          grouped[muni].push(r);
-        });
-
-        const volumes = Object.entries(grouped).map(([m, data]) => ({
-          municipio: m, total: data.reduce((sum, d) => sum + d.n, 0)
-        })).sort((a, b) => b.total - a.total);
-
-        const top = volumes.slice(0, 5).map(v => v.municipio);
-        const datasets = top.map((m, i) => ({
-          label: m,
-          data: grouped[m].map(d => ({ x: d.day, y: d.median_price_per_bed })),
-          borderColor: colors[i],
-          backgroundColor: withAlpha(colors[i], 0.1),
-          borderWidth: 2, tension: 0.3, fill: false,
-          pointRadius: 3, pointHoverRadius: 5,
-        }));
-
-        const days = [...new Set(rows.map(r => r.day))].sort();
-        destroyChart('priceBedChart');
-        charts.priceBedChart = new Chart(document.getElementById('priceBedChart').getContext('2d'), {
-          type: 'line',
-          data: { labels: days, datasets },
-          options: {
-            responsive: true, maintainAspectRatio: true,
-            plugins: {
-              legend: { position: 'bottom', labels: { boxWidth: 12, padding: 10, font: { size: 10 } } },
-              tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${fmtUSD(ctx.parsed.y)}/bed` } }
-            },
-            scales: {
-              y: { ticks: { callback: v => fmtUSD(v) }, grid: { color: chartGrid } },
-              x: { grid: { color: chartGrid } }
-            }
-          }
-        });
-      } catch (e) { console.error('loadPricePerBedroom error:', e); }
-    }
-
-    async function loadTurnover() {
-      try {
-        const res = await fetch('./data/turnover.json');
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        if (!data || data.length === 0) {
-          document.getElementById('turnoverError').innerHTML = '<div class="empty-state">No turnover data yet.</div>';
-          return;
-        }
-
-        document.getElementById('turnoverError').innerHTML = '';
-        destroyChart('turnoverChart');
-        charts.turnoverChart = new Chart(document.getElementById('turnoverChart').getContext('2d'), {
+        const rows = await getJSON('inventory.json');
+        destroyChart('inv');
+        charts.inv = new Chart(document.getElementById('invChart'), {
           type: 'line',
           data: {
-            labels: data.map(d => d.week),
+            labels: rows.map(r => r.day),
             datasets: [
-              {
-                label: 'New Listings',
-                data: data.map(d => d.new_listings),
-                borderColor: 'rgba(0, 170, 0, 0.8)',
-                backgroundColor: 'rgba(0, 170, 0, 0.1)',
-                borderWidth: 2, tension: 0.3, fill: true,
-                pointRadius: 3, pointHoverRadius: 5,
-              },
-              {
-                label: 'Delisted',
-                data: data.map(d => d.delisted),
-                borderColor: 'rgba(204, 0, 0, 0.8)',
-                backgroundColor: 'rgba(204, 0, 0, 0.1)',
-                borderWidth: 2, tension: 0.3, fill: true,
-                pointRadius: 3, pointHoverRadius: 5,
-              }
-            ]
+              { label: 'Apartments listed', data: rows.map(r => r.active_units),
+                borderColor: colors[0], backgroundColor: withAlpha(colors[0], 0.13),
+                fill: true, borderWidth: 2, pointRadius: 0, tension: 0.2 },
+              { label: 'of which are reposts', data: rows.map(r => r.of_which_relisted),
+                borderColor: colors[2], borderWidth: 1.5, borderDash: [4, 3],
+                pointRadius: 0, tension: 0.2 },
+            ],
           },
           options: {
-            responsive: true, maintainAspectRatio: true,
-            plugins: {
-              legend: { position: 'bottom', labels: { boxWidth: 12, padding: 10, font: { size: 10 } } },
-              tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y}` } }
-            },
-            scales: {
-              y: { beginAtZero: true, grid: { color: chartGrid }, title: { display: true, text: 'Listings' } },
-              x: { grid: { color: chartGrid } }
-            }
-          }
-        });
-      } catch (e) {
-        document.getElementById('turnoverError').innerHTML = `<div class="error">Error: ${e.message}</div>`;
-      }
-    }
-
-    async function loadAmenities() {
-      try {
-        const res = await fetch('./data/amenities.json');
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        if (!data || data.length === 0) {
-          document.getElementById('amenitiesError').innerHTML = '<div class="empty-state">No amenity data yet.</div>';
-          return;
-        }
-
-        document.getElementById('amenitiesError').innerHTML = '';
-        destroyChart('amenitiesChart');
-        charts.amenitiesChart = new Chart(document.getElementById('amenitiesChart').getContext('2d'), {
-          type: 'bar',
-          data: {
-            labels: data.map(d => `${d.amenity} (${d.pct}%)`),
-            datasets: [{
-              label: 'Listings',
-              data: data.map(d => d.count),
-              backgroundColor: colors[2],
-              borderColor: chartText,
-              borderWidth: 1,
-            }]
+            responsive: true, maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            scales: { y: { ...AX(), beginAtZero: true }, x: AX_X() },
           },
-          options: {
-            indexAxis: 'y', responsive: true,
-            plugins: {
-              legend: { display: false },
-              tooltip: { callbacks: { label: ctx => `${ctx.parsed.x} listings (${data[ctx.dataIndex].pct}%)` } }
-            },
-            scales: {
-              x: { beginAtZero: true, grid: { color: chartGrid } },
-              y: { grid: { display: false } }
-            }
-          }
         });
-      } catch (e) {
-        document.getElementById('amenitiesError').innerHTML = `<div class="error">Error: ${e.message}</div>`;
-      }
+        const last = rows[rows.length - 1];
+        if (last) {
+          document.getElementById('invCaption').textContent =
+            `${fmt(last.active_units)} apartments are listed today, ${fmt(last.of_which_relisted)} of ` +
+            `them for at least the second time. The climb through the first months is the tracker ` +
+            `filling up, not supply growing — see the appendix.`;
+        }
+      } catch (e) { showError('invError', e); }
     }
 
-    async function loadPriceReductions() {
+    // ── Building comparables (inside 04) ─────────────────────────────────
+    async function loadBuildings() {
       try {
-        const res = await fetch('./data/price_reductions.json');
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        const tbody = document.querySelector('#reductionsTable tbody');
+        const d = await getJSON('buildings.json');
+        const rows = d.buildings;
 
-        if (!data || data.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No recent price reductions.</td></tr>';
+        // "mostly 2BR" is a fair description at 80% and a false one at 33%, so
+        // the qualifier is earned rather than printed by default.
+        const bedsLabel = b => (b.beds_mode == null ? '—'
+          : b.beds_mode_share >= 60 ? `mostly ${b.beds_mode}`
+          : `mixed, most ${b.beds_mode}`);
+
+        // No colour on the premium: red for "expensive" would call a new tower
+        // with a gym a rip-off. Bold plus the same asterisk the clearance table
+        // uses for "the interval clears zero", and the interval underneath.
+        document.querySelector('#bldTable tbody').innerHTML = rows.map(b => {
+          const sig = b.premium_significant;
+          const sub = [];
+          if (b.prem_ci_low != null) {
+            sub.push(`${fmtSigned(b.prem_ci_low, '')} to ${fmtSigned(b.prem_ci_high, '%')}` +
+                     (sig ? '' : ', covers 0'));
+          }
+          if (b.peer_median != null && b.beds_mode) {
+            sub.push(`${b.beds_mode} nearby ${fmtUSD(b.peer_median)}`);
+          }
+          const prem = b.premium_pct == null ? '<span class="muted">—</span>'
+            : `<strong>${fmtSigned(b.premium_pct, '%')}${sig ? '*' : ''}</strong>` +
+              (sub.length ? `<span class="cell-sub">${sub.join(' · ')}</span>` : '');
+          return `
+          <tr>
+            <td><strong>${b.building}</strong><span class="cell-sub">${bedsLabel(b)}</span></td>
+            <td>${b.district}<span class="cell-sub">${fmt(b.n_units)} tracked · ${fmt(b.n_landlords)} landlords</span></td>
+            <td>${fmt(b.n_active)}</td>
+            <!-- Unlike the neighborhood table above, a thin building keeps its
+                 row: the premium beside it is a period figure computed off
+                 every apartment since March, and two of the significant ones
+                 at the ends of the range are buildings with a single listing
+                 standing today. What changes is the cell. "Too few live" was a
+                 hole where a price belongs, and the number was sitting right
+                 underneath it in smaller type; the period rent is a real
+                 answer, so it is printed as one and labelled with the clock it
+                 runs on. -->
+            <td>${b.median_rent != null
+                  ? `<strong>${fmtUSD(b.median_rent)}</strong>` +
+                    `<span class="cell-sub">${fmtUSD(b.p25_rent)}&ndash;${fmtUSD(b.p75_rent)}</span>`
+                  : `<strong class="muted">${fmtUSD(b.median_rent_period)}</strong>` +
+                    `<span class="cell-sub">since Mar</span>`}</td>
+            <td>${prem}</td>
+            <td>${b.n_with_history ? `${b.n_cut} of ${b.n_with_history}` : '<span class="muted">—</span>'}` +
+              `${b.n_cut && b.median_cut_pct != null ? `<span class="cell-sub">typically ${fmtOff(b.median_cut_pct)}</span>` : ''}</td>
+            <td>${b.n_firm ? `<strong>${b.n_firm}</strong>` : '<span class="muted">0</span>'}</td>
+          </tr>`;
+        }).join('');
+
+        // The premium is the panel's argument, so the caption has to say what
+        // "premium" is measured against and how many of these would appear even
+        // if every building were priced exactly like its neighbours.
+        const dear = rows.filter(b => b.premium_significant && b.premium_pct > 0);
+        const cheap = rows.filter(b => b.premium_significant && b.premium_pct < 0);
+        const firmTotal = rows.reduce((s, b) => s + b.n_firm, 0);
+        const withFirm = rows.filter(b => b.n_firm > 0).length;
+        document.getElementById('bldCaption').innerHTML =
+          `Each apartment is priced against other apartments in its own district <em>with the same ` +
+          `bedroom count</em>, and the building itself is held out of that benchmark — otherwise a ` +
+          `28-unit tower is a big enough slice of its own comparison group to drag the benchmark ` +
+          `toward its own answer. Of ${rows.length} buildings that clear the sample rule, ` +
+          `<strong>${dear.length}</strong> ask significantly above their area and ` +
+          `<strong>${cheap.length}</strong> below, against about ${d.n_expected_by_chance} that would ` +
+          `look that way by chance. They run from ${fmtSigned(rows[0].premium_pct, '%')} ` +
+          `(${rows[0].building}) to ${fmtSigned(rows[rows.length - 1].premium_pct, '%')} ` +
+          `(${rows[rows.length - 1].building}). That is what is left after district and bedroom count ` +
+          `have already been held constant, which is the reason to look inside a building at all: ` +
+          `two apartments of the same size a few streets apart are not the same product. ` +
+          // The figure is a median of per-apartment ratios, not the ratio of the
+          // two medians printed either side of it. Saying so, because those two
+          // columns sit next to each other and invite the division.
+          `The percentage is the median across the building's own apartments of what each one asks ` +
+          `against its size-matched neighbours, so it will not divide out exactly against the two ` +
+          `medians in the neighbouring columns. A premium is not an overcharge — a new tower with a ` +
+          `gym is worth more than a 1960s walk-up with the same bedroom count — but it does tell you ` +
+          `which part of the number is the building rather than the apartment.`;
+
+        document.getElementById('bldSampleCaption').innerHTML =
+          `The last two columns are counts, not rates. A building holds single-digit price histories, ` +
+          `and a cut rate off six observations would carry an interval most of the width of the ` +
+          `scale; “${rows.find(b => b.n_cut) ? `${rows.find(b => b.n_cut).n_cut} of ` +
+          `${rows.find(b => b.n_cut).n_with_history} have come down` : 'none have come down'}” is as ` +
+          `far as the data goes. <strong>${firmTotal}</strong> listings across ` +
+          `${withFirm} buildings are live, past ${d.stale_days} days and still showing the opening ` +
+          `number. ` +
+          // The two price columns run on different clocks and the table has to
+          // say so, because they sit side by side and read as one statement.
+          `“Asking now” is the median of the building's listings still on the site, shown for ` +
+          `${d.n_priced_live} of ${rows.length} buildings — below ${d.min_live} live listings it is ` +
+          `replaced by what the building has asked since March, because two apartments are not a ` +
+          `building's price. The premium beside it is a period figure either way: it is built from ` +
+          `every apartment the building has advertised since March, against neighbours measured the ` +
+          `same way. ` +
+          `A building earns a row at <strong>${d.min_units} distinct apartments from ` +
+          `${d.min_landlords} different phone numbers, none of them holding more than ` +
+          `${d.max_landlord_share}% of them</strong>. Three gates because a building panel fails ` +
+          `three ways. Postings that share a phone, a price and a bedroom count while running at the ` +
+          `same time are counted once, since inside one building a duplicate ad and two identical ` +
+          `apartments look alike and the first reading is likelier — that removed ` +
+          `${d.n_dropped_duplicate} of ${d.n_condo_units} units across ${d.n_condos} condominiums, so ` +
+          `the corpus was close to clean already. The concentration cap is the one that bites: it ` +
+          `dropped ${d.n_dropped_concentrated === 1 ? 'one building whose' :
+            d.n_dropped_concentrated + ' buildings whose'} sample was mostly a single landlord, whose ` +
+          `spread would have read as a market range when it was one owner's pricing policy.`;
+      } catch (e) { showError('bldError', e); }
+    }
+
+    // ── Header ticker ────────────────────────────────────────────────────
+    // Every other number here is an aggregate. This is the events underneath
+    // them, named one at a time while the apartments are still on the market --
+    // which is also why it is the only thing on the page with a shelf life.
+    async function loadRecentCuts() {
+      const host = document.getElementById('tickerViewport');
+      try {
+        const d = await getJSON('recent_cuts.json');
+        const note = document.getElementById('tickerNote');
+        if (!d.cuts.length) {
+          host.innerHTML = `<span class="ticker-empty">No cuts on live listings in the ` +
+            `last ${d.window_days} days.</span>`;
+          note.textContent = '';
           return;
         }
-
-        document.getElementById('reductionsError').innerHTML = '';
-        tbody.innerHTML = '';
-        data.forEach(r => {
-          // `||` here was reading a studio as missing data: 0 is falsy, so an
-          // apartment with zero bedrooms rendered as an em dash, indistinguishable
-          // from a listing whose bedroom count we never scraped. Two of the
-          // forty-three rows currently on the page are studios. `??` only falls
-          // through on null/undefined, which is what "we do not know" actually
-          // looks like in this JSON.
-          tbody.innerHTML += `
-            <tr>
-              <td>${shortMuni(r.municipio) || '\u2014'}</td>
-              <td>${r.bedrooms === 0 ? 'Studio' : (r.bedrooms ?? '\u2014')} / ${r.bathrooms ?? '\u2014'}</td>
-              <td style="text-decoration: line-through; color: var(--secondary-text);">${fmtUSD(r.old_price)}</td>
-              <td style="font-weight: 700;">${fmtUSD(r.new_price)}</td>
-              <td style="color: var(--signal); font-weight: 700;">-${fmtUSD(r.savings)}</td>
-              <td>${r.days_on_market != null ? Math.round(r.days_on_market) + 'd' : '\u2014'}</td>
-              <td>${r.reduced_at || '\u2014'}</td>
-              <td><a href="${r.url}" target="_blank">View</a></td>
-            </tr>
-          `;
-        });
+        // 0 is a studio and null is a bedroom count nobody recorded. They are
+        // different facts and `||` would render both as the same blank.
+        const beds = b => b == null ? '' : (b === 0 ? 'studio' : `${b}BR`);
+        const items = d.cuts.map(c => `<span class="ticker-item">` +
+          `<span class="tk-place">${c.place}</span> ${beds(c.bedrooms)} ` +
+          `<span class="tk-old">${fmtUSD(c.old)}</span> &rarr; ${fmtUSD(c.new)} ` +
+          `<span class="tk-pct">${fmtOff(c.pct)} off</span></span>`).join('');
+        // Two identical runs, scrolled exactly one run's width, so the loop has
+        // no seam. The second is hidden from assistive tech and from the
+        // reduced-motion layout, where the strip is scrolled by hand instead.
+        // Duration scales with the count to hold the speed constant.
+        host.innerHTML =
+          `<div class="ticker-track" style="--ticker-duration:${Math.max(40, d.cuts.length * 4)}s">` +
+          `<div class="ticker-run">${items}</div>` +
+          `<div class="ticker-run" aria-hidden="true">${items}</div></div>`;
+        note.textContent = `· ${d.n_cuts} in ${d.window_days} days`;
       } catch (e) {
-        document.getElementById('reductionsError').innerHTML = `<div class="error">Error: ${e.message}</div>`;
+        // Not showError: this sits inside the masthead, where a red error box
+        // would read as the whole page having failed.
+        host.innerHTML = '<span class="ticker-empty">&mdash;</span>';
       }
     }
 
-    async function refreshAll() {
-      await Promise.all([
-        loadStats(),
-        loadMedianPrices(),
-        loadDistribution(),
-        loadInventory(),
-        loadDaysOnMarket(),
-        loadPriceBoxplot(),
-        loadPricePerBedroom(),
-        loadTurnover(),
-        loadAmenities(),
-        loadPriceReductions(),
-      ]);
+    // ── Appendix ─────────────────────────────────────────────────────────
+    // Fills the three numbers the methodology prose leaves blank. Each one sits
+    // inside a sentence that already reads without it, which is why a failure
+    // here is left silent: an error box in the middle of a paragraph about
+    // bedroom counts would say the page broke, when what happened is that one
+    // figure is missing from an argument that still stands.
+    async function loadQuality() {
+      try {
+        const d = await getJSON('data_quality.json');
+
+        if (d.n_outcomes_measured) {
+          document.getElementById('outcomeCoverage').textContent =
+            `${fmt(d.n_outcomes_measured)} of ${fmt(d.n_units_closed)} ` +
+            `(${fmtPct1(d.outcome_coverage_pct)})`;
+        }
+
+        const src = d.bed_sources || {};
+        document.getElementById('bedRecovery').textContent =
+          `That recovers ${fmt(d.n_beds_rescued)} counts — ${fmt(src.text || 0)} read from the text ` +
+          `where the field was blank and ${fmt(src.studio || 0)} corrected to studio — against ` +
+          `${fmt(src.listed || 0)} taken from the listing field as given and ${fmt(src.unknown || 0)} ` +
+          `still unknown. It is what keeps the per-bedroom figures from being a survey of only the ` +
+          `listings that filled the form in properly.`;
+
+        // The sweeps are individually uninteresting; their total is not, because
+        // it says how much of the corpus has no usable start date.
+        const swept = d.sweeps.reduce((s, x) => s + x.n_ads, 0);
+        if (swept) {
+          const when = d.sweeps.map(s => s.date).join(' and ');
+          document.getElementById('sweepCopy').textContent =
+            `${fmt(swept)} listings arrived that way, on ${when}.`;
+        }
+
+        document.getElementById('bandLeakCopy').textContent =
+          `Collection targets rents between $${d.band_low.toLocaleString()} and ` +
+          `$${d.band_high.toLocaleString()} a month, and every figure on this page is computed inside ` +
+          `that band. ${fmt(d.n_units_above_band)} apartments sit above the ceiling and ` +
+          `${fmt(d.n_units_out_of_band)} fall outside the band either way: the source site's own price ` +
+          `filter leaks on featured placements, so they arrive uninvited. They are reported here rather ` +
+          `than hidden, but they are not counted anywhere above — this is a page about the ` +
+          `$${d.band_low.toLocaleString()}–$${d.band_high.toLocaleString()} market, not about every ` +
+          `apartment in San Juan.`;
+      } catch (e) { /* prose stands on its own; see above */ }
     }
 
+    const CHART_LOADERS = [
+      loadSubmarkets, loadSubmarketTrend, loadPerBedroom, loadDistribution,
+      loadFeatureEffect, loadClearance, loadClearProfile, loadNegotiation,
+      loadAgePyramid, loadTrend, loadMomentum, loadInventory,
+    ];
+    const TABLE_LOADERS = [
+      loadMeta, loadStats, loadRecentCuts, loadAreas, loadFeatures,
+      loadBuildings, loadQuality,
+    ];
+
+    function refreshAll() {
+      return Promise.all([...CHART_LOADERS, ...TABLE_LOADERS].map(f => f()));
+    }
+
+    // Charts bake theme colors in at construction, so they are rebuilt on toggle.
     window.refreshAnalyticsTheme = function () {
       syncChartTheme();
-      return Promise.all([
-        loadMedianPrices(),
-        loadDistribution(),
-        loadInventory(),
-        loadDaysOnMarket(),
-        loadPriceBoxplot(),
-        loadPricePerBedroom(),
-        loadTurnover(),
-        loadAmenities(),
-      ]);
+      return Promise.all(CHART_LOADERS.map(f => f()));
     };
 
     refreshAll();
