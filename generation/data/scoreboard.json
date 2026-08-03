@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-03T00:51:27.997703+00:00",
-  "data_vintage": "2026-08-02T20:50:00.766000-04:00",
+  "generated_at": "2026-08-03T01:20:29.603034+00:00",
+  "data_vintage": "2026-08-02T21:20:02.005000-04:00",
   "window_start": "2026-07-06",
   "model_version": "step1-v2-fourier3-weekend-shapeonly",
   "horizon": "1-hour-ahead",
   "methodology": "identical matched pairs; expanding-window pure-shape drift, no weather (no leakage)",
-  "n_pairs": 3672,
+  "n_pairs": 3675,
   "scores": {
     "genera": {
       "mae_mw": 79.8,
@@ -20,7 +20,7 @@
       "mape_pct": 1.53,
       "beats_genera_pct": 70.5
     },
-    "n_pairs": 3672
+    "n_pairs": 3675
   },
   "diurnal_mw": [
     2597.7,
@@ -44,7 +44,7 @@
     2779.8,
     2850.0,
     2879.1,
-    2837.0,
+    2837.2,
     2771.7,
     2709.3
   ]
