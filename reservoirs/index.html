@@ -675,6 +675,65 @@
   .band-legend-item { display: flex; align-items: center; gap: 6px; }
   .band-swatch { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
 
+  /* Reservoir map. Inline SVG drawn from an embedded coastline, so the page still makes no
+     third-party request and the map cannot break because someone else's tile server moved. */
+  .map-wrap { position: relative; margin-top: 6px; }
+  #pr-map { width: 100%; height: auto; display: block; }
+  .map-coast { fill: var(--accent-light); stroke: var(--border-primary); stroke-width: 1.5; stroke-linejoin: round; }
+  .map-dot { cursor: pointer; }
+  .map-dot:focus { outline: none; }
+  .map-dot circle.hit { fill: transparent; }
+  .map-dot circle.dot { stroke: var(--primary-bg); stroke-width: 2.5; }
+  .map-dot circle.ring { fill: none; stroke: transparent; stroke-width: 2; }
+  .map-dot:hover circle.ring { stroke: var(--secondary-text); }
+  .map-dot:focus circle.ring, .map-dot.sel circle.ring { stroke: var(--primary-text); }
+  .map-dot.sel circle.dot { stroke-width: 3; }
+  .map-label {
+    font-size: 15px; font-weight: 600; fill: var(--primary-text); text-anchor: middle;
+    paint-order: stroke; stroke: var(--primary-bg); stroke-width: 5; stroke-linejoin: round;
+    pointer-events: none;
+  }
+  /* The island is 2.45:1, so on a phone the whole map is only ~140px tall and a 9-unit dot
+     lands under the ~44px a finger needs. Bigger dots there trade precision for reachability;
+     Toa Vaca and Guayabal do merge at this size, which is why the selects below stay. */
+  @media (max-width: 640px) {
+    .map-dot circle.dot { r: 15; }
+    .map-dot circle.hit { r: 19; }
+    .map-dot circle.ring { r: 21; }
+    .map-label { font-size: 22px; }
+  }
+
+  .table-details > summary {
+    cursor: pointer; font-size: 0.82rem; font-weight: 600; color: var(--secondary-text);
+    padding: 6px 0; margin-top: 4px;
+  }
+  .table-details > summary:hover { color: var(--primary-text); }
+  .table-details[open] > summary { margin-bottom: 8px; }
+
+  .map-pop {
+    position: absolute; z-index: 5; width: 268px; max-width: calc(100% - 16px);
+    padding: 12px 14px; background: var(--primary-bg); border: 1px solid var(--primary-text);
+    box-shadow: 0 6px 22px rgba(0,0,0,0.16); font-size: 0.78rem; line-height: 1.5;
+  }
+  .map-pop[hidden] { display: none; }
+  .map-pop-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .map-pop-name { font-weight: 700; font-size: 0.92rem; }
+  .map-pop-close {
+    background: none; border: none; cursor: pointer; font-size: 1.05rem; line-height: 1;
+    color: var(--secondary-text); padding: 0 2px; min-width: 0;
+  }
+  .map-pop-close:hover { color: var(--primary-text); }
+  .map-pop-where { color: var(--secondary-text); font-size: 0.74rem; margin-bottom: 8px; }
+  .map-pop-band {
+    display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 0.7rem;
+    font-weight: 700; color: #fff; margin-bottom: 8px;
+  }
+  .map-pop dl { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; margin: 0; }
+  .map-pop dt { color: var(--secondary-text); }
+  .map-pop dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+  .map-pop-links { margin-top: 10px; display: flex; gap: 12px; }
+  .map-pop-links a { font-size: 0.75rem; color: var(--primary-text); }
+
   /* plain-language summary line under each reservoir table row */
   #res-table tbody tr.res-row td { border-bottom: none; }
   #res-table tbody tr.row-summary td { font-size: 0.74rem; color: var(--secondary-text); padding-top: 2px; padding-bottom: 11px; }
@@ -1125,6 +1184,7 @@
   <div class="analytics-index-inner">
     <span class="analytics-index-label">PR reservoirs</span>
     <a href="#status">Status</a>
+    <a href="#map">Map</a>
     <a href="#overview">Overview</a>
     <a href="#storage">Storage</a>
     <a href="#table">Reservoirs</a>
@@ -1313,6 +1373,22 @@
     <div class="stats-grid" id="stats-grid"></div>
   </div>
 
+  <!-- Map -->
+  <span class="nav-anchor" id="map"></span>
+  <div class="panel">
+    <h2>Where they are <span class="panel-note" id="map-note"></span></h2>
+    <div class="layer-banner layer-measured">
+      <span class="prov prov-measured">Level source: USGS</span>
+      <span class="prov prov-official">Threshold source: PRASA</span>
+      <span>Each dot is a damsite gauge, colored by the PRASA alert band its current level falls in. Select one for its detail and its level history.</span>
+    </div>
+    <div class="map-wrap">
+      <svg id="pr-map" role="group" aria-label="Map of Puerto Rico showing the monitored reservoirs"></svg>
+      <div class="map-pop" id="map-pop" role="dialog" aria-label="Reservoir detail" hidden></div>
+    </div>
+    <div class="band-legend" id="map-legend"></div>
+  </div>
+
   <!-- Island overview -->
   <span class="nav-anchor" id="overview"></span>
   <div class="panel">
@@ -1352,6 +1428,11 @@
       <span class="prov prov-measured">Level source: USGS</span>
       <span>Live gauge readings. The <b>Status</b> column compares each level to PRASA's official bands; <b>Position</b> is location within the operating range, not percent of total volume.</span>
     </div>
+    <!-- Collapsed now that the map carries the per-reservoir read. The table stays because a
+         map answers "where" and a table answers "which is worst" -- sorting nineteen rows by
+         position or by 24h change is a question no amount of dots on an island can settle. -->
+    <details class="table-details">
+      <summary>Show all reservoirs as a sortable table</summary>
     <div class="table-wrap">
       <table id="res-table">
         <thead>
@@ -1371,6 +1452,7 @@
         <tbody><tr><td colspan="10" class="no-data">Loading…</td></tr></tbody>
       </table>
     </div>
+    </details>
   </div>
 
   <!-- History -->
@@ -1635,7 +1717,11 @@
     renderStorage();
     renderTable();
     setupHistory();
-    renderHistory();
+    renderMap();
+    // One call renders the history chart and the map highlight, so the two cannot start out
+    // disagreeing about which reservoir the page is showing.
+    selectSite(DAM_COORDS[MAP_DEFAULT_SITE] && statusRows.some(r => r.site_no === MAP_DEFAULT_SITE)
+      ? MAP_DEFAULT_SITE : statusRows[0].site_no);
   }
 
   // Change in value over the last `windowMs`, using the reading closest to (last - window).
@@ -2018,6 +2104,258 @@
     });
   });
 
+  // --- Reservoir map ---
+  // Two pieces of static reference data, both baked in rather than fetched: a dam does not
+  // move, and neither does the coast. Baking them in also means the map makes no third-party
+  // request, so it cannot break because someone else's tile server moved or started logging
+  // this page's readers.
+  //   PR_COAST   Natural Earth 10m (public domain), main island only, Douglas-Peucker
+  //              simplified to 0.002 degrees -- finer than a reader can resolve at this size.
+  //   DAM_COORDS USGS OGC monitoring-locations, [lat, lon] per site number.
+  /* GENERATED:MAP-DATA */
+  const DAM_COORDS = {
+    "50026140": [18.27654, -66.65642],   // Caonillas,
+    "50039995": [18.07524, -66.10683],   // Carite,
+    "50059000": [18.32791, -66.01628],   // Carraizo,
+    "50113950": [18.07703, -66.57547],   // Cerrillos,
+    "50047550": [18.19690, -66.14072],   // Cidra,
+    "50027100": [18.33544, -66.66659],   // Dos Bocas,
+    "50032290": [18.15924, -66.52602],   // El Guineo,
+    "50071225": [18.29690, -65.65858],   // Fajardo,
+    "50020100": [18.13363, -66.74296],   // Garzas,
+    "50010800": [18.39836, -66.92270],   // Guajataca,
+    "50111300": [18.08581, -66.50168],   // Guayabal,
+    "50141500": [18.21065, -66.83518],   // Guayo,
+    "50045000": [18.34300, -66.23607],   // La Plata,
+    "50128900": [18.04252, -66.88794],   // Loco,
+    "50125780": [18.09393, -66.86505],   // Lucchetti,
+    "50032590": [18.21051, -66.48017],   // Matrullas,
+    "50093045": [18.01774, -66.01850],   // Patillas,
+    "50076800": [18.22389, -65.78142],   // Rio Blanco,
+    "50111210": [18.10364, -66.48941],   // Toa Vaca
+  };
+
+  const PR_COAST = [[
+      [-65.6288,18.2792],[-65.6329,18.2669],[-65.6258,18.2598],[-65.6176,18.2563],[-65.6037,18.2629],
+      [-65.6066,18.2536],[-65.5918,18.2309],[-65.6021,18.2238],[-65.6035,18.2153],[-65.6124,18.2145],
+      [-65.6222,18.2293],[-65.6334,18.2292],[-65.637,18.2186],[-65.6272,18.2059],[-65.6368,18.1981],
+      [-65.6487,18.2001],[-65.6655,18.2084],[-65.7375,18.1827],[-65.7549,18.1662],[-65.7903,18.114],
+      [-65.7931,18.0876],[-65.807,18.0703],[-65.8353,18.0625],[-65.8405,18.0563],[-65.8303,18.0269],
+      [-65.8497,18.0097],[-65.8872,17.9877],[-65.9391,17.9705],[-66.005,17.9775],[-66.0465,17.9639],
+      [-66.0841,17.9639],[-66.1046,17.9589],[-66.1632,17.9291],[-66.1963,17.9277],[-66.2042,17.9229],
+      [-66.2104,17.9366],[-66.1996,17.9396],[-66.197,17.9444],[-66.2104,17.9571],[-66.2299,17.9404],
+      [-66.2414,17.9373],[-66.2926,17.9457],[-66.3066,17.9639],[-66.3281,17.9723],[-66.3677,17.966],
+      [-66.3961,17.9473],[-66.4165,17.9496],[-66.4359,17.964],[-66.4521,17.9822],[-66.4691,17.9927],
+      [-66.527,17.9793],[-66.5599,17.9775],[-66.5806,17.9658],[-66.5925,17.9636],[-66.6083,17.9713],
+      [-66.6225,17.9639],[-66.6294,17.9752],[-66.6466,17.9766],[-66.6874,17.9713],[-66.725,17.9844],
+      [-66.7659,17.9844],[-66.7651,17.998],[-66.774,18.0022],[-66.7875,17.9993],[-66.8001,17.9918],
+      [-66.8001,17.9844],[-66.7864,17.9844],[-66.798,17.9693],[-66.8177,17.959],[-66.8615,17.9496],
+      [-66.9242,17.9496],[-66.9282,17.9455],[-66.9304,17.9291],[-66.9491,17.9312],[-66.9632,17.9411],
+      [-66.9857,17.9639],[-67.0527,17.9682],[-67.067,17.9726],[-67.0973,17.9529],[-67.112,17.9496],
+      [-67.1586,17.9546],[-67.1805,17.9661],[-67.1912,17.958],[-67.1842,17.9351],[-67.1951,17.9357],
+      [-67.2148,17.9663],[-67.2143,17.9941],[-67.1665,18.015],[-67.1632,18.0225],[-67.1769,18.0327],
+      [-67.1901,18.0303],[-67.2029,18.0357],[-67.2021,18.0544],[-67.1954,18.0638],[-67.1857,18.0704],
+      [-67.1939,18.0973],[-67.1832,18.1077],[-67.1838,18.1399],[-67.1737,18.1762],[-67.1575,18.1917],
+      [-67.1519,18.2034],[-67.1585,18.214],[-67.1712,18.2249],[-67.1871,18.2728],[-67.1965,18.2913],
+      [-67.2369,18.2999],[-67.2708,18.3618],[-67.2688,18.3689],[-67.2403,18.3768],[-67.1984,18.3937],
+      [-67.1595,18.4209],[-67.1581,18.4431],[-67.1687,18.4606],[-67.17,18.486],[-67.1517,18.5089],
+      [-67.1017,18.5228],[-67.0485,18.5211],[-67.0124,18.5058],[-66.9073,18.4853],[-66.8035,18.4983],
+      [-66.7892,18.4965],[-66.7517,18.484],[-66.7368,18.4831],[-66.6977,18.4914],[-66.6409,18.4964],
+      [-66.6143,18.4932],[-66.5878,18.484],[-66.5714,18.487],[-66.5071,18.4864],[-66.4674,18.4753],
+      [-66.3824,18.4914],[-66.3039,18.4688],[-66.2581,18.4815],[-66.2052,18.4654],[-66.194,18.4736],
+      [-66.1809,18.4715],[-66.1701,18.4573],[-66.1616,18.4533],[-66.152,18.4587],[-66.1441,18.4687],
+      [-66.1341,18.4659],[-66.1375,18.4528],[-66.1181,18.443],[-66.1085,18.4206],[-66.0932,18.4198],
+      [-66.0602,18.4294],[-66.0602,18.4368],[-66.0768,18.4389],[-66.095,18.4477],[-66.1216,18.4735],
+      [-66.0121,18.444],[-65.9977,18.4502],[-65.9889,18.4631],[-65.9204,18.4459],[-65.9048,18.4559],
+      [-65.8928,18.4536],[-65.8805,18.4448],[-65.8483,18.4379],[-65.8308,18.4287],[-65.8126,18.4104],
+      [-65.8016,18.4154],[-65.7942,18.4254],[-65.7883,18.4232],[-65.7871,18.4183],[-65.7963,18.405],
+      [-65.772,18.4146],[-65.755,18.391],[-65.7381,18.3824],[-65.7248,18.3913],[-65.698,18.3711],
+      [-65.6632,18.3664],[-65.6294,18.3911],[-65.6214,18.3891],[-65.6308,18.3328],[-65.633,18.291],
+      [-65.6288,18.2792]
+    ]];
+  const MAP_W = 1000, MAP_PAD = 26;
+  const SVG_NS = "http://www.w3.org/2000/svg";
+  // Carraizo supplies the San Juan metro area and is the reservoir most readers arrive looking
+  // for. The worst-off dam is still called out in the panel subtitle so ranking is not lost.
+  const MAP_DEFAULT_SITE = "50059000";
+  let mapProj = null, selSite = null;
+
+  function buildProjection() {
+    let lonMin = Infinity, lonMax = -Infinity, latMin = Infinity, latMax = -Infinity;
+    for (const ring of PR_COAST) for (const [lon, lat] of ring) {
+      if (lon < lonMin) lonMin = lon;
+      if (lon > lonMax) lonMax = lon;
+      if (lat < latMin) latMin = lat;
+      if (lat > latMax) latMax = lat;
+    }
+    // Equirectangular, x scaled by cos(mid-latitude). Across an island 170 km wide the
+    // difference from a conformal projection is smaller than the dots, and it needs no library.
+    const k = Math.cos((latMin + latMax) / 2 * Math.PI / 180);
+    const s = (MAP_W - 2 * MAP_PAD) / ((lonMax - lonMin) * k);
+    return {
+      h: (latMax - latMin) * s + 2 * MAP_PAD,
+      x: (lon) => MAP_PAD + (lon - lonMin) * k * s,
+      y: (lat) => MAP_PAD + (latMax - lat) * s,
+    };
+  }
+
+  function renderMap() {
+    const svg = document.getElementById("pr-map");
+    mapProj = buildProjection();
+    svg.setAttribute("viewBox", `0 0 ${MAP_W} ${Math.round(mapProj.h)}`);
+    svg.innerHTML = `<path class="map-coast" d="${PR_COAST.map(ring =>
+      ring.map(([lon, lat], i) =>
+        `${i ? "L" : "M"}${mapProj.x(lon).toFixed(1)} ${mapProj.y(lat).toFixed(1)}`).join("") + "Z"
+    ).join("")}"/><g id="map-dots"></g>`;
+
+    // Worst band drawn last, so a reservoir in trouble is never hidden under a healthy one.
+    const placed = statusRows.filter(r => DAM_COORDS[r.site_no])
+      .sort((a, b) => (a.status_rank || 0) - (b.status_rank || 0));
+    const gDots = document.getElementById("map-dots");
+    gDots.innerHTML = placed.map(r => {
+      const [lat, lon] = DAM_COORDS[r.site_no];
+      const x = mapProj.x(lon).toFixed(1), y = mapProj.y(lat).toFixed(1);
+      const pos = r.pct_operating === null ? "" : `, ${fmt(r.pct_operating, 0)}% of operating range`;
+      return `<g class="map-dot" data-site="${r.site_no}" tabindex="0" role="button"
+                 aria-label="${r.name}: ${r.status || "unknown"}${pos}">
+        <title>${r.name} — ${r.status || "?"}</title>
+        <circle class="ring" cx="${x}" cy="${y}" r="14"/>
+        <circle class="dot" cx="${x}" cy="${y}" r="9" fill="${r._band.color}"/>
+        <circle class="hit" cx="${x}" cy="${y}" r="12"/>
+      </g>`;
+    }).join("");
+
+    gDots.addEventListener("click", e => {
+      const g = e.target.closest(".map-dot");
+      if (g) selectSite(g.dataset.site, { pop: true });
+    });
+    gDots.addEventListener("keydown", e => {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      const g = e.target.closest(".map-dot");
+      if (!g) return;
+      e.preventDefault();
+      selectSite(g.dataset.site, { pop: true });
+    });
+
+    // Only the bands actually present are worth a swatch; a legend row nobody is in is noise.
+    const present = Object.entries(BANDS)
+      .filter(([name]) => placed.some(r => r.status === name))
+      .sort((a, b) => a[1].rank - b[1].rank);
+    document.getElementById("map-legend").innerHTML = present
+      .map(([name, b]) => `<span class="band-legend-item"><span class="band-swatch" style="background:${b.color}"></span>${name} <span style="opacity:.6">(${b.label})</span></span>`)
+      .join("");
+
+    const worst = placed.filter(r => r.status_rank !== null)
+      .reduce((m, r) => (m === null || r.status_rank > m.status_rank) ? r : m, null);
+    const count = placed.length === statusRows.length
+      ? `${placed.length} reservoirs`
+      : `${placed.length} of ${statusRows.length} reservoirs located`;
+    document.getElementById("map-note").textContent =
+      worst ? `${count} · lowest band right now: ${worst.name} (${worst.status})` : count;
+  }
+
+  // One selected reservoir for the whole page. The map and the history select are two controls
+  // over the same piece of state, not two independent widgets.
+  function selectSite(site, opts = {}) {
+    if (!site || !statusRows.some(r => r.site_no === site)) return;
+    selSite = site;
+
+    const hs = document.getElementById("hist-site");
+    if (hs && [...hs.options].some(o => o.value === site)) { hs.value = site; histSite = site; renderHistory(); }
+
+    markSelectedDot();
+    if (opts.pop) openMapPop(site); else closeMapPop();
+  }
+
+  function markSelectedDot() {
+    const svg = document.getElementById("pr-map");
+    const gDots = document.getElementById("map-dots");
+    if (!gDots || !mapProj) return;
+    const old = svg.querySelector(".map-label");
+    if (old) old.remove();
+
+    let sel = null;
+    gDots.querySelectorAll(".map-dot").forEach(d => {
+      const on = d.dataset.site === selSite;
+      d.classList.toggle("sel", on);
+      if (on) sel = d;
+    });
+    if (!sel) return;
+    gDots.appendChild(sel);                    // the selection draws above its neighbours
+
+    const r = statusRows.find(x => x.site_no === selSite);
+    const coord = DAM_COORDS[selSite];
+    if (!r || !coord) return;
+    const t = document.createElementNS(SVG_NS, "text");
+    t.setAttribute("class", "map-label");
+    t.setAttribute("x", mapProj.x(coord[1]).toFixed(1));
+    t.setAttribute("y", (mapProj.y(coord[0]) - 21).toFixed(1));
+    t.textContent = r.name;
+    svg.appendChild(t);
+  }
+
+  function closeMapPop() {
+    const pop = document.getElementById("map-pop");
+    if (pop) pop.hidden = true;
+  }
+
+  function openMapPop(site) {
+    const r = statusRows.find(x => x.site_no === site);
+    const pop = document.getElementById("map-pop");
+    const coord = DAM_COORDS[site];
+    if (!r || !pop || !coord || !mapProj) { closeMapPop(); return; }
+
+    const b = r._band;
+    const d = r.delta24h;
+    const dColor = d === null ? "var(--secondary-text)"
+      : d > 0.005 ? "var(--ok)" : d < -0.005 ? "var(--crit)" : "var(--secondary-text)";
+    const rows = [
+      ["Level", r.level_m === null ? "—" : `${fmt(r.level_m, 2)} m`],
+      ["Position in range", r.pct_operating === null ? "—" : `${fmt(r.pct_operating, 0)}%`],
+      ["24h change", `<span style="color:${dColor}">${d === null ? "—" : signed(d, 2) + " m"}</span>`],
+      ["Capacity", num(r.capacity_mm3) === null ? "—" : `${fmt(num(r.capacity_mm3), 1)} Mm³`],
+      ["Safe yield", num(r.safe_yield_mgd) === null ? "—" : `${fmt(num(r.safe_yield_mgd), 1)} MGD`],
+      ["Updated", relTime(r.measured_at)],
+    ];
+
+    pop.innerHTML = `
+      <div class="map-pop-head">
+        <span class="map-pop-name">${r.name}</span>
+        <button class="map-pop-close" type="button" aria-label="Close">&times;</button>
+      </div>
+      <div class="map-pop-where">${r.municipio || "—"}${r.operator ? " · " + r.operator : ""}</div>
+      <span class="map-pop-band" style="background:${b.color}">${r.status || "Unknown"} — ${b.label}</span>
+      <dl>${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>
+      <div class="map-pop-links"><a href="#history">${r.name} history ↓</a></div>`;
+    pop.querySelector(".map-pop-close").addEventListener("click", closeMapPop);
+    pop.hidden = false;
+    positionMapPop(site);
+  }
+
+  function positionMapPop(site) {
+    const pop = document.getElementById("map-pop");
+    const svg = document.getElementById("pr-map");
+    const coord = DAM_COORDS[site];
+    if (!pop || pop.hidden || !coord || !mapProj) return;
+    const wrap = pop.parentElement;
+    const scale = svg.clientWidth / MAP_W;
+    const cx = mapProj.x(coord[1]) * scale, cy = mapProj.y(coord[0]) * scale;
+    const w = pop.offsetWidth, h = pop.offsetHeight;
+    // Prefer the right of the dot; flip left when that would run off the edge, then clamp so
+    // the card is always fully on screen even on a narrow phone.
+    let left = cx + 22;
+    if (left + w > wrap.clientWidth) left = cx - 22 - w;
+    pop.style.left = Math.max(4, Math.min(left, wrap.clientWidth - w - 4)) + "px";
+    pop.style.top = Math.max(4, Math.min(cy - h / 2, wrap.clientHeight - h - 4)) + "px";
+  }
+
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closeMapPop(); });
+  document.addEventListener("click", e => {
+    const pop = document.getElementById("map-pop");
+    if (pop && !pop.hidden && !e.target.closest("#map-pop") && !e.target.closest(".map-dot")) closeMapPop();
+  });
+  window.addEventListener("resize", () => { if (selSite) positionMapPop(selSite); });
+
   // --- History chart ---
   function setupHistory() {
     const sel = document.getElementById("hist-site");
@@ -2025,7 +2363,7 @@
     sel.innerHTML = opts.map(r => `<option value="${r.site_no}">${r.name} — ${r.status || "?"}</option>`).join("");
     histSite = opts[0].site_no;               // default: most-concerning reservoir
     sel.value = histSite;
-    sel.addEventListener("change", () => { histSite = sel.value; renderHistory(); });
+    sel.addEventListener("change", () => selectSite(sel.value));
 
     document.querySelectorAll('.controls button[data-days]').forEach(btn => {
       btn.addEventListener("click", () => {
