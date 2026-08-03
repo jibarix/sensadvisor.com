@@ -1,51 +1,51 @@
 {
-  "generated_at": "2026-07-26T23:47:47.023518+00:00",
-  "data_vintage": "2026-07-26T19:40:00.983000-04:00",
+  "generated_at": "2026-08-03T00:51:27.997703+00:00",
+  "data_vintage": "2026-08-02T20:50:00.766000-04:00",
   "window_start": "2026-07-06",
   "model_version": "step1-v2-fourier3-weekend-shapeonly",
   "horizon": "1-hour-ahead",
   "methodology": "identical matched pairs; expanding-window pure-shape drift, no weather (no leakage)",
-  "n_pairs": 2679,
+  "n_pairs": 3672,
   "scores": {
     "genera": {
-      "mae_mw": 71.0,
-      "mape_pct": 3.01
+      "mae_mw": 79.8,
+      "mape_pct": 3.36
     },
     "persistence": {
-      "mae_mw": 83.7,
-      "mape_pct": 3.47
+      "mae_mw": 82.4,
+      "mape_pct": 3.4
     },
     "sensadvisor": {
-      "mae_mw": 35.5,
-      "mape_pct": 1.48,
-      "beats_genera_pct": 69.5
+      "mae_mw": 37.0,
+      "mape_pct": 1.53,
+      "beats_genera_pct": 70.5
     },
-    "n_pairs": 2679
+    "n_pairs": 3672
   },
   "diurnal_mw": [
-    2607.2,
-    2500.8,
-    2415.7,
-    2352.2,
-    2318.4,
-    2321.3,
-    2296.1,
-    2281.9,
-    2244.7,
-    2170.6,
-    2064.8,
-    2004.7,
-    1991.7,
-    2038.0,
-    2144.2,
-    2302.0,
-    2502.7,
-    2677.5,
-    2767.2,
-    2848.1,
-    2882.3,
-    2851.1,
-    2789.3,
-    2724.7
+    2597.7,
+    2497.7,
+    2417.3,
+    2354.1,
+    2319.8,
+    2322.6,
+    2297.5,
+    2287.1,
+    2253.9,
+    2182.5,
+    2078.6,
+    2020.5,
+    2005.5,
+    2052.2,
+    2157.7,
+    2320.1,
+    2518.6,
+    2687.6,
+    2779.8,
+    2850.0,
+    2879.1,
+    2837.0,
+    2771.7,
+    2709.3
   ]
 }
