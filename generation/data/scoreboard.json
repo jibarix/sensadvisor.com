@@ -1,35 +1,35 @@
 {
-  "generated_at": "2026-08-03T01:57:56.723638+00:00",
-  "data_vintage": "2026-08-02T21:50:01.277000-04:00",
+  "generated_at": "2026-08-03T15:58:17.289016+00:00",
+  "data_vintage": "2026-08-03T11:50:06.231000-04:00",
   "window_start": "2026-07-06",
   "score_start": "2026-07-08",
-  "score_end": "2026-08-02",
-  "n_scored_days": 26,
+  "score_end": "2026-08-03",
+  "n_scored_days": 27,
   "model_version": "step1-v2-fourier3-weekend-shapeonly",
   "horizon": "1-hour-ahead",
   "evaluation": "rolling-origin backtest (causal, reconstructed; not a prospective archive)",
   "methodology": "identical matched pairs; expanding-window pure-shape drift, no weather (no leakage)",
-  "n_pairs": 3678,
+  "n_pairs": 3762,
   "scores": {
     "genera": {
-      "mae_mw": 79.8,
-      "mape_pct": 3.36
+      "mae_mw": 79.6,
+      "mape_pct": 3.35
     },
     "persistence": {
-      "mae_mw": 82.3,
-      "mape_pct": 3.4
+      "mae_mw": 81.9,
+      "mape_pct": 3.38
     },
     "sensadvisor": {
-      "mae_mw": 37.0,
-      "mape_pct": 1.53,
-      "beats_genera_pct": 70.5
+      "mae_mw": 37.1,
+      "mape_pct": 1.54,
+      "beats_genera_pct": 70.8
     },
-    "n_pairs": 3678,
+    "n_pairs": 3762,
     "days": {
-      "n_scored_days": 26,
+      "n_scored_days": 27,
       "score_start": "2026-07-08",
-      "score_end": "2026-08-02",
-      "sensadvisor_lower_days": 26,
+      "score_end": "2026-08-03",
+      "sensadvisor_lower_days": 27,
       "daily": [
         {
           "date": "2026-07-08",
@@ -208,27 +208,34 @@
         },
         {
           "date": "2026-08-02",
-          "n_pairs": 126,
-          "sensadvisor_mape": 1.95,
-          "genera_mape": 3.13,
-          "persistence_mape": 3.45
+          "n_pairs": 144,
+          "sensadvisor_mape": 2.05,
+          "genera_mape": 2.93,
+          "persistence_mape": 3.34
+        },
+        {
+          "date": "2026-08-03",
+          "n_pairs": 66,
+          "sensadvisor_mape": 1.28,
+          "genera_mape": 3.3,
+          "persistence_mape": 2.77
         }
       ]
     }
   },
   "diurnal_mw": [
-    2597.7,
-    2497.7,
-    2417.3,
-    2354.1,
-    2319.8,
-    2322.6,
-    2297.5,
-    2287.1,
-    2253.9,
-    2182.5,
-    2078.6,
-    2020.5,
+    2598.8,
+    2498.7,
+    2418.3,
+    2355.2,
+    2321.3,
+    2324.9,
+    2301.1,
+    2292.5,
+    2261.4,
+    2189.8,
+    2083.6,
+    2024.3,
     2005.5,
     2052.2,
     2157.7,
@@ -239,7 +246,7 @@
     2850.0,
     2879.1,
     2837.0,
-    2771.7,
-    2709.3
+    2771.9,
+    2710.7
   ]
 }
