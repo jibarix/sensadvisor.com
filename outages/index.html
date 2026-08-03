@@ -1185,8 +1185,12 @@
   <!-- ===== Reserve Stress Association (grid-risk nowcast) ===== -->
   <style>
   .grid-risk{ --gr-crit:#c62828; --gr-elev:#a56a00; --gr-norm:var(--signal);
-    --gr-norm-w:rgba(var(--signal-rgb),.12); }
-  :root[data-theme="dark"] .grid-risk{ --gr-crit:#ff5a5f; --gr-elev:#f2c14e; }
+    /* Four adequacy states need four distinguishable colors, and "tight" has to read as
+       more severe than "deteriorating" -- the ladder is ordered, so the palette must be
+       too. Reusing --gr-elev for deteriorating keeps the historical table's ELEVATED and
+       the live DETERIORATING visually distinct from each other's neighbours. */
+    --gr-tight:#d1541f; }
+  :root[data-theme="dark"] .grid-risk{ --gr-crit:#ff5a5f; --gr-elev:#f2c14e; --gr-tight:#ff8a4c; }
   .grid-risk .gr-grid{display:grid; grid-template-columns:minmax(220px,1fr) 1.1fr; gap:26px; align-items:start}
   @media (max-width:720px){.grid-risk .gr-grid{grid-template-columns:1fr; gap:20px}}
   .grid-risk .gr-pill{display:inline-flex; align-items:center; gap:8px; font-weight:700; font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; padding:6px 12px; color:#fff}
@@ -1197,70 +1201,76 @@
   .grid-risk .gr-ts.warn{color:var(--gr-elev)}
   .grid-risk .gr-ts.bad{color:var(--gr-crit)}
   .grid-risk .gr-stats{display:grid; grid-template-columns:repeat(2,1fr); gap:10px}
+  @media (min-width:980px){.grid-risk .gr-stats{grid-template-columns:repeat(4,1fr)}}
   .grid-risk .gr-stat{border:1px solid var(--border-primary); background:var(--surface-muted); padding:10px 12px}
   .grid-risk .gr-k{font-size:.62rem; letter-spacing:.08em; text-transform:uppercase; color:var(--secondary-text); margin-bottom:3px}
   .grid-risk .gr-v{font-size:1.1rem; font-weight:600}
   .grid-risk .gr-v small{font-size:.6em; color:var(--secondary-text)}
-  /* No overflow:hidden here. The band used to carry it, which silently ate the
-     one thing on this row the reader needs: .gr-mark overhangs the band by 6px
-     top and bottom on purpose, and its "NOW" label sits 16px above that, so all
-     of it was clipped and the marker rendered as an unexplained tick. The clip
-     belongs on the segments instead -- they are the only children that can
-     overflow, and only sideways, when a narrow band's label outgrows it.
-     margin-top leaves room for the label to sit above the band. */
-  .grid-risk .gr-band{position:relative; height:24px; border:1px solid var(--border-primary); margin-top:34px;
-    background:linear-gradient(90deg,var(--gr-crit) 0 6.25%,var(--gr-elev) 6.25% 25%,var(--gr-norm) 25% 100%);}
-  .grid-risk .gr-seg{position:absolute; top:0; bottom:0; display:flex; align-items:center; justify-content:center; overflow:hidden; font-size:.6rem; font-weight:700; color:#fff; text-shadow:0 1px 1px rgba(0,0,0,.4)}
-  .grid-risk .gr-mark{position:absolute; top:-6px; bottom:-6px; width:3px; background:var(--primary-text); box-shadow:0 0 0 2px var(--primary-bg)}
-  .grid-risk .gr-mark::after{content:"NOW"; position:absolute; top:-16px; left:50%; transform:translateX(-50%); font-size:.58rem; font-weight:700; letter-spacing:.1em; color:var(--primary-text); white-space:nowrap}
-  .grid-risk .gr-axis{display:flex; justify-content:space-between; font-size:.62rem; color:var(--secondary-text); margin-top:8px}
+  /* Every cushion tile is a signed quantity whose sign is the whole point, so the sign
+     gets color rather than relying on a minus glyph a reader can skim past. */
+  .grid-risk .gr-v.neg{color:var(--gr-crit)}
+  .grid-risk .gr-sub{font-size:.6rem; color:var(--secondary-text); margin-top:3px; line-height:1.35}
+  /* The reserve band strip and its NOW marker are gone on purpose. The strip existed to
+     place "now" against the historical day-tier bands, and that placement was the bug:
+     days are binned by their LOWEST hourly-average reserve, so an instantaneous reading
+     was being matched against a daily minimum it cannot be compared to. Nothing replaced
+     it -- the bar chart's own axis already labels the bands. */
   .grid-risk svg{display:block; width:100%; height:auto}
   .grid-risk table{width:100%; border-collapse:collapse; font-size:.82rem; margin-top:4px}
   .grid-risk th,.grid-risk td{text-align:right; padding:8px 10px; border-bottom:1px solid var(--border-primary); white-space:nowrap}
   .grid-risk th:first-child,.grid-risk td:first-child{text-align:left}
   .grid-risk th{font-size:.62rem; letter-spacing:.06em; text-transform:uppercase; color:var(--secondary-text); font-weight:700}
-  .grid-risk tr.gr-here td{background:var(--gr-norm-w)}
   .grid-risk .gr-sw{display:inline-block; width:10px; height:10px; margin-right:8px; vertical-align:middle}
   .grid-risk .gr-sec{font-size:.66rem; letter-spacing:.08em; text-transform:uppercase; color:var(--secondary-text); margin:24px 0 8px; font-weight:700}
+  /* The three parts of this panel answer three different questions and must not read as
+     one continuous argument -- section 1 is a physical measurement, 2 is an association,
+     3 is an open question. The rule is the separation. */
+  .grid-risk .gr-sec-major{font-size:.78rem; color:var(--primary-text); text-transform:none; letter-spacing:.01em;
+    border-top:1px solid var(--border-primary); padding-top:18px; margin-top:34px}
   </style>
 
   <span class="nav-anchor" id="grid-risk"></span>
   <div class="panel grid-risk">
-    <h2>Reserve Stress Association <span class="panel-note">live &middot; historical co-occurrence, not a forecast</span></h2>
+    <h2>Grid Supply Adequacy <span class="panel-note">live &middot; N&minus;1 criterion &middot; a described position, not a forecast</span></h2>
     <div class="gr-grid">
       <div>
-        <span class="gr-pill" id="gr-pill">&mdash;</span>
-        <div class="gr-big" id="gr-big">&mdash;<small id="gr-big-note">Connecting to live feed&hellip;</small></div>
+        <span class="gr-pill" id="ga-pill">&mdash;</span>
+        <div class="gr-big" id="ga-big">&mdash;<small id="ga-note">Connecting to live feed&hellip;</small></div>
         <p class="gr-ts" id="gr-ts">&nbsp;</p>
       </div>
       <div>
         <div class="gr-stats">
-          <div class="gr-stat"><div class="gr-k">Reserve margin now</div><div class="gr-v" id="gr-res">&mdash;</div></div>
-          <div class="gr-stat"><div class="gr-k">Clients out now</div><div class="gr-v" id="gr-out">&mdash;</div></div>
-          <div class="gr-stat"><div class="gr-k">Operating reserve</div><div class="gr-v" id="gr-op">&mdash;</div></div>
-          <div class="gr-stat"><div class="gr-k">Available capacity</div><div class="gr-v" id="gr-av">&mdash;</div></div>
+          <div class="gr-stat"><div class="gr-k">Load now</div><div class="gr-v" id="ga-load">&mdash;</div></div>
+          <div class="gr-stat"><div class="gr-k">Available capacity</div><div class="gr-v" id="ga-cap">&mdash;</div></div>
+          <div class="gr-stat"><div class="gr-k">Headroom</div><div class="gr-v" id="ga-head">&mdash;</div><div class="gr-sub">capacity &minus; load</div></div>
+          <div class="gr-stat"><div class="gr-k">Largest online unit</div><div class="gr-v" id="ga-unit">&mdash;</div><div class="gr-sub" id="ga-unit-name">&nbsp;</div></div>
+          <div class="gr-stat"><div class="gr-k">N&minus;1 capacity cushion</div><div class="gr-v" id="ga-ccush">&mdash;</div><div class="gr-sub">operating reserve &minus; largest unit</div></div>
+          <div class="gr-stat"><div class="gr-k">N&minus;1 spinning cushion</div><div class="gr-v" id="ga-scush">&mdash;</div><div class="gr-sub">spinning reserve &minus; largest unit</div></div>
+          <div class="gr-stat"><div class="gr-k">Operator next-hour load</div><div class="gr-v" id="ga-next">&mdash;</div><div class="gr-sub" id="ga-ramp">&nbsp;</div></div>
+          <div class="gr-stat"><div class="gr-k">Clients out now</div><div class="gr-v" id="ga-out">&mdash;</div><div class="gr-sub">LUMA feed, timed separately</div></div>
         </div>
-        <div class="gr-band">
-          <span class="gr-seg" style="left:0;width:6.25%">&lt;2.5</span>
-          <span class="gr-seg" style="left:6.25%;width:18.75%">2.5&ndash;10</span>
-          <span class="gr-seg" style="left:25%;width:75%">&ge;10% reserve</span>
-          <div class="gr-mark" id="gr-mark" style="left:0; display:none"></div>
-        </div>
-        <div class="gr-axis"><span>0%</span><span>10%</span><span>20%</span><span>30%</span><span>40%+</span></div>
       </div>
     </div>
+    <div class="panel-note" style="margin-top:14px" id="ga-method">&nbsp;</div>
 
-    <div class="gr-sec">Share of days with a 50k+ client outage, by reserve margin <span class="panel-note">whiskers = 95% CI</span></div>
-    <svg id="gr-bars" viewBox="0 0 900 260" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Share of days with a 50k-plus client outage by reserve margin band, with 95 percent confidence intervals"></svg>
+    <!-- ── 2 ─────────────────────────────────────────────────────────────────── -->
+    <div class="gr-sec gr-sec-major">Historical co-occurrence: reserves and large outages <span class="panel-note" id="gr-window">&nbsp;</span></div>
+    <p class="panel-note" id="gr-cooc" style="margin:0 0 6px">&nbsp;</p>
 
-    <div class="gr-sec">By reserve margin band <span class="panel-note" id="gr-window">&nbsp;</span></div>
+    <div class="gr-sec">Share of days that saw a 50,000+ client unplanned outage <span class="panel-note">whiskers = 95% CI</span></div>
+    <svg id="gr-bars" viewBox="0 0 900 260" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Share of days that saw a 50,000-plus client unplanned outage, by the day's lowest hourly-average reserve share, with 95 percent confidence intervals"></svg>
+
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Reserve margin</th><th>Days</th><th>Days w/ 50k+</th><th>Share (95% CI)</th></tr></thead>
+        <thead><tr><th>Lowest hourly-average reserve share</th><th>Days</th><th>Days w/ 50k+</th><th>Share (95% CI)</th></tr></thead>
         <tbody id="gr-tbody"></tbody>
       </table>
     </div>
-    <div class="panel-note" style="margin-top:12px" id="gr-method">Reserve margin = operating reserve &divide; available capacity (Genera, polled every 10&nbsp;min). Each day is placed in one band by its tightest reserve; the share is the fraction of those days that also saw a 50,000+ client outage. This is a coincident association, not a forecast. &ldquo;50k+ client outage&rdquo; is a lower bar than this page&rsquo;s &ldquo;major&rdquo; grid status (&ge;10% of clients, &asymp;147k).</div>
+    <div class="panel-note" style="margin-top:12px" id="gr-method">&nbsp;</div>
+
+    <!-- ── 3 ─────────────────────────────────────────────────────────────────── -->
+    <div class="gr-sec gr-sec-major">Outage early-warning research <span class="panel-note">open question &middot; nothing here is issued as a forecast</span></div>
+    <div class="panel-note" id="gr-lead" style="margin:0">&nbsp;</div>
   </div>
 
   <script>
@@ -1268,38 +1278,50 @@
     var MUT="var(--secondary-text)", GRID="var(--chart-grid)";
     // Display metadata keyed by the view's tier name. Bands/counts come live from
     // v_grid_risk_tiers / v_grid_risk_meta — nothing statistical is hardcoded here.
+    // These describe DAYS in the historical table. They are not live states and are
+    // deliberately worded so they cannot be mistaken for one.
     var DISP={
-      CRITICAL:{label:"HIGH STRESS", range:"< 2.5%",  desc:"fell below 2.5%",          color:"var(--gr-crit)"},
-      ELEVATED:{label:"ELEVATED",    range:"2.5–10%", desc:"dipped to 2.5–10%",        color:"var(--gr-elev)"},
-      NORMAL:  {label:"LOW STRESS",  range:"≥ 10%",   desc:"stayed at or above 10%",   color:"var(--gr-norm)"}
+      CRITICAL:{range:"< 2.5%",  desc:"fell below 2.5%",        color:"var(--gr-crit)"},
+      ELEVATED:{range:"2.5–10%", desc:"dipped to 2.5–10%",      color:"var(--gr-elev)"},
+      NORMAL:  {range:"≥ 10%",   desc:"stayed at or above 10%", color:"var(--gr-norm)"}
     };
     var SB="https://grovomkpsqgzakfuvuii.supabase.co/rest/v1";
     var KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdyb3ZvbWtwc3FnemFrZnV2dWlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NzkxMjgsImV4cCI6MjA5MDE1NTEyOH0.U_ZH5gJij5NLkU786mV58uJ0orHZ6ElMkCtyoyuCvBg";
     var STALE_MS=45*60*1000, SKEW_MS=30*60*1000;
     var TIERS=null;
     var fmt=function(n){return Math.round(n).toLocaleString('en-US');};
+    function fmtMw(n){ return fmt(n)+'<small> MW</small>'; }
+    // A cushion's sign is its entire meaning, so it is never rendered bare.
+    function fmtSigned(n){ return (n>=0?'+':'−')+fmt(Math.abs(n))+'<small> MW</small>'; }
     var MOS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     function fmtDate(s){ if(!s) return '?'; var p=String(s).split('-'); return p.length<3?s:MOS[(+p[1])-1]+' '+(+p[2]); }
     function wilson(k,n){ if(!n) return [0,0]; var z=1.96,p=k/n,z2=z*z,d=1+z2/n;
       var c=(p+z2/(2*n))/d, h=(z*Math.sqrt(p*(1-p)/n + z2/(4*n*n)))/d;
       return [Math.max(0,c-h)*100, Math.min(1,c+h)*100]; }
     function ci(t){return wilson(t.k,t.days);}
+    function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
     function share(t){return t.days? 100*t.k/t.days : 0;}
-    function tierOf(p){ if(!TIERS) return null; for(var i=0;i<TIERS.length;i++){ if(p>=TIERS[i].lo && p<TIERS[i].hi) return TIERS[i]; } return TIERS[TIERS.length-1]; }
     function buildTiers(rows){
       return rows.slice().sort(function(a,b){return a.tier_order-b.tier_order;}).map(function(r){
-        var d=DISP[r.name]||{label:r.name,range:r.band,desc:"was in this band",color:MUT};
-        return {name:r.name, label:d.label, range:d.range, desc:d.desc, color:d.color,
+        var d=DISP[r.name]||{range:r.band,desc:"was in this band",color:MUT};
+        return {name:r.name, range:d.range, desc:d.desc, color:d.color,
                 lo:+r.lo, hi:+r.hi, days:+r.days, k:+r.days_50k};
       });
     }
 
-    function fillTable(active){
+    // No row is highlighted any more. Highlighting one used to mark "the band we are in
+    // right now", which compared an instantaneous reserve reading against bands defined by
+    // a whole day's MINIMUM — a reading can only ever land in a band at least as safe as
+    // the one its day will finish in, so the highlight was systematically optimistic.
+    function fillTable(){
       var tb=document.getElementById('gr-tbody'); tb.innerHTML='';
       if(!TIERS){ tb.innerHTML='<tr><td colspan="4">Historical breakdown unavailable.</td></tr>'; return; }
       TIERS.forEach(function(x){
-        var c=ci(x), tr=document.createElement('tr'); if(x===active)tr.className='gr-here';
-        tr.innerHTML='<td><span class="gr-sw" style="background:'+x.color+'"></span>'+x.range+' &middot; '+x.name+'</td>'+
+        var c=ci(x), tr=document.createElement('tr');
+        // x.range carries a literal "<" for the CRITICAL band. It is the right form for
+        // drawBars(), which assigns it to an SVG textContent, so escape here at the one place
+        // it crosses into markup rather than pre-escaping the shared constant.
+        tr.innerHTML='<td><span class="gr-sw" style="background:'+x.color+'"></span>'+esc(x.range)+' &middot; '+x.name+'</td>'+
           '<td>'+x.days+'</td><td>'+x.k+'</td>'+
           '<td>'+Math.round(share(x))+'% ('+Math.round(c[0])+'&ndash;'+Math.round(c[1])+'%)</td>';
         tb.appendChild(tr);
@@ -1326,39 +1348,167 @@
         var lab2=el('text',{x:cx,y:H-14,'text-anchor':'middle',fill:MUT,'font-size':11}); lab2.textContent=x.k+' of '+x.days+' days'; svg.appendChild(lab2);
       });
     }
+    // The lagged t -> t+1 check. This panel previously reported the critical and elevated onset
+    // counts with NO comparison group and concluded there was no lead signal. There was: hours
+    // below 10% reserve are followed by a 50k+ onset at many times the rate of hours at or above
+    // it. The fix was supplying the missing denominator (v_grid_risk_meta.norm_*), not new data.
+    //
+    // Both halves of the sentence are load-bearing. Rates without denominators overstate; the
+    // denominators without the ratio bury the finding. And the onset count is stated plainly
+    // because it, not the p-value, is what stops this from being a published probability.
+    // The window here is deliberately NOT the day table's. This is an hour-level test whose
+    // unit is the hour pair, so it keeps every pair with a contiguous successor regardless of
+    // how many other hours that calendar day happened to have — hence lag_days/lag_hours
+    // rather than total_days. Quoting the table's window would misstate the evidence base.
+    function leadSentence(m){
+      var la=+m.crit_atrisk + +m.elev_atrisk, lo=+m.crit_onset + +m.elev_onset;
+      var na=+m.norm_atrisk, no=+m.norm_onset;
+      if(!(la>0&&na>0)) return 'Not enough matched hours yet to compare onset rates by reserve level.';
+      var lr=lo/la, nr=no/na, pc=function(x){return (100*x).toFixed(2)+'%';};
+      return 'Reserve appears to <b>lead</b> onset, not merely accompany it. Pairing the reserve share '+
+        'at hour <i>t</i> with a 50,000+ client unplanned outage beginning at <i>t</i>+1 &mdash; over '+
+        m.lag_hours+' hours across '+m.lag_days+' days, excluding hours already in such an outage: '+
+        '<b>'+lo+' of '+la+'</b> hours below 10% reserve ('+pc(lr)+') were followed by an onset, '+
+        'against <b>'+no+' of '+na+'</b> at or above 10% ('+pc(nr)+')'+
+        (no>0? ' &mdash; about '+Math.round(lr/nr)+'&times; higher.' : '.')+
+        ' That is enough to say the signal is there and <b>not</b> enough to publish a probability: '+
+        (lo+no)+' onsets in total, and hours within a day are not independent of each other.';
+    }
     function applyMeta(m){
-      document.getElementById('gr-window').textContent=m.total_days+' days observed · '+fmtDate(m.window_start)+'–'+fmtDate(m.window_end);
+      document.getElementById('gr-window').textContent=
+        m.total_days+' qualifying days · '+fmtDate(m.window_start)+'–'+fmtDate(m.window_end);
+
+      // Section 2 lede. Every noun here names the statistic it actually is: a share of DAYS,
+      // classified by a daily MINIMUM of HOURLY AVERAGES. It says nothing about right now,
+      // because nothing in this table is about right now.
+      document.getElementById('gr-cooc').innerHTML=
+        'Each Puerto&nbsp;Rico&nbsp;local day is placed in one band by its <b>lowest hourly-average '+
+        'operating-reserve share of available capacity</b>, and counted as a 50k+ day if its '+
+        '<b>highest hourly-average unplanned clients without service</b> reached 50,000. Both are '+
+        'properties of the whole day. Neither is a reading of the current hour, and the two are '+
+        'not ordered in time &mdash; a day can reach its worst outage before its tightest reserve. '+
+        'Read this as co-occurrence over '+m.total_days+' days, not as a rate that applies to now.';
+
+      var thin=+m.days_excluded_thin;
       document.getElementById('gr-method').innerHTML=
-        'Reserve margin = operating reserve &divide; available capacity (Genera, polled every 10&nbsp;min). Each day is placed in one band by its <b>tightest</b> reserve; the share is the fraction of those days that also saw a 50,000+ client outage. The independent unit is the <b>day</b> &mdash; 10-minute samples within one outage repeat &mdash; so the Wilson 95% intervals are wide: only '+m.days_any_50k+' of '+m.total_days+' days had any 50k+ outage.'+
-        '<br>This is a <b>coincident association, not a forecast</b>: pairing reserve at hour <i>t</i> with outage onset at <i>t</i>+1 (excluding hours already in a 50k+ outage) shows no lead signal &mdash; '+m.crit_onset+' onset across '+m.crit_atrisk+' critical-tier hours, '+m.elev_onset+' across '+m.elev_atrisk+' elevated. Low reserve and outages arrive together.'+
-        '<br>&ldquo;50k+ client outage&rdquo; here is a lower bar than this page&rsquo;s &ldquo;major&rdquo; grid status (&ge;10% of clients, &asymp;147k).';
+        'Sources: LUMA&rsquo;s public outage feed and the Genera generation feed, both polled every '+
+        '10&nbsp;min and averaged into local clock hours before anything is compared, so an hour '+
+        'polled more often does not weigh more. A day is classified only if at least '+
+        m.min_hours_required+' of its hours have <i>both</i> feeds'+
+        (thin>0? ' &mdash; '+thin+' observed day'+(thin===1?' was':'s were')+' too short to '+
+                 'classify and '+(thin===1?'is':'are')+' excluded, since a day cannot show its '+
+                 'own minimum in a few hours.' : '.')+
+        ' The independent unit is the <b>day</b>: 10-minute samples inside one outage are the same '+
+        'event counted repeatedly, which is why the Wilson 95% intervals are wide &mdash; only '+
+        m.days_any_50k+' of '+m.total_days+' days had any 50k+ outage at all, so a band showing 0% '+
+        'means no such day has turned up yet in the handful of days that band holds, not that one '+
+        'cannot happen; read its interval. '+
+        '&ldquo;50,000+ clients&rdquo; is a deliberately lower bar than this page&rsquo;s &ldquo;major&rdquo; '+
+        'grid status (&ge;10% of clients, &asymp;147k), and counts unplanned clients only &mdash; planned '+
+        'work is scheduled, not a failure.';
+
+      document.getElementById('gr-lead').innerHTML=leadSentence(m)+researchPara();
     }
 
-    function showLive(res,out,op,av){
-      var t=tierOf(res);
-      document.getElementById('gr-res').innerHTML=res.toFixed(1)+'<small> %</small>';
-      document.getElementById('gr-out').textContent=fmt(out);
-      document.getElementById('gr-op').innerHTML=fmt(op)+'<small> MW</small>';
-      document.getElementById('gr-av').innerHTML=fmt(av)+'<small> MW</small>';
-      var mk=document.getElementById('gr-mark'); mk.style.display='block'; mk.style.left=Math.max(0,Math.min(res/40*100,100))+'%';
-      if(!t){ // live ok but historical breakdown missing
-        var p0=document.getElementById('gr-pill'); p0.textContent='RESERVE '+res.toFixed(1)+'%'; p0.style.background=MUT;
-        document.getElementById('gr-big').firstChild.textContent='—';
-        document.getElementById('gr-big-note').textContent='Historical breakdown unavailable; live reserve shown above.';
-        return;
-      }
-      var c=ci(t), s=Math.round(share(t));
-      var pill=document.getElementById('gr-pill'); pill.textContent=t.label; pill.style.background=t.color;
-      document.getElementById('gr-big').firstChild.textContent=s+'%';
-      document.getElementById('gr-big-note').innerHTML='of the '+t.days+' days reserves '+t.desc+' had a 50k+ client outage underway ('+t.k+' of '+t.days+'; 95% CI '+Math.round(c[0])+'&ndash;'+Math.round(c[1])+'%). Historical association at a similar reserve margin &mdash; not a forecast.';
-      fillTable(t);
+    // Standing summary of the offline feasibility check. Hardcoded on purpose: it is a
+    // conclusion about a frozen analysis, not a live statistic, and dressing it as a live
+    // number would be the same category error this panel is being cleaned up for.
+    function researchPara(){
+      return '<br><br>A separate offline check went further: 18,565 outage snapshots over 130 days, '+
+        'scored at 30, 60 and 120&nbsp;minutes ahead, with every predictor compared <i>only against '+
+        'other moments sharing its hour of day</i>. That control matters because everything on this '+
+        'grid follows one daily cycle &mdash; a plain hour-of-day lookup, which knows nothing about '+
+        'the grid, scores 0.85 without it and exactly 0.50 with it. Reserve margin survives the '+
+        'control and gets <i>stronger</i> under it; outage trend and acceleration are worthless at '+
+        'every horizon. But at a budget of one alert per day the best predictor catches 3 or 4 of 15 '+
+        'onsets, and the island has produced 15 independent onsets against the 25 this project '+
+        'requires before publishing even an experimental score. So: a real signal, deliberately not '+
+        'shipped. The check re-runs at ~25 onsets, expected around late November 2026.';
     }
+
+    // ── The N−1 ladder ────────────────────────────────────────────────────────────────
+    // "Can the system absorb the loss of its largest online unit?" Every rung is a physical
+    // MW comparison between values the operator publishes, so the state is checkable by
+    // anyone reading the same feed. It describes the position now; it forecasts nothing.
+    //
+    // Why not the operating reserve alone: on this grid operatingReserveMw tracks
+    // availableCapacity − generation almost exactly and sits near a third of load, which no
+    // real system carries as responsive reserve. It answers "could we cover N−1 at all",
+    // while spinningReserveMw answers "could we cover it this instant". The ladder needs
+    // both, and severity nests automatically because spinning ≤ operating.
+    var STATES={
+      critical:     {label:'CRITICAL',      color:'var(--gr-crit)'},
+      tight:        {label:'TIGHT',         color:'var(--gr-tight)'},
+      deteriorating:{label:'DETERIORATING', color:'var(--gr-elev)'},
+      adequate:     {label:'ADEQUATE',      color:'var(--gr-norm)'}
+    };
+    function adequacy(load,cap,opRes,spinRes,unitMw,nextMw){
+      var head=cap-load, capCush=opRes-unitMw, spinCush=spinRes-unitMw;
+      var ramp=(nextMw==null)?null:(nextMw-load);
+      var projCush=(ramp==null)?null:(spinCush-ramp);
+      var r={headroom:head, capCushion:capCush, spinCushion:spinCush, ramp:ramp, projCushion:projCush};
+      if(head<=0){
+        r.state='critical'; r.headline=head;
+        r.why='Load has reached the capacity the operator itself reports as available. There is '+
+              'no headroom left to lose.';
+      } else if(capCush<0){
+        r.state='tight'; r.headline=capCush;
+        // Name the quantity the rung actually tests. Headroom and operating reserve sit close
+        // together on this grid, which is exactly why citing the wrong one would go unnoticed.
+        r.why='Losing the largest online unit could not be covered even by counting capacity that '+
+              'is available but not yet synchronized: operating reserve is '+fmt(opRes)+'&nbsp;MW '+
+              'against a largest unit of '+fmt(unitMw)+'&nbsp;MW.';
+      } else if(spinCush<0 || (projCush!=null && projCush<0)){
+        r.state='deteriorating'; r.headline=Math.min(spinCush, projCush==null?spinCush:projCush);
+        r.why=(spinCush<0
+                ? 'Losing the largest online unit is coverable from available capacity, but not '+
+                  'instantaneously &mdash; synchronized reserve is short by '+fmt(-spinCush)+'&nbsp;MW '+
+                  'and the rest would have to be started.'
+                : 'Synchronized reserve covers the largest online unit now, but the operator&rsquo;s own '+
+                  'next-hour load forecast is '+fmt(ramp)+'&nbsp;MW higher, which erases the cushion.');
+      } else {
+        r.state='adequate'; r.headline=spinCush;
+        r.why='The largest online unit is covered by synchronized reserve now'+
+              (projCush==null?'.':', and still covered after the operator&rsquo;s expected next-hour ramp.');
+      }
+      return r;
+    }
+    function showAdequacy(a,unitName,out){
+      var s=STATES[a.state];
+      var pill=document.getElementById('ga-pill'); pill.textContent=s.label; pill.style.background=s.color;
+      var big=document.getElementById('ga-big');
+      big.firstChild.textContent=(a.headline>=0?'+':'−')+fmt(Math.abs(a.headline))+' MW';
+      big.style.color=a.headline<0?s.color:'';
+      document.getElementById('ga-note').innerHTML=a.why;
+      function put(id,html,neg){ var e=document.getElementById(id); e.innerHTML=html;
+        e.className='gr-v'+(neg?' neg':''); }
+      put('ga-load',  fmtMw(LIVE.load));
+      put('ga-cap',   fmtMw(LIVE.cap));
+      put('ga-head',  fmtSigned(a.headroom),  a.headroom<0);
+      put('ga-unit',  fmtMw(LIVE.unitMw));
+      put('ga-ccush', fmtSigned(a.capCushion),  a.capCushion<0);
+      put('ga-scush', fmtSigned(a.spinCushion), a.spinCushion<0);
+      document.getElementById('ga-unit-name').textContent=unitName||'sets the N−1 requirement';
+      if(a.ramp==null){
+        put('ga-next','—');
+        document.getElementById('ga-ramp').textContent='not published in this snapshot';
+      } else {
+        put('ga-next', fmtMw(LIVE.nextMw));
+        document.getElementById('ga-ramp').innerHTML=
+          (a.ramp>=0?'+':'−')+fmt(Math.abs(a.ramp))+' MW ramp · projected spinning cushion '+
+          (a.projCushion>=0?'+':'−')+fmt(Math.abs(a.projCushion))+' MW';
+      }
+      document.getElementById('ga-out').textContent=(out==null?'—':fmt(out));
+    }
+    var LIVE={};
     function showUnavailable(reason){
-      var pill=document.getElementById('gr-pill'); pill.textContent='RISK UNAVAILABLE'; pill.style.background=MUT;
-      document.getElementById('gr-big').firstChild.textContent='—';
-      document.getElementById('gr-big-note').innerHTML=reason+' No estimate is shown rather than a stale or assumed one.';
-      ['gr-res','gr-out','gr-op','gr-av'].forEach(function(id){document.getElementById(id).textContent='—';});
-      document.getElementById('gr-mark').style.display='none';
+      var pill=document.getElementById('ga-pill'); pill.textContent='ADEQUACY UNAVAILABLE'; pill.style.background=MUT;
+      var big=document.getElementById('ga-big'); big.firstChild.textContent='—'; big.style.color='';
+      document.getElementById('ga-note').innerHTML=reason+' No state is shown rather than a stale or assumed one.';
+      ['ga-load','ga-cap','ga-head','ga-unit','ga-ccush','ga-scush','ga-next','ga-out']
+        .forEach(function(id){var e=document.getElementById(id); e.textContent='—'; e.className='gr-v';});
+      document.getElementById('ga-unit-name').textContent='';
+      document.getElementById('ga-ramp').textContent='';
     }
     function ago(ts){ var t=Date.parse(ts); if(isNaN(t)) return null; return Date.now()-t; }
     function mins(ms){ return Math.round(ms/60000); }
@@ -1366,29 +1516,64 @@
     var HDR={apikey:KEY,Authorization:'Bearer '+KEY};
     function grab(url){ return fetch(url,{headers:HDR}).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); }); }
     function grabSafe(url){ return grab(url).then(function(x){return x;}, function(){return null;}); }
+    // ZERO IS A READING, NOT A GAP — an operating reserve of zero is the most critical value
+    // this feed can report, and a guard of the form `x > 0` suppresses exactly the moment the
+    // panel exists for. The null test has to run BEFORE coercion: +null === 0 in JavaScript,
+    // so checking only the coerced number turns a missing field into a fabricated zero.
+    function present(v){ return v!==null && v!==undefined && v!=='' && isFinite(+v); }
+
     Promise.all([
       grabSafe(SB+'/v_grid_risk_tiers?select=*&order=tier_order.asc'),
       grabSafe(SB+'/v_grid_risk_meta?select=*&limit=1'),
-      grabSafe(SB+'/v_generation_metrics_history?select=operating_reserve_mw,available_capacity_mw,observed_at&order=observed_at.desc&limit=1'),
-      grabSafe(SB+'/v_outage_snapshots_slim?select=snapshot,observed_at&order=observed_at.desc&limit=1')
+      grabSafe(SB+'/v_generation_latest?select=metrics,observed_at&limit=1'),
+      grabSafe(SB+'/v_outage_snapshots_slim?select=snapshot,observed_at&order=observed_at.desc&limit=1'),
+      grabSafe(SB+'/v_generation_units?select=plant,unit,mw&order=mw.desc&limit=1')
     ]).then(function(r){
       TIERS=(r[0]&&r[0].length)? buildTiers(r[0]) : null;
       if(r[1]&&r[1][0]) applyMeta(r[1][0]);
-      drawBars(); fillTable(null);
+      drawBars(); fillTable();
 
-      var g=(r[2]&&r[2][0])||null, o=(r[3]&&r[3][0])||null, ts=document.getElementById('gr-ts');
-      if(!g||!o){ ts.textContent=''; showUnavailable('Live grid or outage feed returned no rows.'); return; }
-      var gAge=ago(g.observed_at), oAge=ago(o.observed_at);
-      var op=+g.operating_reserve_mw, av=+g.available_capacity_mw;
-      var out=(o.snapshot&&o.snapshot.total&&o.snapshot.total.without)||0;
-      var stale=(gAge==null||oAge==null||gAge>STALE_MS||oAge>STALE_MS);
+      var g=(r[2]&&r[2][0])||null, o=(r[3]&&r[3][0])||null;
+      var u=(r[4]&&r[4][0])||null, ts=document.getElementById('gr-ts');
+      if(!g||!g.metrics){ ts.textContent=''; showUnavailable('Live generation feed returned no rows.'); return; }
+      var M=g.metrics;
+      var gAge=ago(g.observed_at), oAge=o?ago(o.observed_at):null;
+      var out=(o&&o.snapshot&&o.snapshot.total&&o.snapshot.total.without);
+      if(out===undefined) out=null;
+
+      // The two feeds are now reported side by side and never multiplied together, so how far
+      // apart they are is context for the reader rather than grounds to withhold anything.
+      // The old skew rule existed because a reserve reading was being paired with an outage
+      // count to look up a historical rate; nothing on this panel pairs them any more.
+      var stale=(gAge==null||gAge>STALE_MS);
       var skew =(gAge!=null&&oAge!=null&&Math.abs(gAge-oAge)>SKEW_MS);
       ts.className='gr-ts'+(stale?' bad':(skew?' warn':''));
-      ts.innerHTML='Generation <b>'+(gAge==null?'unknown':mins(gAge)+'m ago')+'</b> &middot; Outages <b>'+(oAge==null?'unknown':mins(oAge)+'m ago')+'</b>'+
-        (stale?' &mdash; feed stale (&gt;45m)':(skew?' &mdash; sources &gt;30m apart':''));
-      if(!(op>0&&av>0)){ showUnavailable('Live generation feed is missing reserve/capacity values.'); return; }
-      if(stale){ showUnavailable('Live feed is stale (older than 45 minutes).'); return; }
-      showLive(op/av*100, out, op, av);
+      ts.innerHTML='Generation <b>'+(gAge==null?'unknown':mins(gAge)+'m ago')+'</b> &middot; Outages <b>'+
+        (oAge==null?'unavailable':mins(oAge)+'m ago')+'</b>'+
+        (stale?' &mdash; generation feed stale (&gt;45m)':(skew?' &mdash; the two feeds are &gt;30m apart, so each tile is current only for its own source':''));
+
+      if(stale){ showUnavailable('The generation feed is stale (older than 45 minutes).'); return; }
+      var need=['totalGeneration','availableCapacityMw','operatingReserveMw','spinningReserveMw'];
+      for(var i=0;i<need.length;i++){
+        if(!present(M[need[i]])){ showUnavailable('The generation feed is missing '+need[i]+'.'); return; } }
+      if(!(u&&present(u.mw)&&+u.mw>0)){
+        showUnavailable('No online generating unit was reported, so the N&minus;1 requirement cannot be set.'); return; }
+
+      LIVE={load:+M.totalGeneration, cap:+M.availableCapacityMw, unitMw:+u.mw,
+            nextMw:present(M.nextHourMw)? +M.nextHourMw : null};
+      showAdequacy(adequacy(LIVE.load, LIVE.cap, +M.operatingReserveMw, +M.spinningReserveMw,
+                            LIVE.unitMw, LIVE.nextMw),
+                   u.plant+' · '+u.unit, out);
+      document.getElementById('ga-method').innerHTML=
+        'The N&minus;1 criterion: can the system absorb the loss of its single largest online unit? '+
+        'Every value above is published by the operator (Genera, polled every 10&nbsp;min) and every '+
+        'comparison is a subtraction, so this state is a description of the position right now &mdash; '+
+        'not a probability, not a forecast, and not fitted to outage outcomes. '+
+        (LIVE.nextMw==null? 'The next-hour ramp term is unavailable in this snapshot, so only the '+
+                            'instantaneous rungs were evaluated. '
+                          : 'The ramp term uses the operator&rsquo;s own published next-hour load forecast. ')+
+        'The archived version of this state, kept for scoring, uses our frozen next-hour shape model '+
+        'instead, so the two can differ on the DETERIORATING rung; the rungs above it are identical.';
     }).catch(function(e){
       document.getElementById('gr-ts').textContent='';
       showUnavailable('Live feed unavailable ('+(e&&e.message?e.message:'network error')+').');
@@ -1498,6 +1683,30 @@
     <p><b>Recent notable outages</b> — The worst days of the last 90, ranked by weighted downtime (the same Major&nbsp;&times;&nbsp;1.0 / Partial&nbsp;&times;&nbsp;0.5 / Degraded&nbsp;&times;&nbsp;0.1 minutes used to color the grid history). <i>Peak</i> and <i>Avg unplanned</i> are the highest and mean share of clients out over that day; the Major / Partial / Degraded columns are minutes spent at each severity. Quiet days (under a minute of weighted downtime) are omitted.</p>
     <p><b>% Distribution</b> — Shows each region's share of the total clients without power, indicating where outages are concentrated.</p>
     <p><b>Time zone &amp; freshness</b> — All days and timestamps use Atlantic Standard Time (AST, UTC&minus;4), Puerto Rico's local time. The page refreshes automatically every few minutes; if the newest snapshot is more than 30 minutes old a stale-data notice appears, since the upstream monitor may be paused.</p>
+
+    <h3 style="margin:28px 0 10px">Grid supply adequacy and the reserve&ndash;outage analysis</h3>
+
+    <p><b>Two feeds, never merged</b> — Outage figures come from <a href="https://miluma.lumapr.com/">LUMA</a>'s public feed; generation, capacity and reserve figures come from the <a href="https://genera-pr.com/">Genera</a> generation feed. Both are polled about every 10&nbsp;minutes on independent schedules, so the two are timestamped separately everywhere they appear together and the page says how far apart they are. No displayed number is computed by multiplying one feed against the other at a single instant.</p>
+
+    <p><b>Supply adequacy (the live state)</b> — The N&minus;1 criterion: can the system absorb the loss of its single largest online unit? Four states, first match wins, evaluated purely from the operator's own published values:</p>
+    <table style="max-width:640px;margin:0 0 12px">
+      <thead><tr><th>State</th><th>Condition</th></tr></thead>
+      <tbody>
+        <tr><td>Critical</td><td>load has reached available capacity (headroom &le; 0)</td></tr>
+        <tr><td>Tight</td><td>operating reserve is below the largest online unit</td></tr>
+        <tr><td>Deteriorating</td><td>spinning reserve is below it, now or after the expected next-hour ramp</td></tr>
+        <tr><td>Adequate</td><td>none of the above</td></tr>
+      </tbody>
+    </table>
+    <p>Severity nests automatically because spinning reserve is a subset of operating reserve. The distinction matters on this grid: the reported operating reserve tracks available capacity minus generation almost exactly and sits near a third of load, which no real system carries as responsive reserve — it answers <i>could we cover N&minus;1 at all</i>, while spinning reserve answers <i>could we cover it this instant</i>. The state is deterministic and instantaneous: a pure function of the current snapshot, with no smoothing and no memory of earlier polls. It is deliberately <b>not</b> tuned against outage outcomes — fitting these thresholds to observed outages would turn a described reserve position into an unvalidated predictor wearing the word "deterministic".</p>
+
+    <p><b>Reserve&ndash;outage co-occurrence (the historical table)</b> — Both feeds are averaged into AST clock hours before anything is compared, so an hour that happened to be polled more often does not weigh more. An hour enters the analysis only when both feeds reported in it. Each day is then summarized twice: by its <b>lowest hourly-average operating-reserve share of available capacity</b>, which places it in one of three bands, and by its <b>highest hourly-average unplanned clients without service</b>, which marks it as a 50,000+ day or not. A day is classified only if at least 20 of its hours have both feeds — a day cannot exhibit its own minimum in a handful of hours, and short days bias toward the safe end of the scale. Excluded days are counted on the panel rather than dropped silently.</p>
+
+    <p><b>Why the intervals are wide</b> — The independent unit is the <b>day</b>, not the 10-minute sample: samples taken during one outage are the same event recorded repeatedly, and treating them as independent observations would shrink the intervals by roughly the square root of the number of samples per event. Shares therefore carry Wilson 95% intervals on day-level counts. With only a few dozen days observed, a band showing 0% means "not seen yet in ten days", not "impossible" — its interval reaches well above zero and should be read alongside the point estimate.</p>
+
+    <p><b>Association, not causation, and not a forecast</b> — A day's reserve minimum and its worst outage are not ordered in time; a day can hit its worst outage hours before its tightest reserve. Both can also follow a common cause — a storm raises outages and removes generation at once. The table therefore supports "these occur together" and nothing stronger. Separately, a lagged check does impose an order, pairing the reserve share in one hour against a 50,000+ outage beginning in the next and excluding hours already in one; that check finds onsets far more frequent below 10% reserve than at or above it. It is reported with both its numerators and its denominators because the rate contrast, not either count alone, is the finding — and with its total event count, because that count is what keeps it short of a publishable probability.</p>
+
+    <p><b>Threshold</b> — "50,000+ clients" is a deliberately lower bar than this page's <i>Major Outage</i> status (&ge;10% of clients, &asymp;147k). It counts unplanned clients only: planned work is scheduled crew activity, not a grid failure.</p>
   </div>
 
   <div class="source-note">
