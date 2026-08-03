@@ -1302,7 +1302,7 @@
   <span class="nav-anchor" id="accuracy"></span>
   <div class="panel" id="scoreboard-panel" style="display:none">
     <h2>Forecast Accuracy
-      <span class="panel-note">Sensadvisor vs. Genera<br>1-hour-ahead demand</span>
+      <span class="panel-note">Sensadvisor vs. Genera<br>1-hour-ahead backtest</span>
     </h2>
     <div class="explain"><p class="sb-lead" id="sb-lead"></p></div>
     <div class="sb-grid" id="sb-grid"></div>
@@ -1858,7 +1858,8 @@
       + `It projects forward the typical daily load shape (by hour and weekday) learned over the last ${Math.round(o.nTrain / 144)} days; peaks land in the evening, after rooftop solar fades. `
       + `Highest projected peak: <b>${fmt(top.peak)} MW</b> on ${topDay}. `
       + `<span style="color:var(--secondary-text)">Apparent temperature (below) is shown for context, not yet as a forecast input: on this short window it correlates with rooftop-solar output rather than clean demand, so the calibrated weather sensitivity is still being built. `
-      + `With only about ${Math.round(o.nTrain / 144)} days of history so far, day-ahead-to-7-day accuracy is not yet validated on a large enough sample — treat these as directional, not measured. `
+      + `Only a handful of these multi-day forecasts have been issued and then run out far enough to score, and none has yet had a full 7-day lead come due, so their accuracy is genuinely unmeasured — treat them as directional. `
+      + `(Days of training history, quoted above, say nothing about that: a long fit window is not evidence the forecast was right.) `
       + `This is a model estimate, not an official forecast.</span>`;
 
     // Chart: recent actual -> shape forecast, with apparent temp as context on a 2nd axis.
@@ -1905,14 +1906,22 @@
   // served over http(s) the page fetches the freshest numbers; opened as a local
   // file it can't fetch a sibling, so it falls back to this embedded snapshot.
   // Aggregate accuracy figures only — no keys, no raw rows.
+  // `is_fallback` makes the stale path visible instead of silent. Without it a failed fetch
+  // renders frozen numbers under live-sounding wording, which is the worst of both — the
+  // reader cannot tell they are looking at a snapshot from whenever this file was last cut.
   const SCOREBOARD_FALLBACK = {
     horizon: "1-hour-ahead",
-    n_pairs: 2677,
+    is_fallback: true,
+    n_pairs: 3677,
     window_start: "2026-07-06",
+    score_start: "2026-07-08",
+    score_end: "2026-08-02",
+    n_scored_days: 26,
     scores: {
-      sensadvisor: { mape_pct: 1.48, mae_mw: 35.5, beats_genera_pct: 69.5 },
-      genera:      { mape_pct: 3.01, mae_mw: 71.0 },
-      persistence: { mape_pct: 3.47, mae_mw: 83.7 },
+      sensadvisor: { mape_pct: 1.53, mae_mw: 37.0, beats_genera_pct: 70.5 },
+      genera:      { mape_pct: 3.36, mae_mw: 79.8 },
+      persistence: { mape_pct: 3.40, mae_mw: 82.3 },
+      days:        { n_scored_days: 26, sensadvisor_lower_days: 26 },
     },
   };
 
@@ -1930,33 +1939,61 @@
     const card = (name, tag, sc, color, win) =>
       `<div class="sb-card${win ? " win" : ""}">
         <div class="sb-chead"><span class="sb-name">${name}</span><span class="sb-tag">${tag}</span></div>
-        <div class="sb-mape">${fmt(sc.mape_pct, 2)}<small>% avg error</small></div>
+        <div class="sb-mape">${fmt(sc.mape_pct, 2)}<small>% MAPE</small></div>
         <div class="sb-mae">${fmt(sc.mae_mw, 1)} MW average miss (MAE)</div>
         ${bar(sc.mape_pct, color)}
       </div>`;
 
+    // Persistence gets a full card, not a footnote. It is the benchmark that carries the
+    // actual finding: Genera's published next-hour number is barely distinguishable from
+    // assuming nothing changes at all. Burying it flatters us by omission.
     document.getElementById("sb-grid").innerHTML =
       card("Sensadvisor", "Our model", s, "var(--signal)", true) +
-      card("Genera", "Utility forecast", g, "var(--chart-muted)", false);
+      card("Genera", "Utility forecast", g, "var(--chart-muted)", false) +
+      (p ? card("Persistence", "Naïve baseline", p, "var(--chart-muted)", false) : "");
 
     const better = g.mape_pct > 0 ? Math.round((1 - s.mape_pct / g.mape_pct) * 100) : 0;
     document.getElementById("sb-lead").innerHTML =
       `Every 15 minutes Genera publishes one forward-looking number — its <b>next-hour</b> demand forecast. `
-      + `We forecast the same hour and score both against what actually happened. `
-      + `Head to head, Sensadvisor's average error is <b>${better}% lower</b>.`;
+      + `In a rolling-origin backtest we reconstruct what our model would have called for that same hour, `
+      + `using only observations from dates before it, and score both against what actually happened. `
+      + `Head to head, Sensadvisor's error is <b>${better}% lower</b>.`;
 
-    document.getElementById("sb-win").innerHTML =
-      `<span class="sb-win-num">${fmt(s.beats_genera_pct, 1)}%</span>`
-      + `<span class="sb-win-txt">of matched forecasts, our next-hour call lands closer than Genera's own.</span>`;
+    // Days, not pairs. Pairs arrive every 10-15 minutes and overlap almost entirely, so a
+    // percentage-of-pairs headline implies far more independent evidence than exists.
+    const days = d.scores.days || {};
+    const nd = days.n_scored_days || d.n_scored_days;
+    const won = days.sensadvisor_lower_days;
+    document.getElementById("sb-win").innerHTML = (nd && won != null)
+      ? `<span class="sb-win-num">${won} of ${nd}</span>`
+        + `<span class="sb-win-txt">scored days, our next-hour call had the lower daily error. `
+        + `(Across individual matched forecasts, ${fmt(s.beats_genera_pct, 1)}% land closer than Genera's.)</span>`
+      : `<span class="sb-win-num">${fmt(s.beats_genera_pct, 1)}%</span>`
+        + `<span class="sb-win-txt">of matched forecasts, our next-hour call lands closer than Genera's own.</span>`;
 
-    const since = d.window_start
-      ? new Date(d.window_start + "T12:00:00Z").toLocaleDateString("en-US", { timeZone: AST_TZ, month: "short", day: "numeric", year: "numeric" })
+    // score_start, not window_start: the head of the raw window is spent accumulating
+    // training history before any forecast can be scored, so the raw start date would
+    // overstate the evaluated record by a couple of days.
+    const day = (iso) => iso
+      ? new Date(iso + "T12:00:00Z").toLocaleDateString("en-US", { timeZone: AST_TZ, month: "short", day: "numeric", year: "numeric" })
       : null;
-    const baseline = p ? `Naïve baseline (last reading held flat) errs <span class="sb-base">${fmt(p.mape_pct, 2)}%</span>. ` : "";
+    const a = day(d.score_start), b2 = day(d.score_end);
+    const span = a && b2 ? `${a} – ${b2}` : (a ? `${a} to now` : "");
+    const vintage = d.data_vintage
+      ? `Data through ${new Date(d.data_vintage).toLocaleString("en-US", { timeZone: AST_TZ, month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })} AST. `
+      : "";
+    const stale = d.is_fallback
+      ? `<b>Showing a stored snapshot</b> — live figures could not be loaded, so these numbers are as of the date range shown and not necessarily current. `
+      : "";
     document.getElementById("sb-foot").innerHTML =
-      `Based on <b>${fmt(d.n_pairs, 0)}</b> matched next-hour forecasts${since ? `, ${since} to now` : ""} `
-      + `(one per snapshot, issued about every 10–15 minutes — not one per clock hour), `
-      + `scored on an expanding window with no look-ahead (a fair, leakage-free comparison). ${baseline}`
+      stale
+      + `${nd ? `<b>${nd}</b> scored days` : ""}${span ? `, ${span}` : ""}. `
+      + `This is a causal backtest, not a prospective record: forecasts are reconstructed after the fact from `
+      + `coefficients fit only on prior dates, which rules out look-ahead but is not the same as having archived `
+      + `each call when it was issued. `
+      + `It rests on <b>${fmt(d.n_pairs, 0)}</b> matched forecasts (one per snapshot, about every 10–15 minutes), `
+      + `but those overlap heavily, so days — not the raw pair count — are the unit of evidence. `
+      + vintage
       + `Comparison is 1-hour-ahead only — Genera publishes no longer-range forecast, so the 7-day outlook above has no utility number to compare against. `
       + `Independent Sensadvisor analysis; not affiliated with or endorsed by Genera PR.`;
   }
