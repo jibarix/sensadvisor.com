@@ -1,35 +1,35 @@
 {
-  "generated_at": "2026-08-05T15:32:46.778660+00:00",
-  "data_vintage": "2026-08-05T11:30:02.210000-04:00",
+  "generated_at": "2026-08-06T15:35:11.060220+00:00",
+  "data_vintage": "2026-08-06T11:30:00.922000-04:00",
   "window_start": "2026-07-06",
   "score_start": "2026-07-08",
-  "score_end": "2026-08-05",
-  "n_scored_days": 29,
+  "score_end": "2026-08-06",
+  "n_scored_days": 30,
   "model_version": "step1-v2-fourier3-weekend-shapeonly",
   "horizon": "1-hour-ahead",
   "evaluation": "rolling-origin backtest (causal, reconstructed; not a prospective archive)",
   "methodology": "identical matched pairs; expanding-window pure-shape drift, no weather (no leakage)",
-  "n_pairs": 4044,
+  "n_pairs": 4186,
   "scores": {
     "genera": {
-      "mae_mw": 81.0,
-      "mape_pct": 3.4
-    },
-    "persistence": {
-      "mae_mw": 81.5,
+      "mae_mw": 80.2,
       "mape_pct": 3.36
     },
+    "persistence": {
+      "mae_mw": 81.2,
+      "mape_pct": 3.34
+    },
     "sensadvisor": {
-      "mae_mw": 36.9,
+      "mae_mw": 36.8,
       "mape_pct": 1.52,
       "beats_genera_pct": 71.8
     },
-    "n_pairs": 4044,
+    "n_pairs": 4186,
     "days": {
-      "n_scored_days": 29,
+      "n_scored_days": 30,
       "score_start": "2026-07-08",
-      "score_end": "2026-08-05",
-      "sensadvisor_lower_days": 29,
+      "score_end": "2026-08-06",
+      "sensadvisor_lower_days": 30,
       "daily": [
         {
           "date": "2026-07-08",
@@ -229,38 +229,45 @@
         },
         {
           "date": "2026-08-05",
-          "n_pairs": 64,
-          "sensadvisor_mape": 1.11,
-          "genera_mape": 6.13,
-          "persistence_mape": 2.23
+          "n_pairs": 144,
+          "sensadvisor_mape": 1.39,
+          "genera_mape": 4.09,
+          "persistence_mape": 2.82
+        },
+        {
+          "date": "2026-08-06",
+          "n_pairs": 62,
+          "sensadvisor_mape": 1.15,
+          "genera_mape": 2.02,
+          "persistence_mape": 2.48
         }
       ]
     }
   },
   "diurnal_mw": [
-    2599.7,
-    2498.6,
-    2418.2,
-    2355.3,
-    2321.6,
-    2325.9,
-    2303.8,
-    2298.2,
-    2269.5,
-    2198.0,
-    2091.7,
-    2033.3,
-    2016.5,
-    2064.3,
-    2172.1,
-    2333.2,
-    2528.6,
-    2694.3,
-    2787.7,
-    2856.2,
-    2886.5,
-    2843.7,
-    2775.6,
-    2713.8
+    2599.3,
+    2498.3,
+    2417.3,
+    2354.9,
+    2321.5,
+    2326.5,
+    2305.1,
+    2300.7,
+    2273.1,
+    2202.1,
+    2094.5,
+    2036.1,
+    2019.8,
+    2067.0,
+    2175.9,
+    2335.5,
+    2529.2,
+    2693.5,
+    2785.7,
+    2852.6,
+    2885.4,
+    2845.1,
+    2776.2,
+    2714.1
   ]
 }
