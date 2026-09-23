@@ -26,9 +26,8 @@
 <meta name="twitter:title" content="PR Generation Status">
 <meta name="twitter:description" content="Grid-adequacy indicator for Puerto Rico — reserves, relevos-de-carga risk, hourly generation profile, and units online vs offline.">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preload" href="/fonts/source-code-pro-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>@font-face{font-family:'Source Code Pro';font-style:normal;font-weight:300 700;font-display:swap;src:url(/fonts/source-code-pro-latin.woff2) format('woff2')}</style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 
@@ -1543,9 +1542,7 @@
     const pageSize = 1000;
     let offset = 0, all = [];
     while (true) {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/${view}?${params}&limit=${pageSize}&offset=${offset}`, {
-        headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
-      });
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/${view}?${params}&limit=${pageSize}&offset=${offset}&apikey=${SUPABASE_KEY}`);
       if (!res.ok) throw new Error(`Supabase ${view}: ${res.status}`);
       const rows = await res.json();
       all = all.concat(rows);

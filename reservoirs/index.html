@@ -26,9 +26,8 @@
 <meta name="twitter:title" content="PR Reservoir Levels">
 <meta name="twitter:description" content="Puerto Rico reservoir levels compared against PRASA's operating thresholds — per-reservoir status and level history.">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preload" href="/fonts/source-code-pro-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>@font-face{font-family:'Source Code Pro';font-style:normal;font-weight:300 700;font-display:swap;src:url(/fonts/source-code-pro-latin.woff2) format('woff2')}</style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 
@@ -1512,9 +1511,7 @@
     const pageSize = 1000;
     let offset = 0, all = [];
     while (true) {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/${view}?${params}&limit=${pageSize}&offset=${offset}`, {
-        headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
-      });
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/${view}?${params}&limit=${pageSize}&offset=${offset}&apikey=${SUPABASE_KEY}`);
       if (!res.ok) throw new Error(`Supabase ${view}: ${res.status}`);
       const rows = await res.json();
       all = all.concat(rows);
@@ -1528,6 +1525,9 @@
   const fmt = (n, d = 0) =>
     (n === null || n === undefined || isNaN(n)) ? "—"
       : Number(n).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+  // Database strings are interpolated into innerHTML below; escape them.
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g,
+    c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const signed = (n, d = 2) => (n === null || n === undefined || isNaN(n)) ? "—" : (n >= 0 ? "+" : "") + fmt(n, d);
 
   function relTime(iso) {
@@ -1994,7 +1994,7 @@
                 const r = rows[items[0].dataIndex];
                 const pct = r.pct_capacity == null ? null : Number(r.pct_capacity);
                 return `${pct === null ? "—" : fmt(pct, 0) + "% of original remains"}`
-                  + ` · built ${r.year_built || "?"}`
+                  + ` · built ${esc(r.year_built || "?")}`
                   + (r.survey_year ? ` · survey ${r.survey_year}` : "");
               },
               label: c => {
@@ -2062,14 +2062,14 @@
       const dColor = d === null ? "var(--secondary-text)" : d > 0.005 ? "var(--ok)" : d < -0.005 ? "var(--crit)" : "var(--secondary-text)";
       const cap = num(r.capacity_mm3), capO = num(r.capacity_orig_mm3);
       const silted = r.pct_capacity == null ? null : 100 - Number(r.pct_capacity);
-      const capTitle = capO === null ? "" : `original ${fmt(capO, 1)} Mm³ · ${fmt(silted, 0)}% silted since ${r.year_built || "built"}`;
+      const capTitle = capO === null ? "" : `original ${fmt(capO, 1)} Mm³ · ${fmt(silted, 0)}% silted since ${esc(r.year_built || "built")}`;
       const sy = num(r.safe_yield_mgd);
       return `<tr class="res-row">
-        <td>${r.name}</td>
-        <td>${r.municipio || "—"}</td>
-        <td><span class="badge badge-op">${r.operator || "—"}</span></td>
+        <td>${esc(r.name)}</td>
+        <td>${esc(r.municipio || "—")}</td>
+        <td><span class="badge badge-op">${esc(r.operator || "—")}</span></td>
         <td class="num">${fmt(r.level_m, 2)}</td>
-        <td><span class="badge" style="background:${hexA(b.color, 0.16)};color:${b.text};border:1px solid ${hexA(b.color, 0.5)}">${r.status || "—"}</span></td>
+        <td><span class="badge" style="background:${hexA(b.color, 0.16)};color:${b.text};border:1px solid ${hexA(b.color, 0.5)}">${esc(r.status || "—")}</span></td>
         <td>
           <div class="fill-cell">
             <div class="fill-track"><div class="fill-bar" style="width:${barW}%;background:${b.color}"></div></div>
@@ -2216,9 +2216,9 @@
       const [lat, lon] = DAM_COORDS[r.site_no];
       const x = mapProj.x(lon).toFixed(1), y = mapProj.y(lat).toFixed(1);
       const pos = r.pct_operating === null ? "" : `, ${fmt(r.pct_operating, 0)}% of operating range`;
-      return `<g class="map-dot" data-site="${r.site_no}" tabindex="0" role="button"
-                 aria-label="${r.name}: ${r.status || "unknown"}${pos}">
-        <title>${r.name} — ${r.status || "?"}</title>
+      return `<g class="map-dot" data-site="${esc(r.site_no)}" tabindex="0" role="button"
+                 aria-label="${esc(r.name)}: ${esc(r.status || "unknown")}${pos}">
+        <title>${esc(r.name)} — ${esc(r.status || "?")}</title>
         <circle class="ring" cx="${x}" cy="${y}" r="14"/>
         <circle class="dot" cx="${x}" cy="${y}" r="9" fill="${r._band.color}"/>
         <circle class="hit" cx="${x}" cy="${y}" r="12"/>
@@ -2320,13 +2320,13 @@
 
     pop.innerHTML = `
       <div class="map-pop-head">
-        <span class="map-pop-name">${r.name}</span>
+        <span class="map-pop-name">${esc(r.name)}</span>
         <button class="map-pop-close" type="button" aria-label="Close">&times;</button>
       </div>
-      <div class="map-pop-where">${r.municipio || "—"}${r.operator ? " · " + r.operator : ""}</div>
-      <span class="map-pop-band" style="background:${b.color}">${r.status || "Unknown"} — ${b.label}</span>
+      <div class="map-pop-where">${esc(r.municipio || "—")}${r.operator ? " · " + esc(r.operator) : ""}</div>
+      <span class="map-pop-band" style="background:${b.color}">${esc(r.status || "Unknown")} — ${b.label}</span>
       <dl>${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>
-      <div class="map-pop-links"><a href="#history">${r.name} history ↓</a></div>`;
+      <div class="map-pop-links"><a href="#history">${esc(r.name)} history ↓</a></div>`;
     pop.querySelector(".map-pop-close").addEventListener("click", closeMapPop);
     pop.hidden = false;
     positionMapPop(site);
@@ -2360,7 +2360,7 @@
   function setupHistory() {
     const sel = document.getElementById("hist-site");
     const opts = statusRows.slice().sort((a, b) => (b.status_rank - a.status_rank) || a.name.localeCompare(b.name));
-    sel.innerHTML = opts.map(r => `<option value="${r.site_no}">${r.name} — ${r.status || "?"}</option>`).join("");
+    sel.innerHTML = opts.map(r => `<option value="${esc(r.site_no)}">${esc(r.name)} — ${esc(r.status || "?")}</option>`).join("");
     histSite = opts[0].site_no;               // default: most-concerning reservoir
     sel.value = histSite;
     sel.addEventListener("change", () => selectSite(sel.value));
@@ -2384,7 +2384,7 @@
     if (!r.year_built && capO === null && !r.dam_type) return "";
     let s = "";
     const bits = [];
-    if (r.year_built) bits.push(`Built ${r.year_built}`);
+    if (r.year_built) bits.push(`Built ${esc(r.year_built)}`);
     if (r.owner_2016) bits.push(`owner ${r.owner_2016}`);
     if (uses) bits.push(`uses ${uses.toLowerCase()}`);
     if (bits.length) s += " " + bits.join(", ") + ".";
@@ -2427,9 +2427,9 @@
         ? new Date(lastIso).toLocaleString("en-US", { timeZone: AST_TZ, dateStyle: "medium", timeStyle: "short" }) + " AST"
         : "unknown";
       if (isStale(lastIso)) {
-        note.innerHTML = `<b>${r.name}</b> — its USGS gauge has not reported a new elevation since <b>${relTime(lastIso)}</b> (${lastLabel}). The water-level sensor appears offline; the chart resumes automatically once USGS publishes new readings. Last known level <b>${fmt(r.level_m, 2)} m</b> (${r.status}).` + profileLine(r);
+        note.innerHTML = `<b>${esc(r.name)}</b> — its USGS gauge has not reported a new elevation since <b>${relTime(lastIso)}</b> (${lastLabel}). The water-level sensor appears offline; the chart resumes automatically once USGS publishes new readings. Last known level <b>${fmt(r.level_m, 2)} m</b> (${esc(r.status)}).` + profileLine(r);
       } else {
-        note.innerHTML = `<b>${r.name}</b> — not enough stored history yet for this window. The reservoir poller began recording recently; the chart fills in as readings accumulate. Current level <b>${fmt(r.level_m, 2)} m</b> (${r.status}).` + profileLine(r);
+        note.innerHTML = `<b>${esc(r.name)}</b> — not enough stored history yet for this window. The reservoir poller began recording recently; the chart fills in as readings accumulate. Current level <b>${fmt(r.level_m, 2)} m</b> (${esc(r.status)}).` + profileLine(r);
       }
       return;
     }
@@ -2492,7 +2492,7 @@
     chartHistory.update();
 
     const spanDays = (series[series.length - 1].t - series[0].t) / 86400000;
-    note.innerHTML = `<b>${r.name}</b> (${r.municipio || "—"}, ${r.operator || "—"}) — currently <b>${fmt(r.level_m, 2)} m</b>, in the <b>${r.status}</b> band. Shaded bands and dashed lines are PRASA's alert levels; the reservoir spills at <b>${fmt(thresholds.desborde_m, 2)} m</b> and enters rationing controls below <b>${fmt(thresholds.control_m, 2)} m</b>. Showing ${series.length} readings over ${spanDays < 1 ? "under a day" : fmt(spanDays, 0) + " day" + (spanDays >= 2 ? "s" : "")}.` + profileLine(r);
+    note.innerHTML = `<b>${esc(r.name)}</b> (${esc(r.municipio || "—")}, ${esc(r.operator || "—")}) — currently <b>${fmt(r.level_m, 2)} m</b>, in the <b>${esc(r.status)}</b> band. Shaded bands and dashed lines are PRASA's alert levels; the reservoir spills at <b>${fmt(thresholds.desborde_m, 2)} m</b> and enters rationing controls below <b>${fmt(thresholds.control_m, 2)} m</b>. Showing ${series.length} readings over ${spanDays < 1 ? "under a day" : fmt(spanDays, 0) + " day" + (spanDays >= 2 ? "s" : "")}.` + profileLine(r);
   }
 
   function showError(msg) {
