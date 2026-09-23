@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.sensadvisor.com/sitemap.xml
+Sitemap: https://sensadvisor.com/sitemap.xml

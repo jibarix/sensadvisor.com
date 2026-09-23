@@ -1,0 +1,34 @@
+# SENS ADVISOR
+
+> Independent xP&A (extended planning & analysis) and data consulting practice run by Jorge A. Arroyo in San Juan, Puerto Rico. Financial modeling, Puerto Rico private company valuation, Azure BI, custom analytics and data products, and practical AI/LLM implementation, backed by published applied-economics research.
+
+To contact Jorge about consulting work, use LinkedIn (https://www.linkedin.com/in/jorgeantonioarroyo) or email consult@sensadvisor.com.
+
+## Services
+
+- Financial Modeling & Analysis: integrated 3-statement models, driver-based budgeting and forecasting, DCF and business valuation, scenario planning, Puerto Rico private company valuation, startup financial planning for funding.
+- Data & Business Intelligence: Azure data architecture and warehousing, ETL/ELT pipelines, Power BI dashboards, data modeling and governance, predictive modeling.
+- Custom Analytics & Data Products: real-time economic and market dashboards, automated data pipelines (scraping, ETL, cloud database), forecasting, public-facing interactive dashboards.
+- AI & LLM Solutions: LLM workflow automation, agentic tool enablement (Claude Code, Codex), model evaluation and validation, document and data extraction, realistic AI opportunity assessments.
+
+## Live Puerto Rico dashboards
+
+- [PR Outage Status](https://sensadvisor.com/outages/): real-time power outages by region.
+- [PR Generation Status](https://sensadvisor.com/generation/): electricity generation, reserves and grid-adequacy indicator.
+- [PR Reservoir Levels](https://sensadvisor.com/reservoirs/): reservoir elevations vs PRASA operational thresholds.
+- [San Juan Rentals](https://sensadvisor.com/rentals/): rent analytics by district and building.
+- [PR Labor Market Conditions Index](https://sensadvisor.com/pr-lmci/): composite labor market index for Puerto Rico.
+- [US Recession Probability](https://sensadvisor.com/recession/): US recession risk model.
+
+## Research
+
+- [arXiv:2511.19469](https://arxiv.org/abs/2511.19469): Big Wins, Small Net Gains: Direct and Spillover Effects of First Industry Entries in Puerto Rico.
+- [arXiv:2510.25782](https://arxiv.org/abs/2510.25782): Short-Run Multi-Outcome Effects of Nightlife Regulation in San Juan.
+- Further working papers on SSRN (Puerto Rico economics, electricity shortfalls, national accounting, municipal bonds, financial fragility, AI governance) are listed on the [homepage](https://sensadvisor.com/#research).
+
+## Contact
+
+- [LinkedIn](https://www.linkedin.com/in/jorgeantonioarroyo)
+- Email: consult@sensadvisor.com
+- [GitHub](https://github.com/jibarix)
+- [Upwork](https://www.upwork.com/freelancers/~01a7f187cf78eb46a0)

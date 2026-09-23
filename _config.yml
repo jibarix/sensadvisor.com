@@ -1,0 +1,4 @@
+# GitHub Pages builds this site with Jekyll, which skips dot-folders by default.
+# Publish /.well-known/ so /.well-known/security.txt is served.
+include:
+  - .well-known

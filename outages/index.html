@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.clarity.ms https://*.clarity.ms; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.clarity.ms https://c.bing.com; font-src 'self'; connect-src 'self' https://grovomkpsqgzakfuvuii.supabase.co https://api.open-meteo.com https://*.clarity.ms https://c.bing.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- Theme init: set data-theme before paint to avoid a flash -->
 <script>
 (function () {
@@ -26,9 +28,8 @@
 <meta name="twitter:title" content="PR Outage Status">
 <meta name="twitter:description" content="Real-time power grid monitoring — unplanned and planned outages by region.">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preload" href="/fonts/source-code-pro-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>@font-face{font-family:'Source Code Pro';font-style:normal;font-weight:300 700;font-display:swap;src:url(/fonts/source-code-pro-latin.woff2) format('woff2')}</style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 
@@ -925,6 +926,14 @@
     .panel .chart-container { height: 280px; min-height: 280px; }
   }
 </style>
+<!-- Microsoft Clarity Analytics -->
+<script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "rdalx1jkyh");
+</script>
 </head>
 <body>
 <button class="back-to-top" type="button" aria-label="Back to top" aria-hidden="true" tabindex="-1">
@@ -1299,7 +1308,7 @@
       var c=(p+z2/(2*n))/d, h=(z*Math.sqrt(p*(1-p)/n + z2/(4*n*n)))/d;
       return [Math.max(0,c-h)*100, Math.min(1,c+h)*100]; }
     function ci(t){return wilson(t.k,t.days);}
-    function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+    function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
     function share(t){return t.days? 100*t.k/t.days : 0;}
     function buildTiers(rows){
       return rows.slice().sort(function(a,b){return a.tier_order-b.tier_order;}).map(function(r){
@@ -1321,7 +1330,7 @@
         // x.range carries a literal "<" for the CRITICAL band. It is the right form for
         // drawBars(), which assigns it to an SVG textContent, so escape here at the one place
         // it crosses into markup rather than pre-escaping the shared constant.
-        tr.innerHTML='<td><span class="gr-sw" style="background:'+x.color+'"></span>'+esc(x.range)+' &middot; '+x.name+'</td>'+
+        tr.innerHTML='<td><span class="gr-sw" style="background:'+x.color+'"></span>'+esc(x.range)+' &middot; '+esc(x.name)+'</td>'+
           '<td>'+x.days+'</td><td>'+x.k+'</td>'+
           '<td>'+Math.round(share(x))+'% ('+Math.round(c[0])+'&ndash;'+Math.round(c[1])+'%)</td>';
         tb.appendChild(tr);
@@ -1367,7 +1376,7 @@
       var lr=lo/la, nr=no/na, pc=function(x){return (100*x).toFixed(2)+'%';};
       return 'Reserve appears to <b>lead</b> onset, not merely accompany it. Pairing the reserve share '+
         'at hour <i>t</i> with a 50,000+ client unplanned outage beginning at <i>t</i>+1 &mdash; over '+
-        m.lag_hours+' hours across '+m.lag_days+' days, excluding hours already in such an outage: '+
+        esc(m.lag_hours)+' hours across '+esc(m.lag_days)+' days, excluding hours already in such an outage: '+
         '<b>'+lo+' of '+la+'</b> hours below 10% reserve ('+pc(lr)+') were followed by an onset, '+
         'against <b>'+no+' of '+na+'</b> at or above 10% ('+pc(nr)+')'+
         (no>0? ' &mdash; about '+Math.round(lr/nr)+'&times; higher.' : '.')+
@@ -1387,20 +1396,20 @@
         '<b>highest hourly-average unplanned clients without service</b> reached 50,000. Both are '+
         'properties of the whole day. Neither is a reading of the current hour, and the two are '+
         'not ordered in time &mdash; a day can reach its worst outage before its tightest reserve. '+
-        'Read this as co-occurrence over '+m.total_days+' days, not as a rate that applies to now.';
+        'Read this as co-occurrence over '+esc(m.total_days)+' days, not as a rate that applies to now.';
 
       var thin=+m.days_excluded_thin;
       document.getElementById('gr-method').innerHTML=
         'Sources: LUMA&rsquo;s public outage feed and the Genera generation feed, both polled every '+
         '10&nbsp;min and averaged into local clock hours before anything is compared, so an hour '+
         'polled more often does not weigh more. A day is classified only if at least '+
-        m.min_hours_required+' of its hours have <i>both</i> feeds'+
+        esc(m.min_hours_required)+' of its hours have <i>both</i> feeds'+
         (thin>0? ' &mdash; '+thin+' observed day'+(thin===1?' was':'s were')+' too short to '+
                  'classify and '+(thin===1?'is':'are')+' excluded, since a day cannot show its '+
                  'own minimum in a few hours.' : '.')+
         ' The independent unit is the <b>day</b>: 10-minute samples inside one outage are the same '+
         'event counted repeatedly, which is why the Wilson 95% intervals are wide &mdash; only '+
-        m.days_any_50k+' of '+m.total_days+' days had any 50k+ outage at all, so a band showing 0% '+
+        esc(m.days_any_50k)+' of '+esc(m.total_days)+' days had any 50k+ outage at all, so a band showing 0% '+
         'means no such day has turned up yet in the handful of days that band holds, not that one '+
         'cannot happen; read its interval. '+
         '&ldquo;50,000+ clients&rdquo; is a deliberately lower bar than this page&rsquo;s &ldquo;major&rdquo; '+
@@ -1513,8 +1522,7 @@
     function ago(ts){ var t=Date.parse(ts); if(isNaN(t)) return null; return Date.now()-t; }
     function mins(ms){ return Math.round(ms/60000); }
 
-    var HDR={apikey:KEY,Authorization:'Bearer '+KEY};
-    function grab(url){ return fetch(url,{headers:HDR}).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); }); }
+    function grab(url){ return fetch(url+'&apikey='+KEY).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); }); }
     function grabSafe(url){ return grab(url).then(function(x){return x;}, function(){return null;}); }
     // ZERO IS A READING, NOT A GAP — an operating reserve of zero is the most critical value
     // this feed can report, and a guard of the form `x > 0` suppresses exactly the moment the
@@ -1950,9 +1958,7 @@
     let offset = 0;
     let all = [];
     while (true) {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}&limit=${pageSize}&offset=${offset}`, {
-        headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
-      });
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}&limit=${pageSize}&offset=${offset}&apikey=${SUPABASE_KEY}`);
       if (!res.ok) throw new Error(`Supabase ${table}: ${res.status}`);
       const rows = await res.json();
       all = all.concat(rows);

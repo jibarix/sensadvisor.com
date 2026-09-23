@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://www.sensadvisor.com/</loc>
+    <loc>https://sensadvisor.com/</loc>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://www.sensadvisor.com/recession/</loc>
+    <loc>https://sensadvisor.com/recession/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.sensadvisor.com/rentals/</loc>
+    <loc>https://sensadvisor.com/rentals/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.sensadvisor.com/pr-lmci/</loc>
+    <loc>https://sensadvisor.com/pr-lmci/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.sensadvisor.com/outages/</loc>
+    <loc>https://sensadvisor.com/outages/</loc>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.sensadvisor.com/generation/</loc>
+    <loc>https://sensadvisor.com/generation/</loc>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>

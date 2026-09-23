@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.clarity.ms https://*.clarity.ms; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.clarity.ms https://c.bing.com; font-src 'self'; connect-src 'self' https://grovomkpsqgzakfuvuii.supabase.co https://api.open-meteo.com https://*.clarity.ms https://c.bing.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <!-- Theme init: set data-theme before paint to avoid a flash -->
     <script>
         (function () {
@@ -38,19 +40,18 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <!-- Google Fonts - Source Code Pro -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preload" href="/fonts/source-code-pro-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <style>@font-face{font-family:'Source Code Pro';font-style:normal;font-weight:300 700;font-display:swap;src:url(/fonts/source-code-pro-latin.woff2) format('woff2')}</style>
     
     <!-- SEO Meta Tags -->
     <meta name="description" content="SENS ADVISOR provides expert consulting in Financial Modeling, Puerto Rico Private Company Valuation, Azure BI Services, and Custom Advanced Analytics. Gain financial clarity through integrated xP&A."/>
     <meta name="keywords" content="Financial Modeling, Business Valuation, Private Company Valuation, Azure, Power BI, Databricks, Analytics, WACC, Treasury Yield, S&P 500, Stock Market, Interest Rates, xP&A, Consulting, Financial Clarity, Puerto Rico, AI, Artificial Intelligence, LLM, Large Language Models, Machine Learning, Diffusion Models, Neural Networks, GPT, Transformer Models, AI Consulting, ML Analytics, Deep Learning, Data Science, Predictive Analytics, AI Implementation, LLM Integration, Natural Language Processing, AI Strategy"/>
-    <link rel="canonical" href="https://www.sensadvisor.com/" />
+    <link rel="canonical" href="https://sensadvisor.com/" />
 
     <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="SENS ADVISOR | Jorge A. Arroyo - xP&A & Data Consultant" />
     <meta property="og:description" content="SENS ADVISOR provides expert consulting in Financial Modeling, Puerto Rico Private Company Valuation, Azure BI Services, and Custom Advanced Analytics. Gain financial clarity through integrated xP&A." />
-    <meta property="og:url" content="https://www.sensadvisor.com/" />
+    <meta property="og:url" content="https://sensadvisor.com/" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="SENS ADVISOR" />
     <!-- TODO: Add og:image once a brand image is available (recommended 1200x630px) -->
@@ -66,7 +67,7 @@
       "@context": "https://schema.org",
       "@type": "ProfessionalService",
       "name": "SENS ADVISOR",
-      "url": "https://www.sensadvisor.com",
+      "url": "https://sensadvisor.com",
       "description": "Expert consulting in Financial Modeling, Puerto Rico Private Company Valuation, Azure BI Services, and Custom Advanced Analytics.",
       "founder": {
         "@type": "Person",
@@ -1984,9 +1985,8 @@
         (function () {
             var SB = "https://grovomkpsqgzakfuvuii.supabase.co";
             var KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdyb3ZvbWtwc3FnemFrZnV2dWlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NzkxMjgsImV4cCI6MjA5MDE1NTEyOH0.U_ZH5gJij5NLkU786mV58uJ0orHZ6ElMkCtyoyuCvBg";
-            var HED = { apikey: KEY, Authorization: "Bearer " + KEY };
             function sb(path) {
-                return fetch(SB + "/rest/v1/" + path, { headers: HED, cache: "no-store" })
+                return fetch(SB + "/rest/v1/" + path + "&apikey=" + KEY, { cache: "no-store" })
                     .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); });
             }
             function fmt(n) { return (Math.round(n)).toLocaleString("en-US"); }
@@ -2905,7 +2905,7 @@
             var wordmark = intro.querySelector('.intro-wordmark');
             var logoText = document.querySelector('.logo > span');
             var timers = [];
-            var WORDMARK_HOLD = 1100;
+            var WORDMARK_HOLD = 500;
             var REVEAL_DURATION = 800;
             var introStarted = false;
 

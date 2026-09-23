@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.clarity.ms https://*.clarity.ms; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.clarity.ms https://c.bing.com; font-src 'self'; connect-src 'self' https://grovomkpsqgzakfuvuii.supabase.co https://api.open-meteo.com https://*.clarity.ms https://c.bing.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- Theme init: set data-theme before paint to avoid a flash -->
 <script>
 (function () {
@@ -26,9 +28,8 @@
 <meta name="twitter:title" content="PR Generation Status">
 <meta name="twitter:description" content="Grid-adequacy indicator for Puerto Rico — reserves, relevos-de-carga risk, hourly generation profile, and units online vs offline.">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preload" href="/fonts/source-code-pro-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>@font-face{font-family:'Source Code Pro';font-style:normal;font-weight:300 700;font-display:swap;src:url(/fonts/source-code-pro-latin.woff2) format('woff2')}</style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 
@@ -1034,6 +1035,14 @@
   .sb-foot b { color: var(--primary-text); font-weight: 700; }
   .sb-base { font-variant-numeric: tabular-nums; }
 </style>
+<!-- Microsoft Clarity Analytics -->
+<script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "rdalx1jkyh");
+</script>
 </head>
 <body>
 <button class="back-to-top" type="button" aria-label="Back to top" aria-hidden="true" tabindex="-1">
@@ -1543,9 +1552,7 @@
     const pageSize = 1000;
     let offset = 0, all = [];
     while (true) {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/${view}?${params}&limit=${pageSize}&offset=${offset}`, {
-        headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
-      });
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/${view}?${params}&limit=${pageSize}&offset=${offset}&apikey=${SUPABASE_KEY}`);
       if (!res.ok) throw new Error(`Supabase ${view}: ${res.status}`);
       const rows = await res.json();
       all = all.concat(rows);
