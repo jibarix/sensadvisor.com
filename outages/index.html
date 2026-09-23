@@ -1953,17 +1953,19 @@
   let uptimeViewMode = "total";
 
   // --- Supabase fetch helper (paginates to bypass server max-rows cap) ---
+  // The first page goes alone (most queries fit in it). If it comes back full, the
+  // rest are fetched in parallel batches rather than one round-trip per page.
   async function sbQuery(table, params = "") {
-    const pageSize = 1000;
-    let offset = 0;
-    let all = [];
-    while (true) {
+    const pageSize = 1000, batch = 6;
+    const page = async (offset) => {
       const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}&limit=${pageSize}&offset=${offset}&apikey=${SUPABASE_KEY}`);
       if (!res.ok) throw new Error(`Supabase ${table}: ${res.status}`);
-      const rows = await res.json();
-      all = all.concat(rows);
-      if (rows.length < pageSize) break;
-      offset += pageSize;
+      return res.json();
+    };
+    let all = await page(0);
+    for (let next = pageSize; all.length === next; next += batch * pageSize) {
+      const pages = await Promise.all(Array.from({ length: batch }, (_, i) => page(next + i * pageSize)));
+      for (const rows of pages) all = all.concat(rows);
     }
     return all;
   }
