@@ -2,8 +2,6 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.clarity.ms https://*.clarity.ms; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.clarity.ms https://c.bing.com; font-src 'self'; connect-src 'self' https://grovomkpsqgzakfuvuii.supabase.co https://api.open-meteo.com https://*.clarity.ms https://c.bing.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
-  <meta name="referrer" content="strict-origin-when-cross-origin" />
   <!-- Theme init: set data-theme before paint to avoid a flash -->
   <script>
   (function () {
@@ -21,8 +19,9 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
-  <link rel="preload" href="/fonts/source-code-pro-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <style>@font-face{font-family:'Source Code Pro';font-style:normal;font-weight:300 700;font-display:swap;src:url(/fonts/source-code-pro-latin.woff2) format('woff2')}</style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
     :root {
@@ -1002,14 +1001,6 @@
       .data-meta-item.is-ticker { grid-column: auto; }
     }
   </style>
-<!-- Microsoft Clarity Analytics -->
-<script type="text/javascript">
-    (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", "rdalx1jkyh");
-</script>
 </head>
 
 <body>
@@ -1795,8 +1786,6 @@
       return color.replace(/,\s*[\d.]+\)$/, ', ' + alpha + ')');
     }
     function fmt(n) { return n != null ? n.toLocaleString() : '—'; }
-    // Scraped listing text is interpolated into innerHTML below; escape it.
-    function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
     function fmtUSD(n) { return n != null ? '$' + Math.round(n).toLocaleString() : '—'; }
     function fmtPct1(n) { return n != null ? n.toFixed(1) + '%' : '—'; }
     function fmtPct0(n) { return n != null ? Math.round(n) + '%' : '—'; }
@@ -1814,7 +1803,7 @@
     }
     function showError(id, e) {
       const el = document.getElementById(id);
-      if (el) el.innerHTML = `<div class="error">Could not load: ${esc(e.message)}</div>`;
+      if (el) el.innerHTML = `<div class="error">Could not load: ${e.message}</div>`;
     }
     async function getJSON(name) {
       const res = await fetch('./data/' + name);
@@ -1906,7 +1895,7 @@
         `;
       } catch (e) {
         document.getElementById('statsGrid').innerHTML =
-          `<div class="error">Error loading stats: ${esc(e.message)}</div>`;
+          `<div class="error">Error loading stats: ${e.message}</div>`;
       }
     }
 
@@ -1928,7 +1917,7 @@
         // below is a guard rather than a case anyone sees today.
         document.getElementById('subGrid').innerHTML = rows.map(r => `
           <div class="sub-card">
-            <div class="sub-name">${esc(r.district)}</div>
+            <div class="sub-name">${r.district}</div>
             <div class="sub-rent">${fmtUSD(r.median_rent ?? r.median_rent_period)}</div>
             <div class="sub-range">${r.median_rent != null
               ? `typical ${fmtUSD(r.p25)}&ndash;${fmtUSD(r.p75)}`
@@ -2020,8 +2009,8 @@
         const held = d.areas.length - shown.length;
         document.querySelector('#areaTable tbody').innerHTML = shown.map(a => `
           <tr>
-            <td><strong>${esc(a.area)}</strong></td>
-            <td class="muted">${esc(a.district)}</td>
+            <td><strong>${a.area}</strong></td>
+            <td class="muted">${a.district}</td>
             <td><strong>${fmtUSD(a.median_rent)}</strong>
                 <span class="cell-sub">${fmt(a.n_priced_live)} live</span></td>
             <td class="muted">${a.p25 != null
@@ -3072,8 +3061,8 @@
               (sub.length ? `<span class="cell-sub">${sub.join(' · ')}</span>` : '');
           return `
           <tr>
-            <td><strong>${esc(b.building)}</strong><span class="cell-sub">${bedsLabel(b)}</span></td>
-            <td>${esc(b.district)}<span class="cell-sub">${fmt(b.n_units)} tracked · ${fmt(b.n_landlords)} landlords</span></td>
+            <td><strong>${b.building}</strong><span class="cell-sub">${bedsLabel(b)}</span></td>
+            <td>${b.district}<span class="cell-sub">${fmt(b.n_units)} tracked · ${fmt(b.n_landlords)} landlords</span></td>
             <td>${fmt(b.n_active)}</td>
             <!-- Unlike the neighborhood table above, a thin building keeps its
                  row: the premium beside it is a period figure computed off
@@ -3173,7 +3162,7 @@
         // different facts and `||` would render both as the same blank.
         const beds = b => b == null ? '' : (b === 0 ? 'studio' : `${b}BR`);
         const items = d.cuts.map(c => `<span class="ticker-item">` +
-          `<span class="tk-place">${esc(c.place)}</span> ${beds(c.bedrooms)} ` +
+          `<span class="tk-place">${c.place}</span> ${beds(c.bedrooms)} ` +
           `<span class="tk-old">${fmtUSD(c.old)}</span> &rarr; ${fmtUSD(c.new)} ` +
           `<span class="tk-pct">${fmtOff(c.pct)} off</span></span>`).join('');
         // Two identical runs, scrolled exactly one run's width, so the loop has
