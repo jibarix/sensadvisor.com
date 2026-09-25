@@ -2,8 +2,6 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.clarity.ms https://*.clarity.ms; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.clarity.ms https://c.bing.com; font-src 'self'; connect-src 'self' https://grovomkpsqgzakfuvuii.supabase.co https://api.open-meteo.com https://*.clarity.ms https://c.bing.com; object-src 'none'; base-uri 'self'; form-action 'self'">
-<meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- Theme init: set data-theme before paint to avoid a flash -->
 <script>
 (function () {
@@ -19,8 +17,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PR Labor Market Conditions Index | SENS ADVISOR</title>
 
-<link rel="preload" href="/fonts/source-code-pro-latin.woff2" as="font" type="font/woff2" crossorigin>
-<style>@font-face{font-family:'Source Code Pro';font-style:normal;font-weight:300 700;font-display:swap;src:url(/fonts/source-code-pro-latin.woff2) format('woff2')}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
   :root {
@@ -841,14 +840,6 @@
     table.mini { font-size: 0.76rem; }
   }
 </style>
-<!-- Microsoft Clarity Analytics -->
-<script type="text/javascript">
-    (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", "rdalx1jkyh");
-</script>
 </head>
 
 <body>
@@ -1087,8 +1078,8 @@
     </div>
     <div class="meta">
       <span><strong>Release vintage</strong><br>July 2026 (preliminary)</span>
-      <span><strong>Dashboard generated</strong><br>2026-09-15 14:33 UTC</span>
-      <span><strong>Release schedule</strong><br>15th and 28th monthly</span>
+      <span><strong>Dashboard generated</strong><br>2026-09-25 14:33 UTC</span>
+      <span><strong>Release schedule</strong><br>Weekly, when new source data lands</span>
     </div>
   </header>
 
@@ -1140,34 +1131,34 @@
     <div class="signal-readout">
       <div class="signal-primary">
         <span class="signal-label">PR-LMCI level</span>
-        <strong class="signal-value">-2.88</strong>
-        <span class="signal-status">below average &bull; improving</span>
+        <strong class="signal-value">-2.93</strong>
+        <span class="signal-status">below average &bull; stable</span>
         <span class="signal-vintage">Release vintage July 2026</span>
       </div>
       <div class="signal-components">
         <div class="component">
           <span>Momentum</span>
-          <strong>+0.06</strong>
-          <small>improving</small>
+          <strong>+0.01</strong>
+          <small>stable</small>
         </div>
         <div class="component">
           <span>Diffusion</span>
-          <strong>50.8%</strong>
+          <strong>51.7%</strong>
           <small>Share of indicators improving</small>
         </div>
         <div class="component">
           <span>Probability improving</span>
-          <strong>57%</strong>
+          <strong>51%</strong>
           <small>Balance of risks, not a point forecast</small>
         </div>
         <div class="component">
           <span>Reporting coverage</span>
-          <strong>70%</strong>
+          <strong>75%</strong>
           <small>40 indicators in the current model</small>
         </div>
       </div>
     </div>
-      <p style="font-size:0.85rem; margin-bottom:16px; padding:10px 12px; border:1px solid var(--border-primary);"><strong>Preliminary.</strong> The July 2026 reading is based on partial data — 70% of indicators reported and will be revised as additional indicators are released.</p>
+      <p style="font-size:0.85rem; margin-bottom:16px; padding:10px 12px; border:1px solid var(--border-primary);"><strong>Preliminary.</strong> The July 2026 reading is based on partial data — 75% of indicators reported and will be revised as additional indicators are released.</p>
 
     <p class="release-table-label">Recent trajectory</p>
     <img class="hero-chart" src="fig7_recent.png" alt="Recent PR-LMCI conditions">
@@ -1186,25 +1177,25 @@
         <tbody>
           <tr>
             <td><strong>PR-LMCI Level</strong></td>
-            <td style="text-align:right; font-weight:600;">-2.88</td>
+            <td style="text-align:right; font-weight:600;">-2.93</td>
             <td style="text-align:right;">-2.94</td>
             <td style="text-align:right;">-2.90</td>
           </tr>
           <tr>
             <td><strong>PR-LMCI Momentum</strong></td>
-            <td style="text-align:right; font-weight:600;">+0.06</td>
+            <td style="text-align:right; font-weight:600;">+0.01</td>
             <td style="text-align:right;">+0.03</td>
             <td style="text-align:right;">-0.09</td>
           </tr>
           <tr>
             <td><strong>Diffusion Index</strong></td>
-            <td style="text-align:right; font-weight:600;">50.8%</td>
+            <td style="text-align:right; font-weight:600;">51.7%</td>
             <td style="text-align:right;">44.2%</td>
             <td style="text-align:right;">46.7%</td>
           </tr>
           <tr>
             <td><strong>Prob. Improving</strong></td>
-            <td style="text-align:right; font-weight:600;">57%</td>
+            <td style="text-align:right; font-weight:600;">51%</td>
             <td style="text-align:right;" colspan="2" class="muted">--</td>
           </tr>
         </tbody>
@@ -1248,16 +1239,16 @@
       <p class="fineprint" style="margin-top:8px;"><strong>Note.</strong> Business Employment Dynamics (BED) job flows are published quarterly by the PR Dept. of Labor with a lag. The most recent available quarter is <strong>Dec 2025</strong>, so these rows trail the July 2026 index reading and will advance when the next BED release is posted.</p>
 
     <div style="margin-top: 16px; font-size: 0.9rem; color: var(--secondary-text);">
-      Based on 40 indicators. The PR-LMCI level is below average and conditions are improving.
+      Based on 40 indicators. The PR-LMCI level is below average and conditions are stable.
     </div>
 
     <!-- Narrative -->
     <div class="narrative" style="margin-top: 20px;">
-      <p>The Puerto Rico Labor Market Conditions Index (PR-LMCI) was little changed at -2.88 in July 2026, indicating that labor market conditions are below average. The PR-LMCI Momentum registered +0.06, suggesting conditions are improving. The index has been below its historical average for 186 consecutive months (see PR-LMCI Level below). The July 2026 reading is preliminary (70% of indicators reported) and will be revised as additional data arrive.</p>
+      <p>The Puerto Rico Labor Market Conditions Index (PR-LMCI) was little changed at -2.93 in July 2026, indicating that labor market conditions are below average. The PR-LMCI Momentum registered +0.01, suggesting conditions are stable. The index has been below its historical average for 186 consecutive months (see PR-LMCI Level below). The July 2026 reading is preliminary (75% of indicators reported) and will be revised as additional data arrive.</p>
       <p>The hiring rate, which measures gross job gains as a share of employment, stood at 1.19% in December 2025, below its 12-month average of 1.53%. The separations rate registered 1.39%, with separations exceeding hiring. The net flow rate of -0.20 percentage points suggests net employment contraction (see Hiring and Separations Rates below). These job-flow figures come from the Business Employment Dynamics series, which is published quarterly with a lag; December 2025 is the most recent period available, so they trail the July 2026 index reading above.</p>
       <p>The unemployment rate rose to 6.0% in July 2026. Over the three months through December 2025, changes in the hiring rate were the dominant flow-based driver of unemployment rate movements (see Contributions to Unemployment Rate below). The model-implied distribution for the next-month unemployment-rate change puts 28% odds on a decrease, 17% on no change, and 55% on an increase (see Unemployment Rate Change Probabilities below). This characterizes the balance of risks rather than a point forecast; out of sample the distribution does not improve on a no-change baseline for the direction of the next move.</p>
-      <p>The diffusion index, which measures the share of indicators improving month-over-month, stood at 50.8%, indicating mixed conditions (see Diffusion Index below). The Momentum Gauge suggests a 57% probability that conditions will improve in the coming month, versus 43% for deterioration.</p>
-      <p>The current reading places PR labor market conditions at the 40th percentile of all observations since 1999, below the median of historical readings. For comparison, the average PR-LMCI was -3.66 in the pre-Maria period (2015-2017), -4.79 in the post-Maria/pre-COVID period, and -3.30 since mid-2021. The index is currently most influenced by economic activity index, cement production, government  - sa (thousands of persons (sa)) (pro-cyclical) and education and health services, professional and business services, excise taxes (counter-cyclical). (See Recent Conditions below.)</p>
+      <p>The diffusion index, which measures the share of indicators improving month-over-month, stood at 51.7%, indicating mixed conditions (see Diffusion Index below). The Momentum Gauge suggests a 51% probability that conditions will improve in the coming month, versus 49% for deterioration.</p>
+      <p>The current reading places PR labor market conditions at the 38th percentile of all observations since 1999, below the median of historical readings. For comparison, the average PR-LMCI was -3.66 in the pre-Maria period (2015-2017), -4.79 in the post-Maria/pre-COVID period, and -3.30 since mid-2021. The index is currently most influenced by economic activity index, cement production, government  - sa (thousands of persons (sa)) (pro-cyclical) and education and health services, professional and business services, excise taxes (counter-cyclical). (See Recent Conditions below.)</p>
 
     </div>
     <div class="fineprint" style="margin-top: 12px;">
@@ -1340,7 +1331,7 @@
     <div class="explain">
       <p><strong>How to read:</strong> The diffusion index measures what fraction of the 40 input indicators
       improved month-over-month. Values above 50% indicate that more indicators are improving than deteriorating
-      (broad-based improvement). Currently at 50.8%.</p>
+      (broad-based improvement). Currently at 51.7%.</p>
     </div>
     <img src="fig8_diffusion.png" alt="Diffusion Index">
   </div>
