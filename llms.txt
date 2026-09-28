@@ -18,7 +18,6 @@ To contact Jorge about consulting work, use LinkedIn (https://www.linkedin.com/i
 - [PR Reservoir Levels](https://sensadvisor.com/reservoirs/): reservoir elevations vs PRASA operational thresholds.
 - [San Juan Rentals](https://sensadvisor.com/rentals/): rent analytics by district and building.
 - [PR Labor Market Conditions Index](https://sensadvisor.com/pr-lmci/): composite labor market index for Puerto Rico.
-- [US Recession Probability](https://sensadvisor.com/recession/): US recession risk model.
 
 ## Research
 
