@@ -2190,7 +2190,7 @@
     const ageMin = (Date.now() - ts.getTime()) / 60000;
     const staleEl = document.getElementById("status-stale");
     if (ageMin > 30) {
-      staleEl.textContent = `⚠ Data may be stale — the last snapshot was ${relativeTime(ts)}. The monitor may be paused; readings below may not reflect the grid right now.`;
+      staleEl.textContent = `︎ Data may be stale — the last snapshot was ${relativeTime(ts)}. The monitor may be paused; readings below may not reflect the grid right now.`;
       staleEl.style.display = "";
     } else {
       staleEl.style.display = "none";
