@@ -18,3 +18,22 @@ desktop.ini
 *.tmp
 *.bak
 *~
+
+# --- Local design drafts and backups, never publish ---
+# Earlier home-page versions are kept on disk as design history only.
+# v6a is NOT ignored: it is the version going live.
+/v2/
+/v3/
+/v4/
+/v5/
+/v6/
+/v7/
+# Pre-edit backups, at any depth (root and v6a/_snapshots/)
+_snapshots/
+# Internal research / review notes
+_research/
+
+# Archived pages (kept locally; the old home page is also in git history)
+_archive/
+# v6a went live as the root page on 2026-09-30; the folder is design history
+/v6a/

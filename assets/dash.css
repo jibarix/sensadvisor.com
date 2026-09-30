@@ -1,0 +1,212 @@
+/* The analytics dashboards in the home page's (v6a) style.
+   Linked last in each dashboard's <head>. The pages keep their own layout,
+   charts and colours; this sheet brings over v6a's chrome (the SENS ADVISOR
+   chip, the Menu box, the full-screen menu), its type (sans for headings,
+   numbers and prose, small mono caps for labels) and its hairline rules.
+   Page rules are overridden with a leading :root, which outranks the
+   inline <style> blocks further down each page. */
+
+:root {
+    --sa-ink: #0e0e10;
+    --sa-paper: #ffffff;
+    --sa-green: #009646;
+    --sa-sans: 'Helvetica Neue', 'Inter', 'Segoe UI Variable Display', 'Segoe UI', Arial, sans-serif;
+    --sa-mono: 'Source Code Pro', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+    --sa-ease: cubic-bezier(.2, .7, .1, 1);
+    --sa-ease-io: cubic-bezier(.7, 0, .2, 1);
+    --page-gutter: clamp(16px, 2.2vw, 36px);
+    /* v6a rules are hairlines, not the dashboards' black 2px rules. */
+    --border-primary: rgba(14, 14, 16, .16);
+    --accent-light: rgba(14, 14, 16, .08);
+    --sa-dim: #333333;
+}
+:root[data-theme="dark"] {
+    --border-primary: rgba(237, 237, 237, .16);
+    --accent-light: rgba(237, 237, 237, .08);
+    --sa-dim: #9aa0a6;
+}
+
+/* ─── Type ──────────────────────────────────────────────────────────── */
+:root body {
+    font-family: var(--sa-sans); font-size: 16px; line-height: 1.45;
+    background-image: none; -webkit-font-smoothing: antialiased;
+}
+/* Labels, notes and table heads stay in small mono caps. */
+:root .sa-label, :root .header-kicker, :root .panel-note, :root th,
+:root .monitor-meta, :root .analytics-index, :root .footer, :root .site-footer {
+    font-family: var(--sa-mono); letter-spacing: .04em;
+}
+:root td { font-variant-numeric: tabular-nums; }
+
+/* ─── Chrome: chip, Menu box, theme box (v6a .chip / .chrome-r) ─────── */
+.sa-chip {
+    position: fixed; z-index: 1200; top: 16px; left: 16px;
+    display: flex; align-items: center; height: 54px; padding: 0 22px;
+    background: var(--sa-ink); color: var(--sa-paper); text-decoration: none;
+    font-family: var(--sa-mono); font-size: 12px; letter-spacing: .06em;
+}
+.sa-chrome-r { position: fixed; z-index: 1200; top: 16px; right: 16px; display: flex; }
+.sa-menu-btn, .sa-icon-btn {
+    height: 54px; margin: 0; padding: 0; border: 0; border-radius: 0; cursor: pointer;
+    font-family: var(--sa-mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase;
+}
+.sa-menu-btn { width: 88px; background: var(--sa-paper); color: var(--sa-green); box-shadow: inset 0 0 0 1px var(--sa-green); }
+.sa-icon-btn { width: 54px; background: var(--sa-ink); color: var(--sa-paper); font-size: 20px; line-height: 1; }
+.sa-icon-btn span { display: inline-block; transition: transform .6s var(--sa-ease); }
+.sa-icon-btn:hover span { transform: rotate(180deg); }
+.sa-menu-open .sa-menu-btn { background: var(--sa-ink); color: var(--sa-paper); box-shadow: inset 0 0 0 1px rgba(237, 237, 237, .34); }
+/* On the dark page the ink boxes would vanish; a light hairline keeps them. */
+:root[data-theme="dark"] .sa-chip, :root[data-theme="dark"] .sa-icon-btn { box-shadow: inset 0 0 0 1px rgba(237, 237, 237, .34); }
+:root[data-theme="dark"] .sa-menu-btn { background: var(--sa-ink); color: #36e08a; box-shadow: inset 0 0 0 1px #36e08a; }
+.sa-chip:focus-visible, .sa-menu-btn:focus-visible, .sa-icon-btn:focus-visible { outline: 2px solid #36e08a; outline-offset: 3px; }
+
+/* The menu: v6a's full-screen sheet, trimmed for the dashboards. Home's
+   menu is for the main site; here it is the five dashboards (in home's big
+   numbered style, on the same right half) with one way back to the main site
+   above them. */
+.sa-menu {
+    position: fixed; inset: 0; z-index: 1150; display: grid; grid-template-columns: 1fr 1fr;
+    column-gap: calc(var(--page-gutter) * 2); align-items: end;
+    padding: 120px var(--page-gutter) 40px;
+    background: var(--sa-ink); color: #ededed; font-family: var(--sa-sans);
+    animation: sa-menu-in .5s var(--sa-ease-io);
+}
+.sa-menu[hidden] { display: none; }
+@keyframes sa-menu-in { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0); } }
+.sa-menu-body { grid-column: 2; display: flex; flex-direction: column; }
+.sa-menu ol { margin: 0; padding: 0; list-style: none; border-top: 1px solid rgba(237, 237, 237, .16); }
+.sa-menu li { border-bottom: 1px solid rgba(237, 237, 237, .16); }
+.sa-menu a { color: inherit; text-decoration: none; }
+.sa-menu-main a { display: flex; align-items: baseline; gap: 24px; padding: 10px 0; font-size: clamp(28px, 3.2vw, 52px); line-height: 1.05; letter-spacing: -.02em; transition: padding .3s var(--sa-ease); }
+.sa-menu-main a:hover { padding-left: 12px; }
+.sa-menu-main a[aria-current="page"] { color: #36e08a; }
+.sa-menu-main a[aria-current="page"]::after { content: 'You are here'; margin-left: auto; align-self: center; font-family: var(--sa-mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; }
+.sa-menu-main span, .sa-menu-h, .sa-menu-mail, .sa-menu-home { font-family: var(--sa-mono); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; }
+.sa-menu-home { align-self: flex-start; margin-bottom: 48px; padding: 12px 16px; box-shadow: inset 0 0 0 1px rgba(237, 237, 237, .34); transition: box-shadow .2s, color .2s; }
+.sa-menu-home:hover { color: #36e08a; box-shadow: inset 0 0 0 1px #36e08a; }
+.sa-menu-h { margin: 0 0 12px; color: #9aa0a6; }
+.sa-menu-mail { display: block; margin-top: 28px; font-size: 13px; }
+html.sa-menu-open { overflow: hidden; }
+
+/* The section index: a hairline row that pins to the top, its links set
+   between the chip and the Menu box. */
+:root .analytics-index {
+    top: 0; border-bottom: 1px solid var(--border-primary);
+    background: var(--primary-bg); backdrop-filter: none;
+}
+:root .analytics-index-inner { max-width: none; min-height: 86px; padding: 0 172px 0 calc(16px + 190px); justify-content: flex-end; gap: 22px; }
+:root .analytics-index-label { display: none; }
+:root .analytics-index a { padding: 6px 0 5px; border-bottom-width: 1px; font-size: 11px; font-weight: 400; letter-spacing: .06em; }
+:root .analytics-index a:hover, :root .analytics-index a:focus-visible { border-bottom-color: var(--signal); }
+:root html { scroll-padding-top: 100px; }
+
+/* ─── Masthead: v6a section tag, then the name-sized headline ───────── */
+:root .header { margin: clamp(60px, 8vw, 120px) 0 clamp(56px, 7vw, 100px); }
+:root .header-kicker {
+    display: block; margin-bottom: 56px; padding-top: 10px; border-top: 1px solid var(--border-primary);
+    font-size: 12px; font-weight: 400; letter-spacing: .04em;
+}
+:root .header h1, :root .dashboard-header h1 {
+    font-family: var(--sa-sans); font-weight: 400;
+    font-size: clamp(52px, 6.4vw, 120px); line-height: .92; letter-spacing: -.045em;
+}
+:root .page-sub, :root .dashboard-header .subtitle { max-width: 46ch; margin-top: 26px; font-size: clamp(18px, 1.5vw, 24px); line-height: 1.35; letter-spacing: -.01em; }
+:root .monitor-meta, :root .meta { margin-top: 44px; font-family: var(--sa-mono); font-size: 11px; letter-spacing: .04em; }
+:root .monitor-meta strong, :root .meta strong { font-weight: 400; color: var(--signal); }
+
+/* ─── Panels: sticky sans headings, hairline rules, no cards ────────── */
+:root .panel h2 { font-family: var(--sa-sans); font-weight: 400; font-size: clamp(26px, 2.4vw, 40px); line-height: 1.05; letter-spacing: -.03em; top: 102px; }
+:root .panel h2 .panel-note { font-size: 11px; line-height: 1.5; letter-spacing: .04em; text-transform: uppercase; }
+:root .panel-note { font-size: 11px; }
+:root th { font-size: 11px; font-weight: 400; letter-spacing: .06em; }
+
+/* Notes set as paragraphs are prose: sans, dim. Inline notes stay labels. */
+:root p.panel-note, :root div.panel-note { font-family: var(--sa-sans); font-size: 14px; line-height: 1.55; letter-spacing: 0; text-transform: none; color: var(--sa-dim); max-width: 78ch; }
+:root p.panel-note b, :root p.panel-note strong, :root div.panel-note b { font-weight: 500; color: var(--primary-text); }
+
+/* ─── Status hero: one big sans reading, mono labels, hairlines ─────── */
+:root .status-hero { border-top: 1px solid var(--primary-text); }
+:root .outage-value, :root .reservoir-count, :root .signal-value, :root .component strong, :root .status-hero .status-label, :root .status-hero .status-breakdown .num {
+    font-family: var(--sa-sans); font-weight: 400; font-variant-numeric: tabular-nums;
+}
+:root .outage-value, :root .reservoir-count, :root .signal-value { margin: 18px 0 22px; line-height: .92; letter-spacing: -.045em; }
+:root .signal-label, :root .signal-vintage, :root .outage-share, :root .reservoir-primary-status, :root .signal-status, :root .status-hero .status-timestamp {
+    font-family: var(--sa-mono); font-size: 11px; font-weight: 400; letter-spacing: .04em; text-transform: uppercase;
+}
+:root .status-hero .status-label { letter-spacing: -.03em; }
+:root .status-hero .status-summary { font-size: 16px; color: var(--sa-dim); }
+
+/* ─── Stat tiles and badges: hairline boxes, no fills, sans numbers ── */
+:root .grid-risk .gr-stat { background: transparent; border-color: var(--border-primary); }
+:root .grid-risk .gr-big, :root .grid-risk .gr-v { font-family: var(--sa-sans); font-weight: 400; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+:root .grid-risk .gr-big small { font-family: var(--sa-sans); font-size: 16px; font-weight: 400; letter-spacing: 0; color: var(--sa-dim); }
+:root .grid-risk .gr-k, :root .grid-risk .gr-sub, :root .grid-risk .gr-ts, :root .grid-risk .gr-sec, :root .grid-risk .gr-pill { font-family: var(--sa-mono); font-weight: 400; }
+:root .grid-risk .gr-sec-major { font-family: var(--sa-sans); font-size: 20px; letter-spacing: -.01em; }
+
+/* Cards on the other pages (generation outlook and scoreboard, stat
+   tiles): square hairline boxes that don't lift on hover. */
+:root .stat-tile, :root .status-hero .stat-tile, :root .oc-card, :root .sb-card {
+    border-radius: 0; border-width: 1px; background: transparent; box-shadow: none; transform: none;
+}
+:root .stat-tile:hover, :root .oc-card:hover, :root .sb-card:hover { transform: none; box-shadow: none; }
+:root .stat-value, :root .oc-peak, :root .sb-mape, :root .sb-win-num {
+    font-family: var(--sa-sans); font-weight: 400; letter-spacing: -.03em; font-variant-numeric: tabular-nums;
+}
+:root .stat-label, :root .oc-day, :root .sb-name, :root .oc-badge, :root .sb-tag, :root .badge {
+    font-family: var(--sa-mono); font-weight: 400;
+}
+/* Mono is wider than the old sans: keep "THU Oct 1" on one line, let the
+   badge drop below it, and square the pills to match the chrome. */
+:root .oc-head { flex-wrap: wrap; row-gap: 6px; }
+:root .oc-day { white-space: nowrap; }
+:root .oc-card .oc-badge, :root .sb-card .sb-tag, :root .sb-win, :root .page-badge { border-radius: 0; }
+
+/* Rentals: section heads in the panel-heading voice; the tiles sit on the
+   page colour so the 1px grid gaps read as hairlines. */
+:root .section-kicker, :root .dashboard-header .header-kicker { font-family: var(--sa-mono); font-size: 12px; font-weight: 400; letter-spacing: .04em; }
+:root .overview h2, :root .section-heading h2 { font-family: var(--sa-sans); font-weight: 400; font-size: clamp(26px, 2.4vw, 40px); line-height: 1.05; letter-spacing: -.03em; max-width: 14ch; }
+:root .stat-card, :root .sub-card { background: var(--primary-bg); }
+:root .stat-card .value { font-family: var(--sa-sans); font-weight: 400; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+:root .stat-card .label, :root .data-meta-label, :root .sub-name { font-family: var(--sa-mono); font-weight: 400; }
+:root .data-meta-value { font-weight: 400; }
+
+/* PR-LMCI: its charts are static images; drop the frame around them. */
+:root .panel > img { padding: 0; border: 0; }
+:root .release-table-label { font-family: var(--sa-mono); font-size: 11px; font-weight: 400; letter-spacing: .06em; }
+
+/* Source banners (reservoirs): a hairline strip, no tint. */
+:root .layer-banner { border-radius: 0; border-color: var(--border-primary); background: transparent; }
+
+/* Range buttons and toggles: square mono boxes, as v6a's buttons. */
+:root .controls button, :root .toggle-btn {
+    border-radius: 0; border-width: 1px; font-family: var(--sa-mono); font-size: 11px; font-weight: 400;
+    letter-spacing: .06em; text-transform: uppercase;
+}
+:root select { border-radius: 0; font-family: var(--sa-mono); }
+
+/* ─── Footer: v6a .foot ─────────────────────────────────────────────── */
+:root .footer, :root .site-footer { font-size: 11px; letter-spacing: .04em; }
+
+@media (max-width: 900px) {
+    .sa-chip { top: 10px; left: 10px; height: 44px; padding: 0 16px; font-size: 11px; }
+    .sa-chrome-r { top: 10px; right: 10px; }
+    .sa-menu-btn, .sa-icon-btn { height: 44px; }
+    .sa-menu-btn { width: 72px; } .sa-icon-btn { width: 44px; }
+    .sa-menu { grid-template-columns: 1fr; align-content: end; padding: 90px 18px 30px; overflow-y: auto; }
+    .sa-menu-body { grid-column: 1; }
+    /* On a phone the label squeezes the item onto two lines; the green alone marks it. */
+    .sa-menu-main a[aria-current="page"]::after { content: none; }
+    /* No room between the chip and the Menu box: the index drops below the
+       chrome and scrolls sideways. */
+    :root .analytics-index { position: relative; margin-top: 64px; border-top: 1px solid var(--border-primary); }
+    :root .analytics-index-inner { min-height: 44px; padding: 0 18px; justify-content: flex-start; }
+    :root .panel h2 { top: 0; }
+}
+
+@media print {
+    .sa-chip, .sa-chrome-r, .sa-menu { display: none !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .sa-menu { animation: none; }
+    .sa-icon-btn span, .sa-menu a { transition: none; }
+}

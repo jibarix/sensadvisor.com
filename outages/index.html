@@ -934,70 +934,34 @@
         y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
     })(window, document, "clarity", "script", "rdalx1jkyh");
 </script>
+<link rel="stylesheet" href="/assets/dash.css">
 </head>
 <body>
 <button class="back-to-top" type="button" aria-label="Back to top" aria-hidden="true" tabindex="-1">
   <span>Top</span>
   <span class="top-arrow" aria-hidden="true">&#8593;</span>
 </button>
-<header class="site-header">
-  <div class="site-header-inner">
-    <a href="/" class="logo"><span>SENS ADVISOR</span></a>
-    <nav class="nav" aria-label="Site">
-      <a href="/#services">Services</a>
-      <div class="nav-dropdown">
-        <button class="nav-dropdown-trigger" type="button" aria-haspopup="true" aria-expanded="false">Analytics &#9662;</button>
-        <div class="nav-dropdown-menu">
-          <a href="/rentals/">San Juan Rentals</a>
-          <a href="/pr-lmci/">PR Labor Market Index</a>
-          <a href="/outages/" aria-current="page">PR Outage Status</a>
-          <a href="/generation/">PR Generation Status</a>
-          <a href="/reservoirs/">PR Reservoir Levels</a>
-        </div>
-      </div>
-      <a href="/#research">Research</a>
-      <a href="/#about">About</a>
-      <a href="https://github.com/jibarix" target="_blank" rel="noopener">Code</a>
-      <a href="https://x.com/jorgearroyox" target="_blank" rel="noopener">Insights</a>
-      <a href="/#contact">Contact</a>
-    </nav>
-    <div class="nav-actions">
-      <button class="theme-toggle" type="button" aria-label="Toggle dark mode" aria-pressed="false" title="Toggle dark mode">
-        <svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-        <span class="theme-toggle-label"><span class="lbl-dark">Dark mode</span><span class="lbl-light">Light mode</span></span>
-      </button>
-      <button class="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="navsheet">
-        <span class="menu-icon" aria-hidden="true"><span></span><span></span></span>
-      </button>
-    </div>
+<header class="sa-chrome">
+  <a class="sa-chip" href="/" aria-label="SENS ADVISOR, home">SENS ADVISOR</a>
+  <div class="sa-chrome-r">
+    <button class="sa-menu-btn" type="button" aria-expanded="false" aria-controls="sa-menu">Menu</button>
+    <button class="sa-icon-btn sa-theme" type="button" aria-label="Toggle dark mode" aria-pressed="false" title="Toggle dark mode"><span aria-hidden="true">&#9680;</span></button>
   </div>
 </header>
-<div class="navscrim" aria-hidden="true"></div>
-<div class="navsheet" id="navsheet" role="dialog" aria-modal="true" aria-label="Site menu">
-  <nav aria-label="Site menu">
-    <a class="sheet-row" href="/#services"><span>Services</span><span class="sheet-ind" aria-hidden="true">&#8594;</span></a>
-    <div class="sheet-group">
-      <button class="sheet-row sheet-disc" type="button" aria-expanded="false">
-        <span>Analytics</span><span class="sheet-ind" aria-hidden="true">+</span>
-      </button>
-      <div class="sheet-sub">
-        <div class="sheet-sub-inner">
-            <a href="/rentals/">San Juan Rentals</a>
-            <a href="/pr-lmci/">PR Labor Market Index</a>
-            <a href="/outages/" aria-current="page">PR Outage Status</a>
-            <a href="/generation/">PR Generation Status</a>
-            <a href="/reservoirs/">PR Reservoir Levels</a>
-        </div>
-      </div>
-    </div>
-    <a class="sheet-row" href="/#research"><span>Research</span><span class="sheet-ind" aria-hidden="true">&#8594;</span></a>
-    <a class="sheet-row" href="/#about"><span>About</span><span class="sheet-ind" aria-hidden="true">&#8594;</span></a>
-    <a class="sheet-row" href="https://github.com/jibarix" target="_blank" rel="noopener"><span>Code</span><span class="sheet-ind" aria-hidden="true">&#8599;</span></a>
-    <a class="sheet-row" href="https://x.com/jorgearroyox" target="_blank" rel="noopener"><span>Insights</span><span class="sheet-ind" aria-hidden="true">&#8599;</span></a>
-    <a class="sheet-row" href="/#contact"><span>Contact</span><span class="sheet-ind" aria-hidden="true">&#8594;</span></a>
-  </nav>
-</div>
+<nav id="sa-menu" class="sa-menu" aria-label="Dashboards" hidden>
+  <div class="sa-menu-body">
+    <a class="sa-menu-home" href="/">&larr; Main site</a>
+    <p class="sa-menu-h">Live data</p>
+    <ol class="sa-menu-main">
+      <li><a href="/outages/" aria-current="page"><span>01</span>PR Outage Status</a></li>
+      <li><a href="/generation/"><span>02</span>PR Generation Status</a></li>
+      <li><a href="/reservoirs/"><span>03</span>PR Reservoir Levels</a></li>
+      <li><a href="/rentals/"><span>04</span>San Juan Rentals</a></li>
+      <li><a href="/pr-lmci/"><span>05</span>PR Labor Market Index</a></li>
+    </ol>
+    <a class="sa-menu-mail" href="mailto:consult@sensadvisor.com">consult@sensadvisor.com</a>
+  </div>
+</nav>
 
 <nav class="analytics-index" aria-label="Dashboard sections">
   <div class="analytics-index-inner">
@@ -1011,153 +975,7 @@
     <a href="#methodology">Methodology</a>
   </div>
 </nav>
-<script>
-(function () {
-  var btn = document.querySelector('.menu-btn');
-  var header = document.querySelector('.site-header');
-  var sheet = document.querySelector('.navsheet');
-  var scrim = document.querySelector('.navscrim');
-  var dropdown = document.querySelector('.nav-dropdown');
-  var dropdownTrigger = document.querySelector('.nav-dropdown-trigger');
-  var root = document.documentElement;
-
-  if (btn && header && sheet && scrim) {
-    var disc = sheet.querySelector('.sheet-disc');
-
-    var isOpen = function () { return root.classList.contains('sheet-open'); };
-
-    // The bar is not fixed, so park the sheet under wherever it currently is.
-    var place = function () {
-      var bottom = header.getBoundingClientRect().bottom;
-      root.style.setProperty('--sheet-top', Math.max(6, Math.round(bottom + 6)) + 'px');
-    };
-
-    var setOpen = function (open) {
-      if (open) place();
-      root.classList.toggle('sheet-open', open);
-      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-      btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
-      if (open) {
-        var first = sheet.querySelector('.sheet-row');
-        if (first) first.focus({ preventScroll: true });
-      } else if (disc) {
-        // Collapse the disclosure so it reopens in a known state.
-        disc.setAttribute('aria-expanded', 'false');
-      }
-    };
-
-    btn.addEventListener('click', function () {
-      var next = !isOpen();
-      setOpen(next);
-      if (!next) btn.focus({ preventScroll: true });
-    });
-
-    scrim.addEventListener('click', function () {
-      setOpen(false);
-      btn.focus({ preventScroll: true });
-    });
-
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && isOpen()) {
-        setOpen(false);
-        btn.focus({ preventScroll: true });
-      }
-    });
-
-    if (disc) {
-      disc.addEventListener('click', function () {
-        disc.setAttribute(
-          'aria-expanded',
-          disc.getAttribute('aria-expanded') === 'true' ? 'false' : 'true'
-        );
-      });
-    }
-
-    // Any destination closes the sheet (in-page links scroll behind it).
-    sheet.querySelectorAll('a').forEach(function (link) {
-      link.addEventListener('click', function () { setOpen(false); });
-    });
-
-    // Crossing to desktop must not strand it open: the sheet is display:none
-    // there and the page would stay scroll-locked.
-    var mq = window.matchMedia('(min-width: 769px)');
-    var onChange = function (e) { if (e.matches && isOpen()) setOpen(false); };
-    if (mq.addEventListener) mq.addEventListener('change', onChange);
-    else if (mq.addListener) mq.addListener(onChange);
-  }
-
-  // Desktop Analytics panel, same model as the home page's. It used to open
-  // on a CSS :hover with an invisible bridge element spanning the gap, and a
-  // keyboard toggle gated to <=768px - exactly where the links are now hidden
-  // entirely. Now JS owns it: a grace period on leave, so a diagonal cursor
-  // path across the gap survives; click to pin; Escape and outside clicks
-  // close. The trigger is a real <button>, so no Enter/Space handler.
-  if (dropdown && dropdownTrigger) {
-    var ddOpen = false, hideTimer = null;
-
-    var setDropdown = function (next) {
-      if (next === ddOpen) return;
-      ddOpen = next;
-      dropdown.classList.toggle('open', next);
-      dropdownTrigger.setAttribute('aria-expanded', next ? 'true' : 'false');
-    };
-    var show = function () { clearTimeout(hideTimer); setDropdown(true); };
-    var hideSoon = function () {
-      clearTimeout(hideTimer);
-      hideTimer = setTimeout(function () { setDropdown(false); }, 140);
-    };
-
-    // mouseenter/leave follow the DOM, not geometry, so the panel counts as
-    // inside .nav-dropdown even though it hangs outside its box.
-    dropdown.addEventListener('mouseenter', show);
-    dropdown.addEventListener('mouseleave', hideSoon);
-
-    dropdownTrigger.addEventListener('click', function () {
-      clearTimeout(hideTimer);
-      setDropdown(!ddOpen);
-    });
-    // Keyboard arrival only - a mouse click already toggles above.
-    dropdownTrigger.addEventListener('focus', function () {
-      if (dropdownTrigger.matches(':focus-visible')) show();
-    });
-    dropdown.addEventListener('focusout', function (event) {
-      if (!dropdown.contains(event.relatedTarget)) setDropdown(false);
-    });
-
-    document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape' && ddOpen) {
-        setDropdown(false);
-        dropdownTrigger.focus({ preventScroll: true });
-      }
-    });
-    document.addEventListener('click', function (event) {
-      if (ddOpen && !dropdown.contains(event.target)) setDropdown(false);
-    });
-  }
-})();
-
-(function () {
-  var toggle = document.querySelector('.theme-toggle');
-  if (!toggle) return;
-
-  function sync() {
-    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
-    toggle.setAttribute('aria-pressed', dark ? 'true' : 'false');
-  }
-
-  sync();
-  toggle.addEventListener('click', function () {
-    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
-    var next = dark ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
-    try { localStorage.setItem('theme', next); } catch (e) {}
-    sync();
-    if (typeof window.refreshAnalyticsTheme === 'function') {
-      window.refreshAnalyticsTheme();
-    }
-  });
-})();
-</script>
+<script src="/assets/dash.js" defer></script>
 <div class="container">
   <header class="header">
     <span class="header-kicker">Analytics / Grid</span>

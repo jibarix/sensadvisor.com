@@ -1,3364 +1,371 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-rig="H" data-tone="signal">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.clarity.ms https://*.clarity.ms; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.clarity.ms https://c.bing.com; font-src 'self'; connect-src 'self' https://grovomkpsqgzakfuvuii.supabase.co https://api.open-meteo.com https://*.clarity.ms https://c.bing.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.clarity.ms https://*.clarity.ms; style-src 'self'; img-src 'self' data: https://*.clarity.ms https://c.bing.com; font-src 'self'; connect-src 'self' https://grovomkpsqgzakfuvuii.supabase.co https://*.clarity.ms https://c.bing.com; object-src 'none'; base-uri 'self'; form-action 'self'">
     <meta name="referrer" content="strict-origin-when-cross-origin">
-    <!-- Theme init: set data-theme before paint to avoid a flash -->
-    <script>
-        (function () {
-            try {
-                var t = localStorage.getItem('theme');
-                if (t !== 'dark' && t !== 'light') {
-                    t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-                }
-                document.documentElement.setAttribute('data-theme', t);
-
-                // Opening choreography: play once per session (skip on repeat
-                // loads and for reduced-motion), and never leave the page hidden.
-                var introPlayed;
-                try { introPlayed = sessionStorage.getItem('sens-intro-played'); } catch (e2) {}
-                if (!introPlayed && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                    document.documentElement.classList.add('intro-pending');
-                    try { sessionStorage.setItem('sens-intro-played', '1'); } catch (e3) {}
-                    // Dead-man's switch: if the main script never clears the intro
-                    // (load/parse failure, a throw upstream), reveal the page anyway.
-                    setTimeout(function () {
-                        document.documentElement.classList.remove(
-                            'intro-pending', 'intro-word-visible',
-                            'intro-reveal'
-                        );
-                    }, 6000);
-                }
-            } catch (e) {}
-        })();
-    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SENS ADVISOR | Jorge A. Arroyo - xP&A & Data Consultant</title>
-
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-
-    <!-- Google Fonts - Source Code Pro -->
+    <title>SENS ADVISOR | Jorge A. Arroyo: Working models</title>
+    <meta name="description" content="Independent xP&amp;A and data practice in San Juan, Puerto Rico. Financial modeling, valuation, Azure BI, live data products and practical AI.">
+    <link rel="canonical" href="https://sensadvisor.com/">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="preload" href="/fonts/source-code-pro-latin.woff2" as="font" type="font/woff2" crossorigin>
-    <style>@font-face{font-family:'Source Code Pro';font-style:normal;font-weight:300 700;font-display:swap;src:url(/fonts/source-code-pro-latin.woff2) format('woff2')}</style>
-    
-    <!-- SEO Meta Tags -->
-    <meta name="description" content="SENS ADVISOR provides expert consulting in Financial Modeling, Puerto Rico Private Company Valuation, Azure BI Services, and Custom Advanced Analytics. Gain financial clarity through integrated xP&A."/>
-    <meta name="keywords" content="Financial Modeling, Business Valuation, Private Company Valuation, Azure, Power BI, Databricks, Analytics, WACC, Treasury Yield, S&P 500, Stock Market, Interest Rates, xP&A, Consulting, Financial Clarity, Puerto Rico, AI, Artificial Intelligence, LLM, Large Language Models, Machine Learning, Diffusion Models, Neural Networks, GPT, Transformer Models, AI Consulting, ML Analytics, Deep Learning, Data Science, Predictive Analytics, AI Implementation, LLM Integration, Natural Language Processing, AI Strategy"/>
-    <link rel="canonical" href="https://sensadvisor.com/" />
 
-    <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="SENS ADVISOR | Jorge A. Arroyo - xP&A & Data Consultant" />
-    <meta property="og:description" content="SENS ADVISOR provides expert consulting in Financial Modeling, Puerto Rico Private Company Valuation, Azure BI Services, and Custom Advanced Analytics. Gain financial clarity through integrated xP&A." />
-    <meta property="og:url" content="https://sensadvisor.com/" />
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="SENS ADVISOR" />
-    <!-- TODO: Add og:image once a brand image is available (recommended 1200x630px) -->
+    <!-- Link previews (same title and description as above) -->
+    <meta property="og:title" content="SENS ADVISOR | Jorge A. Arroyo: Working models">
+    <meta property="og:description" content="Independent xP&amp;A and data practice in San Juan, Puerto Rico. Financial modeling, valuation, Azure BI, live data products and practical AI.">
+    <meta property="og:url" content="https://sensadvisor.com/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="SENS ADVISOR">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="SENS ADVISOR | Jorge A. Arroyo: Working models">
+    <meta name="twitter:description" content="Independent xP&amp;A and data practice in San Juan, Puerto Rico. Financial modeling, valuation, Azure BI, live data products and practical AI.">
 
-    <!-- Twitter Card Meta Tags -->
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="SENS ADVISOR | Jorge A. Arroyo - xP&A & Data Consultant" />
-    <meta name="twitter:description" content="Expert consulting in Financial Modeling, Puerto Rico Private Company Valuation, Azure BI Services, and Custom Advanced Analytics." />
-
-    <!-- Structured Data (JSON-LD) -->
+    <!-- Structured data (a data block, not executed, so the CSP allows it) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "ProfessionalService",
       "name": "SENS ADVISOR",
       "url": "https://sensadvisor.com",
-      "description": "Expert consulting in Financial Modeling, Puerto Rico Private Company Valuation, Azure BI Services, and Custom Advanced Analytics.",
+      "description": "Independent xP&A and data practice in San Juan, Puerto Rico. Financial modeling, valuation, Azure BI, live data products and practical AI.",
       "founder": {
         "@type": "Person",
         "name": "Jorge A. Arroyo",
-        "jobTitle": "xP&A & Data Consultant"
+        "jobTitle": "Analytics Engineer & Developer"
       },
       "areaServed": "Puerto Rico",
       "serviceType": ["Financial Modeling", "Business Valuation", "Azure BI Services", "Advanced Analytics", "AI Consulting"]
     }
     </script>
 
-    <!-- Microsoft Clarity Analytics -->
-    <script type="text/javascript">
-        (function(c,l,a,r,i,t,y){
-            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-        })(window, document, "clarity", "script", "rdalx1jkyh");
-    </script>
-    
-    <style>
-        /* Reset and Base Styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        /* Design System Variables */
-        :root {
-            --primary-bg: #ffffff;
-            --primary-text: #000000;
-            --secondary-text: #333333;
-            --border-primary: #000000;
-            --accent-light: #f0f0f0;
-            --accent-lighter: #f9f9f9;
-            --success-bg: #e6ffe6;
-            --success-border: #00cc00;
-            --info-bg: #e6f3ff;
-            --info-border: #0066cc;
-        }
-
-        /* ===== Dark theme ===== */
-        :root[data-theme="dark"] {
-            --primary-bg: #0e0e10;
-            --primary-text: #ededed;
-            --secondary-text: #9aa0a6;
-            --border-primary: #3a3d42;
-            --accent-light: #212327;
-            --accent-lighter: #16171a;
-        }
-        @media (prefers-color-scheme: dark) {
-            :root:not([data-theme="light"]) {
-                --primary-bg: #0e0e10;
-                --primary-text: #ededed;
-                --secondary-text: #9aa0a6;
-                --border-primary: #3a3d42;
-                --accent-light: #212327;
-                --accent-lighter: #16171a;
-            }
-        }
-        /* Smooth theme switch on the main surfaces */
-        body, .header, .nav, .navdrop, .monitor, .monitor-head, .contact {
-            transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
-        }
-        /* Theme toggle button */
-        .theme-toggle {
-            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-            background: none; border: none; cursor: pointer; color: var(--primary-text);
-            padding: 6px; border-radius: 4px; transition: background 0.2s ease;
-        }
-        .theme-toggle:hover { background: var(--accent-light); }
-        .theme-toggle svg { width: 20px; height: 20px; display: block; }
-        .theme-toggle .ic-sun { display: none; }
-        :root[data-theme="dark"] .theme-toggle .ic-sun { display: block; }
-        :root[data-theme="dark"] .theme-toggle .ic-moon { display: none; }
-        .theme-toggle-label { display: none; }
-        .theme-toggle .lbl-light { display: none; }
-        :root[data-theme="dark"] .theme-toggle .lbl-light { display: inline; }
-        :root[data-theme="dark"] .theme-toggle .lbl-dark { display: none; }
-        @media (max-width: 768px) {
-            .nav .theme-toggle {
-                width: 100%; justify-content: flex-start; gap: 12px;
-                padding: 14px 0; min-height: 44px; border-radius: 0;
-                border-top: 1px solid var(--accent-light);
-                font-family: inherit; font-size: 0.95rem; font-weight: 500;
-            }
-            .nav .theme-toggle:hover { background: none; }
-            .theme-toggle-label { display: inline; }
-        }
-
-        body {
-            font-family: 'Source Code Pro', monospace;
-            background: var(--primary-bg);
-            color: var(--primary-text);
-            line-height: 1.6;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        /* Header — geometry lives in the nav block further down (fixed bar +
-           mix-blend-mode); only the inner layout is declared here. */
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary-text);
-            text-decoration: none;
-        }
-
-        .nav {
-            display: flex;
-            gap: 30px;
-            align-items: center;
-        }
-
-        .nav a {
-            color: var(--primary-text);
-            text-decoration: none;
-            font-weight: 500;
-            padding: 8px 0;
-            border-bottom: 2px solid transparent;
-            transition: border-color 0.2s ease;
-        }
-
-        .nav a:hover {
-            border-bottom-color: var(--border-primary);
-        }
-
-        /* Analytics Dropdown */
-        .nav-dropdown {
-            position: relative;
-        }
-
-        .nav-dropdown-trigger {
-            color: var(--primary-text);
-            font-weight: 500;
-            padding: 8px 0;
-            border-bottom: 2px solid transparent;
-            transition: border-color 0.2s ease;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .nav-dropdown-trigger:hover {
-            border-bottom-color: var(--border-primary);
-        }
-
-        /* Scramble / decode text reveal (monochrome, on-brand) */
-        .bio-token {
-            display: inline;
-            transition: color 0.25s ease, opacity 0.2s ease;
-        }
-
-        .bio-token.scrambling {
-            color: var(--secondary-text);
-            opacity: 0.9;
-        }
-
-        .bio-token.revealed {
-            color: var(--primary-text);
-            opacity: 1;
-        }
-
-
-        @keyframes slideDownCentered {
-            from {
-                opacity: 0;
-                transform: translateX(-50%) translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(-50%) translateY(0);
-            }
-        }
-
-        /* Panel System */
-        .panel {
-            background: var(--primary-bg);
-            border: 2px solid var(--border-primary);
-            border-radius: 8px;
-            padding: 30px;
-            margin-bottom: 40px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            transition: all 0.2s ease;
-        }
-
-        .panel:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-        }
-
-        .panel h2 {
-            font-size: 1.8rem;
-            font-weight: 600;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .panel h2.clickable-name {
-            display: flex;
-            justify-content: center;
-        }
-
-        .panel h3 {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-            margin-top: 25px;
-        }
-
-        .panel p {
-            margin-bottom: 15px;
-            color: var(--primary-text);
-        }
-
-        /* About Section */
-        .about-content {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 40px;
-            align-items: start;
-        }
-
-        /* Clickable Name */
-        .clickable-name {
-            cursor: pointer;
-            position: relative;
-            transition: all 0.3s ease;
-            border-bottom: 2px solid transparent;
-            display: inline-block;
-            text-align: center;
-        }
-
-        .clickable-name:hover {
-            border-bottom-color: var(--border-primary);
-            color: var(--secondary-text);
-        }
-
-        /* Profile Image Popup */
-        .profile-popup {
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 300px;
-            background: var(--primary-bg);
-            border: 2px solid #00aa00;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 10px;
-            box-shadow: 0 4px 16px rgba(0, 170, 0, 0.2);
-            z-index: 10;
-            display: none;
-            animation: slideDownCentered 0.3s ease;
-            text-align: center;
-        }
-
-        .profile-popup.show {
-            display: block;
-        }
-
-        .profile-popup img {
-            width: 200px;
-            border: 2px solid var(--border-primary);
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
-
-        .profile-popup p {
-            font-size: 0.9rem;
-            color: var(--secondary-text);
-            margin: 0;
-        }
-
-        /* Bio Cards */
-        .bio-card {
-            background: var(--accent-lighter);
-            border: 2px solid var(--border-primary);
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .bio-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-            border-color: var(--secondary-text);
-        }
-
-        /* Research Section */
-        .research-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-        }
-
-        .research-card {
-            background: var(--accent-lighter);
-            border: 2px solid var(--border-primary);
-            border-radius: 8px;
-            padding: 25px;
-            transition: all 0.2s ease;
-            position: relative;
-        }
-
-        .research-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-            border-color: var(--secondary-text);
-        }
-
-        .research-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            font-size: 0.9rem;
-            color: var(--secondary-text);
-            font-weight: 500;
-        }
-
-        .document-id {
-            font-family: 'Source Code Pro', monospace;
-            background: var(--primary-text);
-            color: var(--primary-bg);
-            padding: 4px 8px;
-            border-radius: 3px;
-            font-size: 0.8rem;
-        }
-
-        .research-card h3 {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-            margin-top: 0;
-            line-height: 1.3;
-        }
-
-        .research-card p {
-            margin-bottom: 15px;
-            color: var(--secondary-text);
-        }
-
-        .research-button {
-            background: var(--primary-text);
-            color: var(--primary-bg);
-            border: 2px solid var(--primary-text);
-            padding: 10px 20px;
-            font-family: inherit;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            text-decoration: none;
-            display: inline-block;
-            margin-top: 10px;
-        }
-
-        .research-button:hover {
-            background: var(--primary-bg);
-            color: var(--primary-text);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        /* Services Section */
-        .services-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-        }
-
-        .service-card {
-            background: var(--accent-lighter);
-            border: 2px solid var(--border-primary);
-            border-radius: 8px;
-            padding: 25px;
-            transition: all 0.2s ease;
-        }
-
-        .service-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-        }
-
-        .service-card h3 {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-            margin-top: 0;
-        }
-
-        .service-card ul {
-            margin: 15px 0;
-            padding-left: 20px;
-        }
-
-        .service-card li {
-            margin-bottom: 8px;
-        }
-
-        /* Contact Section */
-        .contact {
-            text-align: center;
-            background: var(--accent-lighter);
-        }
-
-        /* Timeline Section */
-        .timeline-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-            margin-top: 30px;
-        }
-
-        .timeline-column {
-            position: relative;
-        }
-
-        .timeline-header {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 25px;
-            text-align: center;
-            margin-top: 0;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--border-primary);
-        }
-
-        .timeline {
-            position: relative;
-            padding-left: 30px;
-        }
-
-        .timeline::before {
-            content: '';
-            position: absolute;
-            left: 15px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: var(--border-primary);
-        }
-
-        .timeline-item {
-            position: relative;
-            margin-bottom: 30px;
-            padding-left: 25px;
-        }
-
-        .timeline-item::after {
-            content: '';
-            position: absolute;
-            left: -15px;
-            top: 0;
-            width: 30px;
-            height: 100%;
-            cursor: pointer;
-            z-index: 2;
-        }
-
-        .timeline-item:hover::before {
-            transform: scale(1.1);
-            border-color: var(--secondary-text);
-        }
-
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -8px;
-            top: 5px;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: var(--primary-bg);
-            border: 2px solid var(--border-primary);
-            z-index: 1;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .timeline-item::before:hover {
-            transform: scale(1.2);
-            border-color: var(--secondary-text);
-        }
-
-        .timeline-item.active::before {
-            background: rgba(200, 255, 200, 0.8);
-            border-color: #00aa00;
-            transform: scale(1.3);
-            box-shadow: 0 0 0 3px rgba(0, 170, 0, 0.3);
-        }
-
-        .timeline-date {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--secondary-text);
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .timeline-content h4 {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 5px;
-            margin-top: 0;
-            color: var(--primary-text);
-            line-height: 1.3;
-        }
-
-        .timeline-role {
-            font-size: 0.9rem;
-            color: var(--secondary-text);
-            margin-bottom: 3px;
-            font-style: italic;
-        }
-
-        .timeline-company {
-            font-size: 0.85rem;
-            color: var(--secondary-text);
-            margin-bottom: 0;
-            font-weight: 500;
-        }
-
-        .timeline-content {
-            cursor: default;
-        }
-
-        /* Timeline Details Popup */
-        .timeline-details {
-            position: absolute;
-            top: 100%;
-            left: 25px;
-            right: -20px;
-            background: var(--primary-bg);
-            border: 2px solid #00aa00;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 10px;
-            box-shadow: 0 4px 16px rgba(0, 170, 0, 0.2);
-            z-index: 10;
-            display: none;
-            animation: slideDown 0.3s ease;
-        }
-
-        .timeline-details.show {
-            display: block;
-        }
-
-        .timeline-details h5 {
-            margin: 0 0 10px 0;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #00aa00;
-        }
-
-        .timeline-details ul {
-            margin: 0;
-            padding-left: 15px;
-            font-size: 0.8rem;
-            line-height: 1.4;
-        }
-
-        .timeline-details li {
-            margin-bottom: 5px;
-            color: var(--primary-text);
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Contact Section */
-        .contact {
-            text-align: center;
-            background: var(--accent-lighter);
-        }
-
-        .contact-info {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-
-        .contact-item {
-            font-weight: 500;
-        }
-
-        .contact-item a {
-            color: var(--primary-text);
-            text-decoration: underline;
-        }
-
-        /* Footer */
-        .footer {
-            border-top: 2px solid var(--border-primary);
-            margin-top: 60px;
-            padding-top: 20px;
-            text-align: center;
-            color: var(--secondary-text);
-            font-size: 0.9rem;
-        }
-
-        /* Button System */
-        .button {
-            background: var(--primary-bg);
-            color: var(--primary-text);
-            border: 2px solid var(--border-primary);
-            padding: 10px 20px;
-            font-family: inherit;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .button:hover:not(:disabled) {
-            background: var(--accent-light);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        /* Responsive Design
-           NOTE: the old .hamburger button and the mobile .nav drawer it opened
-           were removed with the nav rebuild — below 768px the desktop .nav is
-           hidden outright and .navsheet (see NAV CHROME, below) is the
-           mobile menu. */
-        @media (max-width: 768px) {
-            .about-content {
-                grid-template-columns: 1fr;
-                gap: 20px;
-                text-align: center;
-            }
-
-            .timeline-container {
-                grid-template-columns: 1fr;
-                gap: 30px;
-            }
-
-            .timeline-details {
-                left: 15px;
-                right: -10px;
-                font-size: 0.75rem;
-            }
-
-            .timeline-details h5 {
-                font-size: 0.85rem;
-            }
-
-            .services-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .research-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .contact-info {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .profile-popup {
-                width: 280px;
-            }
-
-            .research-meta {
-                flex-direction: column;
-                gap: 10px;
-                align-items: flex-start;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 15px;
-            }
-
-            .panel {
-                padding: 15px;
-            }
-
-            .panel h2 {
-                font-size: 1.4rem;
-            }
-
-            .panel h3 {
-                font-size: 1.1rem;
-            }
-
-            .research-card {
-                padding: 18px;
-            }
-
-            .research-card h3 {
-                font-size: 1.1rem;
-            }
-        }
-
-        /* Accessibility.
-           :focus-visible, not :focus - a plain :focus ring also fires on mouse
-           and touch, which is what put a box around whatever you had just
-           tapped (most visibly the sheet row JS focuses when the menu opens).
-           Keyboard users still get the ring; pointer users no longer do. */
-        .button:focus-visible,
-        a:focus-visible {
-            outline: 2px solid var(--signal);
-            outline-offset: 2px;
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            *,
-            *::before,
-            *::after {
-                animation-duration: 0.01ms !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
-
-        /* ===== Hero: live PR infrastructure monitor ===== */
-        .hero { margin: 0 0 40px; }
-        .monitor {
-            border: 2px solid var(--border-primary);
-            border-radius: 8px;
-            background: var(--primary-bg);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            overflow: hidden;
-            margin-bottom: 26px;
-        }
-        .monitor-head {
-            display: flex; align-items: center; gap: 12px;
-            padding: 9px 16px;
-            border-bottom: 2px solid var(--border-primary);
-            background: var(--accent-lighter);
-            font-size: 0.78rem;
-        }
-        .monitor-live { display: inline-flex; align-items: center; gap: 7px; font-weight: 700; letter-spacing: 0.14em; }
-        .mon-dot-live { width: 9px; height: 9px; border-radius: 50%; background: #00cc00; animation: mon-pulse 1.6s ease-out infinite; }
-        @keyframes mon-pulse {
-            0%   { box-shadow: 0 0 0 0 rgba(0,204,0,0.6); opacity: 1; }
-            70%  { box-shadow: 0 0 0 7px rgba(0,204,0,0); opacity: .5; }
-            100% { box-shadow: 0 0 0 0 rgba(0,204,0,0); opacity: 1; }
-        }
-        .monitor-title { color: var(--secondary-text); flex: 1 1 auto; }
-        .monitor-refresh { color: var(--secondary-text); opacity: 0.75; font-size: 0.72rem; white-space: nowrap; }
-        .monitor-grid { display: grid; grid-template-columns: repeat(3, 1fr); }
-        .mon-tile {
-            display: flex; flex-direction: column; gap: 3px;
-            padding: 18px 20px;
-            text-decoration: none;
-            color: var(--primary-text);
-            border-right: 1px solid var(--accent-light);
-            position: relative;
-            transition: background 0.2s ease;
-        }
-        .mon-tile:last-child { border-right: none; }
-        .mon-tile:hover { background: var(--accent-lighter); }
-        .mon-tile::after {
-            content: "VIEW \2192";
-            position: absolute;
-            right: 18px;
-            bottom: 17px;
-            color: var(--secondary-text);
-            font-size: 0.66rem;
-            font-weight: 600;
-            letter-spacing: 0.06em;
-            opacity: 0.65;
-        }
-        .mon-dot { width: 11px; height: 11px; border-radius: 50%; background: #ccc; position: absolute; top: 18px; right: 18px; transition: background 0.3s ease; }
-        .mon-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--secondary-text); }
-        .mon-value { font-size: 1.15rem; font-weight: 400; margin-top: 2px; padding-right: 16px; }
-        .mon-value strong { font-weight: 700; }
-        .mon-value small { font-size: 0.82rem; color: var(--secondary-text); font-weight: 500; }
-        .mon-sub { font-size: 0.78rem; color: var(--secondary-text); }
-        .mon-change { font-size: 0.72rem; color: var(--secondary-text); margin-top: 5px; display: flex; align-items: center; gap: 5px; min-height: 0.85rem; }
-        .mon-change:empty { min-height: 0; margin-top: 0; }
-        .mon-change .arrow { font-weight: 700; font-size: 0.85rem; line-height: 1; }
-        .mon-ts { font-size: 0.68rem; color: var(--secondary-text); opacity: 0.7; margin-top: 4px; min-height: 0.8rem; padding-right: 58px; }
-        .hero-copy { max-width: 760px; }
-        .hero h1 { font-size: 2.6rem; font-weight: 700; line-height: 1.12; letter-spacing: -0.01em; margin-bottom: 16px; }
-        .hero-sub { font-size: 1.05rem; color: var(--secondary-text); margin-bottom: 24px; max-width: 700px; }
-        .hero-cta { display: flex; flex-wrap: wrap; gap: 14px; }
-        .hero-btn {
-            padding: 12px 24px; font-family: inherit; font-weight: 600; font-size: 0.95rem;
-            text-decoration: none; border-radius: 4px; border: 2px solid var(--primary-text);
-            transition: all 0.2s ease; display: inline-block;
-        }
-        .hero-btn-primary { background: var(--primary-text); color: var(--primary-bg); }
-        .hero-btn-primary:hover { background: var(--primary-bg); color: var(--primary-text); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-        .hero-btn-ghost { background: var(--primary-bg); color: var(--primary-text); }
-        .hero-btn-ghost:hover { background: var(--accent-light); transform: translateY(-1px); }
-        @media (max-width: 768px) {
-            .hero h1 { font-size: 2rem; }
-        }
-        @media (max-width: 640px) {
-            .hero { display: flex; flex-direction: column; }
-            .hero-copy { order: 1; }
-            .monitor { order: 2; margin: 28px 0 0; }
-            .monitor-grid { grid-template-columns: 1fr; }
-            .mon-tile { border-right: none; border-bottom: 1px solid var(--accent-light); }
-            .mon-tile:last-child { border-bottom: none; }
-            .monitor-title { display: none; }
-        }
-        @media (max-width: 480px) {
-            .hero h1 { font-size: 1.6rem; }
-            .hero-sub { font-size: 0.95rem; }
-            .hero-btn { width: 100%; text-align: center; }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            .mon-dot-live { animation: none !important; }
-        }
-
-        /* ===== 2026 visual direction: immersive, but unmistakably SENS ===== */
-        :root {
-            --page-gutter: clamp(20px, 4vw, 64px);
-            /* Single accent = the live-signal green. Red is reserved for severity only. */
-            --signal: var(--neural-signal);
-            --neural-signal: #009646;
-            --neural-signal-rgb: 0, 150, 70;
-            --field-line-rgb: 18, 18, 20;
-            --field-node-rgb: 18, 18, 20;
-            --field-line-a: 0.075;
-            --field-node-a: 0.25;
-            --grid-dot: rgba(0, 0, 0, 0.12);
-            --panel-shadow: rgba(0, 0, 0, 0.08);
-        }
-        :root[data-theme="dark"] {
-            --signal: var(--neural-signal);
-            --neural-signal: #36e08a;
-            --neural-signal-rgb: 54, 224, 138;
-            --field-line-rgb: 154, 160, 166;
-            --field-node-rgb: 154, 160, 166;
-            --field-line-a: 0.11;
-            --field-node-a: 0.31;
-            --grid-dot: rgba(255, 255, 255, 0.11);
-            --panel-shadow: rgba(0, 0, 0, 0.32);
-        }
-        @media (prefers-color-scheme: dark) {
-            :root:not([data-theme="light"]) {
-                --signal: var(--neural-signal);
-                --neural-signal: #36e08a;
-                --neural-signal-rgb: 54, 224, 138;
-                --field-line-rgb: 154, 160, 166;
-                --field-node-rgb: 154, 160, 166;
-                --field-line-a: 0.11;
-                --field-node-a: 0.31;
-                --grid-dot: rgba(255, 255, 255, 0.11);
-                --panel-shadow: rgba(0, 0, 0, 0.32);
-            }
-        }
-
-        html {
-            overflow-y: scroll;
-            scrollbar-gutter: stable;
-            scroll-behavior: smooth;
-            scroll-padding-top: 96px;
-        }
-        body {
-            position: relative;
-            background-image: radial-gradient(circle, var(--grid-dot) 1px, transparent 1px);
-            background-size: 34px 34px;
-            background-attachment: fixed;
-        }
-        body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            pointer-events: none;
-            background:
-                radial-gradient(
-                    420px circle at var(--pointer-x, 50%) var(--pointer-y, 35%),
-                    color-mix(in srgb, var(--primary-bg) 15%, transparent),
-                    transparent 72%
-                ),
-                linear-gradient(180deg, transparent 0, var(--primary-bg) 92%);
-            opacity: 0.92;
-        }
-        .container {
-            position: relative;
-            z-index: 1;
-            max-width: 1480px;
-            min-height: 100vh;
-            padding: 0 var(--page-gutter) var(--page-gutter);
-        }
-
-        #neural-field {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 1s ease;
-        }
-        #neural-field.is-ready {
-            opacity: 0.72;
-        }
-
-        /* Opening sequence: fuzzy wordmark -> interface */
-        .sens-intro {
-            display: none;
-        }
-        html.intro-pending {
-            overflow-x: hidden;
-            overflow-y: hidden;
-            scrollbar-gutter: stable;
-        }
-        html.intro-pending .sens-intro {
-            position: fixed;
-            inset: 0;
-            z-index: 6000;
-            display: grid;
-            place-items: center;
-            overflow: hidden;
-            pointer-events: none;
-            background: var(--primary-bg);
-            color: var(--primary-text);
-            transition: background-color 0.8s cubic-bezier(.16, 1, .3, 1);
-        }
-        html.intro-pending .container {
-            opacity: 0;
-        }
-        html.intro-pending #neural-field.is-ready,
-        html.intro-pending .sens-cursor {
-            opacity: 0;
-        }
-        html.intro-reveal {
-            overflow-y: scroll;
-        }
-        html.intro-reveal .sens-intro {
-            background-color: transparent;
-        }
-        html.intro-reveal .container {
-            opacity: 1;
-            transition: opacity 0.7s 0.12s cubic-bezier(.16, 1, .3, 1);
-        }
-        html.intro-reveal #neural-field.is-ready {
-            opacity: 0.72;
-            transition-delay: 0.18s;
-        }
-        .intro-wordmark {
-            position: absolute;
-            top: var(--intro-target-top, 18px);
-            left: var(--intro-target-left, 64px);
-            margin: 0;
-            opacity: 0;
-            font-family: 'Source Code Pro', monospace;
-            font-size: 1rem;
-            font-weight: 700;
-            line-height: 1.6;
-            letter-spacing: 0.12em;
-            white-space: nowrap;
-            transform:
-                translate(
-                    var(--intro-start-x, calc(50vw - 64px)),
-                    var(--intro-start-y, calc(50vh - 18px))
-                )
-                scale(calc(var(--intro-start-scale, 8) * 0.94));
-            transform-origin: center;
-            user-select: none;
-            filter: blur(var(--intro-start-blur, 0.5px));
-            will-change: transform, opacity, filter;
-            transition: opacity 0.7s cubic-bezier(.16, 1, .3, 1),
-                        transform 0.8s cubic-bezier(.16, 1, .3, 1),
-                        filter 0.8s cubic-bezier(.16, 1, .3, 1);
-        }
-        html.intro-word-visible .intro-wordmark {
-            opacity: 1;
-            transform:
-                translate(
-                    var(--intro-start-x, calc(50vw - 64px)),
-                    var(--intro-start-y, calc(50vh - 18px))
-                )
-                scale(var(--intro-start-scale, 8));
-        }
-        html.intro-reveal .intro-wordmark {
-            transform: translate(0, 0) scale(1);
-            filter: blur(0);
-        }
-        html.intro-pending .logo > span {
-            opacity: 0;
-        }
-        .logo {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1rem;
-            letter-spacing: 0.12em;
-        }
-        .nav {
-            gap: clamp(16px, 2vw, 30px);
-        }
-        .nav a,
-        .nav-dropdown-trigger {
-            font-size: 0.78rem;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-        }
-
-        .hero {
-            width: 100%;
-            min-width: 0;
-            min-height: calc(100svh - 73px);
-            margin: 0;
-            padding: clamp(54px, 9vh, 110px) 0 40px;
-            display: grid;
-            grid-template-columns: minmax(0, 1.35fr) minmax(350px, 0.65fr);
-            grid-template-rows: 1fr auto;
-            gap: 46px clamp(44px, 7vw, 110px);
-            align-items: center;
-        }
-        .hero-copy {
-            width: 100%;
-            min-width: 0;
-            max-width: none;
-            align-self: center;
-        }
-        .hero-kicker {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 24px;
-            color: var(--secondary-text);
-            font-size: 0.72rem;
-            font-weight: 600;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-        }
-        .hero-kicker::before {
-            content: "";
-            width: 36px;
-            height: 1px;
-            background: currentColor;
-        }
-        .hero h1 {
-            max-width: 12ch;
-            margin-bottom: 28px;
-            font-size: clamp(3.8rem, 7.2vw, 8rem);
-            font-weight: 600;
-            line-height: 0.88;
-            letter-spacing: -0.075em;
-            text-wrap: balance;
-        }
-        .hero h1 .hero-emphasis {
-            color: var(--signal);
-        }
-        .hero-sub {
-            max-width: 680px;
-            margin-bottom: 30px;
-            font-size: clamp(1rem, 1.3vw, 1.18rem);
-            line-height: 1.65;
-        }
-        .hero-btn {
-            border-radius: 100px;
-            padding: 13px 22px;
-            font-size: 0.82rem;
-            letter-spacing: 0.03em;
-        }
-        .hero-btn:hover {
-            transform: translateY(-3px);
-        }
-        .monitor {
-            min-width: 0;
-            align-self: center;
-            margin: 0;
-            border-radius: 0;
-            box-shadow: 12px 12px 0 var(--panel-shadow);
-            transform: rotate(0.75deg);
-            transition: transform 0.35s ease, box-shadow 0.35s ease;
-        }
-        .monitor:hover {
-            transform: rotate(0deg) translateY(-4px);
-            box-shadow: 16px 16px 0 var(--panel-shadow);
-        }
-        .monitor-head {
-            padding: 12px 15px;
-            background: var(--primary-text);
-            color: var(--primary-bg);
-        }
-        .monitor-head .monitor-title,
-        .monitor-head .monitor-refresh {
-            color: currentColor;
-        }
-        .monitor-grid {
-            grid-template-columns: 1fr;
-        }
-        .mon-tile {
-            min-height: 124px;
-            justify-content: center;
-            border-right: none;
-            border-bottom: 1px solid var(--accent-light);
-        }
-        .mon-tile:last-child {
-            border-bottom: none;
-        }
-        .hero-foot {
-            grid-column: 1 / -1;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            padding-top: 30px;
-            border-top: 1px solid var(--border-primary);
-            color: var(--secondary-text);
-            font-size: 0.7rem;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-        }
-        .scroll-cue {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            color: inherit;
-            text-decoration: none;
-        }
-        .scroll-cue::after {
-            content: "↓";
-            color: var(--primary-text);
-            font-size: 1rem;
-            animation: cue-drop 1.6s ease-in-out infinite;
-        }
-        @keyframes cue-drop {
-            50% { transform: translateY(5px); }
-        }
-
-        .panel {
-            position: relative;
-            margin: 0;
-            padding: clamp(80px, 10vw, 150px) 0;
-            border: 0;
-            border-top: 1px solid var(--border-primary);
-            border-radius: 0;
-            background: transparent;
-            box-shadow: none;
-        }
-        .panel:hover {
-            transform: none;
-            box-shadow: none;
-        }
-        .panel::before {
-            content: attr(data-section);
-            display: block;
-            margin-bottom: 28px;
-            color: var(--signal);
-            font-size: 0.7rem;
-            font-weight: 700;
-            letter-spacing: 0.12em;
-        }
-        .panel > h2,
-        .panel h2.clickable-name {
-            justify-content: flex-start;
-            max-width: 980px;
-            margin-bottom: clamp(42px, 6vw, 78px);
-            font-size: clamp(2.4rem, 5vw, 5.8rem);
-            line-height: 0.96;
-            letter-spacing: -0.06em;
-            text-align: left;
-            text-wrap: balance;
-        }
-        .services-grid,
-        .research-grid {
-            gap: 0;
-            border-top: 1px solid var(--border-primary);
-            border-left: 1px solid var(--border-primary);
-        }
-        .service-card,
-        .research-card {
-            min-height: 100%;
-            border: 0;
-            border-right: 1px solid var(--border-primary);
-            border-bottom: 1px solid var(--border-primary);
-            border-radius: 0;
-            background: color-mix(in srgb, var(--primary-bg) 88%, transparent);
-            padding: clamp(24px, 3.5vw, 48px);
-            box-shadow: none;
-            transition: color 0.28s ease, background 0.28s ease, transform 0.28s ease;
-        }
-        .service-card:hover,
-        .research-card:hover {
-            z-index: 1;
-            border-color: var(--border-primary);
-            background: var(--primary-text);
-            color: var(--primary-bg);
-            box-shadow: none;
-            transform: translate(-4px, -4px);
-        }
-        .service-card:hover p,
-        .research-card:hover p,
-        .research-card:hover .research-meta {
-            color: color-mix(in srgb, var(--primary-bg) 72%, transparent);
-        }
-        .research-card:hover .document-id,
-        .research-card:hover .research-button {
-            border-color: var(--primary-bg);
-            background: var(--primary-bg);
-            color: var(--primary-text);
-        }
-        .research-button {
-            border-radius: 100px;
-        }
-        .about-content,
-        .timeline-container,
-        .contact-info {
-            max-width: 1100px;
-        }
-        .bio-card {
-            border-radius: 0;
-            background: color-mix(in srgb, var(--primary-bg) 88%, transparent);
-        }
-        .contact {
-            text-align: left;
-        }
-        .contact > p {
-            max-width: 650px;
-            font-size: 1.15rem;
-        }
-        .contact-info {
-            margin: 38px 0 0;
-        }
-        .footer {
-            padding: 30px 0 6px;
-            border-top: 1px solid var(--border-primary);
-            font-size: 0.68rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .back-to-top {
-            --top-progress: 0deg;
-            position: fixed;
-            right: clamp(18px, 2.2vw, 40px);
-            bottom: calc(clamp(18px, 2.2vw, 40px) + env(safe-area-inset-bottom, 0px));
-            z-index: 8000;
-            display: grid;
-            width: 58px;
-            height: 58px;
-            place-content: center;
-            gap: 1px;
-            padding: 0;
-            border: 0;
-            border-radius: 50%;
-            background: conic-gradient(
-                var(--signal) var(--top-progress),
-                var(--accent-light) 0
-            );
-            color: var(--primary-text);
-            font-family: inherit;
-            font-size: 0.58rem;
-            font-weight: 700;
-            line-height: 1;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            opacity: 0;
-            pointer-events: none;
-            transform: translateY(12px) scale(0.94);
-            transition: opacity 0.25s ease, transform 0.25s ease;
-            isolation: isolate;
-        }
-        .back-to-top::before {
-            content: "";
-            position: absolute;
-            inset: 2px;
-            z-index: -1;
-            border-radius: inherit;
-            background: var(--primary-bg);
-            transition: background-color 0.25s ease;
-        }
-        .back-to-top .top-arrow {
-            font-size: 0.9rem;
-            line-height: 0.8;
-            letter-spacing: 0;
-        }
-        .back-to-top.is-visible {
-            opacity: 0.9;
-            pointer-events: auto;
-            transform: translateY(0) scale(1);
-        }
-        .back-to-top:hover {
-            opacity: 1;
-            transform: translateY(-3px) scale(1);
-        }
-        .back-to-top:focus-visible {
-            opacity: 1;
-            outline: 2px solid var(--signal);
-            outline-offset: 4px;
-        }
-
-        .sens-cursor {
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 9999;
-            width: 34px;
-            height: 34px;
-            border: 1px solid #ffffff;
-            border-radius: 50%;
-            pointer-events: none;
-            opacity: 0;
-            transform: translate3d(-100px, -100px, 0);
-            transition: width 0.2s ease, height 0.2s ease, opacity 0.2s ease,
-                        background-color 0.2s ease, border-color 0.2s ease;
-            mix-blend-mode: difference;
-        }
-        .sens-cursor::before,
-        .sens-cursor::after {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            background: #ffffff;
-            transform: translate(-50%, -50%);
-        }
-        .sens-cursor::before { width: 5px; height: 1px; }
-        .sens-cursor::after { width: 1px; height: 5px; }
-        .sens-cursor.is-visible { opacity: 0.82; }
-        .sens-cursor.is-active {
-            width: 58px;
-            height: 58px;
-            border-color: var(--signal);
-            background: color-mix(in srgb, var(--signal) 15%, transparent);
-        }
-        /* When the custom crosshair is active, hide the native cursor so only one shows.
-           Text-entry controls keep a real caret cursor. */
-        body.custom-cursor,
-        body.custom-cursor * { cursor: none !important; }
-        body.custom-cursor input,
-        body.custom-cursor textarea,
-        body.custom-cursor select,
-        body.custom-cursor [contenteditable="true"] { cursor: auto !important; }
-
-        .reveal-on-scroll {
-            opacity: 0;
-            transform: translateY(28px);
-            transition: opacity 0.75s cubic-bezier(.2,.8,.2,1),
-                        transform 0.75s cubic-bezier(.2,.8,.2,1);
-        }
-        .reveal-on-scroll.is-revealed {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        @media (max-width: 960px) {
-            .hero {
-                min-height: auto;
-                grid-template-columns: 1fr;
-                grid-template-rows: auto;
-                padding-top: 70px;
-            }
-            .hero h1 { max-width: 11ch; }
-            .monitor {
-                width: min(100%, 680px);
-                transform: none;
-            }
-            .hero-foot { grid-column: 1; }
-        }
-        @media (max-width: 768px) {
-            .hero { padding-top: 48px; gap: 34px; }
-            .hero h1 {
-                max-width: 100%;
-                font-size: clamp(3rem, 15vw, 5.4rem);
-                overflow-wrap: anywhere;
-            }
-            .hero-copy { order: 1; }
-            .monitor { order: 2; width: 100%; margin: 0; }
-            .hero-foot { order: 3; }
-            .panel > h2,
-            .panel h2.clickable-name { font-size: clamp(2.25rem, 11vw, 4rem); }
-            .timeline-container { grid-template-columns: 1fr; }
-        }
-        @media (max-width: 560px) {
-            body { background-size: 26px 26px; }
-            .hero-foot span:last-child { display: none; }
-            .hero-cta {
-                display: grid;
-                grid-template-columns: 1fr;
-                width: 100%;
-            }
-            .hero-btn {
-                width: 100%;
-                text-align: center;
-            }
-            .services-grid,
-            .research-grid { grid-template-columns: 1fr; }
-            .service-card,
-            .research-card { padding: 26px 22px; }
-        }
-        @media (pointer: coarse), (prefers-reduced-motion: reduce) {
-            .sens-cursor { display: none; }
-            .reveal-on-scroll {
-                opacity: 1;
-                transform: none;
-                transition: none;
-            }
-            .scroll-cue::after { animation: none; }
-            body::before { display: none; }
-        }
-        @media (max-width: 480px) {
-            .back-to-top {
-                width: 52px;
-                height: 52px;
-            }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            html { scroll-behavior: auto; }
-            .back-to-top { transition: none; }
-            #neural-field {
-                transition: none;
-            }
-            #neural-field.is-ready {
-                opacity: 0.35;
-            }
-        }
-
-        /* =====================================================================
-           NAV CHROME
-           Loaded last so it wins the cascade without touching the rules above.
-
-           1. The bar is fixed and mix-blend-difference, so the wordmark and
-              controls invert themselves against whatever they sit on - light
-              theme, dark theme, or any dark section. No JS, no scroll
-              listener, no state class, no flicker.
-           2. The menu button is icon-only in a bounded slot and opens a
-              floating sheet over a blurred scrim - not an inline list that
-              shoves the page down.
-           ===================================================================== */
-
-        :root {
-            --nav-h: 64px;
-            --sheet-gap: 6px;
-            --sheet-radius: 16px;
-            /* Hover wash for sheet/dropdown rows, so it has to read against
-               --sheet-bg: ink here, ivory in dark mode. */
-            --tone-soft: rgba(19, 19, 21, 0.06);
-            --tone-shadow: rgba(0, 0, 0, 0.45);
-            /* Mobile sheet surface. */
-            --sheet-bg: #f3f1ec;
-            --sheet-fg: #131315;
-            --sheet-dim: rgba(19, 19, 21, 0.55);
-            --sheet-line: rgba(19, 19, 21, 0.13);
-            --scrim: rgba(19, 19, 21, 0.34);
-        }
-        /* The sheet is a lifted surface at night rather than an ivory card. */
-        :root[data-theme="dark"] {
-            --tone-soft: rgba(255, 255, 255, 0.05);
-            --tone-shadow: rgba(0, 0, 0, 0.5);
-            --sheet-bg: #17181b;
-            --sheet-fg: #ededed;
-            --sheet-dim: rgba(237, 237, 237, 0.55);
-            --sheet-line: rgba(255, 255, 255, 0.13);
-            --scrim: rgba(0, 0, 0, 0.5);
-        }
-        @media (prefers-color-scheme: dark) {
-            :root:not([data-theme="light"]) {
-                --tone-soft: rgba(255, 255, 255, 0.05);
-                --tone-shadow: rgba(0, 0, 0, 0.5);
-                --sheet-bg: #17181b;
-                --sheet-fg: #ededed;
-                --sheet-dim: rgba(237, 237, 237, 0.55);
-                --sheet-line: rgba(255, 255, 255, 0.13);
-                --scrim: rgba(0, 0, 0, 0.5);
-            }
-        }
-
-        /* ---------- 1. Fixed, self-inverting nav chrome ---------- */
-        /* The blend lives on .header itself, not its children: a fixed element
-           with a z-index makes its own stacking context, so a child would only
-           blend against the bar's own (transparent) backdrop and render solid
-           white. Blending the whole bar as one group is what makes it work. */
-        .header {
-            position: fixed;
-            top: 0;
-            right: 0;
-            left: 0;
-            z-index: 900;
-            display: flex;
-            align-items: center;
-            height: var(--nav-h);
-            margin: 0;
-            padding: 0 var(--page-gutter);
-            border: 0;
-            background: transparent;
-            color: #ffffff;
-            mix-blend-mode: difference;
-        }
-        .header-content {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: clamp(16px, 3vw, 40px);
-            width: 100%;
-            max-width: 1480px;
-            margin: 0 auto;
-            padding: 0;
-        }
-        /* Everything in the bar is plain white; the blend does the rest. */
-        .header .logo,
-        .header .nav a,
-        .header .nav-dropdown-trigger,
-        .header .theme-toggle { color: #ffffff; }
-        .header .nav a { border-bottom-color: transparent; }
-        .header .nav a:hover,
-        .header .nav-dropdown-trigger:hover {
-            color: #ffffff;
-            border-bottom-color: rgba(255, 255, 255, 0.85);
-        }
-        /* The Analytics panel CANNOT live inside .header. difference-blending
-           applies to the bar as one group, so an opaque child panel paints
-           |page - panel| and the page ghosts straight through it. isolation
-           does not help: it stops descendants blending OUT of an element, it
-           does not exempt an element from an ANCESTOR's group blend. So the
-           panel is a sibling of .header - a normal opaque surface - and JS is
-           what keeps it parked under its trigger. */
-        /* It is a real <button> now that JS drives it. Reset only the UA
-           chrome - the type comes from the shared .nav-dropdown-trigger rule,
-           so `font: inherit` here would desync its size from the links. */
-        .header .nav-dropdown-trigger {
-            background: none;
-            border: 0;
-            border-bottom: 2px solid transparent;
-            font-family: inherit;
-            line-height: inherit;
-        }
-        .header .nav-dropdown-trigger[aria-expanded="true"] {
-            border-bottom-color: rgba(255, 255, 255, 0.85);
-        }
-        .navdrop {
-            position: fixed;
-            top: var(--nav-h);
-            left: var(--page-gutter);
-            z-index: 1000;
-            min-width: 240px;
-            border: 1px solid var(--sheet-line);
-            border-radius: 12px;
-            background: var(--sheet-bg);
-            box-shadow: 0 18px 40px var(--tone-shadow);
-            overflow: hidden;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-6px);
-            transition: opacity 0.18s ease, transform 0.18s ease,
-                        visibility 0s linear 0.18s;
-        }
-        .navdrop.open {
-            opacity: 1;
-            visibility: visible;
-            transform: none;
-            transition: opacity 0.18s ease, transform 0.18s ease;
-        }
-        /* Bridges the gap to the trigger so travelling the cursor down from
-           the bar does not fall through a dead zone and close the panel. */
-        .navdrop::before {
-            content: "";
-            position: absolute;
-            right: 0;
-            bottom: 100%;
-            left: 0;
-            height: 10px;
-        }
-        .navdrop a {
-            display: block;
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--sheet-line);
-            color: var(--sheet-fg);
-            font-size: 0.82rem;
-            text-decoration: none;
-            transition: background 0.2s ease;
-        }
-        .navdrop a:last-child { border-bottom: none; }
-        .navdrop a:hover { background: var(--tone-soft); }
-        @media (max-width: 768px) {
-            /* The link row is gone here; the sheet carries Analytics instead. */
-            .navdrop { display: none; }
-        }
-
-        /* Action cluster: equal bounded slots, like a set of instrument keys. */
-        .nav-actions {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            flex-shrink: 0;
-        }
-        .header .theme-toggle,
-        .menu-btn {
-            display: grid;
-            place-items: center;
-            width: 40px;
-            height: 40px;
-            padding: 0;
-            border: 0;
-            border-radius: 10px;
-            background: transparent;
-            color: #ffffff;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-        .header .theme-toggle:hover,
-        .menu-btn:hover { background: rgba(255, 255, 255, 0.16); }
-        .header .theme-toggle:focus-visible,
-        .menu-btn:focus-visible {
-            outline: 2px solid #ffffff;
-            outline-offset: 2px;
-        }
-        .header .theme-toggle svg { width: 18px; height: 18px; }
-        .header .theme-toggle-label { display: none; }
-        .menu-btn { display: none; }
-        .menu-icon {
-            display: grid;
-            gap: 5px;
-            width: 18px;
-        }
-        .menu-icon span {
-            display: block;
-            height: 1.5px;
-            width: 100%;
-            background: currentColor;
-            border-radius: 2px;
-            transition: transform 0.34s cubic-bezier(.16, 1, .3, 1),
-                        opacity 0.2s ease;
-        }
-        .menu-btn[aria-expanded="true"] .menu-icon span:nth-child(1) {
-            transform: translateY(3.25px) rotate(45deg);
-        }
-        .menu-btn[aria-expanded="true"] .menu-icon span:nth-child(2) {
-            transform: translateY(-3.25px) rotate(-45deg);
-        }
-
-        /* The bar is outside .container now, so content needs its own clearance. */
-        .container { padding-top: var(--nav-h); }
-        .hero { min-height: calc(100svh - var(--nav-h)); }
-        html { scroll-padding-top: calc(var(--nav-h) + 16px); }
-        /* Keep the bar out of the opening choreography. */
-        html.intro-pending .header { opacity: 0; }
-        html.intro-reveal .header {
-            opacity: 1;
-            transition: opacity 0.7s 0.12s cubic-bezier(.16, 1, .3, 1);
-        }
-
-        /* ---------- 2. Floating sheet + blurred scrim ---------- */
-        /* Both live outside .header so the blend never touches them. */
-        .navscrim {
-            position: fixed;
-            inset: 0;
-            z-index: 870;
-            background: var(--scrim);
-            -webkit-backdrop-filter: blur(4px);
-            backdrop-filter: blur(4px);
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.32s ease, visibility 0s linear 0.32s;
-        }
-        .navsheet {
-            position: fixed;
-            top: calc(var(--nav-h) + var(--sheet-gap));
-            left: var(--sheet-gap);
-            z-index: 880;
-            width: calc(100% - (var(--sheet-gap) * 2));
-            /* svh, not vh — mobile browser chrome otherwise clips the sheet. */
-            max-height: calc(100svh - var(--nav-h) - (var(--sheet-gap) * 2));
-            padding: 8px;
-            border-radius: var(--sheet-radius);
-            background: var(--sheet-bg);
-            color: var(--sheet-fg);
-            box-shadow: 0 24px 60px var(--tone-shadow);
-            overflow-y: auto;
-            overscroll-behavior: contain;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            /* visibility/opacity rather than display:none — display can't animate. */
-            transition: opacity 0.32s cubic-bezier(.16, 1, .3, 1),
-                        transform 0.32s cubic-bezier(.16, 1, .3, 1),
-                        visibility 0s linear 0.32s;
-        }
-        html.sheet-open .navscrim,
-        html.sheet-open .navsheet {
-            opacity: 1;
-            visibility: visible;
-            transition-delay: 0s;
-        }
-        html.sheet-open .navsheet { transform: translateY(0); }
-        /* The lock goes on <html>: it carries overflow-y:scroll, so it is the
-           scroll container and body{overflow:hidden} would not hold the page.
-           scrollbar-gutter:stable is already set, so nothing shifts. */
-        html.sheet-open,
-        html.sheet-open body { overflow: hidden; }
-
-        .sheet-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            width: 100%;
-            min-height: 56px;
-            padding: 0 14px;
-            border: 0;
-            border-radius: 10px;
-            background: transparent;
-            color: inherit;
-            font-family: inherit;
-            font-size: 0.82rem;
-            font-weight: 600;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            text-decoration: none;
-            text-align: left;
-            cursor: pointer;
-            transition: background-color 0.18s ease;
-        }
-        .sheet-row + .sheet-row,
-        .sheet-group + .sheet-row,
-        .sheet-row + .sheet-group,
-        .sheet-group + .sheet-group { border-top: 1px solid var(--sheet-line); }
-        .sheet-row:hover { background: var(--tone-soft); }
-        .sheet-row:focus-visible {
-            outline: 2px solid var(--signal);
-            outline-offset: -2px;
-        }
-        .sheet-ind {
-            color: var(--sheet-dim);
-            font-size: 0.95rem;
-            line-height: 1;
-            transition: transform 0.3s cubic-bezier(.16, 1, .3, 1);
-        }
-        .sheet-disc[aria-expanded="true"] .sheet-ind { transform: rotate(45deg); }
-        /* 0fr -> 1fr animates to the content's real height, no magic numbers. */
-        .sheet-sub {
-            display: grid;
-            grid-template-rows: 0fr;
-            transition: grid-template-rows 0.34s cubic-bezier(.16, 1, .3, 1);
-        }
-        .sheet-disc[aria-expanded="true"] + .sheet-sub { grid-template-rows: 1fr; }
-        .sheet-sub > div { overflow: hidden; }
-        .sheet-sub a {
-            display: flex;
-            align-items: center;
-            min-height: 46px;
-            padding: 0 14px 0 28px;
-            color: var(--sheet-dim);
-            font-size: 0.78rem;
-            letter-spacing: 0.04em;
-            text-decoration: none;
-            border-radius: 8px;
-        }
-        .sheet-sub a:hover { background: var(--tone-soft); color: var(--sheet-fg); }
-
-        @media (max-width: 768px) {
-            .menu-btn { display: grid; }
-            .header .nav { display: none; }
-        }
-        @media (min-width: 769px) {
-            /* Never leave the sheet stranded open on resize to desktop. */
-            .navsheet, .navscrim { display: none; }
-        }
-
-    </style>
+    <link rel="stylesheet" href="/assets/site.css">
+    <link rel="stylesheet" href="/assets/flow.css">
+    <link rel="stylesheet" href="/assets/journey.css">
+    <link rel="stylesheet" href="/assets/palette-live.css" id="palette-live">
+    <script type="module" src="/assets/js/main.js"></script>
+    <script src="/assets/js/clarity.js" async></script>
 </head>
 <body>
-    <div class="sens-intro" aria-hidden="true">
-        <span class="intro-wordmark">SENS ADVISOR</span>
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- Loader: the name, large in the middle, flies into the chip (intro.js). -->
+<div class="loader" aria-hidden="true"></div>
+<p class="loader-word" aria-hidden="true">SENS ADVISOR</p>
+
+<!-- ─── The rig: one cube in crop marks, fixed above the page ──────── -->
+<!-- Only the notes button is exposed; the rest is decoration. -->
+<div class="stage">
+    <div class="rig">
+        <div class="crop" aria-hidden="true"><b><i></i><i></i><i></i><i></i></b></div>
+        <div class="scene" aria-hidden="true"><div class="cube"></div></div>
+        <div class="readout">
+            <p aria-hidden="true">Turn <b data-ro="k">00</b>/<span data-ro="n">20</span> <span class="ro-move" data-ro="m">·</span></p>
+            <button class="ro-help" type="button" popovertarget="notation" aria-label="What the math on this page means">[ ? ]</button>
+        </div>
     </div>
-    <canvas id="neural-field" aria-hidden="true"></canvas>
-    <div class="sens-cursor" aria-hidden="true"></div>
-    <button class="back-to-top" type="button" aria-label="Back to top" aria-hidden="true" tabindex="-1">
-        <span>Top</span>
-        <span class="top-arrow" aria-hidden="true">↑</span>
-    </button>
-    <!-- Header sits OUTSIDE .container on purpose: .container is its own
-         stacking context, and mix-blend-mode only blends against the backdrop
-         within its own context. From here the bar can see the page behind it. -->
-    <header class="header">
-        <div class="header-content">
-            <a href="/" class="logo"><span>SENS ADVISOR</span></a>
-            <nav class="nav">
-                <a href="#services">Services</a>
-                <div class="nav-dropdown">
-                    <button class="nav-dropdown-trigger" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="navdrop">Analytics ▾</button>
-                </div>
-                <a href="#research">Research</a>
-                <a href="#about">About</a>
-                <a href="https://github.com/jibarix" target="_blank">Code</a>
-                <a href="https://x.com/jorgearroyox" target="_blank">Insights</a>
-                <a href="#contact">Contact</a>
-            </nav>
-            <div class="nav-actions">
-                <button class="theme-toggle" type="button" aria-label="Toggle dark mode" aria-pressed="false" title="Toggle dark mode">
-                    <svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-                    <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-                    <span class="theme-toggle-label"><span class="lbl-dark">Dark mode</span><span class="lbl-light">Light mode</span></span>
-                </button>
-                <button class="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="navsheet">
-                    <span class="menu-icon" aria-hidden="true"><span></span><span></span></span>
-                </button>
-            </div>
-        </div>
-    </header>
+</div>
 
-    <!-- Dropdown, sheet and scrim all live outside .header: the bar blends as
-         one group, so anything opaque inside it would go photo-negative. -->
-    <div class="navdrop" id="navdrop">
-        <a href="rentals/">San Juan Rentals</a>
-        <a href="pr-lmci/">PR Labor Market Index</a>
-        <a href="outages/">PR Outage Status</a>
-        <a href="generation/">PR Generation Status</a>
-        <a href="reservoirs/">PR Reservoir Levels</a>
+<header class="chrome">
+    <a class="chip" href="#top" aria-label="SENS ADVISOR, back to top">
+        <span>SENS ADVISOR</span>
+    </a>
+    <div class="chrome-r">
+        <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu" data-menu>Menu</button>
+        <button class="icon-btn" type="button" data-reset aria-label="New cube"><span aria-hidden="true">↻</span></button>
     </div>
-    <div class="navscrim" aria-hidden="true"></div>
-    <div class="navsheet" id="navsheet" role="dialog" aria-modal="true" aria-label="Site menu">
-        <nav class="navsheet-inner">
-            <a class="sheet-row" href="#services"><span>Services</span><span class="sheet-ind" aria-hidden="true">→</span></a>
-            <div class="sheet-group">
-                <button class="sheet-row sheet-disc" type="button" aria-expanded="false">
-                    <span>Analytics</span><span class="sheet-ind" aria-hidden="true">+</span>
-                </button>
-                <div class="sheet-sub"><div>
-                    <a href="rentals/">San Juan Rentals</a>
-                    <a href="pr-lmci/">PR Labor Market Index</a>
-                    <a href="outages/">PR Outage Status</a>
-                    <a href="generation/">PR Generation Status</a>
-                    <a href="reservoirs/">PR Reservoir Levels</a>
-                </div></div>
-            </div>
-            <a class="sheet-row" href="#research"><span>Research</span><span class="sheet-ind" aria-hidden="true">→</span></a>
-            <a class="sheet-row" href="#about"><span>About</span><span class="sheet-ind" aria-hidden="true">→</span></a>
-            <a class="sheet-row" href="https://github.com/jibarix" target="_blank"><span>Code</span><span class="sheet-ind" aria-hidden="true">↗</span></a>
-            <a class="sheet-row" href="https://x.com/jorgearroyox" target="_blank"><span>Insights</span><span class="sheet-ind" aria-hidden="true">↗</span></a>
-            <a class="sheet-row" href="#contact"><span>Contact</span><span class="sheet-ind" aria-hidden="true">→</span></a>
-        </nav>
+</header>
+
+<!-- The same menu as the dashboards (assets/dash.css): the live pages on the
+     left half, this page's sections on the right. -->
+<nav id="menu" class="menu" aria-label="Primary" hidden>
+    <div class="menu-dash">
+        <p class="menu-h">Live data</p>
+        <ol>
+            <li><a href="/outages/">PR Outage Status</a></li>
+            <li><a href="/generation/">PR Generation Status</a></li>
+            <li><a href="/reservoirs/">PR Reservoir Levels</a></li>
+            <li><a href="/rentals/">San Juan Rentals</a></li>
+            <li><a href="/pr-lmci/">PR Labor Market Index</a></li>
+        </ol>
     </div>
+    <div class="menu-main">
+        <ol>
+            <li><a href="#sides"><span>01</span>Principles</a></li>
+            <li><a href="#services"><span>02</span>Services</a></li>
+            <li><a href="#about"><span>03</span>About</a></li>
+            <li><a href="#projects"><span>04</span>Projects</a></li>
+            <li><a href="#contact"><span>05</span>Contact</a></li>
+        </ol>
+        <a class="menu-mail" href="mailto:consult@sensadvisor.com">consult@sensadvisor.com</a>
+    </div>
+</nav>
 
-    <div class="container">
+<main id="main" tabindex="-1">
 
+<!-- 00 ─ Hero: who I am on the left; the expression over the cube ────── -->
+<section id="top" class="blk tone-signal hero" data-rig="H">
+    <div class="ident">
+        <h1 class="ident-name">Jorge A. Arroyo</h1>
+        <p class="ident-role">Analytics Engineer &amp; Developer</p>
+        <p class="ident-prac mono">Independent Practice // xP&amp;A + Data Engineering</p>
+    </div>
+    <!-- Stays put in the hero; only the cube below it is fixed. -->
+    <div class="expr" aria-label="A random cube position written as a product of face turns">
+        <p class="hero-set math"><i>g</i> ∈ 𝒢,&ensp;|𝒢| = 43,252,003,274,489,856,000</p>
+        <p class="expr-g math"><i>g</i> = <span class="seq" data-seq="scramble"></span></p>
+        <p class="expr-inv math"><i>g</i><sup>−1</sup> = <span class="seq" data-seq="solve"></span></p>
+        <p class="expr-done math"><i>g</i> · <i>g</i><sup>−1</sup> = <i>e</i></p>
+    </div>
+    <!-- Empty marker: phones dock the cube once this scrolls past. -->
+    <div class="hero-foot"></div>
+</section>
 
-
-        <!-- Hero Section: live PR infrastructure monitor -->
-        <section class="hero" aria-label="Introduction">
-            <div class="hero-copy">
-                <p class="hero-kicker">Independent xP&amp;A + data practice · San Juan, PR</p>
-                <h1>Clarity for <span class="hero-emphasis">complex</span> decisions.</h1>
-                <p class="hero-sub">I’m Jorge Arroyo. I turn fragmented financial and operational data into decision systems—models, analytics, and products that ship, explain themselves, and keep working.</p>
-                <div class="hero-cta">
-                    <a href="#contact" class="hero-btn hero-btn-primary">Start a conversation →</a>
-                    <a href="#services" class="hero-btn hero-btn-ghost">Explore the work ↓</a>
-                </div>
-            </div>
-            <div class="monitor" aria-label="Live Puerto Rico infrastructure monitor">
-                <div class="monitor-head">
-                    <span class="monitor-live"><span class="mon-dot-live"></span>LIVE</span>
-                    <span class="monitor-title">Puerto Rico infrastructure &middot; monitored in real time</span>
-                    <span class="monitor-refresh" id="mon-refresh">connecting&hellip;</span>
-                </div>
-                <div class="monitor-grid">
-                    <a class="mon-tile" href="outages/" id="mon-grid">
-                        <span class="mon-dot"></span>
-                        <span class="mon-label">Power grid</span>
-                        <span class="mon-value">&mdash;</span>
-                        <span class="mon-sub">clients without power</span>
-                        <span class="mon-change"></span>
-                        <span class="mon-ts"></span>
-                    </a>
-                    <a class="mon-tile" href="generation/" id="mon-gen">
-                        <span class="mon-dot"></span>
-                        <span class="mon-label">Generation</span>
-                        <span class="mon-value">&mdash;</span>
-                        <span class="mon-sub">supply vs. reserve</span>
-                        <span class="mon-change"></span>
-                        <span class="mon-ts"></span>
-                    </a>
-                    <a class="mon-tile" href="reservoirs/" id="mon-water">
-                        <span class="mon-dot"></span>
-                        <span class="mon-label">Reservoirs</span>
-                        <span class="mon-value">&mdash;</span>
-                        <span class="mon-sub">vs. PRASA thresholds</span>
-                        <span class="mon-change"></span>
-                        <span class="mon-ts"></span>
-                    </a>
-                </div>
-            </div>
-            <div class="hero-foot">
-                <a class="scroll-cue" href="#services">Scroll to inspect</a>
-                <span>Finance · Data · Systems · Research</span>
-            </div>
-        </section>
-        <script>
-        (function () {
-            var SB = "https://grovomkpsqgzakfuvuii.supabase.co";
-            var KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdyb3ZvbWtwc3FnemFrZnV2dWlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NzkxMjgsImV4cCI6MjA5MDE1NTEyOH0.U_ZH5gJij5NLkU786mV58uJ0orHZ6ElMkCtyoyuCvBg";
-            function sb(path) {
-                return fetch(SB + "/rest/v1/" + path + "&apikey=" + KEY, { cache: "no-store" })
-                    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); });
-            }
-            function fmt(n) { return (Math.round(n)).toLocaleString("en-US"); }
-            function iso(ms) { return new Date(ms).toISOString(); }
-            // Reading in `rowsDesc` (newest-first) closest to `targetMs` from at or before it.
-            function priorTo(rowsDesc, targetMs, tKey) {
-                for (var i = 1; i < rowsDesc.length; i++) {
-                    if (new Date(rowsDesc[i][tKey]).getTime() <= targetMs) return rowsDesc[i];
-                }
-                return null;
-            }
-            function chg(arrow, text) { return '<span class="arrow">' + arrow + '</span> ' + text; }
-            function num(value) {
-                if (value == null || value === "") return null;
-                var n = Number(value);
-                return Number.isFinite(n) ? n : null;
-            }
-            function hhmm(iso) {
-                var d = new Date(iso);
-                if (isNaN(d)) return "";
-                return "updated " + d.toLocaleTimeString("en-US", {
-                    timeZone: "America/Puerto_Rico", hour: "numeric", minute: "2-digit"
-                }) + " AST";
-            }
-            function paint(id, valueHtml, sub, color, ts, changeHtml) {
-                var el = document.getElementById(id); if (!el) return;
-                el.querySelector(".mon-value").innerHTML = valueHtml;
-                if (sub != null) el.querySelector(".mon-sub").textContent = sub;
-                el.querySelector(".mon-dot").style.background = color;
-                el.querySelector(".mon-ts").textContent = ts || "";
-                var ch = el.querySelector(".mon-change");
-                if (ch) ch.innerHTML = changeHtml || "";
-            }
-            function fail(id) {
-                var el = document.getElementById(id); if (!el) return;
-                el.querySelector(".mon-value").textContent = "feed unavailable";
-                el.querySelector(".mon-dot").style.background = "#999";
-                el.querySelector(".mon-ts").textContent = "";
-                var ch = el.querySelector(".mon-change");
-                if (ch) ch.innerHTML = "";
-            }
-            function loadGrid() {
-                var since = iso(Date.now() - 2 * 3600 * 1000);
-                return sb("v_outage_snapshots_slim?select=observed_at,snapshot&observed_at=gte." + since + "&order=observed_at.desc")
-                    .then(function (rows) {
-                        var r = rows && rows[0]; if (!r) throw 0;
-                        var t = (r.snapshot && r.snapshot.total) || {};
-                        var without = t.without || 0, total = t.total || 0, planned = t.planned || 0;
-                        var unplanned = Math.max(0, without - planned);
-                        var statusPct = total ? (unplanned / total * 100) : 0;
-                        var color = statusPct >= 10 ? "#e04343" : statusPct >= 3 ? "#e86235" : statusPct >= 1 ? "#faa72a" : "#76ad2a";
-                        // Direction over the last hour: are more or fewer clients without power?
-                        var change = "";
-                        var prev = priorTo(rows, new Date(r.observed_at).getTime() - 3600000, "observed_at");
-                        if (prev) {
-                            var wPrev = (prev.snapshot && prev.snapshot.total && prev.snapshot.total.without) || 0;
-                            var d = without - wPrev;
-                            change = d > 0 ? chg("↑", fmt(d) + " more · last hour")
-                                   : d < 0 ? chg("↓", fmt(-d) + " fewer · last hour")
-                                   : chg("→", "steady · last hour");
-                        }
-                        paint("mon-grid",
-                            "<strong>" + fmt(without) + "</strong> <small>without power</small>",
-                            statusPct.toFixed(1) + "% unplanned", color, hhmm(r.observed_at), change);
-                    }).catch(function () { fail("mon-grid"); });
-            }
-            function loadGen() {
-                var since = iso(Date.now() - 2 * 3600 * 1000);
-                return Promise.all([
-                    sb("v_generation_latest?select=*"),
-                    sb("v_generation_units?select=mw"),
-                    sb("v_generation_metrics_history?select=observed_at,operating_reserve_mw&observed_at=gte." + since + "&order=observed_at.desc").catch(function () { return null; })
-                ]).then(function (res) {
-                    var latest = res[0] && res[0][0]; if (!latest) throw 0;
-                    var m = latest.metrics || {};
-                    var gen = num(m.totalGeneration), cap = num(m.availableCapacityMw),
-                        opRes = num(m.operatingReserveMw), nextHr = num(m.nextHourMw);
-                    if (gen == null || opRes == null) throw 0;
-                    var n1 = (res[1] || []).reduce(function (a, u) {
-                        var v = num(u.mw);
-                        return v != null && v >= 1 && v > a ? v : a;
-                    }, 0) || null;
-                    var marginNext = (cap != null && nextHr != null) ? cap - nextHr : null;
-                    var label, color;
-                    if ((marginNext != null && marginNext < 0) || opRes < 50) {
-                        label = "Reserves critically low"; color = "#e04343";
-                    } else if ((n1 != null && opRes < n1) ||
-                               (n1 != null && marginNext != null && marginNext < n1)) {
-                        label = "Thin reserves"; color = "#faa72a";
-                    } else {
-                        label = "Adequate reserves"; color = "#76ad2a";
-                    }
-                    // Direction over the last hour: operating-reserve movement.
-                    var change = "";
-                    var hist = res[2];
-                    if (hist && hist.length) {
-                        var resNow = num(hist[0].operating_reserve_mw);
-                        var prev = priorTo(hist, new Date(hist[0].observed_at).getTime() - 3600000, "observed_at");
-                        var resThen = prev ? num(prev.operating_reserve_mw) : null;
-                        if (resNow != null && resThen != null) {
-                            var d = Math.round(resNow - resThen);
-                            change = d > 0 ? chg("↑", "reserve +" + d + " MW · last hour")
-                                   : d < 0 ? chg("↓", "reserve −" + Math.abs(d) + " MW · last hour")
-                                   : chg("→", "reserve flat · last hour");
-                        }
-                    }
-                    paint("mon-gen",
-                        "<strong>" + fmt(gen) + "</strong> <small>MW generating &middot; " + fmt(opRes) + " MW operating reserve</small>",
-                        label, color, hhmm(latest.observed_at), change);
-                }).catch(function () { fail("mon-gen"); });
-            }
-            function loadWater() {
-                var since = iso(Date.now() - 26 * 3600 * 1000);
-                return Promise.all([
-                    sb("v_reservoir_status?select=status,status_rank,measured_at"),
-                    sb("v_reservoir_history?select=site_no,measured_at,value&measured_at=gte." + since + "&order=measured_at.asc").catch(function () { return null; })
-                ]).then(function (res) {
-                        var rows = res[0];
-                        if (!rows || !rows.length) throw 0;
-                        var total = rows.length;
-                        var ranked = rows.filter(function (r) { return r.status_rank != null; });
-                        if (!ranked.length) throw 0;
-                        var worst = ranked.reduce(function (a, r) { return Math.max(a, +r.status_rank); }, -1);
-                        var belowNormal = ranked.filter(function (r) { return +r.status_rank >= 2; });
-                        var nControl = ranked.filter(function (r) { return +r.status_rank >= 4; }).length;
-                        var nAdjust = ranked.filter(function (r) { return +r.status_rank === 3; }).length;
-                        var nWatch = ranked.filter(function (r) { return +r.status_rank === 2; }).length;
-                        var color = worst >= 4 ? "#e04343" : worst === 3 ? "#d1793f" : worst === 2 ? "#faa72a" : "#76ad2a";
-                        var value = belowNormal.length
-                            ? "<strong>" + belowNormal.length + "</strong> <small>of " + total + " below normal</small>"
-                            : "<strong>All " + total + "</strong> <small>within normal bands</small>";
-                        var bands = [];
-                        if (nControl) bands.push(nControl + " at Control or below");
-                        if (nAdjust) bands.push(nAdjust + " in Ajustes");
-                        if (nWatch) bands.push(nWatch + " in Observaci\u00f3n");
-                        var latest = ranked.reduce(function (a, r) {
-                            var t = r.measured_at ? new Date(r.measured_at).getTime() : 0;
-                            return t > a ? t : a;
-                        }, 0);
-                        // Direction over 24h (reservoirs move slowly, so a full day is the
-                        // right window vs. the last-hour reads on grid/generation). Count
-                        // how many sites rose vs. fell, ignoring sensor-level jitter.
-                        var change = "";
-                        var hist = res[1];
-                        if (hist && hist.length) {
-                            var bySite = {};
-                            for (var i = 0; i < hist.length; i++) {
-                                var v = num(hist[i].value); if (v == null) continue;
-                                var k = hist[i].site_no;
-                                (bySite[k] = bySite[k] || []).push({ t: new Date(hist[i].measured_at).getTime(), v: v });
-                            }
-                            var up = 0, down = 0;
-                            Object.keys(bySite).forEach(function (k) {
-                                var s = bySite[k]; if (s.length < 2) return;
-                                var last = s[s.length - 1], target = last.t - 24 * 3600000;
-                                if (s[0].t > target) return;                 // not a full day of history yet
-                                var best = s[0];
-                                for (var j = 0; j < s.length; j++) { if (s[j].t <= target) best = s[j]; else break; }
-                                var d = last.v - best.v, eps = Math.max(0.02, Math.abs(last.v) * 0.0005);
-                                if (d > eps) up++; else if (d < -eps) down++;
-                            });
-                            change = down > up ? chg("\u2193", "trending lower \u00b7 24h")
-                                   : up > down ? chg("\u2191", "trending higher \u00b7 24h")
-                                   : chg("\u2192", "unchanged over 24h");
-                        }
-                        paint("mon-water", value,
-                            bands.length ? bands.join(" \u00b7 ") : "at or above Seguridad",
-                            color, latest ? hhmm(new Date(latest).toISOString()) : "", change);
-                    }).catch(function () { fail("mon-water"); });
-            }
-            function refreshAll() {
-                var rf = document.getElementById("mon-refresh");
-                Promise.all([loadGrid(), loadGen(), loadWater()]).then(function () {
-                    if (rf) rf.textContent = "auto-refreshing";
-                });
-            }
-            refreshAll();
-            setInterval(refreshAll, 5 * 60 * 1000);
-        })();
-        </script>
-
-        <!-- Services Section -->
-        <section id="services" class="panel" data-section="Capabilities">
-            <h2>Core Services</h2>
-            <div class="services-grid">
-                <div class="service-card">
-                    <h3>Financial Modeling & Analysis</h3>
-                    <p>Comprehensive financial modeling solutions for strategic decision-making and business growth.</p>
-                    <ul>
-                        <li>Integrated 3-Statement Models</li>
-                        <li>Driver-Based Budgeting & Forecasting</li>
-                        <li>DCF & Business Valuation</li>
-                        <li>Scenario Planning & Sensitivity Analysis</li>
-                        <li>Puerto Rico Private Company Valuation</li>
-                        <li>Startup Financial Planning for Funding</li>
-                    </ul>
-                    <p><strong>Ideal for:</strong> CFOs, startup founders, investors evaluating PR opportunities, M&A transactions</p>
-                </div>
-
-                <div class="service-card">
-                    <h3>Data & Business Intelligence</h3>
-                    <p>End-to-end BI solutions leveraging Microsoft Azure cloud platform for actionable insights.</p>
-                    <ul>
-                        <li>Azure Data Architecture & Warehousing</li>
-                        <li>ETL/ELT Pipeline Development</li>
-                        <li>Power BI Dashboards & Reporting</li>
-                        <li>Data Modeling & Governance</li>
-                        <li>Custom Advanced Analytics</li>
-                        <li>Predictive Modeling & Forecasting</li>
-                    </ul>
-                    <p><strong>Ideal for:</strong> Operations leaders, IT/BI heads, organizations with data silos, cloud migration projects</p>
-                </div>
-
-                <div class="service-card">
-                    <h3>Custom Analytics & Data Products</h3>
-                    <p>Live, decision-ready data products built on automated pipelines — from real-time monitoring to predictive models.</p>
-                    <ul>
-                        <li>Real-Time Economic & Market Dashboards</li>
-                        <li>Automated Data Pipelines (Scraping, ETL, Cloud DB)</li>
-                        <li>Forecasting & Predictive Modeling</li>
-                        <li>Economic Indicators & Monitoring</li>
-                        <li>Interactive, Public-Facing Dashboards</li>
-                        <li>Ongoing Data Refresh & Maintenance</li>
-                    </ul>
-                    <p><strong>Ideal for:</strong> organizations needing continuous monitoring, market intelligence, or data-driven public reporting — see live examples under Analytics</p>
-                </div>
-
-                <div class="service-card">
-                    <h3>AI & LLM Solutions</h3>
-                    <p>Evidence-based AI implementation grounded in hands-on research — practical gains, not hype.</p>
-                    <ul>
-                        <li>LLM Workflow Automation & Tooling</li>
-                        <li>AI Literacy & Agentic Tool Enablement (Claude Code, Codex)</li>
-                        <li>Model Evaluation & Validation</li>
-                        <li>Document & Data Extraction</li>
-                        <li>Realistic AI Opportunity Assessments</li>
-                        <li>Analysis-Time Reduction & Process Automation</li>
-                    </ul>
-                    <p><strong>Ideal for:</strong> teams considering AI, automating research and reporting, or separating real capability from hype</p>
-                </div>
-            </div>
-        </section>
-
-<!-- Research Section -->
-<section id="research" class="panel" data-section="Research">
-    <h2>Academic Research & Publications</h2>
-    <p style="text-align: center; color: var(--secondary-text); margin-bottom: 30px;">
-        Interdisciplinary research spanning applied econometrics, urban economics, and AI safety
-    </p>
-    
-    <div class="research-grid">
-        <!-- ArXiv Paper 2 -->
-        <div class="research-card">
-            <div class="research-meta">
-                <span>ARXIV PRE-PRINT</span>
-                <span class="document-id">arXiv:2510.25782</span>
-            </div>
-            <h3>Short-Run Multi-Outcome Effects of Nightlife Regulation in San Juan</h3>
-            <p>A multi-outcome synthetic-control evaluation of San Juan's late-night alcohol ordinance, run under a pre-analysis plan, detects no short-run effect on sector sales, hospitality employment, or violent crime — though no donor combination tracks San Juan's pre-period path well enough to rule out moderate effects in either direction.</p>
-            <a href="https://arxiv.org/abs/2510.25782" class="research-button" target="_blank">VIEW ON ARXIV →</a>
+<!-- 01 ─ Six sides ───────────────────────────────────────────────────── -->
+<!-- Side copy chosen by the owner from the researched options, read in order
+     as one chain (People → … → Governance → back to People). Opposite faces are
+     pairs: People/Technology (F/B), Processes/Governance (R/L), Data/Analytics (U/D). Each swatch is that face's sticker fill on the cube. -->
+<section id="sides" class="blk tone-paper" data-rig="L">
+    <div class="tag mono"><span>01 / Principles</span><span class="tag-t math" data-turns></span><span>[SA.1]</span></div>
+    <h2 class="split"><span>Six</span><span>sides</span></h2>
+    <div class="half">
+        <p class="mono intro">People, processes, technology, data, analytics, and governance have to move together.</p>
+        <div class="rows">
+            <details class="side" data-face="F">
+                <summary><span class="fl">F</span><span class="rt">People</span><span class="pm" aria-hidden="true"></span></summary>
+                <div class="rb"><p>People know where the work bends and breaks. Their judgment belongs in the design.</p></div>
+            </details>
+            <details class="side" data-face="R">
+                <summary><span class="fl">R</span><span class="rt">Processes</span><span class="pm" aria-hidden="true"></span></summary>
+                <div class="rb"><p>Automation works best after the process makes sense. A faster bad process is still a bad process.</p></div>
+            </details>
+            <details class="side" data-face="B">
+                <summary><span class="fl">B</span><span class="rt">Technology</span><span class="pm" aria-hidden="true"></span></summary>
+                <div class="rb"><p>Systems work better when they connect cleanly. Data should move without constant repair.</p></div>
+            </details>
+            <details class="side" data-face="U">
+                <summary><span class="fl">U</span><span class="rt">Data</span><span class="pm" aria-hidden="true"></span></summary>
+                <div class="rb"><p>Good decisions need data people can find, understand, and trust. Clear definitions matter as much as clean records.</p></div>
+            </details>
+            <details class="side" data-face="D">
+                <summary><span class="fl">D</span><span class="rt">Analytics</span><span class="pm" aria-hidden="true"></span></summary>
+                <div class="rb"><p>Analytics should make a decision clearer. The method should fit the question, and the result should be explainable.</p></div>
+            </details>
+            <details class="side" data-face="L">
+                <summary><span class="fl">L</span><span class="rt">Governance</span><span class="pm" aria-hidden="true"></span></summary>
+                <div class="rb"><p>Clear rules make responsible use easier. People should know who decides, who owns, and who checks.</p></div>
+            </details>
         </div>
-
-        <!-- SSRN Paper 1 -->
-        <div class="research-card">
-            <div class="research-meta">
-                <span>SSRN PRE-PRINT</span>
-                <span class="document-id">SSRN-5812003</span>
-            </div>
-            <h3>Disaster, Capital, and Neighborhood Change: Tract-Level Evidence on Post-María Gentrification in Puerto Rico</h3>
-            <p>Tract-level machine-learning evidence that post-Hurricane María upgrading concentrated selectively in low-income neighborhoods with higher education and lower residential mobility — a path-dependent gentrification, with vulnerability measures to guide anti-displacement policy.</p>
-            <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5812003" class="research-button" target="_blank">VIEW ON SSRN →</a>
-        </div>
-
-        <!-- SSRN Paper 2 -->
-        <div class="research-card">
-            <div class="research-meta">
-                <span>SSRN PRE-PRINT</span>
-                <span class="document-id">SSRN-6180258</span>
-            </div>
-            <h3>The Rule-Relocation Problem in Bio-Inspired AI</h3>
-            <p>Argues "self-regulating" bio-inspired AI doesn't remove externally imposed objectives but relocates them — and proposes separating an explicit Safety Envelope from an internal Adaptive Space to keep normative authorship auditable and governable.</p>
-            <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6180258" class="research-button" target="_blank">VIEW ON SSRN →</a>
-        </div>
-
-        <!-- SSRN Paper 5 -->
-        <div class="research-card">
-            <div class="research-meta">
-                <span>SSRN PRE-PRINT</span>
-                <span class="document-id">SSRN-6103787</span>
-            </div>
-            <h3>The Controlled U.S. Corporate Footprint by Owner Jurisdiction: Evidence from IRS SOI Data (2002–2022)</h3>
-            <p>Builds a 2002–2022 IRS Statistics of Income panel mapping the U.S. corporate footprint by foreign owner jurisdiction — documenting persistent concentration and weak alignment between asset scale and reported profitability, with Puerto Rico situated in the distribution.</p>
-            <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6103787" class="research-button" target="_blank">VIEW ON SSRN →</a>
-        </div>
-
-        <!-- SSRN Paper - When GDP Is Not Enough -->
-        <div class="research-card">
-            <div class="research-meta">
-                <span>SSRN PRE-PRINT</span>
-                <span class="document-id">SSRN-6198498</span>
-            </div>
-            <h3>When GDP Is Not Enough: Puerto Rico, Statistical Boundaries, and the Limits of National Accounting in a Regional Economy</h3>
-            <p>Argues Puerto Rico's macro-accounting problem is institutional, not technical — economically "external" yet statistically "internal" to U.S. accounts — so GDP modernization alone can't resolve ambiguity about resident income and external dependence.</p>
-            <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6198498" class="research-button" target="_blank">VIEW ON SSRN →</a>
-        </div>
-
-        <!-- Manuscript 2 - Diagnostic Companion -->
-        <div class="research-card">
-            <div class="research-meta">
-                <span>DIAGNOSTIC COMPANION</span>
-                <span class="document-id">PR-GDP-QA-2026</span>
-            </div>
-            <h3>When GDP Is Not Enough: Q&A on Puerto Rico's Macroeconomic Accounts, Statistical Boundaries, and Accounting Closure</h3>
-            <p>A diagnostic companion that tests whether Puerto Rico's published aggregates (GDP, GNP, BOP) form a closed, coherent system — using official PRPB and BEA methodology quotations to pinpoint measurement gaps and their policy consequences.</p>
-            <a href="https://sensadvisor.com/manuscripts/when_gpd_is_not_enough_diagnostic_companion_v2.pdf" class="research-button" target="_blank">VIEW COMPANION →</a>
-        </div>
-
-        <!-- SSRN Paper - Spurious Fit in Thin Markets -->
-        <div class="research-card">
-            <div class="research-meta">
-                <span>SSRN PRE-PRINT</span>
-                <span class="document-id">SSRN-6278098</span>
-            </div>
-            <h3>Spurious Fit in Thin Markets: A Preprocessing Cautionary Tale Using Puerto Rico GO Spreads</h3>
-            <p>Puerto Rico GO-spread models show strong in-sample fit yet collapse out-of-sample — a forensic audit pins the cause on a short rolling-standardization window that manufactures false predictability.</p>
-            <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6278098" class="research-button" target="_blank">VIEW ON SSRN →</a>
-        </div>
-
-        <!-- SSRN Paper - Financial Fragility -->
-        <div class="research-card">
-            <div class="research-meta">
-                <span>SSRN PRE-PRINT</span>
-                <span class="document-id">SSRN-6325338</span>
-            </div>
-            <h3>Diagnosing Financial Fragility in a Complex Economy</h3>
-            <p>Reframes financial fragility as a governance and diagnostic problem rather than a forecasting one — showing how leverage, funding dependence, and crowding accumulate quietly in calm periods, with practical guidance for monitoring and stress-testing.</p>
-            <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6325338" class="research-button" target="_blank">VIEW ON SSRN →</a>
-        </div>
-
-        <!-- SSRN Paper - Credit Union Forbearance -->
-        <div class="research-card">
-            <div class="research-meta">
-                <span>SSRN PRE-PRINT</span>
-                <span class="document-id">SSRN-6909221</span>
-            </div>
-            <h3>Regulatory Forbearance and Depositor Stickiness in Puerto Rico's Credit Union System: A Chronicle of Act 220-2015 and the Insolvency-Illiquidity Risk</h3>
-            <p>Chronicles how Puerto Rico's cooperative credit unions weathered the 2013–18 collapse in their government-debt holdings — a legislative accounting override (Act 220-2015) that deferred loss recognition, paired with common-bond depositor loyalty that prevented the deposit flight which would have forced bond liquidation at distressed prices.</p>
-            <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6909221" class="research-button" target="_blank">VIEW ON SSRN →</a>
-        </div>
-
     </div>
 </section>
 
-        <!-- About Section -->
-        <section id="about" class="panel" data-section="Profile">
-            <h2 class="clickable-name" onclick="toggleProfileImage(this)">About Jorge A. Arroyo</h2>
-            <p style="text-align: center; color: var(--secondary-text); margin-bottom: 30px; font-size: 1.1rem;">
-                xP&A & Data Consultant · Analytics Engineer & Developer
-            </p>
-            
-            <div class="about-content">
-                <div>
-                    <div class="bio-paragraphs" style="display: grid; gap: 20px; margin: 20px 0;">
-                        <div class="bio-card" id="bio-card-1">
-                            <p class="bio-content">With over 10 years immersed in finance and analytics, I saw a critical need among local businesses: the need to bridge the gap between complex financial planning and the wealth of operational data often locked away in separate systems. SENS ADVISOR was born from an idea to address this: to empower organizations by integrating these domains through expert Extended Planning & Analysis (xP&A) and full-stack enterprise application development that transforms how businesses manage their financial and operational workflows.</p>
-                        </div>
-                        
-                        <div class="bio-card" id="bio-card-2">
-                            <p class="bio-content">I mainly focus on designing and deploying cloud-based xP&A and Business Intelligence systems using Microsoft Azure, Power BI, and advanced Excel techniques, while also architecting sophisticated full-stack business applications with enterprise-grade security, role-based access control, and real-time data synchronization.</p>
-                        </div>
-                        
-                        <div class="bio-card" id="bio-card-3">
-                            <p class="bio-content">Since 2022, I've pursued AI and LLM research as a purposeful hobby to stay current with rapidly evolving technology and to rigorously test what works versus what doesn't in real business implementations. This is how I maintain a ground-truth understanding of AI's current capabilities and limitations which allows me to provide clients with realistic assessments of AI opportunities, honest guidance on implementation risks, and evidence-based recommendations for efficiency gains.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+<!-- 02 ─ Services: what I offer, then the process it runs on ──────── -->
+<section id="services" class="blk tone-paper" data-rig="R">
+    <div class="tag mono"><span>02 / Services</span><span class="tag-t math" data-turns></span><span>[SA.2]</span></div>
+    <h2 class="big">How I can help your business</h2>
+    <ol class="svcs">
+        <li class="svc">
+            <span class="svc-n mono">S.1</span>
+            <h3>Financial Modeling &amp; Analysis</h3>
+            <p class="svc-for mono">CFOs · founders · investors · M&amp;A</p>
+            <p>Comprehensive financial models built for strategic decisions and growth, not for a drawer.</p>
+            <ul><li>Integrated 3-statement models</li><li>Driver-based budgeting &amp; forecasting</li><li>DCF &amp; business valuation</li><li>Scenario planning &amp; sensitivity analysis</li><li>Puerto Rico private company valuation</li><li>Startup financial planning for funding</li></ul>
+        </li>
+        <li class="svc">
+            <span class="svc-n mono">S.2</span>
+            <h3>Data &amp; Business Intelligence</h3>
+            <p class="svc-for mono">Ops leaders · BI heads · data silos</p>
+            <p>End-to-end BI on Microsoft Azure, from raw source systems to dashboards people actually open.</p>
+            <ul><li>Azure data architecture &amp; warehousing</li><li>ETL/ELT pipeline development</li><li>Power BI dashboards &amp; reporting</li><li>Data modeling &amp; governance</li><li>Custom advanced analytics</li><li>Predictive modeling &amp; forecasting</li></ul>
+        </li>
+        <li class="svc">
+            <span class="svc-n mono">S.3</span>
+            <h3>Custom Analytics &amp; Data Products</h3>
+            <p class="svc-for mono">Monitoring · market intel · public reporting</p>
+            <p>Live, decision-ready data products on automated pipelines.</p>
+            <ul><li>Real-time economic &amp; market dashboards</li><li>Automated pipelines: scraping, ETL, cloud DB</li><li>Forecasting &amp; predictive modeling</li><li>Economic indicators &amp; monitoring</li><li>Interactive, public-facing dashboards</li><li>Ongoing data refresh &amp; maintenance</li></ul>
+        </li>
+        <li class="svc">
+            <span class="svc-n mono">S.4</span>
+            <h3>AI &amp; LLM Solutions</h3>
+            <p class="svc-for mono">Teams separating capability from hype</p>
+            <p>Evidence-based AI implementation grounded in hands-on research. Practical gains, not hype.</p>
+            <ul><li>LLM workflow automation &amp; tooling</li><li>AI literacy &amp; agentic tool enablement (Claude Code, Codex)</li><li>Model evaluation &amp; validation</li><li>Document &amp; data extraction</li><li>Realistic AI opportunity assessments</li><li>Analysis-time reduction &amp; process automation</li></ul>
+        </li>
+    </ol>
 
-        <!-- Timeline Section -->
-        <section class="panel" data-section="Experience">
-            <h2>Professional Journey</h2>
-            <div class="timeline-container">
-                <div class="timeline-column">
-                    <h3 class="timeline-header">Work Experience</h3>
-                    <div class="timeline">
-                        <div class="timeline-item" data-type="work" data-details="Design connected planning solutions integrating finance, operations, and sales data|Develop comprehensive financial models with DCF analyses and Monte Carlo simulations|Build cloud-based analytics solutions using Azure Databricks, DevOps, and Power Platform|Create mobile-friendly dashboards for real-time decision support|Leverage state-of-the-art LLMs reducing analysis time by over 50%">
-                            <div class="timeline-date">2019 - Present</div>
-                            <div class="timeline-content">
-                                <h4>xP&A & Data Consultant</h4>
-                                <p class="timeline-company">SENS ADVISOR</p>
-                            </div>
-                        </div>
-                        <div class="timeline-item" data-type="work" data-details="Drove operational and financial improvements resulting in annual savings exceeding $500,000|Streamlined communication across departments, reducing month-end closing from 15 to 7 days|Managed and monitored budgets, projections, and metrics for $200 million in operations|Enhanced organizational efficiency through data-driven recommendations">
-                            <div class="timeline-date">2018 - 2019</div>
-                            <div class="timeline-content">
-                                <h4>Financial Planning & Analysis Manager</h4>
-                                <p class="timeline-company">Grupo Cabrera</p>
-                            </div>
-                        </div>
-                        <div class="timeline-item" data-type="work" data-details="Developed robust solvency and liquidity risk models for cooperatives with $8 billion in collective assets|Oversaw meticulous analysis of debt securities portfolios valued at $2.5 billion|Played pivotal role in preparation of the PROMESA Fiscal Plan|Served as key liaison to FOMB facilitating weekly updates for transparency">
-                            <div class="timeline-date">2016 - 2018</div>
-                            <div class="timeline-content">
-                                <h4>Lead Financial Analyst for PROMESA</h4>
-                                <p class="timeline-company">Public Corporation for Supervision and Insurance of Cooperatives</p>
-                            </div>
-                        </div>
-                        <div class="timeline-item" data-type="work" data-details="Prepared and presented critical financial documents to the Board of Directors|Coordinated preparation of annual operating budgets handling $70+ million annually|Developed weekly cash flow and short-term liquidity reports|Managed financial communications for the bank and its affiliates">
-                            <div class="timeline-date">2015 - 2016</div>
-                            <div class="timeline-content">
-                                <h4>Executive Assistant to Comptroller</h4>
-                                <p class="timeline-company">Government Development Bank for Puerto Rico</p>
-                            </div>
-                        </div>
+    <div class="tag mono proc-tag"><span>Process</span><span>[SA.2.1]</span></div>
+    <h3 class="big proc-h">A path to <span class="dim">AI that works.</span></h3>
+    <p class="mono intro">Some AI can start on day one. AI trusted with decisions and sensitive work follows a path.</p>
+    <ol class="cards">
+        <li><b>Listen</b><span>Start with the people who do the work. Learn how it really runs, not how it’s documented.</span></li>
+        <li><b>Map</b><span>Follow real work from start to finish: every handoff, re-typed number and exception.</span></li>
+        <li><b>Diagnose</b><span>For each manual step: can the system not do it, or has nobody turned it on?</span></li>
+        <li><b>Connect &amp; centralize</b><span>Systems pass data to each other, and there’s one place where the numbers agree.</span></li>
+        <li><b>Prioritize</b><span>Size the value of each opportunity and give it an owner. Quick wins first.</span></li>
+        <li class="end"><b>Apply AI</b><span>Put AI to work where the data is ready: reading documents, sorting requests, forecasting, answering questions.</span></li>
+        <li><b>Keep it working</b><span>Human review, a fallback, and a measure that shows it’s paying off.</span></li>
+    </ol>
+    <!-- Trial (2026-09-30): the eight-step method as a flowchart.
+         ?process=cards brings the cards back; _snapshots/ holds the earlier versions
+         (2026-09-30-before-process-diagram has the vertical spine). -->
+    <div class="flow" data-flow>
+        <div class="fc">
+            <div class="fc-band fc-b1" aria-hidden="true"><span class="mono">Understand</span></div>
+            <div class="fc-band fc-b2" aria-hidden="true"><span class="mono">Decide</span></div>
+            <div class="fc-band fc-b3" aria-hidden="true"><span class="mono">Build &amp; run</span></div>
+            <div class="fc-spine" aria-hidden="true"></div>
+            <div class="fc-loop" aria-hidden="true"><span class="mono">back to 01</span></div>
+            <ol class="flow-chart">
+                <li><div class="fc-box"><span class="mono">01</span><b>Inventory</b></div><p class="fc-note mono">List processes · measure today</p></li>
+                <li><div class="fc-box"><span class="mono">02</span><b>Map</b></div><p class="fc-note mono">How work is actually done</p></li>
+                <li><div class="fc-box"><span class="mono">03</span><b>Check</b></div><p class="fc-note mono">What can connect · who allows it</p></li>
+                <li class="fc-key"><div class="fc-box fc-dia"><span class="mono">04</span><b>Diagnose</b></div>
+                    <div class="fc-note fc-branch">
+                        <span class="fc-arm"><i class="mono">not stable</i></span>
+                        <span class="fc-arm fc-back" aria-hidden="true"></span>
+                        <span class="fc-side">Stabilize</span>
                     </div>
-                </div>
-                
-                <div class="timeline-column">
-                    <h3 class="timeline-header">Education</h3>
-                    <div class="timeline">
-                        <div class="timeline-item" data-type="education" data-details="Advanced valuation methodologies and techniques|DCF analysis and company valuation frameworks|Equity valuation and financial modeling best practices|Valuation in complex transactions and special situations|Industry-specific valuation considerations">
-                            <div class="timeline-date">2024</div>
-                            <div class="timeline-content">
-                                <h4>Advanced Valuation Certification</h4>
-                                <p class="timeline-company">NYU Stern Executive Education</p>
-                            </div>
-                        </div>
-                        <div class="timeline-item" data-type="education" data-details="Big data processing and distributed computing|Machine learning algorithms and data mining techniques|Python and R programming for data analysis|Data engineering and ETL pipeline development|Statistical analysis and predictive modeling">
-                            <div class="timeline-date">2023</div>
-                            <div class="timeline-content">
-                                <h4>MS, Big Data and Analytics</h4>
-                                <p class="timeline-company">BarcelonaTech</p>
-                            </div>
-                        </div>
-                        <div class="timeline-item" data-type="education" data-details="Advanced data analytics and business intelligence|Statistical analysis and data visualization|Database management and SQL programming|Business analytics and decision support systems|Financial data analysis and reporting">
-                            <div class="timeline-date">2022</div>
-                            <div class="timeline-content">
-                                <h4>MS, Accountancy (Data Analytics)</h4>
-                                <p class="timeline-company">University of Illinois Urbana-Champaign</p>
-                            </div>
-                        </div>
-                        <div class="timeline-item" data-type="education" data-details="Public policy analysis and development|Government finance and fiscal management|Policy research methodologies|Public administration and governance|Strategic planning for public sector">
-                            <div class="timeline-date">2020</div>
-                            <div class="timeline-content">
-                                <h4>MPA, Government and Public Policy</h4>
-                                <p class="timeline-company">University of Puerto Rico</p>
-                            </div>
-                        </div>
-                        <div class="timeline-item" data-type="education" data-details="Historical research methodology and analysis|Critical thinking and analytical writing|Cross-cultural analysis and perspective|Research skills and source evaluation|Communication and presentation abilities">
-                            <div class="timeline-date">2012</div>
-                            <div class="timeline-content">
-                                <h4>BA, History of the Americas</h4>
-                                <p class="timeline-company">University of Puerto Rico</p>
-                            </div>
-                        </div>
+                    <span class="fc-yes mono">stable</span>
+                </li>
+                <li><div class="fc-box"><span class="mono">05</span><b>Prioritize</b></div><p class="fc-note mono">Rank · owner · measure</p></li>
+                <li><div class="fc-box"><span class="mono">06</span><b>Plan</b></div>
+                    <div class="fc-note">
+                        <p class="fc-chips mono"><span>Connect</span><span>Centralize</span><span>Intelligence</span></p>
+                        <p class="fc-sub mono">each with a fallback</p>
                     </div>
-                </div>
-            </div>
-        </section>
+                </li>
+                <li><div class="fc-box"><span class="mono">07</span><b>Automate</b></div><p class="fc-note mono">Validate before relying on it</p></li>
+                <li><div class="fc-box"><span class="mono">08</span><b>Operate</b></div><p class="fc-note mono">Monitor · improve</p></li>
+            </ol>
+        </div>
+        <p class="fc-legend mono" aria-hidden="true">Legend <span><i class="lg-box"></i>step</span><span><i class="lg-dia"></i>key step</span><span><i class="lg-line"></i>handoff</span><span><i class="lg-loop"></i>ongoing loop</span></p>
+    </div>
+    <a class="bar-btn mono" href="#contact">What do you want to build?</a>
+</section>
 
-        <!-- Contact Section -->
-        <section id="contact" class="panel contact" data-section="Contact">
-            <h2>Get In Touch</h2>
-            <p>Ready to transform your planning and analytics? Let's discuss your specific needs.</p>
-            <div class="contact-info">
-                <div class="contact-item">
-                    <strong>Email:</strong> <a href="mailto:consult@sensadvisor.com">consult@sensadvisor.com</a>
-                </div>
-                <div class="contact-item">
-                    <strong>LinkedIn:</strong> <a href="https://www.linkedin.com/in/jorgeantonioarroyo" target="_blank">Jorge A. Arroyo</a>
-                </div>
-                <div class="contact-item">
-                    <strong>Upwork:</strong> <a href="https://www.upwork.com/freelancers/~01a7f187cf78eb46a0" target="_blank">Jorge A. Arroyo</a>
-                </div>
-                <div class="contact-item">
-                    <strong>Location:</strong> San Juan, Puerto Rico
-                </div>
-            </div>
-        </section>
+<!-- 03 ─ About ───────────────────────────────────────────────────────── -->
+<section id="about" class="blk tone-paper" data-rig="R">
+    <div class="tag mono"><span>03 / About</span><span class="tag-t math" data-turns></span><span>[SA.3]</span></div>
+    <h2 class="big">Jorge A. Arroyo</h2>
+    <div class="bio">
+        <p>After more than ten years in finance and analytics, I kept seeing the same gap in local businesses: financial planning on one side, operational data locked in separate systems on the other. SENS ADVISOR exists to close it through Extended Planning &amp; Analysis (xP&amp;A) and full-stack applications that change how teams run their financial and operational workflows.</p>
+        <p>Day to day, I design and deploy cloud xP&amp;A and BI systems on Microsoft Azure, Power BI and advanced Excel, and build business applications with enterprise-grade security, role-based access and real-time sync.</p>
+        <p>Since 2022 I’ve run AI and LLM research as a deliberate side practice: testing what works and what doesn’t in real implementations, so clients get realistic assessments instead of vendor promises.</p>
+    </div>
+    <ul class="cv">
+        <li><span class="mono">2019–now</span><b>Analytics Engineer &amp; Developer</b><em class="mono">SENS ADVISOR</em></li>
+        <li><span class="mono">2024</span><b>Advanced Valuation Certification</b><em class="mono">NYU Stern Executive Education</em></li>
+        <li><span class="mono">2023</span><b>MS, Big Data &amp; Analytics</b><em class="mono">BarcelonaTech</em></li>
+        <li><span class="mono">2022</span><b>MS, Accountancy (Data Analytics)</b><em class="mono">University of Illinois Urbana-Champaign</em></li>
+        <li><span class="mono">2020</span><b>MPA, Government &amp; Public Policy</b><em class="mono">University of Puerto Rico</em></li>
+        <li><span class="mono">2012</span><b>BA, History of the Americas</b><em class="mono">University of Puerto Rico</em></li>
+    </ul>
+    <!-- Trial (2026-09-30): v2's work / education chart in place of the list above.
+         ?about=list brings the list back; _snapshots/ holds the files before. -->
+    <div class="journey">
+        <div class="j-legend mono"><span class="k-work">Work</span><span class="k-edu">Education</span></div>
+        <div class="j-chart">
+            <button class="j-row work" type="button" aria-pressed="false" aria-controls="j-detail" data-from="2019" data-to="now" data-detail="Connected planning across finance, operations and sales data|DCF analyses, valuation and Monte Carlo simulations|Cloud xP&amp;A and BI systems on Microsoft Azure, Power BI and advanced Excel|Live, decision-ready data products on automated pipelines|LLM workflows for faster analysis and reporting"><span class="j-txt"><b>Analytics Engineer &amp; Developer</b> <em class="mono">SENS ADVISOR</em></span><span class="j-yr mono">2019–now</span><span class="j-lane"><span class="j-bar"></span></span></button>
+            <button class="j-row edu" type="button" aria-pressed="false" aria-controls="j-detail" data-from="2024" data-to="2024" data-detail="Advanced valuation methodologies|DCF and company valuation frameworks|Valuation in complex transactions and special situations"><span class="j-txt"><b>Advanced Valuation Certification</b> <em class="mono">NYU Stern Executive Education</em></span><span class="j-yr mono">2024</span><span class="j-lane"><span class="j-bar"></span></span></button>
+            <button class="j-row edu" type="button" aria-pressed="false" aria-controls="j-detail" data-from="2023" data-to="2023" data-detail="Big data processing and distributed computing|Machine learning and data mining|Data engineering and ETL pipelines"><span class="j-txt"><b>MS, Big Data &amp; Analytics</b> <em class="mono">BarcelonaTech</em></span><span class="j-yr mono">2023</span><span class="j-lane"><span class="j-bar"></span></span></button>
+            <button class="j-row edu" type="button" aria-pressed="false" aria-controls="j-detail" data-from="2022" data-to="2022" data-detail="Data analytics and business intelligence|Statistical analysis and visualization|Financial data analysis and reporting"><span class="j-txt"><b>MS, Accountancy (Data Analytics)</b> <em class="mono">University of Illinois Urbana-Champaign</em></span><span class="j-yr mono">2022</span><span class="j-lane"><span class="j-bar"></span></span></button>
+            <button class="j-row edu" type="button" aria-pressed="false" aria-controls="j-detail" data-from="2020" data-to="2020" data-detail="Public policy analysis|Government finance and fiscal management|Strategic planning for the public sector"><span class="j-txt"><b>MPA, Government &amp; Public Policy</b> <em class="mono">University of Puerto Rico</em></span><span class="j-yr mono">2020</span><span class="j-lane"><span class="j-bar"></span></span></button>
+            <button class="j-row edu" type="button" aria-pressed="false" aria-controls="j-detail" data-from="2012" data-to="2012" data-detail="Historical research methodology|Critical thinking and analytical writing|Source evaluation"><span class="j-txt"><b>BA, History of the Americas</b> <em class="mono">University of Puerto Rico</em></span><span class="j-yr mono">2012</span><span class="j-lane"><span class="j-bar"></span></span></button>
+        </div>
+        <div class="j-axis mono" aria-hidden="true"></div>
+        <div class="j-detail" id="j-detail" aria-live="polite"></div>
+    </div>
+</section>
 
-        <!-- Footer -->
-        <footer class="footer">
-            <p>&copy; <span id="copyright-year">2026</span> Sens ABI LLC. All rights reserved. | Standard W9/1099 Process for US Clients</p>
+<!-- 04 ─ Projects ────────────────────────────────────────────────────── -->
+<section id="projects" class="blk tone-signal" data-rig="R">
+    <div class="tag mono"><span>04 / Projects</span><span class="tag-t math" data-turns></span><span>[SA.4]</span></div>
+    <h2 class="big">Recent projects</h2>
+    <p class="live-head mono"><span class="live-dot"></span>Puerto Rico infrastructure · monitored in real time<span class="mon-refresh" id="mon-refresh">connecting…</span></p>
+    <div class="monitor">
+        <a class="mon-tile" href="/outages/" id="mon-grid">
+            <span class="mon-top mono"><span class="mon-dot"></span>PR Outage Status<span class="mon-go" aria-hidden="true">↗</span></span>
+            <span class="mon-value">&mdash;</span>
+            <span class="mon-sub">clients without power</span>
+            <span class="mon-change"></span>
+            <span class="mon-ts mono"></span>
+        </a>
+        <a class="mon-tile" href="/generation/" id="mon-gen">
+            <span class="mon-top mono"><span class="mon-dot"></span>PR Generation Status<span class="mon-go" aria-hidden="true">↗</span></span>
+            <span class="mon-value">&mdash;</span>
+            <span class="mon-sub">supply vs. reserve</span>
+            <span class="mon-change"></span>
+            <span class="mon-ts mono"></span>
+        </a>
+        <a class="mon-tile" href="/reservoirs/" id="mon-water">
+            <span class="mon-top mono"><span class="mon-dot"></span>PR Reservoir Levels<span class="mon-go" aria-hidden="true">↗</span></span>
+            <span class="mon-value">&mdash;</span>
+            <span class="mon-sub">vs. PRASA thresholds</span>
+            <span class="mon-change"></span>
+            <span class="mon-ts mono"></span>
+        </a>
+    </div>
+    <div class="more">
+        <a href="/rentals/"><span class="mono">Dashboard</span>San Juan Rentals<i aria-hidden="true">↗</i></a>
+        <a href="/pr-lmci/"><span class="mono">Index</span>PR Labor Market Index<i aria-hidden="true">↗</i></a>
+    </div>
+</section>
+
+<!-- 05 ─ Contact (the cube is solved here) ───────────────────────────── -->
+<section id="contact" class="blk tone-signal contact" data-rig="L">
+    <div class="half">
+        <p class="math solved-note"><i>g</i> · <i>g</i><sup>−1</sup> = <i>e</i></p>
+        <div class="foot-cols mono">
+            <ul><li><a href="#sides">Principles</a></li><li><a href="#services">Services</a></li><li><a href="#about">About</a></li><li><a href="#projects">Projects</a></li></ul>
+            <ul>
+                <li><a href="https://www.linkedin.com/in/jorgeantonioarroyo" target="_blank" rel="noopener">LinkedIn ↗</a></li>
+                <li><a href="https://github.com/jibarix" target="_blank" rel="noopener">GitHub ↗</a></li>
+                <li><a href="https://papers.ssrn.com/sol3/cf_dev/AbsByAuth.cfm?per_id=3488091" target="_blank" rel="noopener">SSRN ↗</a></li>
+                <li><a href="https://x.com/jorgearroyox" target="_blank" rel="noopener">X / Insights ↗</a></li>
+                <li><a href="https://www.upwork.com/freelancers/~01a7f187cf78eb46a0" target="_blank" rel="noopener">Upwork ↗</a></li>
+            </ul>
+        </div>
+        <p class="mono">Let’s make something</p>
+        <a class="big-mail" href="mailto:consult@sensadvisor.com">consult@sensadvisor.com</a>
+        <footer class="foot mono">
+            <span>© <span data-year>2026</span> Sens ABI LLC</span>
+            <span>San Juan, Puerto Rico · W9/1099 for US clients</span>
+            <a href="#top">Back to top ↑</a>
         </footer>
     </div>
-    <script>document.getElementById('copyright-year').textContent=new Date().getFullYear();</script>
-
-    <script>
-        // ===== Scramble / decode text reveal (monochrome) =====
-        const SCRAMBLE_GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#$%@?/=+*';
-
-        function randGlyph() {
-            return SCRAMBLE_GLYPHS.charAt(Math.floor(Math.random() * SCRAMBLE_GLYPHS.length));
-        }
-
-        function scrambleWord(word) {
-            let s = '';
-            for (let c = 0; c < word.length; c++) s += randGlyph();
-            return s;
-        }
-
-        // Decode one paragraph: instant scramble-noise, then each word locks
-        // in (random order), resolving left-to-right into the real text.
-        function scrambleParagraph(paragraph) {
-            const originalText = paragraph.dataset.originalText || paragraph.textContent;
-            paragraph.dataset.originalText = originalText;
-
-            const words = originalText.split(' ');
-            const spread = 22; // ticks over which words BEGIN resolving (random-order stagger)
-            const tokens = words.map(word => ({
-                word: word,
-                len: word.length,
-                start: Math.floor(Math.random() * spread),
-                dur: Math.min(16, Math.max(6, word.length)),
-                done: word.length === 0
-            }));
-
-            paragraph.innerHTML = words
-                .map(() => '<span class="bio-token scrambling"></span>')
-                .join(' ');
-            const spans = paragraph.querySelectorAll('.bio-token');
-            words.forEach((word, i) => { spans[i].textContent = scrambleWord(word); });
-
-            // Restart cleanly if the card is re-triggered mid-decode.
-            if (paragraph._scramble) clearInterval(paragraph._scramble);
-
-            let tick = 0;
-            paragraph._scramble = setInterval(() => {
-                let active = false;
-                tokens.forEach((t, i) => {
-                    if (t.done) return;
-                    active = true;
-                    const span = spans[i];
-                    const elapsed = tick - t.start;
-                    if (elapsed < 0) {                     // not yet resolving: full noise
-                        span.textContent = scrambleWord(t.word);
-                        return;
-                    }
-                    const locked = Math.floor((elapsed / t.dur) * t.len) + 1;
-                    if (locked >= t.len) {                 // fully decoded
-                        span.textContent = t.word;
-                        span.classList.remove('scrambling');
-                        span.classList.add('revealed');
-                        t.done = true;
-                        return;
-                    }
-                    let out = t.word.slice(0, locked);      // locked prefix + scrambled tail
-                    for (let c = locked; c < t.len; c++) out += randGlyph();
-                    span.textContent = out;
-                });
-                tick++;
-                if (!active) {
-                    clearInterval(paragraph._scramble);
-                    paragraph._scramble = null;
-                }
-            }, 34);
-        }
-
-        // Decode a single card. Skips if it's already mid-decode, so one
-        // cursor pass = one decode (a lingering pointer won't restart it).
-        function animateSingleCard(cardElement) {
-            const paragraph = cardElement.querySelector('.bio-content');
-            if (!paragraph || paragraph._scramble) return;
-            scrambleParagraph(paragraph);
-        }
-
-        // On load: capture the real text and paint the scramble-noise state.
-        function initializeBioTokens() {
-            document.querySelectorAll('.bio-card .bio-content').forEach(paragraph => {
-                const originalText = paragraph.textContent;
-                paragraph.dataset.originalText = originalText;
-                const words = originalText.split(' ');
-                paragraph.innerHTML = words
-                    .map(() => '<span class="bio-token scrambling"></span>')
-                    .join(' ');
-                const spans = paragraph.querySelectorAll('.bio-token');
-                words.forEach((word, i) => { spans[i].textContent = scrambleWord(word); });
-            });
-        }
-
-        // Auto-play on load: decode each card, staggered.
-        function startBioDiffusion() {
-            const paragraphs = document.querySelectorAll('.bio-card .bio-content');
-            paragraphs.forEach((paragraph, i) => {
-                setTimeout(() => scrambleParagraph(paragraph), i * 650);
-            });
-        }
-
-
-        // Profile image toggle
-        function toggleProfileImage(nameElement) {
-            const existingPopup = nameElement.querySelector('.profile-popup');
-            
-            if (existingPopup) {
-                existingPopup.remove();
-                return;
-            }
-            
-            // Create popup
-            const popup = document.createElement('div');
-            popup.className = 'profile-popup show';
-            popup.innerHTML = `
-                <img src="src/assets/images/jaasa.jpg" alt="Jorge A. Arroyo">
-                <p>Jorge A. Arroyo - xP&A & Data Consultant · Analytics Engineer & Developer</p>
-            `;
-            
-            nameElement.appendChild(popup);
-            
-            // Close when clicking elsewhere
-            setTimeout(() => {
-                document.addEventListener('click', function closePopup(e) {
-                    if (!nameElement.contains(e.target)) {
-                        popup.remove();
-                        document.removeEventListener('click', closePopup);
-                    }
-                });
-            }, 100);
-        }
-
-        // Initialize timeline interactions
-        function initializeTimeline() {
-            const timelineItems = document.querySelectorAll('.timeline-item');
-            let activeItem = null;
-
-            timelineItems.forEach(item => {
-                item.addEventListener('click', function(e) {
-                    // Check if click is in the circle area (left 30px of item)
-                    const rect = item.getBoundingClientRect();
-                    const clickX = e.clientX - rect.left;
-                    if (clickX > 30) return; // Only respond to clicks on left 30px where circle is
-                    
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    // If clicking the same item, toggle it off
-                    if (activeItem === item) {
-                        hideDetails(item);
-                        activeItem = null;
-                        return;
-                    }
-                    
-                    // Hide any currently active item
-                    if (activeItem) {
-                        hideDetails(activeItem);
-                    }
-                    
-                    // Show details for clicked item
-                    showDetails(item);
-                    activeItem = item;
-                });
-            });
-
-            // Close details when clicking elsewhere
-            document.addEventListener('click', function(e) {
-                if (activeItem && !activeItem.contains(e.target)) {
-                    hideDetails(activeItem);
-                    activeItem = null;
-                }
-            });
-
-            function showDetails(item) {
-                // Add active class
-                item.classList.add('active');
-                
-                // Get data
-                const type = item.dataset.type;
-                const details = item.dataset.details.split('|');
-                
-                // Create details popup
-                const detailsDiv = document.createElement('div');
-                detailsDiv.className = 'timeline-details show';
-                
-                const title = type === 'work' ? 'Key Accomplishments:' : 'Skills Learned:';
-                
-                let html = `<h5>${title}</h5><ul>`;
-                details.forEach(detail => {
-                    html += `<li>${detail}</li>`;
-                });
-                html += '</ul>';
-                
-                detailsDiv.innerHTML = html;
-                
-                // Position relative to the timeline content
-                const content = item.querySelector('.timeline-content');
-                content.style.position = 'relative';
-                content.appendChild(detailsDiv);
-            }
-
-            function hideDetails(item) {
-                item.classList.remove('active');
-                const detailsDiv = item.querySelector('.timeline-details');
-                if (detailsDiv) {
-                    detailsDiv.remove();
-                }
-            }
-        }
-
-        // Initialize everything on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize bio content as masked tokens immediately
-            initializeBioTokens();
-
-            // Re-decode a card once on each cursor pass. pointerenter fires
-            // exactly once per pass (no bubbling, no refire on children), and
-            // animateSingleCard ignores re-entry while a decode is running.
-            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                document.querySelectorAll('.bio-card').forEach(card => {
-                    card.addEventListener('pointerenter', () => animateSingleCard(card));
-                });
-            }
-
-            // Initialize timeline interactions
-            initializeTimeline();
-        });
-
-        // Auto-start animation after page loads (faster)
-        window.addEventListener('load', () => {
-            setTimeout(startBioDiffusion, 800); // Faster start: 800ms instead of 1500ms
-        });
-
-        // Smooth scrolling for navigation
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth'
-                    });
-                }
-            });
-        });
-
-        // Mobile menu: icon button -> floating sheet over a blurred scrim.
-        (function () {
-            var btn = document.querySelector('.menu-btn');
-            var sheet = document.querySelector('.navsheet');
-            var scrim = document.querySelector('.navscrim');
-            if (!btn || !sheet || !scrim) return;
-
-            var disc = sheet.querySelector('.sheet-disc');
-
-            function isOpen() {
-                return document.documentElement.classList.contains('sheet-open');
-            }
-
-            function setOpen(open) {
-                document.documentElement.classList.toggle('sheet-open', open);
-                btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-                btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
-                if (open) {
-                    var first = sheet.querySelector('.sheet-row');
-                    if (first) first.focus({ preventScroll: true });
-                } else {
-                    // Collapse the disclosure so the sheet reopens in a known state.
-                    if (disc) disc.setAttribute('aria-expanded', 'false');
-                }
-            }
-
-            btn.addEventListener('click', function () {
-                var next = !isOpen();
-                setOpen(next);
-                // Returning focus to the trigger only makes sense on close.
-                if (!next) btn.focus({ preventScroll: true });
-            });
-
-            scrim.addEventListener('click', function () {
-                setOpen(false);
-                btn.focus({ preventScroll: true });
-            });
-
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape' && isOpen()) {
-                    setOpen(false);
-                    btn.focus({ preventScroll: true });
-                }
-            });
-
-            // Analytics disclosure inside the sheet.
-            if (disc) {
-                disc.addEventListener('click', function () {
-                    disc.setAttribute(
-                        'aria-expanded',
-                        disc.getAttribute('aria-expanded') === 'true' ? 'false' : 'true'
-                    );
-                });
-            }
-
-            // Any destination closes the sheet (in-page links scroll behind it).
-            sheet.querySelectorAll('a').forEach(function (link) {
-                link.addEventListener('click', function () { setOpen(false); });
-            });
-
-            // Crossing into the desktop breakpoint must not strand it open,
-            // since the sheet is display:none there and body stays scroll-locked.
-            var mq = window.matchMedia('(min-width: 769px)');
-            var onChange = function (e) { if (e.matches && isOpen()) setOpen(false); };
-            if (mq.addEventListener) mq.addEventListener('change', onChange);
-            else if (mq.addListener) mq.addListener(onChange);
-        })();
-
-        // Desktop Analytics panel. It is a sibling of the bar rather than a
-        // child (see .navdrop), so nothing anchors it to its trigger but this.
-        (function () {
-            var wrap = document.querySelector('.nav-dropdown');
-            var trigger = document.querySelector('.nav-dropdown-trigger');
-            var panel = document.getElementById('navdrop');
-            if (!wrap || !trigger || !panel) return;
-
-            var EDGE = 12, GAP = 8;
-            var open = false, hideTimer = null;
-
-            function place() {
-                var r = trigger.getBoundingClientRect();
-                var limit = document.documentElement.clientWidth - panel.offsetWidth - EDGE;
-                panel.style.top = Math.round(r.bottom + GAP) + 'px';
-                panel.style.left = Math.round(Math.max(EDGE, Math.min(r.left, limit))) + 'px';
-            }
-
-            function setOpen(next) {
-                if (next === open) return;
-                open = next;
-                if (next) place();  // measure before it can be seen
-                panel.classList.toggle('open', next);
-                trigger.setAttribute('aria-expanded', next ? 'true' : 'false');
-            }
-
-            function show() { clearTimeout(hideTimer); setOpen(true); }
-            // A grace period, so a diagonal cursor path to the panel survives.
-            function hideSoon() {
-                clearTimeout(hideTimer);
-                hideTimer = setTimeout(function () { setOpen(false); }, 140);
-            }
-
-            [wrap, panel].forEach(function (el) {
-                el.addEventListener('mouseenter', show);
-                el.addEventListener('mouseleave', hideSoon);
-            });
-            trigger.addEventListener('click', function () {
-                clearTimeout(hideTimer);
-                setOpen(!open);
-            });
-            // Keyboard arrival only: a mouse click already toggles above.
-            trigger.addEventListener('focus', function () {
-                if (trigger.matches(':focus-visible')) show();
-            });
-            panel.addEventListener('focusout', function (e) {
-                if (!panel.contains(e.relatedTarget) && e.relatedTarget !== trigger) {
-                    setOpen(false);
-                }
-            });
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape' && open) {
-                    setOpen(false);
-                    trigger.focus({ preventScroll: true });
-                }
-            });
-            document.addEventListener('click', function (e) {
-                if (open && !panel.contains(e.target) && !wrap.contains(e.target)) {
-                    setOpen(false);
-                }
-            });
-            window.addEventListener('resize', function () { if (open) place(); },
-                                    { passive: true });
-        })();
-
-        // Dark mode toggle
-        (function () {
-            var toggle = document.querySelector('.theme-toggle');
-            if (!toggle) return;
-            function sync() {
-                var dark = document.documentElement.getAttribute('data-theme') === 'dark';
-                toggle.setAttribute('aria-pressed', dark ? 'true' : 'false');
-            }
-            sync();
-            toggle.addEventListener('click', function () {
-                var dark = document.documentElement.getAttribute('data-theme') === 'dark';
-                var next = dark ? 'light' : 'dark';
-                document.documentElement.setAttribute('data-theme', next);
-                try { localStorage.setItem('theme', next); } catch (e) {}
-                sync();
-            });
-        })();
-
-        // Wordmark-to-interface opening choreography inspired by Buzz.
-        (function () {
-            var root = document.documentElement;
-            var intro = document.querySelector('.sens-intro');
-            if (!root.classList.contains('intro-pending') || !intro) {
-                if (intro) intro.remove();
-                return;
-            }
-
-            var wordmark = intro.querySelector('.intro-wordmark');
-            var logoText = document.querySelector('.logo > span');
-            var timers = [];
-            var WORDMARK_HOLD = 500;
-            var REVEAL_DURATION = 800;
-            var introStarted = false;
-
-            function later(callback, delay) {
-                timers.push(window.setTimeout(callback, delay));
-            }
-
-            function prepareWordmarkFlight() {
-                if (!logoText || !wordmark) return;
-                var target = logoText.getBoundingClientRect();
-                var targetStyle = getComputedStyle(logoText);
-                var targetCenterX = target.left + target.width / 2;
-                var targetCenterY = target.top + target.height / 2;
-                var maxWordWidth = Math.max(260, window.innerWidth - 80);
-                var scale = Math.min(10, (maxWordWidth / Math.max(target.width, 1)) * 0.9);
-
-                wordmark.style.fontFamily = targetStyle.fontFamily;
-                wordmark.style.fontSize = targetStyle.fontSize;
-                wordmark.style.fontWeight = targetStyle.fontWeight;
-                wordmark.style.lineHeight = targetStyle.lineHeight;
-                wordmark.style.letterSpacing = targetStyle.letterSpacing;
-
-                root.style.setProperty('--intro-target-left', target.left + 'px');
-                root.style.setProperty('--intro-target-top', target.top + 'px');
-                root.style.setProperty('--intro-start-x', (window.innerWidth / 2 - targetCenterX) + 'px');
-                root.style.setProperty('--intro-start-y', (window.innerHeight / 2 - targetCenterY) + 'px');
-                root.style.setProperty('--intro-start-scale', String(scale));
-                root.style.setProperty('--intro-start-blur', (4.5 / scale).toFixed(3) + 'px');
-            }
-
-            function finishIntro() {
-                var logo = logoText && logoText.parentElement;
-
-                if (logo && wordmark) {
-                    logo.replaceChild(wordmark, logoText);
-                    wordmark.removeAttribute('class');
-                    wordmark.removeAttribute('style');
-                }
-
-                root.classList.remove(
-                    'intro-pending',
-                    'intro-word-visible',
-                    'intro-reveal'
-                );
-                root.style.removeProperty('--intro-target-left');
-                root.style.removeProperty('--intro-target-top');
-                root.style.removeProperty('--intro-start-x');
-                root.style.removeProperty('--intro-start-y');
-                root.style.removeProperty('--intro-start-scale');
-                root.style.removeProperty('--intro-start-blur');
-                intro.remove();
-            }
-
-            function startIntro() {
-                if (introStarted || !root.classList.contains('intro-pending')) return;
-                introStarted = true;
-                prepareWordmarkFlight();
-                window.requestAnimationFrame(function () {
-                    root.classList.add('intro-word-visible');
-                });
-                later(function () {
-                    root.classList.add('intro-reveal');
-                }, WORDMARK_HOLD);
-                later(finishIntro, WORDMARK_HOLD + REVEAL_DURATION);
-            }
-
-            if (document.fonts && document.fonts.load) {
-                document.fonts.load('700 16px "Source Code Pro"').then(startIntro, startIntro);
-            } else {
-                startIntro();
-            }
-
-            window.addEventListener('resize', function () {
-                if (!root.classList.contains('intro-reveal')) prepareWordmarkFlight();
-            }, { passive: true });
-        })();
-
-        // Ambient neural field adapted from the neuron identity prototype.
-        // Each node carries a dendrite outline so the field reads as tissue
-        // rather than a constellation.
-        (function () {
-            var canvas = document.getElementById('neural-field');
-            if (!canvas) return;
-            var context = canvas.getContext('2d');
-            if (!context) return;
-
-            var root = document.documentElement;
-            var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            var width = 0;
-            var height = 0;
-            var pixelRatio = 1;
-            var nodes = [];
-            var signals = [];
-            var linkDistance = 150;
-            var spontaneousTimer = 0.8;
-            var pointer = { x: -9999, y: -9999, active: false };
-            var lastFrame = 0;
-            var colors = readFieldColors();
-
-            // Neuron form. Dendrites are built once per node in local
-            // coordinates and stroked through a translate, so a drifting node
-            // carries its own shape with it.
-            var form = { alpha: 1, reach: 1, branches: 4 };
-
-            function growBranch(trunk, twig, x, y, angle, length, depth) {
-                var path = depth === 0 ? trunk : twig;
-                var segments = Math.max(3, Math.round(length / 6));
-                var direction = angle;
-                var forkAt = 1 + Math.floor(Math.random() * (segments - 1));
-                var forkX = x;
-                var forkY = y;
-                var forkDirection = direction;
-
-                path.moveTo(x, y);
-                for (var s = 1; s <= segments; s++) {
-                    direction += (Math.random() - 0.5) * 0.32;
-                    var step = (length / segments) * (0.8 + Math.random() * 0.4);
-                    x += Math.cos(direction) * step;
-                    y += Math.sin(direction) * step;
-                    path.lineTo(x, y);
-                    if (s === forkAt) {
-                        forkX = x;
-                        forkY = y;
-                        forkDirection = direction;
-                    }
-                }
-
-                if (depth === 0) {
-                    var forks = Math.random() < 0.72 ? 2 : 1;
-                    for (var f = 0; f < forks; f++) {
-                        growBranch(trunk, twig, forkX, forkY,
-                            forkDirection + (f ? 1 : -1) * (0.38 + Math.random() * 0.5),
-                            length * (0.34 + Math.random() * 0.3), depth + 1);
-                    }
-                }
-            }
-
-            function buildDendrites() {
-                var trunk = new Path2D();
-                var twig = new Path2D();
-                var count = Math.max(2, Math.round(form.branches + (Math.random() - 0.5) * 1.6));
-                var rotation = Math.random() * Math.PI * 2;
-                for (var b = 0; b < count; b++) {
-                    var angle = rotation + (b / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.7;
-                    growBranch(trunk, twig, 0, 0, angle,
-                        (15 + Math.random() * 19) * form.reach, 0);
-                }
-                return { trunk: trunk, twig: twig };
-            }
-
-            function readFieldColors() {
-                var styles = getComputedStyle(root);
-                function token(name) { return styles.getPropertyValue(name).trim(); }
-                return {
-                    line: token('--field-line-rgb'),
-                    node: token('--field-node-rgb'),
-                    signal: token('--neural-signal-rgb'),
-                    lineAlpha: parseFloat(token('--field-line-a')) || 0.075,
-                    nodeAlpha: parseFloat(token('--field-node-a')) || 0.25
-                };
-            }
-
-            function resizeField() {
-                pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
-                width = window.innerWidth;
-                height = window.innerHeight;
-                canvas.width = width * pixelRatio;
-                canvas.height = height * pixelRatio;
-                canvas.style.width = width + 'px';
-                canvas.style.height = height + 'px';
-                context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-                buildNodes();
-                if (reducedMotion) drawField();
-            }
-
-            function buildNodes() {
-                var target = Math.round((width * height) / 30000);
-                var count = Math.max(22, Math.min(60, target));
-                nodes = [];
-                signals = [];
-                for (var i = 0; i < count; i++) {
-                    var dendrites = buildDendrites();
-                    nodes.push({
-                        x: Math.random() * width,
-                        y: Math.random() * height,
-                        vx: (Math.random() - 0.5) * 2.4,
-                        vy: (Math.random() - 0.5) * 2.4,
-                        radius: 0.8 + Math.random() * 1.1,
-                        energy: 0,
-                        trunk: dendrites.trunk,
-                        twig: dendrites.twig
-                    });
-                }
-            }
-
-            function fireFrom(index, depth) {
-                if (!nodes[index] || signals.length > 70) return;
-                var source = nodes[index];
-                source.energy = 1;
-                var nearby = [];
-                for (var i = 0; i < nodes.length; i++) {
-                    if (i === index) continue;
-                    var distance = Math.hypot(nodes[i].x - source.x, nodes[i].y - source.y);
-                    if (distance < linkDistance) nearby.push({ index: i, distance: distance });
-                }
-                nearby.sort(function (a, b) { return a.distance - b.distance; });
-                var total = Math.min(nearby.length, depth === 0 ? 3 : 2);
-                for (var j = 0; j < total; j++) {
-                    signals.push({
-                        from: index,
-                        to: nearby[j].index,
-                        progress: 0,
-                        duration: 0.55 + (nearby[j].distance / linkDistance) * 0.55,
-                        depth: depth
-                    });
-                }
-            }
-
-            function stepField(delta) {
-                var i;
-                for (i = 0; i < nodes.length; i++) {
-                    var node = nodes[i];
-                    node.x += node.vx * delta;
-                    node.y += node.vy * delta;
-                    if (node.x < -20) node.x = width + 20;
-                    else if (node.x > width + 20) node.x = -20;
-                    if (node.y < -20) node.y = height + 20;
-                    else if (node.y > height + 20) node.y = -20;
-                    node.energy = Math.max(0, node.energy - delta / 0.8);
-                }
-
-                for (i = signals.length - 1; i >= 0; i--) {
-                    var signal = signals[i];
-                    signal.progress += delta / signal.duration;
-                    if (signal.progress >= 1) {
-                        nodes[signal.to].energy = Math.max(nodes[signal.to].energy, 0.85);
-                        if (signal.depth < 2 && Math.random() < (signal.depth === 0 ? 0.34 : 0.16)) {
-                            fireFrom(signal.to, signal.depth + 1);
-                        }
-                        signals.splice(i, 1);
-                    }
-                }
-
-                spontaneousTimer -= delta;
-                if (spontaneousTimer <= 0) {
-                    spontaneousTimer = 1.1 + Math.random() * 2.4;
-                    fireFrom(Math.floor(Math.random() * nodes.length), 0);
-                }
-
-                if (pointer.active) {
-                    for (i = 0; i < nodes.length; i++) {
-                        var distanceToPointer = Math.hypot(nodes[i].x - pointer.x, nodes[i].y - pointer.y);
-                        if (distanceToPointer < 140) {
-                            nodes[i].energy = Math.min(
-                                1,
-                                nodes[i].energy + (1 - distanceToPointer / 140) * delta * 1.25
-                            );
-                            if (distanceToPointer < 80 && Math.random() < delta * 0.28) {
-                                fireFrom(i, 1);
-                            }
-                        }
-                    }
-                }
-            }
-
-            function drawField() {
-                context.clearRect(0, 0, width, height);
-                context.lineWidth = 1;
-
-                for (var i = 0; i < nodes.length; i++) {
-                    for (var j = i + 1; j < nodes.length; j++) {
-                        var first = nodes[i];
-                        var second = nodes[j];
-                        var distance = Math.hypot(first.x - second.x, first.y - second.y);
-                        if (distance < linkDistance) {
-                            var alpha = (1 - distance / linkDistance) * colors.lineAlpha *
-                                (1 + (first.energy + second.energy) * 0.45);
-                            context.strokeStyle = 'rgba(' + colors.line + ',' + alpha.toFixed(3) + ')';
-                            context.beginPath();
-                            context.moveTo(first.x, first.y);
-                            context.lineTo(second.x, second.y);
-                            context.stroke();
-                        }
-                    }
-                }
-
-                for (i = 0; i < nodes.length; i++) {
-                    var node = nodes[i];
-                    var nodeAlpha = colors.nodeAlpha * (0.52 + node.energy * 0.65);
-
-                    var formInk = node.energy > 0.05 ? colors.signal : colors.node;
-                    var formAlpha = colors.lineAlpha * (1.25 + node.energy * 1.6) * form.alpha;
-                    context.save();
-                    context.translate(node.x, node.y);
-                    context.lineCap = 'round';
-                    context.lineJoin = 'round';
-                    context.lineWidth = 0.75;
-                    context.strokeStyle = 'rgba(' + formInk + ',' + formAlpha.toFixed(3) + ')';
-                    context.stroke(node.trunk);
-                    context.lineWidth = 0.5;
-                    context.strokeStyle = 'rgba(' + formInk + ',' + (formAlpha * 0.62).toFixed(3) + ')';
-                    context.stroke(node.twig);
-                    context.restore();
-
-                    context.fillStyle = node.energy > 0.05
-                        ? 'rgba(' + colors.signal + ',' + Math.min(0.8, 0.24 + node.energy * 0.5).toFixed(3) + ')'
-                        : 'rgba(' + colors.node + ',' + nodeAlpha.toFixed(3) + ')';
-                    context.beginPath();
-                    context.arc(node.x, node.y, node.radius * (1 + node.energy * 0.8), 0, Math.PI * 2);
-                    context.fill();
-                }
-
-                for (i = 0; i < signals.length; i++) {
-                    var traveling = signals[i];
-                    var from = nodes[traveling.from];
-                    var to = nodes[traveling.to];
-                    var progress = traveling.progress < 0.5
-                        ? 2 * traveling.progress * traveling.progress
-                        : -1 + (4 - 2 * traveling.progress) * traveling.progress;
-                    var x = from.x + (to.x - from.x) * progress;
-                    var y = from.y + (to.y - from.y) * progress;
-                    var glow = context.createRadialGradient(x, y, 0, x, y, 10);
-                    glow.addColorStop(0, 'rgba(' + colors.signal + ',0.22)');
-                    glow.addColorStop(1, 'rgba(' + colors.signal + ',0)');
-                    context.fillStyle = glow;
-                    context.beginPath();
-                    context.arc(x, y, 10, 0, Math.PI * 2);
-                    context.fill();
-                    context.fillStyle = 'rgba(' + colors.signal + ',0.78)';
-                    context.beginPath();
-                    context.arc(x, y, 1.6, 0, Math.PI * 2);
-                    context.fill();
-                }
-            }
-
-            function animateField(now) {
-                if (!lastFrame) lastFrame = now;
-                var delta = Math.min(0.05, (now - lastFrame) / 1000);
-                lastFrame = now;
-                if (!document.hidden) {
-                    stepField(delta);
-                    drawField();
-                }
-                window.requestAnimationFrame(animateField);
-            }
-
-            window.addEventListener('resize', resizeField);
-            window.addEventListener('pointermove', function (event) {
-                pointer.x = event.clientX;
-                pointer.y = event.clientY;
-                pointer.active = true;
-            }, { passive: true });
-            document.documentElement.addEventListener('mouseleave', function () {
-                pointer.active = false;
-            });
-
-            new MutationObserver(function () {
-                colors = readFieldColors();
-                if (reducedMotion) drawField();
-            }).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
-
-            resizeField();
-            window.requestAnimationFrame(function () {
-                canvas.classList.add('is-ready');
-            });
-            if (reducedMotion) {
-                drawField();
-            } else {
-                window.requestAnimationFrame(animateField);
-            }
-        })();
-
-        // Site-wide pointer field, custom crosshair, and restrained reveal motion.
-        (function () {
-            var root = document.documentElement;
-            var body = document.body;
-            var cursor = document.querySelector('.sens-cursor');
-            var finePointer = window.matchMedia('(pointer: fine)').matches;
-            var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-            if (finePointer && !reducedMotion && cursor) {
-                body.classList.add('custom-cursor');
-                var cursorX = -100;
-                var cursorY = -100;
-                var targetX = -100;
-                var targetY = -100;
-
-                window.addEventListener('pointermove', function (event) {
-                    targetX = event.clientX;
-                    targetY = event.clientY;
-                    cursor.classList.add('is-visible');
-                }, { passive: true });
-
-                window.addEventListener('pointerout', function (event) {
-                    if (!event.relatedTarget) cursor.classList.remove('is-visible');
-                });
-
-                document.querySelectorAll('a, button, .bio-card, .timeline-item').forEach(function (item) {
-                    item.addEventListener('pointerenter', function () {
-                        cursor.classList.add('is-active');
-                    });
-                    item.addEventListener('pointerleave', function () {
-                        cursor.classList.remove('is-active');
-                    });
-                });
-
-                function drawCursor() {
-                    cursorX += (targetX - cursorX) * 0.22;
-                    cursorY += (targetY - cursorY) * 0.22;
-                    cursor.style.transform = 'translate3d(' + (cursorX - cursor.offsetWidth / 2) + 'px,' + (cursorY - cursor.offsetHeight / 2) + 'px,0)';
-                    // Pointer-tracked background gradient: write CSS vars once per frame, not per mousemove.
-                    root.style.setProperty('--pointer-x', targetX + 'px');
-                    root.style.setProperty('--pointer-y', targetY + 'px');
-                    window.requestAnimationFrame(drawCursor);
-                }
-                drawCursor();
-            }
-
-            var backToTop = document.querySelector('.back-to-top');
-            var hero = document.querySelector('.hero');
-            var topControlFrame = 0;
-
-            function syncBackToTop() {
-                topControlFrame = 0;
-                if (!backToTop) return;
-
-                var scrollable = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-                var progress = Math.min(1, Math.max(0, window.scrollY / scrollable));
-                var revealAt = hero
-                    ? hero.offsetTop + hero.offsetHeight * 0.72
-                    : window.innerHeight * 0.8;
-                var visible = window.scrollY > revealAt;
-
-                backToTop.style.setProperty('--top-progress', (progress * 360).toFixed(1) + 'deg');
-                backToTop.classList.toggle('is-visible', visible);
-                backToTop.setAttribute('aria-hidden', visible ? 'false' : 'true');
-                backToTop.tabIndex = visible ? 0 : -1;
-            }
-
-            function queueTopControlSync() {
-                if (!topControlFrame) {
-                    topControlFrame = window.requestAnimationFrame(syncBackToTop);
-                }
-            }
-
-            if (backToTop) {
-                backToTop.addEventListener('click', function () {
-                    window.scrollTo({ top: 0, behavior: reducedMotion ? 'auto' : 'smooth' });
-                });
-                syncBackToTop();
-                window.addEventListener('scroll', queueTopControlSync, { passive: true });
-                window.addEventListener('resize', queueTopControlSync, { passive: true });
-            }
-
-            var revealItems = document.querySelectorAll(
-                '.panel > h2, .service-card, .research-card, .bio-card, .timeline-column, .contact-info'
-            );
-            revealItems.forEach(function (item) {
-                item.classList.add('reveal-on-scroll');
-            });
-
-            if (!reducedMotion && 'IntersectionObserver' in window) {
-                var observer = new IntersectionObserver(function (entries) {
-                    entries.forEach(function (entry) {
-                        if (entry.isIntersecting) {
-                            entry.target.classList.add('is-revealed');
-                            observer.unobserve(entry.target);
-                        }
-                    });
-                }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
-                revealItems.forEach(function (item) { observer.observe(item); });
-            } else {
-                revealItems.forEach(function (item) {
-                    item.classList.add('is-revealed');
-                });
-            }
-        })();
-    </script>
+</section>
+
+</main>
+
+<!-- ─── Notation: what the cube math across the page means ─────────── -->
+<aside id="notation" class="notes" popover aria-labelledby="notes-h">
+    <div class="notes-top">
+        <h2 id="notes-h" class="mono">Notation</h2>
+        <button class="notes-x mono" type="button" popovertarget="notation" popovertargetaction="hide" aria-label="Close">✕</button>
+    </div>
+    <dl class="notes-list">
+        <dt class="math"><i>g</i> ∈ 𝒢,&ensp;|𝒢| = 43,252,003,274,489,856,000</dt>
+        <dd>𝒢 is the Rubik’s Cube group: every position the cube can reach. |𝒢| is how many there are, about 43 quintillion. <i class="math">g</i> is one of them.</dd>
+        <dt class="math">𝒰&ensp;𝒟&ensp;ℛ&ensp;ℒ&ensp;ℱ&ensp;ℬ</dt>
+        <dd>A quarter turn, clockwise as you face it, of the Up, Down, Right, Left, Front or Back face. This is standard cube notation (Singmaster).</dd>
+        <dt class="math">ℛ<sup>2</sup>&ensp;ℛ<sup>−1</sup></dt>
+        <dd><span class="math"><sup>2</sup></span> is a half turn. <span class="math"><sup>−1</sup></span> is the inverse: the same face turned counter-clockwise.</dd>
+        <dt class="math"><i>g</i> = …</dt>
+        <dd>The scramble: 20 random turns, applied left to right, that produce this cube’s position.</dd>
+        <dt class="math"><i>g</i><sup>−1</sup> = …</dt>
+        <dd>The solve: the same turns in reverse order, each one inverted, because <span class="math">(<i>ab</i>)<sup>−1</sup> = <i>b</i><sup>−1</sup><i>a</i><sup>−1</sup></span>. You undo the last turn first, the way you take off shoes before socks.</dd>
+        <dt class="mono">Turn 01/20</dt>
+        <dd>Scrolling plays <span class="math"><i>g</i><sup>−1</sup></span> one turn at a time. The highlighted turn is the one playing; the counter shows which it is.</dd>
+        <dt class="mono">Section headers</dt>
+        <dd>The turns that play while you read that section.</dd>
+        <dt class="math"><i>g</i> · <i>g</i><sup>−1</sup> = <i>e</i></dt>
+        <dd><i class="math">e</i> is the identity: the solved cube. It appears when you reach the end of the page.</dd>
+        <dt class="mono">↻</dt>
+        <dd>Picks a new random <i class="math">g</i>.</dd>
+    </dl>
+    <p class="notes-fact">Any position of the cube can be solved in 20 turns or fewer, counting a half turn as one. The page’s solve only reverses the scramble, so it isn’t the shortest.</p>
+    <p class="notes-ref">T. Rokicki, H. Kociemba, M. Davidson and J. Dethridge, “The Diameter of the Rubik’s Cube Group Is Twenty,” <cite>SIAM Journal on Discrete Mathematics</cite> 27(2): 1082–1105, 2013. <a href="https://doi.org/10.1137/120867366" target="_blank" rel="noopener">doi:10.1137/120867366 ↗</a></p>
+</aside>
 </body>
 </html>
