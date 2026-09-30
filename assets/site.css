@@ -99,7 +99,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 /* Left half: the live dashboards, smaller and dimmed until hovered. */
 .menu-h { margin-bottom: 12px; font-family: var(--mono); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: #9aa0a6; }
 .menu-dash li a { justify-content: space-between; gap: 16px; padding: 12px 0; font-size: clamp(18px, 1.6vw, 26px); letter-spacing: -.01em; color: #9aa0a6; transition: color .2s, padding .3s var(--ease); }
-.menu-dash li a::after { content: '︎'; font-size: .8em; }
+.menu-dash li a::after { content: '↗︎'; font-size: .8em; }
 .menu-dash li a:hover { padding-left: 8px; color: var(--paper); }
 
 /* ─── The rig: crop marks + cube + readout, fixed, moves between halves ── */
