@@ -158,9 +158,11 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .notes-top h2 { font-weight: 600; }
 .notes-x { border: 1px solid var(--ink); background: none; color: var(--ink); padding: 6px 10px; cursor: pointer; }
 .notes-x:hover { background: var(--ink); color: var(--paper); }
+.notes-intro { margin-top: 16px; font-size: 15px; line-height: 1.5; }
 .notes-list { margin: 0; }
 .notes-list dt { margin-top: 22px; font-size: 19px; line-height: 1.3; }
 .notes-list dt.mono { font-size: 12px; }
+.notes-list dd i.math { padding-right: .15em; }   /* italic g/e otherwise touch the next word */
 .notes-list dd { margin: 6px 0 0; font-size: 15px; line-height: 1.5; color: rgba(11, 12, 14, .72); }
 .notes-fact { margin-top: 30px; padding-top: 16px; border-top: 1px solid rgba(11, 12, 14, .2); font-size: 15px; line-height: 1.5; }
 .notes-ref { margin-top: 10px; font-size: 13px; line-height: 1.5; color: rgba(11, 12, 14, .62); }
@@ -202,7 +204,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .blk { position: relative; background: var(--bg); color: var(--fg); padding: 130px var(--gutter) 120px; }
 .blk > * { position: relative; }
 .tag { display: flex; justify-content: space-between; gap: 24px; padding-top: 10px; border-top: 1px solid var(--line); color: var(--accent); margin-bottom: 56px; }
-.tag-t { font-size: 15px; line-height: 1; text-transform: none; letter-spacing: 0; }
+.tag-t { margin: 0 auto; font-size: 15px; line-height: 1; text-transform: none; letter-spacing: 0; }
 .tag-t .mv { display: inline-block; padding: 1px .18em; margin-right: .12em; transition: opacity .3s, background-color .3s, color .3s; }
 .tag-t .mv.done { opacity: .38; }
 .tag-t .mv.now { background: var(--accent); color: var(--bg); }
@@ -294,7 +296,6 @@ details[open] .pm { transform: rotate(45deg); }
     transition: background-color .3s var(--ease);
 }
 .svc:hover { background: var(--card); }
-.svc-n { color: var(--signal); }
 .svc h3 { font-weight: 400; font-size: clamp(22px, 1.9vw, 30px); line-height: 1.1; letter-spacing: -.02em; color: var(--signal); }
 .svc-for { color: var(--dim); font-size: 11px; }
 .svc p:not(.mono) { font-size: 15px; }

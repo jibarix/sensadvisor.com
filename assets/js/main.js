@@ -201,9 +201,18 @@ menuBtn.addEventListener('click', () => setMenu(menu.hidden));
 menu.addEventListener('click', e => { if (e.target.closest('a')) setMenu(false); });
 addEventListener('keydown', e => { if (e.key === 'Escape' && !menu.hidden) { setMenu(false); menuBtn.focus(); } });
 
-// Phones: once the expression scrolls away, the rig docks under the menu.
-new IntersectionObserver(([e]) => html.classList.toggle('docked', !e.isIntersecting && e.boundingClientRect.top < innerHeight / 2),
-    { root: document, rootMargin: '-35% 0px 0px 0px' }).observe($('.hero-foot'));
+// Phones: once the expression scrolls above the top 35% of the screen, the rig
+// docks under the menu. Read from the live position on load and on every
+// scroll, so a jump or a restored scroll position past the hero still docks.
+const heroFoot = $('.hero-foot');
+let dockQueued = false;
+function updateDock() {
+    dockQueued = false;
+    html.classList.toggle('docked', heroFoot.getBoundingClientRect().bottom < innerHeight * .35);
+}
+addEventListener('scroll', () => { if (!dockQueued) { dockQueued = true; requestAnimationFrame(updateDock); } }, { passive: true });
+addEventListener('resize', updateDock);
+updateDock();
 
 // The live monitor only starts polling when the projects come near.
 const monIO = new IntersectionObserver(([e]) => {
