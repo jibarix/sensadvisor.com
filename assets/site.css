@@ -99,7 +99,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 /* Left half: the live dashboards, smaller and dimmed until hovered. */
 .menu-h { margin-bottom: 12px; font-family: var(--mono); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: #9aa0a6; }
 .menu-dash li a { justify-content: space-between; gap: 16px; padding: 12px 0; font-size: clamp(18px, 1.6vw, 26px); letter-spacing: -.01em; color: #9aa0a6; transition: color .2s, padding .3s var(--ease); }
-.menu-dash li a::after { content: '↗'; font-size: .8em; }
+.menu-dash li a::after { content: '︎'; font-size: .8em; }
 .menu-dash li a:hover { padding-left: 8px; color: var(--paper); }
 
 /* ─── The rig: crop marks + cube + readout, fixed, moves between halves ── */
@@ -452,10 +452,8 @@ details[open] .pm { transform: rotate(45deg); }
     /* In the hero the cube hangs below the expression. */
     [data-rig="H"] .rig { transform: translate3d(0, 24svh, 0); }
     /* Docked: once the expression scrolls away, the rig shrinks into a
-       boxed tile under the menu and keeps solving. */
-    .rig::before { content: ''; position: absolute; inset: 0 6%; background: var(--signal); opacity: 0; transition: opacity .4s; }
-    .docked .rig { transform: translateY(4px) scale(.3); --rc: var(--paper); }
-    .docked .rig::before { opacity: 1; }
+       small free-floating cube under the menu and keeps solving. */
+    .docked .rig { transform: translateY(4px) scale(.3); }
     .docked .readout { opacity: 0; }
     .docked .ro-help { visibility: hidden; }   /* faded out, so not clickable either */
     .notes { padding: 20px 18px 32px; }

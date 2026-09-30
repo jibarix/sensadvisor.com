@@ -1906,7 +1906,7 @@
         <td class="num" title="${capTitle}">${cap === null ? "—" : fmt(cap, 1)}</td>
         <td class="num" title="Rendimiento Seguro — sustainable raw-water supply (PIRA 2008)">${sy === null ? "—" : fmt(sy, 1)}</td>
         <td class="num" style="color:${dColor}">${d === null ? "—" : signed(d, 2) + " m"}</td>
-        <td class="num" title="${r.measured_at || ""}">${isStale(r.measured_at) ? `<span style="color:var(--warn)" title="gauge offline — no new reading">${relTime(r.measured_at)} ⚠</span>` : relTime(r.measured_at)}</td>
+        <td class="num" title="${r.measured_at || ""}">${isStale(r.measured_at) ? `<span style="color:var(--warn)" title="gauge offline — no new reading">${relTime(r.measured_at)} ︎</span>` : relTime(r.measured_at)}</td>
       </tr>
       <tr class="row-summary"><td colspan="10">${rowSummary(r)}</td></tr>`;
     }).join("");
