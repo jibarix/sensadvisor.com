@@ -1,0 +1,58 @@
+/* Trial (2026-09-30): v2's work / education chart in place of the .cv list.
+   v2 set each label beside its bar across the full width; here the chart has
+   half the page, so the label sits above a lane that carries the years.
+   Delete this file, its <link> and the .journey markup to drop the trial;
+   ?about=list shows the list instead. */
+
+.journey { --years: 15; max-width: calc(50% - var(--gutter)); margin-top: 60px; }
+html:not(.about-list) .cv,
+html.about-list .journey { display: none; }
+
+.j-legend { display: flex; gap: 22px; margin-bottom: 14px; color: var(--dim); }
+.j-legend span::before { content: ''; display: inline-block; width: 18px; height: 8px; margin-right: 8px; vertical-align: 0; }
+.j-legend .k-work::before { background: var(--accent); }
+.j-legend .k-edu::before { height: 6px; border: 1px solid var(--fg); }
+
+.j-chart { border-top: 1px solid var(--line); }
+.j-row {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: 4px 16px;
+    width: 100%; padding: 12px 10px 12px 12px; border: 0; border-bottom: 1px solid var(--line);
+    background: none; color: var(--fg); font: inherit; text-align: left; cursor: pointer;
+    transition: background-color .25s, box-shadow .25s;
+}
+.j-row:hover { background: var(--card); }
+.j-row.sel { background: var(--card); box-shadow: inset 3px 0 0 var(--accent); }
+.j-txt b { font-weight: 400; font-size: 17px; margin-right: 6px; }
+.j-txt em { font-style: normal; font-size: 11px; color: var(--dim); }
+.j-yr { color: var(--accent); }
+/* One lane per row: faint year lines, and the bar across its years. */
+.j-lane {
+    grid-column: 1 / -1; position: relative; height: 10px; margin-top: 6px;
+    background-image: linear-gradient(to right, var(--line) 1px, transparent 1px);
+    background-size: calc(100% / var(--years)) 100%;
+}
+.j-bar {
+    position: absolute; top: 0; bottom: 0; left: var(--x0, 0); width: max(var(--w, 0%), 8px);
+    background: var(--accent); transform-origin: left; transform: scaleX(0);
+    transition: transform 1s var(--ease);
+}
+.edu .j-bar { background: var(--bg); border: 1px solid var(--fg); }
+.journey.in .j-bar { transform: scaleX(1); }
+.j-axis { display: grid; grid-template-columns: repeat(var(--years), 1fr); padding: 8px 10px 0 12px; color: var(--dim); font-size: 10px; }
+
+.j-detail { min-height: 190px; padding-top: 28px; }
+.j-detail p { margin: 0 0 6px; color: var(--accent); }
+.j-detail h3 { margin: 0 0 14px; font-weight: 400; font-size: 26px; letter-spacing: -.02em; }
+.j-detail ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; font-size: 15px; }
+.j-detail li::before { content: '→ '; color: var(--accent); }
+
+/* Without the script the rows still read as a list. */
+.journey:not(.live) :is(.j-lane, .j-axis, .j-detail) { display: none; }
+.journey:not(.live) .j-row { cursor: default; }
+@media (prefers-reduced-motion: reduce) { .j-bar { transition: none; } }
+
+@media (max-width: 900px) {
+    .journey { max-width: none; }
+    .j-txt em { display: block; margin-top: 2px; }
+    .j-detail { min-height: 0; }
+}
