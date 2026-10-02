@@ -71,6 +71,8 @@ p.fc-note, .fc-sub { font-size: 11px; letter-spacing: .04em; }
 .fc-dia::after { inset: 1.5px; background: var(--bg); }
 .fc-dia > * { position: relative; z-index: 1; }
 .fc-dia b { font-size: 17px; }
+/* The name sits on the diamond's widest line; the number rides above it. */
+.fc-dia > .mono { position: absolute; left: 0; right: 0; bottom: calc(50% + 11px); text-align: center; line-height: 1; }
 .fc-key .fc-note { min-height: var(--dh); }
 .fc-yes { position: absolute; top: calc(var(--dh) + 5px); left: calc(var(--bw) / 2 + 9px); font-size: 10px; color: var(--dim); }
 

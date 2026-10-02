@@ -1,15 +1,15 @@
 # SENS ADVISOR
 
-> Independent xP&A (extended planning & analysis) and data consulting practice run by Jorge A. Arroyo in San Juan, Puerto Rico. Financial modeling, Puerto Rico private company valuation, Azure BI, custom analytics and data products, and practical AI/LLM implementation, backed by published applied-economics research.
+> Business systems consulting practice run by Jorge A. Arroyo, Business Systems & Analytics Architect, in San Juan, Puerto Rico: financial planning, data engineering, BI, and custom applications for better planning, operations, and decisions, backed by published applied-economics research.
 
 To contact Jorge about consulting work, use LinkedIn (https://www.linkedin.com/in/jorgeantonioarroyo) or email consult@sensadvisor.com.
 
 ## Services
 
-- Financial Modeling & Analysis: integrated 3-statement models, driver-based budgeting and forecasting, DCF and business valuation, scenario planning, Puerto Rico private company valuation, startup financial planning for funding.
-- Data & Business Intelligence: Azure data architecture and warehousing, ETL/ELT pipelines, Power BI dashboards, data modeling and governance, predictive modeling.
-- Custom Analytics & Data Products: real-time economic and market dashboards, automated data pipelines (scraping, ETL, cloud database), forecasting, public-facing interactive dashboards.
-- AI & LLM Solutions: LLM workflow automation, agentic tool enablement (Claude Code, Codex), model evaluation and validation, document and data extraction, realistic AI opportunity assessments.
+- Financial Planning & Analysis: financial modeling, business valuation, budgeting, forecasting, and integrated financial and operational planning (xP&A). Integrated 3-statement models, driver-based budgeting and forecasting, DCF and business valuation, scenario planning, Puerto Rico private company valuation, startup financial planning for funding.
+- Data Engineering & Business Intelligence: data architecture, database development, system integration, and business intelligence. Azure data architecture and warehousing, ETL/ELT and automated pipelines (scraping, ETL, cloud database), Power BI dashboards, real-time economic and market dashboards, public-facing interactive dashboards, data modeling and governance, predictive modeling.
+- Business Applications & Automation: custom business applications and workflow automation, from requirements through system design and implementation. Full-stack business applications, enterprise-grade security, role-based access control, real-time data synchronization.
+- Applied AI: practical AI assessments, evaluation, and implementation guidance grounded in independent research. LLM workflow automation, agentic tool enablement (Claude Code, Codex), model evaluation and validation, document and data extraction, realistic AI opportunity assessments.
 
 ## Live Puerto Rico dashboards
 

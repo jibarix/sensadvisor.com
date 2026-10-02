@@ -232,6 +232,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .ident-name { font-weight: 400; font-size: clamp(52px, 6.4vw, 120px); line-height: .92; letter-spacing: -.045em; }
 .ident-role { margin-top: 22px; font-size: clamp(22px, 2.2vw, 38px); line-height: 1.1; letter-spacing: -.02em; }
 .ident-prac { margin-top: 26px; padding-top: 12px; border-top: 1px solid var(--line); color: var(--dim); }
+.ident-desc { margin-top: 14px; max-width: 42ch; font-size: 17px; line-height: 1.45; }
 
 .math { font-family: var(--math); font-variant-numeric: lining-nums; letter-spacing: 0; }
 .math i { font-style: italic; }
@@ -290,8 +291,10 @@ details[open] .pm { transform: rotate(45deg); }
 
 /* ─── 03 Services: the four offers as a 2×2 card grid ────────────────── */
 .svcs { max-width: calc(50% - var(--gutter)); display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+/* Each card spans four shared rows (heading, audience, description, list),
+   so headings and descriptions line up across a row. */
 .svc {
-    display: flex; flex-direction: column; gap: 10px; padding: 22px 22px 26px;
+    display: grid; grid-row: span 4; grid-template-rows: subgrid; row-gap: 10px; padding: 22px 22px 26px;
     border-right: 1px solid var(--line); border-bottom: 1px solid var(--line);
     transition: background-color .3s var(--ease);
 }
@@ -368,6 +371,7 @@ details[open] .pm { transform: rotate(45deg); }
 /* ─── 06 Contact ─────────────────────────────────────────────────────── */
 .contact { min-height: 100vh; display: flex; }
 .contact .half { display: flex; flex-direction: column; gap: 22px; width: 100%; }
+.contact-sub { margin-top: -12px; max-width: 42ch; font-size: 18px; }
 .solved-note { color: var(--dim); }
 .solved-note { font-size: clamp(22px, 2vw, 32px); }
 .foot-cols { display: grid; grid-template-columns: 1fr 1fr; margin-bottom: auto; }

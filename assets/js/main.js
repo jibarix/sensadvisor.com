@@ -14,10 +14,6 @@ const fine = matchMedia('(pointer: fine)').matches;
 
 // Palette trial: ?palette=ultramarine drops the live-site colours.
 if (new URLSearchParams(location.search).get('palette') === 'ultramarine') $('#palette-live').disabled = true;
-// Process trial: ?process=cards shows the cards in place of the steps.
-if (new URLSearchParams(location.search).get('process') === 'cards') html.classList.add('proc-cards');
-// About trial: ?about=list shows the plain list in place of the chart.
-if (new URLSearchParams(location.search).get('about') === 'list') html.classList.add('about-list');
 startIntro();
 startJourney();
 
