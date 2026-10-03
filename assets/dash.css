@@ -186,6 +186,9 @@ html.sa-menu-open { overflow: hidden; }
 
 /* ─── Footer: v6a .foot ─────────────────────────────────────────────── */
 :root .footer, :root .site-footer { font-size: 11px; letter-spacing: .04em; }
+/* "Built by" line above the copyright: readable size, normal case. */
+:root .footer .footer-built { margin: 0 0 14px; font-size: .9rem; letter-spacing: 0; text-transform: none; line-height: 1.5; color: var(--primary-text, inherit); }
+:root .footer .footer-built a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
 
 @media (max-width: 900px) {
     .sa-chip { top: 10px; left: 10px; height: 44px; padding: 0 16px; font-size: 11px; }
