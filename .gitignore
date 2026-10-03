@@ -37,3 +37,6 @@ _research/
 _archive/
 # v6a went live as the root page on 2026-09-30; the folder is design history
 /v6a/
+# Preview builds stay local; only the promoted root page is published
+/v6b/
+/v6c/
