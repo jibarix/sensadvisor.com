@@ -71,15 +71,18 @@ function paintSectionTurns() {
 
 // ─── The expression ────────────────────────────────────────────────────
 let solveTokens = [];
-let typing = 0;
+let typing = 0, lighting = 0;
+const LIT_MS = 1000;   // the cube comes in this long after the expression starts, not when it ends
 function paintExpression(scr, sol, animate, delay = 250) {
     clearTimeout(typing);
+    clearTimeout(lighting);
     seqScramble.replaceChildren(...scr.map(token));
     seqSolve.replaceChildren(...sol.map(token));
     solveTokens = [...seqSolve.children];
     const all = [...seqScramble.children, ...solveTokens];
     if (!animate) { all.forEach(s => s.classList.add('in')); html.classList.add('lit'); return; }
     html.classList.remove('lit');
+    lighting = setTimeout(() => html.classList.add('lit'), delay + LIT_MS);
     let i = 0;
     const step = () => {
         all[i++].classList.add('in');

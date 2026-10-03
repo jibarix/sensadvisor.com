@@ -168,16 +168,20 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .notes-ref { margin-top: 10px; font-size: 13px; line-height: 1.5; color: rgba(11, 12, 14, .62); }
 .notes-ref a { color: inherit; }
 
-.scene { perspective: 1400px; }
+/* The entrance fades and scales the scene, not the cube: opacity on the
+   preserve-3d cube would flatten it until the fade ends, then snap it to 3D. */
+.scene {
+    perspective: 1400px;
+    opacity: 0; transform: scale(.86);
+    transition: opacity 1s var(--ease), transform 1.2s var(--ease);
+}
+.lit .scene { opacity: 1; transform: none; }
+.swap .scene { opacity: 0; transform: scale(.86); transition-duration: .3s; }
 .cube {
     --s: 60px; --h: calc(var(--s) / 2);
     position: absolute; left: 50%; top: 50%; width: 0; height: 0;
     transform-style: preserve-3d;
-    opacity: 0; transform: scale(.86);
-    transition: opacity 1s var(--ease), transform 1.2s var(--ease);
 }
-.lit .cube { opacity: 1; transform: none; }
-.swap .cube { opacity: 0; transform: scale(.86); transition-duration: .3s; }
 .cubie {
     position: absolute; width: var(--s); height: var(--s);
     left: calc(var(--s) / -2); top: calc(var(--s) / -2);
