@@ -1,6 +1,6 @@
 # SENS ADVISOR
 
-> Business systems consulting practice run by Jorge A. Arroyo, Business Systems & Analytics Architect, in San Juan, Puerto Rico: financial planning, data engineering, BI, and custom applications for better planning, operations, and decisions, backed by published applied-economics research.
+> Business systems consulting practice run by Jorge A. Arroyo, Business Systems & Analytics Architect: financial planning, data engineering, BI, and custom applications for better planning, operations, and decisions, backed by published applied-economics research.
 
 To contact Jorge about consulting work, use LinkedIn (https://www.linkedin.com/in/jorgeantonioarroyo) or email consult@sensadvisor.com.
 
