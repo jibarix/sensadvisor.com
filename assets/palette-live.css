@@ -15,6 +15,7 @@
 /* Inside a dark block, "the block's colour" is ink, not green: chips cut
    out of paper keep reading as holes in the block. */
 .tone-signal { --signal: var(--ink); --bg: var(--ink); --fg: #ededed; --dim: #9aa0a6; --line: rgba(237, 237, 237, .16); --accent: var(--signal-hi); }
+[data-tone="signal"] .cube { --veil: var(--ink); }   /* the cube rises out of the dark hero */
 .tone-paper  { --fg: #000000; --dim: #333333; --line: rgba(14, 14, 16, .16); }
 
 /* As on the live site, green marks small things (labels, numbers, rules)

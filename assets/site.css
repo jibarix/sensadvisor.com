@@ -168,20 +168,29 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .notes-ref { margin-top: 10px; font-size: 13px; line-height: 1.5; color: rgba(11, 12, 14, .62); }
 .notes-ref a { color: inherit; }
 
-/* The entrance fades and scales the scene, not the cube: opacity on the
-   preserve-3d cube would flatten it until the fade ends, then snap it to 3D. */
+/* The entrance never uses opacity above the faces: on any ancestor of the
+   3D cube it flattens it (phones keep it flat until the fade ends, then snap
+   it to 3D). The scene only scales; each face's shade starts as the page
+   colour behind it (--veil) and lifts. Hidden until then, so it never covers
+   the digits as a blank block. */
+@property --dark { syntax: '<number>'; inherits: true; initial-value: 0; }
 .scene {
     perspective: 1400px;
-    opacity: 0; transform: scale(.86);
-    transition: opacity 1s var(--ease), transform 1.2s var(--ease);
+    transform: scale(.86); visibility: hidden;
+    transition: transform 1.2s var(--ease);
 }
-.lit .scene { opacity: 1; transform: none; }
-.swap .scene { opacity: 0; transform: scale(.86); transition-duration: .3s; }
+.lit .scene { transform: none; visibility: visible; }
+.swap .scene { transform: scale(.86); transition-duration: .3s; }
 .cube {
     --s: 60px; --h: calc(var(--s) / 2);
     position: absolute; left: 50%; top: 50%; width: 0; height: 0;
     transform-style: preserve-3d;
+    --dark: 1; transition: --dark 1s var(--ease);
+    --veil: var(--signal);
 }
+[data-tone="paper"] .cube { --veil: var(--paper); }
+.lit .cube { --dark: 0; }
+.swap .cube { --dark: 1; transition-duration: .3s; }
 .cubie {
     position: absolute; width: var(--s); height: var(--s);
     left: calc(var(--s) / -2); top: calc(var(--s) / -2);
@@ -201,7 +210,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
 [data-c="B"], [data-face="B"] { --c: radial-gradient(circle, var(--signal) 0 1.6px, transparent 2.1px) 0 0 / 6px 6px, var(--paper); }
 [data-c="R"], [data-face="R"] { --c: repeating-linear-gradient(135deg, var(--paper) 0 3px, var(--signal) 3px 6px); }
 [data-c="L"], [data-face="L"] { --c: radial-gradient(circle, var(--paper) 0 1.1px, transparent 1.6px) 0 0 / 5px 5px, var(--ink-2); }
-.f::after { content: ''; position: absolute; inset: 0; background: #000; opacity: calc(var(--d, .4) * .6); }
+.f::after { content: ''; position: absolute; inset: 0; opacity: calc(var(--d, .4) * .6 + (1 - var(--d, .4) * .6) * var(--dark));
+    background: color-mix(in srgb, var(--veil) calc(var(--dark) * 100%), #000); }
 .f.hot::before { box-shadow: inset 0 0 0 3px var(--ink), inset 0 0 0 6px var(--paper); }
 
 /* ─── Blocks ─────────────────────────────────────────────────────────── */
