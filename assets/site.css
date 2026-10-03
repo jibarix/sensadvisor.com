@@ -270,6 +270,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .expr-done { margin-top: 8px; font-size: clamp(15px, 1.1vw, 18px); opacity: 0; transition: opacity .6s; }
 .solved .expr-done { opacity: 1; }
 .hero-foot { grid-column: 1; grid-row: 2; }
+.proj-foot { display: none; }
 .btn { background: none; border: 0; padding: 0; font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
 .btn:hover { background: var(--paper); color: var(--signal); }
 
@@ -465,21 +466,24 @@ details[open] .pm { transform: rotate(45deg); }
     .menu { grid-template-columns: 1fr; align-content: end; row-gap: 40px; padding: 90px 18px 30px; background-image: none; overflow-y: auto; }
     .menu-dash { order: 2; }
 
-    .rig, [data-rig] .rig { width: 100vw; height: 60svh; top: 54px; transform: none; }
+    .rig, [data-rig] .rig { width: 100vw; height: 60svh; top: 54px; }
     .crop, .scene { inset: 4% 8% 14%; }
     .readout { left: 6%; bottom: 3%; }
-    /* In the hero the cube hangs below the expression. */
-    [data-rig="H"] .rig { transform: translate3d(0, 24svh, 0); }
-    /* Docked: once the expression scrolls away, the rig shrinks into a
-       small free-floating cube under the menu and keeps solving. */
-    .docked .rig { transform: translateY(4px) scale(.3); }
+    /* The cube sits below the intro and scrolls up with the page, so the
+       text never passes under it, then shrinks into a small cube under the
+       menu and keeps solving. main.js sets both values from the scroll
+       position, so scrolling back up reverses the move exactly, with no
+       timed animation to catch up on. */
+    .rig, [data-rig] .rig { transform: translate3d(0, var(--rig-y, 24svh), 0) scale(var(--rig-s, 1)); transition: none; }
     .docked .readout { opacity: 0; }
     .docked .ro-help { visibility: hidden; }   /* faded out, so not clickable either */
     .notes { padding: 20px 18px 32px; }
 
     .blk { padding: 96px 18px 84px; }
     .hero { display: flex; flex-direction: column; padding-top: 80px; min-height: 0; }
-    .expr { order: -1; margin-bottom: 61svh; }
+    .expr { order: -1; margin-bottom: 24px; }
+    .hero-foot { height: 60svh; }   /* the cube's slot, same height as the rig */
+    .proj-foot { display: block; height: 60svh; margin-top: 24px; }   /* the cube's slot at the end */
     .hero-set { font-size: 13px; }
     .expr-g { font-size: 19px; }
     .expr-inv, .expr-done { font-size: 14px; }

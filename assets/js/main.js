@@ -200,14 +200,30 @@ menuBtn.addEventListener('click', () => setMenu(menu.hidden));
 menu.addEventListener('click', e => { if (e.target.closest('a')) setMenu(false); });
 addEventListener('keydown', e => { if (e.key === 'Escape' && !menu.hidden) { setMenu(false); menuBtn.focus(); } });
 
-// Phones: once the expression scrolls above the top 35% of the screen, the rig
-// docks under the menu. Read from the live position on load and on every
-// scroll, so a jump or a restored scroll position past the hero still docks.
-const heroFoot = $('.hero-foot');
+// Phones: the rig rides below the intro, then docks under the menu. Read from
+// the live position on load and on every scroll, so a jump or a restored
+// scroll position past the hero still docks.
+const heroFoot = $('.hero-foot'), projFoot = $('.proj-foot');
 let dockQueued = false;
+const ease = t => t * t * (3 - 2 * t);
 function updateDock() {
     dockQueued = false;
-    html.classList.toggle('docked', heroFoot.getBoundingClientRect().bottom < innerHeight * .35);
+    // The rig rides in the hero's cube slot, below the intro. Once the
+    // slot reaches the top bar, the next 250px of scrolling shrink it into
+    // the corner (p: 0 riding, 1 docked). Near the end it does the reverse
+    // into the slot under the projects: over 250px it grows back to full
+    // size (q: 0 docked, 1 in the slot), landing with the slot centred
+    // below the top bar, then rides on with the page. Scroll-linked both
+    // ways, so scrolling back up reverses every move.
+    const hero = heroFoot.getBoundingClientRect(), end = projFoot.getBoundingClientRect();
+    const land = 54 + Math.max(0, (innerHeight - 54 - end.height) / 2);
+    const p = ease(Math.min(1, Math.max(0, (54 - hero.top) / 250)));
+    const q = ease(Math.min(1, Math.max(0, (land + 250 - end.top) / 250)));
+    const y = q > 0 ? (1 - q) * 4 + q * (end.top - 54) : (1 - p) * (hero.top - 54) + p * 4;
+    const s = q > 0 ? .3 + .7 * q : 1 - .7 * p;
+    html.style.setProperty('--rig-y', y.toFixed(1) + 'px');
+    html.style.setProperty('--rig-s', s.toFixed(3));
+    html.classList.toggle('docked', s < .65);
 }
 addEventListener('scroll', () => { if (!dockQueued) { dockQueued = true; requestAnimationFrame(updateDock); } }, { passive: true });
 addEventListener('resize', updateDock);
