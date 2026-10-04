@@ -755,7 +755,41 @@
     .disclaimer h3 { break-after: avoid; margin: 0 0 6px; font-size: 0.78rem; font-weight: 700; }
     .disclaimer p { break-inside: avoid; margin-bottom: 18px; color: var(--secondary-text); font-size: 0.74rem; }
 
+    .estimator {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      gap: clamp(28px, 5vw, 64px);
+      align-items: start;
+    }
+    .est-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px; }
+    .est-fields label { display: grid; gap: 6px; color: var(--secondary-text); font-size: 0.64rem;
+      font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+    .est-fields select {
+      padding: 9px 10px;
+      border: 1px solid var(--border-primary);
+      border-radius: 0;
+      background: var(--primary-bg);
+      color: var(--primary-text);
+      font: inherit;
+      font-size: 0.82rem;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+    .est-amenities { margin-top: 22px; border: 0; padding: 0; }
+    .est-amenities legend { margin-bottom: 10px; color: var(--secondary-text); font-size: 0.64rem;
+      font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+    .est-amenities div { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px 16px; }
+    .est-amenities label { display: flex; gap: 8px; align-items: baseline; font-size: 0.8rem; }
+    .est-amenities .muted { font-size: 0.7rem; }
+    .est-result { padding: 22px; border: 1px solid var(--border-primary); background: var(--surface-muted); }
+    .est-result .label { color: var(--secondary-text); font-size: 0.64rem; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase; }
+    .est-result .value { margin: 10px 0 6px; font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 700; line-height: 1; }
+    .est-result .range { font-size: 0.86rem; }
+    .est-result p { margin-top: 14px; color: var(--secondary-text); font-size: 0.74rem; }
+
     @media (max-width: 768px) {
+      .estimator, .est-fields { grid-template-columns: 1fr; }
       .dashboard-header .header-kicker { margin-bottom: 32px; }
       .dashboard-header h1 { font-size: clamp(2.45rem, 13vw, 4.2rem); }
       .data-meta { grid-template-columns: 1fr; }
@@ -1054,6 +1088,7 @@
     <a href="#speed">How fast</a>
     <a href="#negotiate">Negotiate</a>
     <a href="#direction">Direction</a>
+    <a href="#estimate">Estimate</a>
     <a href="#appendix">Method</a>
   </div>
 </nav>
@@ -1144,15 +1179,18 @@
           <div id="subPriceError"></div>
           <canvas id="subPriceChart"></canvas>
         </div>
+        <!-- This slot used to chart each district's 30-day take-down rate. The
+             same four numbers are on the district cards directly above and on
+             the district rows of "What actually rents" in section 03, where
+             they carry an interval; three copies of one figure is two too
+             many. What the raw medians beside it cannot say is how much of
+             each gap is the address and how much is that Condado lists bigger
+             apartments with pools -- which the pricing model can. -->
         <div class="panel">
-          <h2>How fast each district clears <span class="panel-note">Share pulled within 30 days</span></h2>
-          <div id="subSpeedError"></div>
-          <canvas id="subSpeedChart"></canvas>
-          <p class="panel-caption">
-            &ldquo;Pulled&rdquo; means a person took the listing down, which is the closest observable
-            thing to renting it. Ads that simply timed out are counted separately and are not
-            included here &mdash; see <a href="#speed">how fast it moves</a>.
-          </p>
+          <h2>Same apartment, different district <span class="panel-note" id="locNote">Model estimate &middot; vs Hato Rey</span></h2>
+          <div id="locError"></div>
+          <canvas id="locChart"></canvas>
+          <p class="panel-caption" id="locCaption"></p>
         </div>
       </div>
 
@@ -1189,8 +1227,10 @@
           <h2>Rent by size, and what the extras add</h2>
         </div>
         <p>
-          Bedroom count explains more of the price than anything except location. Studios are pulled
-          out of the one-bedroom pile where the ad text says so, because the source site has no studio
+          Size explains more of the price than anything except location: in the pricing model,
+          taking out district and neighbourhood costs the most accuracy, bedrooms and bathrooms come
+          next, and the advertised extras add less once those two are known. Studios are pulled out
+          of the one-bedroom pile where the ad text says so, because the source site has no studio
           category and files them all as one-bedrooms.
         </p>
       </div>
@@ -1221,7 +1261,7 @@
           difference is within what splitting this many apartments would produce by chance, whatever
           the dot says. The darker bar compares like for like &mdash; same district, same bedroom
           count &mdash; because buildings with a pool are also the buildings with three-bedroom units
-          and they are in Condado rather than R&iacute;o Piedras, so without that adjustment the pool
+          and they are in Condado rather than Hato Rey, so without that adjustment the pool
           is charging for the extra bedroom and the postcode. Hover a row to see which comparison it
           got. Neither bar makes this a price tag: it is what listings with the feature ask, not what
           the feature is worth.
@@ -1273,16 +1313,19 @@
       </div>
 
       <div class="panel panel-featured">
-        <h2>What actually rents <span class="panel-note">Distance from the market&rsquo;s own 30-day rate</span></h2>
+        <h2>What actually rents <span class="panel-note">Gap to the rest of its own group, with 95% range</span></h2>
         <div id="clearError"></div>
         <div class="chart-tall"><canvas id="clearChart"></canvas></div>
         <p class="panel-caption" id="clearCaption"></p>
         <p class="panel-caption">
-          Zero is the whole market. A segment sitting to the right gets taken down faster than average,
-          to the left slower &mdash; and the bar is again the range, so only a bar clear of the zero
-          line is a difference worth acting on. &ldquo;Taken down&rdquo; excludes listings that simply
-          hit the site&rsquo;s expiry clock, which is why a segment full of ads nobody touched cannot
-          show up here as a segment that cleared.
+          Zero is the rest of the segment&rsquo;s own group: two-bedrooms against the other sizes,
+          Santurce against the other districts. A segment to the right gets taken down faster than
+          those, to the left slower, and the bar is the range for that gap &mdash; so only a bar
+          clear of the zero line is a difference worth acting on. Price bands are set by the
+          listing&rsquo;s opening ask, so a listing that cut its way into a cheaper band is not
+          counted as a cheap listing that rented. &ldquo;Taken down&rdquo; excludes listings that
+          simply hit the site&rsquo;s expiry clock, which is why a segment full of ads nobody
+          touched cannot show up here as a segment that cleared.
         </p>
       </div>
 
@@ -1303,30 +1346,12 @@
         <p class="panel-caption" id="clearFeatCaption"></p>
       </div>
 
-      <div class="grid">
-        <div class="panel">
-          <h2>Still listed at day N <span class="panel-note">Counted, not modeled</span></h2>
-          <div id="stillError"></div>
-          <div class="table-wrap">
-            <table id="stillTable" class="table-tight">
-              <thead>
-                <tr><th>Day</th><th>Still up</th><th>Listings old enough</th><th>Share</th></tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-          <p class="panel-caption">
-            No model at all: a unit either was or was not still up on day N. Listings too young to have
-            reached day N are left out rather than counted as gone.
-          </p>
-        </div>
-        <div class="panel">
-          <h2>How stale is the current inventory <span class="panel-note">Days since first listed</span></h2>
-          <div id="ageError"></div>
-          <canvas id="ageChart"></canvas>
-          <p class="panel-caption" id="ageCaption"></p>
-        </div>
-      </div>
+      <!-- A "Still listed at day N" table and the inventory-age chart used to
+           sit here. The table counted, without a model, what the dashed line
+           in the chart above already draws -- the two agreed to within a point
+           at every day, so it was the same finding twice. The age chart is a
+           picture of the standing stock, not of how fast it moves, and now
+           sits beside inventory in section 05. -->
     </section>
 
     <!-- ══ 04 Where the ask is soft ══════════════════════════════════════ -->
@@ -1340,8 +1365,8 @@
           Every price change is recorded, so this is not a survey of what landlords say they would
           accept &mdash; it is what they have already done, in public, on their own listing. Two
           numbers matter and they behave differently: how often an asking price gets cut, which
-          varies enormously by segment, and how deep the cut goes when it happens, which barely
-          varies at all. The section closes inside single buildings, which are the only comparables
+          varies a lot by segment, and how deep the cut goes when it happens, which varies much less.
+          The section closes inside single buildings, which are the only comparables
           that really compare: same lobby, same view, same commute, so the difference left over is
           the price.
         </p>
@@ -1448,17 +1473,91 @@
       </div>
 
       <div class="panel panel-featured">
+        <h2>Same apartment, month by month <span class="panel-note" id="mixNote">Mix-adjusted index &middot; new listings</span></h2>
+        <div id="mixError"></div>
+        <canvas id="mixChart"></canvas>
+        <p class="panel-caption" id="mixCaption"></p>
+      </div>
+
+      <div class="panel panel-featured">
         <h2>When landlords change the price <span class="panel-note">Cuts vs increases per month</span></h2>
         <div id="momentumError"></div>
         <canvas id="momentumChart"></canvas>
         <p class="panel-caption" id="momentumCaption"></p>
       </div>
 
+      <div class="grid">
+        <div class="panel">
+          <h2>How much is on the market <span class="panel-note">Live listings per day</span></h2>
+          <div id="invError"></div>
+          <canvas id="invChart"></canvas>
+          <p class="panel-caption" id="invCaption"></p>
+        </div>
+        <div class="panel">
+          <h2>How old the current inventory is <span class="panel-note">Days since first listed</span></h2>
+          <div id="ageError"></div>
+          <canvas id="ageChart"></canvas>
+          <p class="panel-caption" id="ageCaption"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ 06 Estimate ═══════════════════════════════════════════════════ -->
+    <section id="estimate" class="analysis-section">
+      <div class="section-heading">
+        <div>
+          <span class="section-kicker">06 / Estimate</span>
+          <h2>What should this apartment ask?</h2>
+        </div>
+        <p>
+          A price estimate built from the same listings as the rest of the page. Pick a district, a
+          size and what the ad would advertise, and it returns the opening ask a listing like that
+          typically carries, with the range that eight in ten such listings fall inside. It estimates
+          the asking price on the first day of the ad, not the rent finally agreed; section 04 shows
+          how far those two tend to drift apart.
+        </p>
+      </div>
+
+      <div class="panel panel-featured">
+        <h2>Price estimator <span class="panel-note" id="estNote">Opening ask &middot; 80% range</span></h2>
+        <div id="estError"></div>
+        <div class="estimator">
+          <form id="estForm" onsubmit="return false">
+            <div class="est-fields">
+              <label>District <select id="estDistrict"></select></label>
+              <label>Neighbourhood <select id="estNbhd"></select></label>
+              <label>Size <select id="estBeds"></select></label>
+              <label>Bathrooms <select id="estBaths"></select></label>
+            </div>
+            <fieldset class="est-amenities">
+              <legend>Advertised in the listing</legend>
+              <div id="estFeatures"></div>
+            </fieldset>
+          </form>
+          <div class="est-result" aria-live="polite">
+            <div class="label">Typical opening ask</div>
+            <div class="value" id="estValue">&mdash;</div>
+            <div class="range" id="estRange"></div>
+            <p id="estExplain"></p>
+          </div>
+        </div>
+      </div>
+
       <div class="panel">
-        <h2>How much is on the market <span class="panel-note">Live listings per day</span></h2>
-        <div id="invError"></div>
-        <canvas id="invChart"></canvas>
-        <p class="panel-caption" id="invCaption"></p>
+        <h2>How well it predicts <span class="panel-note">Tested on landlords it never saw</span></h2>
+        <div id="valError"></div>
+        <div class="table-wrap">
+          <table id="valTable">
+            <thead>
+              <tr>
+                <th>Method</th><th>Typical miss</th><th>Average miss</th><th>Average miss, %</th>
+                <th>Variation explained</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="panel-caption" id="valCaption"></p>
       </div>
     </section>
 
@@ -1521,11 +1620,13 @@
         <h3>Why the trend uses new listings only</h3>
         <p>
           A panel that starts empty fills up over one full time-on-market cycle, and expensive units
-          linger while cheap ones turn over, so the standing inventory takes months to settle. Reading
-          the trend off standing inventory produced an apparent citywide decline of roughly 20% &mdash;
-          and an apparent 33% collapse in Santurce &mdash; entirely from the sample filling in. Measured
-          on new listings, which is an independent sample every week, asking rents have been
-          approximately flat. Both readings are exported; the page draws the second.
+          linger while cheap ones turn over, so the standing inventory takes months to settle, and
+          a trend read off it in those months mostly measures the sample filling in. New listings are
+          a fresh sample every week, so the page draws those. They have a weakness of their own: their
+          median moves whenever the mix of what gets listed moves &mdash; a month with fewer Condado
+          apartments reads as a cheaper month. The mix-adjusted index in section 05 prices every
+          month's listings with the same model, holding district, neighbourhood, size and amenities
+          fixed, and is the figure to read for whether like-for-like asks have changed.
         </p>
 
         <h3>Missing bedroom counts are recovered, not dropped</h3>
@@ -1756,7 +1857,7 @@
               <div><dt>Per bedroom</dt><dd>${fmtUSD(r.median_rent_per_bedroom)}</dd></div>
               <div><dt>Live now</dt><dd>${fmt(r.n_active)}</dd></div>
               <div><dt>New in 30d</dt><dd>${fmt(r.new_units_30d)}</dd></div>
-              <div><dt>Pulled in 30d</dt><dd>${fmtPct0(r.pulled_by_30d)}</dd></div>
+              <div><dt>Taken down in 30d</dt><dd>${fmtPct0(r.pulled_by_30d)}</dd></div>
             </dl>
           </div>`).join('');
 
@@ -1789,39 +1890,75 @@
           },
         });
 
-        // Sorted by speed rather than by price: the point of the panel is that
-        // the fastest district is not the cheapest one.
-        const speed = rows.filter(r => r.pulled_by_30d != null)
-          .slice().sort((a, b) => b.pulled_by_30d - a.pulled_by_30d);
-        destroyChart('subSpeed');
-        charts.subSpeed = new Chart(document.getElementById('subSpeedChart'), {
+      } catch (e) { showError('subError', e); showError('subPriceError', e); }
+    }
+
+    // The pricing model feeds three panels: this one, the estimator and the
+    // mix-adjusted index. One fetch, same reason as submarkets above.
+    let CALCULATOR = null;
+    const calculator = () => (CALCULATOR = CALCULATOR || getJSON('calculator.json'));
+
+    async function loadLocation() {
+      try {
+        const d = await calculator();
+        const districts = d.location[0].districts.map(c => c.district)
+          .filter(n => n !== d.location_ref);
+        const sizes = d.location.map(r => r.beds);
+        destroyChart('loc');
+        charts.loc = new Chart(document.getElementById('locChart'), {
           type: 'bar',
           data: {
-            labels: speed.map(r => r.district),
-            datasets: [
-              { label: 'Taken down within 30 days', data: speed.map(r => r.pulled_by_30d),
-                backgroundColor: colors[0] },
-              { label: 'Still listed at 30 days', data: speed.map(r => r.still_listed_30d),
-                backgroundColor: colors[3] },
-            ],
+            labels: sizes,
+            datasets: districts.map((name, i) => ({
+              label: name,
+              data: d.location.map(r => {
+                const c = r.districts.find(x => x.district === name);
+                return c.thin ? null : c.vs_ref_pct;
+              }),
+              backgroundColor: colors[(i + 1) % colors.length],
+            })),
           },
           options: {
-            responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+            responsive: true, maintainAspectRatio: false,
             plugins: { tooltip: { callbacks: {
-              label: c => `${c.dataset.label}: ${fmtPct1(c.parsed.x)}`,
+              label: c => {
+                const r = d.location[c.dataIndex];
+                const x = r.districts.find(z => z.district === c.dataset.label);
+                return `${c.dataset.label}: ${fmtSigned(x.vs_ref_pct, '%')} ` +
+                       `(95% range ${fmtSigned(x.ci_low, '%')} to ${fmtSigned(x.ci_high, '%')})`;
+              },
               afterBody: items => {
-                const r = speed[items[0].dataIndex];
-                return `when pulled, typically after ${fmtDays(r.median_days_when_pulled)}`;
+                const r = d.location[items[0].dataIndex];
+                return r.districts.map(z => `${z.district}: about ${fmtUSD(z.estimate)}`);
               },
             } } },
             scales: {
-              x: { ...AX(), beginAtZero: true, max: 100,
-                   ticks: { ...AX().ticks, callback: v => v + '%' } },
-              y: AX_X(),
+              y: { ...AX(), ticks: { ...AX().ticks, callback: v => (v > 0 ? '+' : '') + v + '%' },
+                   title: { display: true, text: `vs the same apartment in ${d.location_ref}`, color: chartText } },
+              x: AX_X(),
             },
           },
         });
-      } catch (e) { showError('subError', e); showError('subPriceError', e); showError('subSpeedError', e); }
+        // Which gaps the model can separate from zero, and which it cannot.
+        const cells = d.location.flatMap(r => r.districts
+          .filter(c => c.district !== d.location_ref && !c.thin)
+          .map(c => ({ ...c, beds: r.beds })));
+        const flat = cells.filter(c => c.ci_low <= 0 && c.ci_high >= 0);
+        const top = cells.slice().sort((a, b) => b.vs_ref_pct - a.vs_ref_pct)[0];
+        const thin = d.location.flatMap(r => r.districts.filter(c => c.thin)
+          .map(c => `${c.district} ${r.beds}`));
+        document.getElementById('locCaption').textContent =
+          `The medians on the left compare whatever each district happens to list. This holds the ` +
+          `apartment fixed — same size, the usual bathroom count for it, amenities at the market's ` +
+          `usual rate — and moves it between districts, using the pricing model in the estimator ` +
+          `below. The largest gap is ${top.district} for a ${top.beds}, ` +
+          `${fmtSigned(top.vs_ref_pct, '%')} over ${d.location_ref}.` +
+          (flat.length ? ` ${joinList(flat.map(c => `${c.district} ${c.beds}`), 'and')} ` +
+            `${flat.length === 1 ? 'is' : 'are'} within the model's margin of ${d.location_ref}.` : '') +
+          (thin.length ? ` ${joinList(thin, 'and')} ${thin.length === 1 ? 'has' : 'have'} too few ` +
+            `listings to show.` : '') +
+          ` Hover a size for the dollar estimate in each district.`;
+      } catch (e) { showError('locError', e); }
     }
 
     async function loadAreas() {
@@ -1905,12 +2042,21 @@
         document.getElementById('subTrendNote').textContent =
           `${d.roll_weeks}-week rolling median of new listings`;
         const moves = series.map(s => `${s.district} ${fmtSigned(s.change_pct, '%')}`).join(', ');
+        const latest = series.map(s => s.latest_median).filter(v => v != null);
+        const spread = latest.length > 1 ? Math.max(...latest) - Math.min(...latest) : null;
+        const allDown = series.length && series.every(s => s.change_pct < 0);
+        const allUp = series.length && series.every(s => s.change_pct > 0);
         document.getElementById('subTrendCaption').textContent =
           `Each line is the median asking rent on listings posted in the trailing ${d.roll_weeks} ` +
-          `weeks, indexed to its own starting point so districts $700 apart can share an axis. ` +
-          `Since ${monthName(series[0] ? series[0].base_week : '')}: ${moves}. ` +
-          `Districts are wide and diverse, so a few points of movement here is closer to noise than ` +
-          `to a trend — the useful reading is the gap between the lines, not the wobble in any one.`;
+          `weeks, indexed to its own starting point` +
+          (spread ? ` so districts ${fmtUSD(spread)} apart can share an axis` : '') +
+          `. Since ${monthName(series[0] ? series[0].base_week : '')}: ${moves}. ` +
+          (allDown || allUp
+            ? `Every district moved the same way, which points at the city rather than any one ` +
+              `district — but a median of new listings also moves when the mix of what gets listed ` +
+              `moves. The mix-adjusted index in section 05 separates the two.`
+            : `The districts did not move together, so the reading worth taking is the gap between ` +
+              `the lines rather than the wobble in any one.`);
       } catch (e) { showError('subTrendError', e); }
     }
 
@@ -2184,7 +2330,7 @@
             ? `${sizeOnly.join(', ')} ${sizeOnly.length > 1 ? 'are' : 'is'} adjusted for bedroom ` +
               `count only: ${sizeOnly.length > 1 ? 'they cluster' : 'it clusters'} into too few ` +
               `districts to compare like for like within one, so ` +
-              `${sizeOnly.length > 1 ? 'those figures' : 'that figure'} still carries the ` +
+              `${sizeOnly.length > 1 ? 'those figures still carry' : 'that figure still carries'} the ` +
               `neighbourhood. `
             : '') +
           `${stated} of the comparisons are against listings that explicitly say no; the rest are ` +
@@ -2251,12 +2397,7 @@
           `and ${fmtPct1(d.withdrawn_share)} of everything that has left the market left because ` +
           `somebody removed it. Based on ${fmt(d.n_units)} apartments` +
           `${meas.measured ? `, ${fmt(meas.measured)} of which were re-checked directly on the source site` : ''}.`;
-
-        const tb = document.querySelector('#stillTable tbody');
-        tb.innerHTML = d.still_listed.map(s => `
-          <tr><td>${s.day}</td><td>${fmt(s.n_still)}</td><td>${fmt(s.n_eligible)}</td>
-          <td><strong>${fmtPct1(s.pct)}</strong></td></tr>`).join('');
-      } catch (e) { showError('cifError', e); showError('stillError', e); }
+      } catch (e) { showError('cifError', e); }
     }
 
     // Lists read as prose: "a, b and c" — or "a, b or c" after a negative.
@@ -2274,12 +2415,16 @@
         // Plotted as distance from the rest of that same dimension, not from
         // the market as a whole. The market rate includes the segment being
         // measured -- two-bedrooms are a third of it -- so a big segment used to
-        // drag the line it was being compared against toward itself. `ref` is
-        // the disjoint comparison group, and it is what the zero line means.
+        // drag the line it was being compared against toward itself.
+        //
+        // The bar is the bootstrap interval on the gap itself. It used to be
+        // the segment's own interval slid along by the comparison group's
+        // point estimate, which drew half the uncertainty and flagged on
+        // whether two separate ranges overlapped -- a test far stricter than
+        // the 95% it implied.
         const rows = [];
         d.dimensions.forEach(dim => dim.levels.forEach(l =>
           rows.push({ ...l, dim: dim.dimension,
-                      ref: l.pulled_rest != null ? l.pulled_rest : base,
                       gap: l.vs_rest_pp != null ? l.vs_rest_pp : l.vs_market_pp })));
 
         const barColor = r => (r.differs
@@ -2292,8 +2437,8 @@
             labels: rows.map(r => [r.label, r.dim.toLowerCase()]),
             datasets: [
               { label: '95% range',
-                data: rows.map(r => (r.ci_low == null ? null
-                                     : [r.ci_low - r.ref, r.ci_high - r.ref])),
+                data: rows.map(r => (r.gap_ci_low == null ? null
+                                     : [r.gap_ci_low, r.gap_ci_high])),
                 backgroundColor: rows.map(r => withAlpha(barColor(r), 0.28)),
                 borderColor: rows.map(barColor),
                 borderWidth: 1, borderSkipped: false, barPercentage: 0.62 },
@@ -2317,8 +2462,9 @@
                            ? ` (rest of ${r.dim.toLowerCase()} ${fmtPct1(r.pulled_rest)})`
                            : ` (market ${fmtPct1(base)})`);
                 }
-                return r.ci_low == null ? 'No usable range'
-                  : `95% range ${fmtPct1(r.ci_low)} to ${fmtPct1(r.ci_high)}`;
+                return r.gap_ci_low == null ? 'No usable range'
+                  : `Gap ${fmtSigned(r.gap, 'pp')}, 95% range ${fmtSigned(r.gap_ci_low, 'pp')} ` +
+                    `to ${fmtSigned(r.gap_ci_high, 'pp')}`;
               },
               afterBody: items => {
                 const r = rows[items[0].dataIndex];
@@ -2330,9 +2476,8 @@
                 ];
                 // Both sides of the comparison, so the flag is checkable.
                 if (r.rest_ci_low != null) {
-                  out.push(`compared with ${fmt(r.n_rest)} others: ` +
-                    `${fmtPct1(r.pulled_rest)} [${fmtPct1(r.rest_ci_low)}–` +
-                    `${fmtPct1(r.rest_ci_high)}]` + (r.differs ? '' : ', ranges overlap'));
+                  out.push(`compared with ${fmt(r.n_rest)} others: ${fmtPct1(r.pulled_rest)}` +
+                    (r.differs ? '' : ' · gap range covers zero'));
                 }
                 return out;
               },
@@ -2352,7 +2497,7 @@
         // Dimension names are column headings, not English; rename the ones
         // that do not survive being dropped into a sentence.
         const inProse = { 'Listed by': 'who lists it', 'Size': 'apartment size',
-                          'Asking price': 'asking price', 'District': 'district' };
+                          'Opening ask': 'opening ask', 'District': 'district' };
         const quiet = d.dimensions
           .filter(dim => !dim.levels.some(l => l.differs))
           .map(dim => inProse[dim.dimension] || dim.dimension.toLowerCase());
@@ -2404,7 +2549,7 @@
           // not what decides which bars are marked.
           `Every segment below is compared with the rest of its own group &mdash; two-bedrooms ` +
           `against the other sizes, Santurce against the other districts &mdash; and marked only ` +
-          `where both ranges miss each other entirely. ` +
+          `where the 95% range on that gap clears zero. ` +
           `Of the ${d.n_comparisons} comparisons on this section &mdash; ${rows.length} segments and ` +
           `${d.features.length} advertised features &mdash; ` +
           (segSep.length + featSep.length
@@ -2413,9 +2558,7 @@
                 .concat(featSep.map(f => `${f.label} (${fmtSigned(f.gap_pp, 'pp')})`))) + '. '
             : 'not one separates that cleanly. ') +
           `At ${d.n_comparisons} comparisons about ${byChance} would separate by chance alone, so ` +
-          `treat even those as leads. That test is deliberately strict, so a bar can sit clear of ` +
-          `the zero line and still be grey: the group it is being compared with has a range of its ` +
-          `own, and the two have to miss. ` +
+          `treat even those as leads. ` +
           (quiet.length
             ? `Nothing in ${joinList(quiet, 'or')} moves the rate more than splitting ` +
               `${fmt(d.n_units)} apartments this many ways would move it on its own. `
@@ -2436,10 +2579,13 @@
                   : `[${fmtPct1(f.ci_low)}–${fmtPct1(f.ci_high)}]`}</span></td>
             <td><span class="muted">${fmtPct1(f.pulled_without)}</span></td>
             <td>${f.separated ? `<strong>${fmtSigned(f.gap_pp, 'pp')}</strong>`
-                              : `<span class="muted">${fmtSigned(f.gap_pp, 'pp')}</span>`}</td>
+                              : `<span class="muted">${fmtSigned(f.gap_pp, 'pp')}</span>`}
+                <span class="muted">${f.gap_ci_low == null ? ''
+                  : `[${fmtSigned(f.gap_ci_low, '')} to ${fmtSigned(f.gap_ci_high, '')}]`}</span></td>
           </tr>`).join('');
 
         const widest = [...d.features].sort((a, b) => Math.abs(b.gap_pp) - Math.abs(a.gap_pp))[0];
+        const bandSep = rows.filter(r => r.differs && r.dim === 'Opening ask');
         const featChance = Math.round(0.05 * d.features.length) || 1;
         document.getElementById('clearFeatCaption').innerHTML =
           (featSep.length
@@ -2450,14 +2596,22 @@
               `about ${featChance} gap that size turns up by chance anyway. `
             : `Not one of these ${d.features.length} features shifts the takedown rate by more than ` +
               `its own sample can support. `) +
-          (widest
+          (widest && !widest.separated
             ? `The widest gap on the table, ${widest.label.toLowerCase()} at ` +
               `${fmtSigned(widest.gap_pp, 'pp')}, rests on ${fmt(widest.n_with)} listings and its ` +
-              `range overlaps the comparison group throughout. `
+              `range still covers zero. `
             : '') +
-          `The useful reading is the negative one: what an ad advertises does not predict whether ` +
-          `the apartment goes &mdash; price and location do. Listings that never mention a feature ` +
-          `are the comparison group, since almost no ad states a feature it lacks.`;
+          (featSep.length <= featChance
+            ? `The useful reading is the negative one: what an ad advertises barely predicts ` +
+              `whether the apartment goes. `
+            : '') +
+          (bandSep.length
+            ? `The opening ask does more: ${joinList(bandSep.map(b =>
+                `${b.label} (${fmtSigned(b.gap, 'pp')})`))} ` +
+              `${bandSep.length === 1 ? 'separates' : 'separate'} from the other price bands. `
+            : '') +
+          `Listings that never mention a feature are the comparison group, since almost no ad ` +
+          `states a feature it lacks.`;
       } catch (e) { showError('clearError', e); showError('clearFeatError', e); }
     }
 
@@ -2509,23 +2663,15 @@
         });
 
         const at = day => d.by_age.find(a => a.day === day);
-        // The depth of a cut hardly changes with age; quote the observed spread
-        // rather than a single figure, so "barely moves" is checkable.
-        const depths = d.by_age.map(a => a.median_cut_pct).filter(x => x != null)
-          .map(Math.abs);
+        const last = d.by_age[d.by_age.length - 1];
         document.getElementById('negAgeCaption').innerHTML =
           `A listing that went up this week is not negotiable yet: only ` +
           `<strong>${fmtPct1((at(14) || {}).pct)}</strong> have moved by day 14. By day 30 it is ` +
           `<strong>${fmtPct1((at(30) || {}).pct)}</strong> and by day 60 ` +
-          `<strong>${fmtPct1((at(60) || {}).pct)}</strong>. Each bar counts only listings that ` +
-          `lasted at least that long, so the rise is landlords changing their minds, not short ` +
-          `listings dropping out of the sample. ` +
-          (depths.length
-            ? `The size of the cut does not follow: every one of these buckets sits between ` +
-              `${fmtOff(Math.min(...depths))} and ${fmtOff(Math.max(...depths))} off, whether the ` +
-              `listing is two weeks or three months old. Waiting changes the odds of a cut, not ` +
-              `how deep it goes.`
-            : '');
+          `<strong>${fmtPct1((at(60) || {}).pct)}</strong>` +
+          (last && last.day > 60 ? `, and ${fmtPct1(last.pct)} by day ${last.day}` : '') +
+          `. Each bar counts only listings that lasted at least that long, so the rise is ` +
+          `landlords changing their minds, not short listings dropping out of the sample.`;
 
         // ── the grid ──────────────────────────────────────────────────────
         document.getElementById('negGridHead').innerHTML =
@@ -2558,17 +2704,32 @@
           }
         });
         const thinnest = Math.min(...bottom.cells.map(c => c.n));
+        // A column is called slow when it climbs less than half as far as
+        // the steepest one, from the top row to the bottom one.
+        const rises = d.grid_bands.map((band, i) => {
+          const a = top.cells[i], b = bottom.cells[i];
+          return a.cut_rate == null || b.cut_rate == null ? null
+            : { band, rise: b.cut_rate - a.cut_rate };
+        }).filter(Boolean);
+        const slow = climb ? rises.filter(r => r.rise < climb.rise / 2) : [];
+        const slowRise = slow.map(r => r.rise);
         document.getElementById('negGridCaption').innerHTML = climb
-          ? `Every column climbs, and the bands between the two extremes climb fastest. A ` +
-            `<strong>${climb.band}</strong> listing has been cut ${fmtPct1(climb.from)} of the time ` +
-            `by day ${top.day} and ${fmtPct1(climb.to)} of the time once it has been up ` +
-            `${bottom.day} days &mdash; at which point offering asking price costs about ` +
-            `${fmtOff(climb.markdown)} on average. The cheapest and the most expensive bands stay ` +
-            `firm at every age. For the cheap end the reason is visible one section up &mdash; it ` +
-            `clears fastest, so it rarely has to cut. For the top end the data does not say; the ` +
-            `obvious guess is an owner under less pressure. Shading tracks the cut rate. The bottom ` +
-            `row is the thinnest &mdash; as few as ${fmt(thinnest)} listings in a cell &mdash; so ` +
-            `read it as a direction, not a probability.`
+          ? `Bands are set by the listing's opening ask, so a listing that cut its way into a ` +
+            `cheaper band still sits in the column it started in. The steepest climb is ` +
+            `<strong>${climb.band}</strong>: cut ${fmtPct1(climb.from)} of the time by day ` +
+            `${top.day} and ${fmtPct1(climb.to)} once it has been up ${bottom.day} days &mdash; at ` +
+            `which point offering asking price costs about ${fmtOff(climb.markdown)} on average. ` +
+            (slow.length
+              ? `${joinList(slow.map(r => r.band))} ${slow.length === 1 ? 'climbs' : 'climb'} ` +
+                `less than half as far over the same span (` +
+                (slow.length === 1
+                  ? `${slowRise[0].toFixed(0)} points`
+                  : `${Math.min(...slowRise).toFixed(0)} to ${Math.max(...slowRise).toFixed(0)} points`) +
+                `, against ${climb.rise.toFixed(0)}). `
+              : `Every column climbs by a similar amount. `) +
+            `Shading tracks the cut rate. The bottom row is the thinnest &mdash; as few as ` +
+            `${fmt(thinnest)} listings in a cell &mdash; so read it as a direction, not a ` +
+            `probability.`
           : '';
 
         // ── segments ──────────────────────────────────────────────────────
@@ -2589,8 +2750,6 @@
 
         // The widest gap with intervals that do not touch is the only segment
         // split worth leading with.
-        const segDepths = d.dimensions.flatMap(dim => dim.levels)
-          .map(l => l.median_cut_pct).filter(x => x != null).map(Math.abs);
         let split = null;
         d.dimensions.forEach(dim => {
           const ok = dim.levels.filter(l => l.ci_low != null);
@@ -2610,12 +2769,8 @@
               `${fmtPct1(split.hi.cut_rate)} against <strong>${split.lo.label}</strong> at ` +
               `${fmtPct1(split.lo.cut_rate)}, with ranges that do not touch. `
             : '') +
-          (segDepths.length
-            ? `Depth is the opposite story &mdash; every segment on this table lands between ` +
-              `${fmtOff(Math.min(...segDepths))} and ${fmtOff(Math.max(...segDepths))} off, so ` +
-              `the question is almost never how much, only whether. `
-            : '') +
-          `The last column multiplies the two: what asking full price costs on average across ` +
+          `Price bands here are the opening ask, for the same reason as the table above. ` +
+          `The last column multiplies the cut rate by the typical cut: what asking full price costs on average across ` +
           `everyone in that segment, including the majority who never move.`;
 
         // ── depth ─────────────────────────────────────────────────────────
@@ -2640,6 +2795,13 @@
         const total = h.counts.reduce((x, y) => x + y, 0);
         const deep = h.counts.reduce((s, c, i) => s + (h.edges[i + 1] <= -10 ? c : 0), 0);
         const token = h.counts.reduce((s, c, i) => s + (h.edges[i] >= -4 ? c : 0), 0);
+        const ageDepths = d.by_age.map(a => a.median_cut_pct).filter(x => x != null)
+          .map(Math.abs);
+        // Small segments are left out of the spread: a median of a dozen cuts
+        // swings on one landlord, and the spread is what the sentence quotes.
+        const bigSegDepths = d.dimensions.flatMap(dim => dim.levels)
+          .filter(l => l.n >= 100 && l.median_cut_pct != null)
+          .map(l => Math.abs(l.median_cut_pct));
         document.getElementById('negDepthCaption').innerHTML =
           `${fmt(d.n_cut)} recorded reductions. The middle one takes ` +
           `<strong>${fmtOff(d.median_cut_pct)}</strong> off the ask ` +
@@ -2647,8 +2809,17 @@
           `${fmtOff(d.p25_cut_pct)}, and ${fmtPct0(100 * deep / total)} are 10% or deeper. ` +
           `The deepest on record is ${fmtOff(d.deepest_cut_pct)}. Only ` +
           `${fmtPct0(100 * token / total)} come in under 4% &mdash; when a landlord decides to move, ` +
-          `they move far enough for it to register, which is why the negotiating question is ` +
-          `whether they have reached that decision rather than how far they will go.`;
+          `they move far enough for it to register. ` +
+          (ageDepths.length > 1
+            ? `Nor does waiting buy a deeper cut: by listing age, the typical cut runs from ` +
+              `${fmtOff(Math.min(...ageDepths))} to ${fmtOff(Math.max(...ageDepths))}` +
+              (bigSegDepths.length > 1
+                ? `, and across the segments with at least 100 listings from ` +
+                  `${fmtOff(Math.min(...bigSegDepths))} to ${fmtOff(Math.max(...bigSegDepths))}`
+                : '') +
+              `. So the negotiating question is mostly whether a landlord has reached that ` +
+              `decision, not how far they will go.`
+            : '');
 
         // ── the soft-ask pool ─────────────────────────────────────────────
         const s = d.soft_asks;
@@ -2720,8 +2891,14 @@
           document.getElementById('ageCaption').textContent =
             `${fmt(oldest.n)} apartments (${fmtPct1(oldest.pct)} of what is listed) have been up ` +
             `${oldest.bucket.replace('+', ' or longer')} and ask a median of ` +
-            `${fmtUSD(oldest.median_rent)} — ${fmtUSD(Math.abs(gap))} ${dir} than the ones that just ` +
-            `arrived. If you are negotiating, this is the inventory with the weakest hand.`;
+            `${fmtUSD(oldest.median_rent)}` +
+            (Math.abs(gap) >= 50 ? ` — ${fmtUSD(Math.abs(gap))} ${dir} than the ones that just arrived` : `, about the same as the ones that just arrived`) +
+            `. ` +
+            (gap >= 50
+              ? `A large old tail like this is part of why the median of everything listed sits ` +
+                `above the median of new listings. `
+              : '') +
+            `The ones among them that have never cut are listed in section 04.`;
         }
       } catch (e) { showError('ageError', e); }
     }
@@ -2764,17 +2941,103 @@
           `${d.roll_weeks}-week rolling median &middot; shaded band is P25–P75`;
         const move = d.change_pct;
         const verdict = (move == null) ? 'has not moved measurably'
-          : Math.abs(move) < 5 ? `has been flat (${fmtSigned(move, '%')} over the whole window, which is inside the noise)`
+          : Math.abs(move) < 5 ? `has been flat (${fmtSigned(move, '%')} over the whole window)`
           : `has moved ${fmtSigned(move, '%')} over the window`;
+        const lastRow = rows[rows.length - 1];
+        const width = lastRow && lastRow.p75 != null ? lastRow.p75 - lastRow.p25 : null;
+        // How far standing stock fell while the panel was still filling in.
+        const st = d.stock || [];
+        const settled = st.find(r => r.week >= d.steady_state_week);
+        const burn = st.length && settled
+          ? 100 * (settled.median - st[0].median) / st[0].median : null;
         document.getElementById('trendCaption').textContent =
           `The median asking rent on newly posted listings ${verdict}. ` +
-          `Read the shaded band, not just the line: half of new listings fall inside it, and it is ` +
-          `roughly $1,000 wide — the spread across San Juan is far larger than any move over time. ` +
-          `The same series computed on all standing inventory instead reads ` +
-          `${fmtSigned(d.stock_change_pct, '%')} once the sample has settled, but during its first ` +
-          `three months it fell about 20% for no reason other than the sample filling in, which is ` +
-          `why this panel uses new listings.`;
+          (width ? `Read the shaded band, not just the line: half of new listings fall inside it, ` +
+            `and it is ${fmtUSD(width)} wide${move != null && Math.abs(width) > Math.abs(move * lastRow.median / 100) * 2
+              ? ' — the spread across San Juan is far larger than the move over time' : ''}. ` : '') +
+          `A median of new listings also moves when the mix of what is listed moves, which is ` +
+          `what the next panel takes out. ` +
+          `The same series computed on all standing inventory reads ` +
+          `${fmtSigned(d.stock_change_pct, '%')} once the sample has settled` +
+          (burn != null && burn < -5
+            ? `, but before ${monthName(d.steady_state_week)} it fell ${Math.abs(burn).toFixed(1)}% for no ` +
+              `reason other than the sample filling in, which is why this panel uses new listings.`
+            : '.');
       } catch (e) { showError('trendError', e); }
+    }
+
+    // The raw median of new listings against the same listings priced as if
+    // every month had listed the same mix of districts, sizes and amenities.
+    // The gap between the two lines is the part of the move that was mix.
+    async function loadMixIndex() {
+      try {
+        const d = await calculator();
+        const rows = d.index;
+        destroyChart('mix');
+        charts.mix = new Chart(document.getElementById('mixChart'), {
+          type: 'line',
+          data: {
+            labels: rows.map(r => monthName(r.month + '-01')),
+            datasets: [
+              { label: '95% range', data: rows.map(r => r.ci_high), borderColor: 'transparent',
+                backgroundColor: withAlpha(colors[0], 0.14), fill: '+1', pointRadius: 0 },
+              { label: '95% range low', data: rows.map(r => r.ci_low), borderColor: 'transparent',
+                backgroundColor: 'transparent', pointRadius: 0 },
+              { label: 'Same apartment (mix-adjusted)', data: rows.map(r => r.index),
+                borderColor: colors[0], backgroundColor: colors[0], borderWidth: 2, pointRadius: 3 },
+              { label: 'Raw median of new listings', data: rows.map(r => r.raw_index),
+                borderColor: colors[2], backgroundColor: colors[2], borderWidth: 1.5,
+                borderDash: [5, 3], pointRadius: 2 },
+            ],
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+              legend: { labels: { filter: i => !i.text.startsWith('95% range low') } },
+              tooltip: { callbacks: {
+                label: c => {
+                  const r = rows[c.dataIndex];
+                  if (c.datasetIndex === 0) return `95% range ${r.ci_low}–${r.ci_high}`;
+                  if (c.datasetIndex === 1) return null;
+                  return `${c.dataset.label}: ${c.parsed.y.toFixed(1)}` +
+                         (c.datasetIndex === 3 ? ` (${fmtUSD(r.raw_median)})` : '');
+                },
+                afterBody: items => `${fmt(rows[items[0].dataIndex].n)} apartments first listed that month`,
+              } },
+            },
+            scales: {
+              y: { ...AX(), title: { display: true, color: chartText,
+                   text: `${monthName(d.index_base_month + '-01')} = 100` } },
+              x: AX_X(),
+            },
+          },
+        });
+        const last = rows[rows.length - 1];
+        const clear = last.ci_low > 100 || last.ci_high < 100;
+        const mixPart = last.raw_index - last.index;
+        document.getElementById('mixCaption').textContent =
+          `The dashed line is the plain median opening ask of each month's new listings. The solid ` +
+          `line prices the same apartments with the pricing model, holding district, neighbourhood, ` +
+          `size and advertised amenities fixed, so it moves only when like-for-like asks move. ` +
+          `By ${monthName(last.month + '-01')} the raw median stands at ${last.raw_index.toFixed(0)} ` +
+          `and the like-for-like index at ${last.index.toFixed(0)} ` +
+          `(95% range ${last.ci_low.toFixed(0)}–${last.ci_high.toFixed(0)})` +
+          (Math.abs(mixPart) >= 3
+            ? `: about ${Math.abs(mixPart).toFixed(0)} of the ` +
+              `${Math.abs(100 - last.raw_index).toFixed(0)} points the raw median ` +
+              `${last.raw_index < 100 ? 'lost' : 'gained'} came from ` +
+              `${last.raw_index < 100 ? 'cheaper' : 'dearer'} apartments making up more of what ` +
+              `got listed, not from landlords asking ` +
+              `${last.raw_index < 100 ? 'less' : 'more'} for the same apartment`
+            : '') +
+          `. ` +
+          (clear
+            ? `The like-for-like change is outside its own range, so it is more than noise.`
+            : `The like-for-like range still includes 100, so a same-apartment change since ` +
+              `${monthName(d.index_base_month + '-01')} is not established.`) +
+          ` The month in progress is left out until it is complete.`;
+      } catch (e) { showError('mixError', e); }
     }
 
     async function loadMomentum() {
@@ -2784,12 +3047,16 @@
         destroyChart('momentum');
         charts.momentum = new Chart(document.getElementById('momentumChart'), {
           data: {
-            labels: rows.map(r => r.month),
+            labels: rows.map(r => r.partial ? `${r.month} (so far)` : r.month),
             datasets: [
+              // The month in progress is drawn faint: a few days of changes
+              // stacked beside full months reads as a collapse in activity.
               { type: 'bar', label: 'Cuts', data: rows.map(r => r.cuts),
-                backgroundColor: DANGER, stack: 'chg', order: 2 },
+                backgroundColor: rows.map(r => r.partial ? withAlpha(DANGER, 0.3) : DANGER),
+                stack: 'chg', order: 2 },
               { type: 'bar', label: 'Increases', data: rows.map(r => r.hikes),
-                backgroundColor: colors[0], stack: 'chg', order: 2 },
+                backgroundColor: rows.map(r => r.partial ? withAlpha(colors[0], 0.3) : colors[0]),
+                stack: 'chg', order: 2 },
               { type: 'line', label: 'Share that were cuts', data: rows.map(r => r.cut_share),
                 borderColor: colors[1], backgroundColor: colors[1], borderWidth: 2,
                 pointRadius: 3, yAxisID: 'y2', order: 1, tension: 0.25 },
@@ -2819,12 +3086,18 @@
             },
           },
         });
+        const oneIn = d.pct_units_changed ? Math.round(100 / d.pct_units_changed) : null;
         document.getElementById('momentumCaption').textContent =
-          `Only ${d.pct_ads_ever_changed}% of listings (${fmt(d.n_ads_ever_changed)} of ` +
-          `${fmt(d.n_ads)}) ever change price at all — most are posted once and left alone until they ` +
-          `expire. So this is not "the market is falling": it is that among the one in five landlords ` +
-          `who react, nearly all react by cutting. Treat it as a measure of who is under pressure, not ` +
-          `of where rents are.`;
+          `Only ${fmtPct1(d.pct_units_changed)} of apartments (${fmt(d.n_units_changed)} of ` +
+          `${fmt(d.n_units)}) have ever changed price` +
+          (oneIn && oneIn > 1 && oneIn <= 10
+            ? ` — about one in ${['', '', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'][oneIn]}`
+            : '') +
+          `; most are posted once and left alone until they expire. Of all the changes recorded, ` +
+          `${fmtPct0(d.cut_share_all)} were cuts. So this is not a measure of where rents are going: ` +
+          `it says that the landlords who react mostly react by cutting, which makes it a measure of ` +
+          `who is under pressure. ` +
+          (rows.some(r => r.partial) ? `The last month is still in progress and is drawn faint.` : '');
       } catch (e) { showError('momentumError', e); }
     }
 
@@ -2922,10 +3195,11 @@
         const cheap = rows.filter(b => b.premium_significant && b.premium_pct < 0);
         const firmTotal = rows.reduce((s, b) => s + b.n_firm, 0);
         const withFirm = rows.filter(b => b.n_firm > 0).length;
+        const maxUnits = Math.max(...rows.map(b => b.n_units));
         document.getElementById('bldCaption').innerHTML =
           `Each apartment is priced against other apartments in its own district <em>with the same ` +
           `bedroom count</em>, and the building itself is held out of that benchmark — otherwise a ` +
-          `28-unit tower is a big enough slice of its own comparison group to drag the benchmark ` +
+          `${maxUnits}-unit building is a big enough slice of its own comparison group to drag the benchmark ` +
           `toward its own answer. Of ${rows.length} buildings that clear the sample rule, ` +
           `<strong>${dear.length}</strong> ask significantly above their area and ` +
           `<strong>${cheap.length}</strong> below, against about ${d.n_expected_by_chance} that would ` +
@@ -3043,6 +3317,11 @@
           document.getElementById('sweepCopy').textContent =
             `${fmt(swept)} listings arrived that way, on ${when}.`;
         }
+        if (d.n_continued_ads) {
+          document.getElementById('sweepCopy').textContent +=
+            ` Another ${fmt(d.n_continued_ads)} are reposts of apartments first listed before the ` +
+            `window opened, so they are treated the same way.`;
+        }
 
         document.getElementById('bandLeakCopy').textContent =
           `Collection targets rents between $${d.band_low.toLocaleString()} and ` +
@@ -3056,14 +3335,113 @@
       } catch (e) { /* prose stands on its own; see above */ }
     }
 
+    // The estimator does the model's arithmetic in the browser: the export
+    // ships the coefficients on the log of the opening ask, and an estimate is
+    //   base + district + neighbourhood + size + district-by-size + baths
+    //        + each advertised amenity,
+    // exponentiated. An empty neighbourhood uses the district's average one.
+    // The range multiplies by the 80% band of out-of-sample misses in that
+    // district, so it is a range for one listing, not for the average listing.
+    let estBound = false;
+    async function loadEstimator() {
+      try {
+        const d = await calculator();
+        const e = d.effects;
+        const $ = id => document.getElementById(id);
+        const opts = (el, items, label = x => x) =>
+          (el.innerHTML = items.map(v => `<option value="${v}">${label(v)}</option>`).join(''));
+        const bedLabel = { Studio: 'Studio', '1BR': '1 bedroom', '2BR': '2 bedrooms',
+                           '3BR+': '3 or more bedrooms' };
+        const keep = { d: $('estDistrict').value, b: $('estBeds').value, ba: $('estBaths').value };
+        opts($('estDistrict'), Object.keys(e.district));
+        opts($('estBeds'), Object.keys(e.beds), b => bedLabel[b] || b);
+        opts($('estBaths'), Object.keys(e.baths).filter(b => b !== 'unknown'),
+             b => (b === '3+' ? '3 or more' : b));
+        $('estDistrict').value = keep.d || d.location_ref;
+        $('estBeds').value = keep.b || '1BR';
+        $('estBaths').value = keep.ba || '1';
+        $('estFeatures').innerHTML = d.features.map(f => `
+          <label title="${f.clear ? '' : 'The range on this premium includes zero'}">
+            <input type="checkbox" value="${f.key}">
+            <span>${f.label} <span class="muted">${fmtSigned(f.pct, '%')}${f.clear ? '' : ', unclear'}</span></span>
+          </label>`).join('');
+
+        const fillNbhd = () => {
+          const dist = $('estDistrict').value;
+          const list = d.neighbourhoods.filter(n => n.district === dist)
+            .sort((a, b) => a.name.localeCompare(b.name));
+          $('estNbhd').innerHTML = `<option value="">Anywhere in ${dist}</option>` +
+            list.map(n => `<option value="${n.name}">${n.name}</option>`).join('');
+        };
+        const round25 = v => Math.round(v / 25) * 25;
+        const update = () => {
+          const dist = $('estDistrict').value, beds = $('estBeds').value;
+          const baths = $('estBaths').value;
+          const nb = d.neighbourhoods.find(n => n.district === dist && n.name === $('estNbhd').value);
+          const checked = [...$('estFeatures').querySelectorAll('input:checked')].map(i => i.value);
+          const feats = d.features.filter(f => checked.includes(f.key));
+          const logp = d.base + e.district[dist] + (nb ? nb.effect : e.district_default_nbhd[dist])
+            + e.beds[beds] + (e.dxb[`${dist}|${beds}`] || 0) + e.baths[baths]
+            + feats.reduce((s, f) => s + f.effect, 0);
+          const est = Math.exp(logp);
+          const [lo, hi] = d.interval.by_district[dist] || d.interval.pooled;
+          $('estValue').textContent = fmtUSD(round25(est));
+          $('estRange').textContent =
+            `${d.interval.level / 10} in 10 between ${fmtUSD(round25(est * lo))} and ` +
+            `${fmtUSD(round25(est * hi))}`;
+          const unclear = feats.filter(f => !f.clear);
+          $('estExplain').textContent =
+            `Asking prices as of ${monthName(d.reference_month + '-01')}. ` +
+            (nb ? `${nb.name} is priced from ${fmt(nb.n)} apartments. `
+                : `With no neighbourhood picked, the estimate uses the typical location within ${dist}. `) +
+            (unclear.length
+              ? `${joinList(unclear.map(f => f.label))} ${unclear.length === 1 ? 'is' : 'are'} ` +
+                `included at the model's best guess, but the data cannot tell ` +
+                `${unclear.length === 1 ? 'that premium' : 'those premiums'} from zero. `
+              : '') +
+            `Utilities, lease terms and deposits are held at their usual rate across the market.`;
+        };
+        fillNbhd(); update();
+        if (!estBound) {
+          estBound = true;
+          $('estDistrict').addEventListener('change', fillNbhd);
+          $('estForm').addEventListener('change', update);
+        }
+        $('estNote').innerHTML =
+          `Opening ask &middot; ${d.interval.level}% range &middot; ${fmt(d.n_units)} apartments`;
+
+        // ── validation ────────────────────────────────────────────────────
+        $('valTable').querySelector('tbody').innerHTML = d.validation.map((v, i) => `
+          <tr>
+            <td>${i === d.validation.length - 1 ? `<strong>${v.model}</strong>` : v.model}</td>
+            <td>${fmtUSD(v.median_ae_usd)}</td><td>${fmtUSD(v.mae_usd)}</td>
+            <td>${fmtPct1(v.mape_pct)}</td><td>${fmtPct0(100 * v.r2_log)}</td>
+          </tr>`).join('');
+        const cell = d.validation[0], best = d.validation[d.validation.length - 1];
+        $('valCaption').innerHTML =
+          `Every row is scored the same way: the ${fmt(d.n_landlords)} landlords are split into ` +
+          `${d.folds} groups, each method is fitted without one group and asked to price that ` +
+          `group's apartments, and the misses are counted against what those listings actually ` +
+          `asked. Holding out whole landlords stops a method from looking good by recognising a ` +
+          `building it has already seen. The simplest benchmark &mdash; the median for that ` +
+          `district and size &mdash; misses a typical listing by ${fmtUSD(cell.median_ae_usd)}; the ` +
+          `estimator above misses by ${fmtUSD(best.median_ae_usd)}. A gradient-boosted tree model ` +
+          `was also tried and scored within a few dollars of it, so the page keeps the method ` +
+          `whose every coefficient can be read. About ${fmtPct0(100 - 100 * best.r2_log)} of the variation in asking prices ` +
+          `is still unexplained: condition, floor, finish and the photos are not in the ad's ` +
+          `structured fields.`;
+      } catch (e) { showError('estError', e); showError('valError', e); }
+    }
+
     const CHART_LOADERS = [
+      loadLocation,
       loadSubmarkets, loadSubmarketTrend, loadPerBedroom, loadDistribution,
       loadFeatureEffect, loadClearance, loadClearProfile, loadNegotiation,
-      loadAgePyramid, loadTrend, loadMomentum, loadInventory,
+      loadAgePyramid, loadTrend, loadMixIndex, loadMomentum, loadInventory,
     ];
     const TABLE_LOADERS = [
       loadMeta, loadStats, loadRecentCuts, loadAreas, loadFeatures,
-      loadBuildings, loadQuality,
+      loadBuildings, loadQuality, loadEstimator,
     ];
 
     function refreshAll() {
