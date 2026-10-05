@@ -15,25 +15,11 @@
 })();
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PR Labor Market Conditions Index | SENS ADVISOR</title>
-<meta name="description" content="Puerto Rico Labor Market Conditions Index: a monthly index distilling 40 employment, activity, demand, and labor-flow indicators into one common signal.">
-<link rel="canonical" href="https://sensadvisor.com/pr-lmci/">
-<meta property="og:title" content="PR Labor Market Conditions Index | SENS ADVISOR">
-<meta property="og:description" content="Puerto Rico Labor Market Conditions Index: a monthly index distilling 40 employment, activity, demand, and labor-flow indicators into one common signal.">
-<meta property="og:url" content="https://sensadvisor.com/pr-lmci/">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="SENS ADVISOR">
-<meta property="og:image" content="https://sensadvisor.com/assets/og.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Jorge A. Arroyo, Business Systems &amp; Analytics Architect, SENS ADVISOR">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="PR Labor Market Conditions Index | SENS ADVISOR">
-<meta name="twitter:description" content="Puerto Rico Labor Market Conditions Index: a monthly index distilling 40 employment, activity, demand, and labor-flow indicators into one common signal.">
+<title>Puerto Rico Labor Market | SENS ADVISOR</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
 
 <style>
   :root {
@@ -855,6 +841,107 @@
   }
 </style>
 <link rel="stylesheet" href="/assets/dash.css">
+
+<style>
+  :root { --line: #1f5aa6; --band: rgba(0,0,0,0.055); }
+  :root[data-theme="dark"] { --line: #3d8bfd; --band: rgba(255,255,255,0.07); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --line: #3d8bfd; --band: rgba(255,255,255,0.07); } }
+  .readings { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+    border-top: 2px solid var(--border-primary); border-bottom: 1px solid var(--border-primary); }
+  .reading { display: flex; flex-direction: column; padding: clamp(22px, 3vw, 40px) clamp(16px, 2.4vw, 32px) clamp(22px, 3vw, 36px) 0; }
+  .reading + .reading { padding-left: clamp(16px, 2.4vw, 32px); border-left: 1px solid var(--accent-light); }
+  .reading .lbl { color: var(--secondary-text); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; }
+  .reading .val { margin: 14px 0 12px; font-size: clamp(2.6rem, 5vw, 5rem); font-weight: 500; line-height: 0.9; letter-spacing: -0.07em; }
+  .reading .l1 { font-size: 0.86rem; color: var(--primary-text); }
+  .reading .l2 { margin-top: 6px; font-size: 0.78rem; color: var(--secondary-text); }
+  .reading a { margin-top: 14px; font-size: 0.72rem; color: var(--secondary-text); letter-spacing: 0.06em; text-transform: uppercase; }
+  .range { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin: 0 0 18px; }
+  .range span { color: var(--secondary-text); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; margin-right: 6px; }
+  .range button { font: inherit; font-size: 0.78rem; padding: 6px 12px; border: 1px solid var(--border-primary);
+    background: none; color: var(--primary-text); cursor: pointer; border-radius: 3px; }
+  .range button[aria-pressed="true"] { background: var(--primary-text); color: var(--primary-bg); }
+  .chart { position: relative; width: 100%; }
+  .chart svg { display: block; width: 100%; height: auto; overflow: visible; font-family: inherit; }
+  .chart .ax text { fill: var(--chart-muted); font-size: 11px; }
+  .chart .grid line { stroke: var(--chart-grid); stroke-width: 1; }
+  .chart .ref { stroke: var(--chart-muted); stroke-width: 1; stroke-dasharray: 3 3; }
+  .table-wrap { position: relative; }   /* keeps the grid's screen-reader spans inside its scroll box on phones */
+  .chart .band { fill: var(--band); }
+  .chart .usual { fill: var(--line); fill-opacity: 0.10; }
+  .chart .usual-edge { stroke: var(--line); stroke-opacity: 0.45; stroke-width: 1; }
+  .chart .usual-lbl { fill: var(--chart-muted); font-size: 10px; paint-order: stroke; stroke: var(--primary-bg); stroke-width: 3px; }
+  .chart .bandlbl { fill: var(--chart-muted); font-size: 10px; paint-order: stroke; stroke: var(--primary-bg); stroke-width: 3px; }
+  .chart .ln { fill: none; stroke: var(--line); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .chart .cross { stroke: var(--chart-muted); stroke-width: 1; }
+  .chart .dot { fill: var(--line); stroke: var(--primary-bg); stroke-width: 2; }
+  .chart .last { fill: var(--primary-text); font-size: 12px; font-weight: 600; }
+  .chart .clip { fill: var(--chart-muted); font-size: 10px; }
+  .tip { position: absolute; pointer-events: none; background: var(--primary-bg); border: 1px solid var(--border-primary);
+    padding: 8px 10px; font-size: 0.78rem; line-height: 1.35; white-space: nowrap; display: none; z-index: 5; }
+  .tip b { font-weight: 600; }
+  .tip small { display: block; color: var(--secondary-text); }
+  .chart-note { margin-top: 12px; }
+  :root { --up: #008f43; --down: #c4c7cc; }
+  :root[data-theme="dark"] { --up: #36e08a; --down: #4a4d52; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --up: #36e08a; --down: #4a4d52; } }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .gcards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0;
+    border-top: 2px solid var(--border-primary); }
+  .gcard { padding: 22px 0 22px 24px; border-bottom: 1px solid var(--accent-light);
+    border-left: 1px solid var(--accent-light); }
+  .gcard:first-child { grid-row: span 2; padding: 22px 24px 22px 0; border-left: 0; }
+  .gcard:last-child { grid-column: 1 / -1; padding-left: 0; border-left: 0; }
+  .gcard:last-child .glist { columns: 2; column-gap: 32px; }
+  .ghead { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .gname { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+  .gcount { font-size: 0.8rem; color: var(--secondary-text); }
+  .gcount strong { font-size: 1.5rem; font-weight: 500; color: var(--primary-text); letter-spacing: -0.04em; }
+  .gbar { display: flex; gap: 2px; height: 10px; margin: 12px 0 14px; }
+  .gbar .seg { border-radius: 2px; }
+  .gbar .up { background: var(--up); }
+  .gbar .down { background: var(--down); }
+  .gbar .na { border: 1px dashed var(--chart-muted); }
+  .glist { list-style: none; margin: 0; padding: 0; font-size: 0.84rem; }
+  .glist li { display: grid; grid-template-columns: 18px 1fr auto; align-items: baseline; gap: 6px;
+    padding: 5px 0; break-inside: avoid; border-bottom: 1px dotted var(--accent-light); }
+  .glist .ic { font-size: 0.7rem; }
+  .glist li.up .ic { color: var(--up); }
+  .glist li.down .ic { color: var(--chart-muted); }
+  .glist li.na { color: var(--secondary-text); }
+  .glist .ch { font-variant-numeric: tabular-nums; color: var(--secondary-text); font-size: 0.8rem; }
+  .key { margin-right: 10px; white-space: nowrap; }
+  .key.up { color: var(--up); }
+  table.hgrid { border-collapse: separate; border-spacing: 2px; font-size: 0.78rem; width: 100%; }
+  table.hgrid thead th { font-weight: 500; color: var(--secondary-text); font-size: 0.68rem; text-align: center;
+    letter-spacing: 0.04em; line-height: 1.2; }
+  table.hgrid tbody th { text-align: left; font-weight: 400; padding: 0 12px 0 0; white-space: nowrap; }
+  table.hgrid tr.grow th { padding: 14px 0 4px; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--secondary-text); }
+  /* series names stay in view when the grid scrolls sideways on narrow screens */
+  table.hgrid tbody tr:not(.grow) th, table.hgrid thead th:first-child { position: sticky; left: 0; z-index: 1; background: var(--primary-bg); }
+  table.hgrid tr.grow .pin { position: sticky; left: 0; }
+  table.hgrid td { height: 20px; min-width: 22px; border-radius: 2px; text-align: center; }
+  table.hgrid td .gl { font-size: 8px; line-height: 1; }
+  table.hgrid td.up .gl { color: var(--primary-bg); }
+  table.hgrid td.down .gl { color: var(--chart-muted); }
+  :root[data-theme="dark"] table.hgrid td.down .gl { color: var(--chart-text); }
+  .chart svg:focus-visible { outline: 2px solid var(--signal); outline-offset: 4px; }
+  table.hgrid td.up { background: var(--up); }
+  table.hgrid td.down { background: var(--down); }
+  table.hgrid td.na { box-shadow: inset 0 0 0 1px var(--accent-light); }
+  table.hgrid tr.totrow th, table.hgrid td.tot { padding-top: 10px; font-weight: 600; text-align: center;
+    font-variant-numeric: tabular-nums; border-top: 1px solid var(--border-primary); border-radius: 0; }
+  table.hgrid tr.totrow th { text-align: left; }
+  @media (max-width: 680px) {
+    .gcards { grid-template-columns: 1fr; }
+    .gcard, .gcard:first-child { grid-row: auto; padding: 18px 0; border-left: 0; }
+    .gcard:last-child .glist { columns: 1; }
+  }
+  @media (max-width: 900px) {
+    .readings { grid-template-columns: 1fr; }
+    .reading { padding-left: 0 !important; border-left: 0 !important; border-bottom: 1px solid var(--accent-light); }
+  }
+</style>
 </head>
 
 <body>
@@ -878,22 +965,22 @@
       <li><a href="/generation/"><span>02</span>PR Generation Status</a></li>
       <li><a href="/reservoirs/"><span>03</span>PR Reservoir Levels</a></li>
       <li><a href="/rentals/"><span>04</span>San Juan Rentals</a></li>
-      <li><a href="/pr-lmci/" aria-current="page"><span>05</span>PR Labor Market Index</a></li>
+      <li><a href="/pr-lmci/" aria-current="page"><span>05</span>PR Labor Market Readings</a></li>
     </ol>
     <a class="sa-menu-mail" href="mailto:consult@sensadvisor.com">consult@sensadvisor.com</a>
   </div>
 </nav>
 
+
 <nav class="analytics-index" aria-label="Dashboard sections">
   <div class="analytics-index-inner">
     <span class="analytics-index-label">PR labor market</span>
     <a href="#latest">Latest</a>
-    <a href="#overview">How it works</a>
-    <a href="#flows">Flows</a>
-    <a href="#drivers">Probabilities</a>
-    <a href="#diffusion">Diffusion</a>
-    <a href="#methodology">Methodology</a>
-    <a href="#validation">Validation</a>
+    <a href="#improving">What's improving</a>
+    <a href="#unemployment">Unemployment</a>
+    <a href="#payrolls">Payrolls</a>
+    <a href="#breadth">Breadth</a>
+    <a href="#method">Method</a>
     <a href="#data">Data</a>
   </div>
 </nav>
@@ -904,369 +991,409 @@
     <span class="header-kicker">Analytics / Labor</span>
     <h1>Puerto Rico<br>Labor Market</h1>
     <div class="subtitle">
-      A monthly conditions index distilling 40 employment, activity, demand, and labor-flow indicators into one common signal.
+      Three monthly readings of Puerto Rico's labor market: the unemployment rate, the three-month change in
+      private payroll employment, and how many of 24 labor series are improving.
     </div>
     <div class="meta">
-      <span><strong>Release vintage</strong><br>August 2026 (preliminary)</span>
-      <span><strong>Dashboard generated</strong><br>2026-09-28 17:55 UTC</span>
-      <span><strong>Release schedule</strong><br>Weekly, when new source data lands</span>
+      <span><strong>Data through</strong><br>August 2026</span>
+      <span><strong>Data retrieved</strong><br>October 5, 2026</span>
+      <span><strong>Page generated</strong><br>2026-10-05 01:11 UTC</span>
     </div>
   </header>
 
-  <!-- Overview -->
-  <div class="panel" id="overview">
-    <h2>Overview <span class="panel-note">What this dashboard measures</span></h2>
-    <div class="explain">
-      <p><strong>What you are looking at:</strong> a monthly summary of Puerto Rico's labor market conditions,
-      combining 40 economic indicators into a single index using a dynamic factor model.</p>
-      <p><strong>Methodology:</strong> The PR-LMCI follows the Chicago Fed Labor Market Conditions Index
-      (Brave and Cole, 2014). It extracts the first principal component from a standardized panel of
-      40 indicators using EM-PCA to handle missing data.</p>
-      <p><strong>Three outputs:</strong></p>
-      <ul style="margin: 8px 0 8px 20px; font-size: 0.9rem; color: var(--secondary-text);">
-        <li><strong>PR-LMCI Level:</strong> the level of labor market conditions (0 = historical average).</li>
-        <li><strong>PR-LMCI Momentum:</strong> month-over-month change in the PR-LMCI level.</li>
-        <li><strong>Diffusion Index:</strong> % of indicators improving (above 50% = broad-based).</li>
-      </ul>
-      <p><strong>Indicator categories:</strong> the curated panel spans the groups
-      below. Indicators lacking sufficient history are dropped each release, leaving
-      40 series in the latest index.</p>
-      <ul style="margin: 8px 0 8px 20px; font-size: 0.9rem; color: var(--secondary-text);">
-        <li>Non-farm payroll employment by NAICS sector</li>
-        <li>Labor force, employment, unemployment, participation rate</li>
-        <li>Job flows: BED gross gains, gross losses, net change</li>
-        <li>Unemployment insurance claims: initial and continued</li>
-        <li>Tourism: non-resident registrations, hotel occupancy, SJU airport passengers</li>
-        <li>Construction: cement production, building permits, foreclosures</li>
-        <li>Trade: exports, imports, cargo throughput</li>
-        <li>Consumer demand: auto sales, gas consumption, vehicle registrations</li>
-        <li>Fiscal: income tax, excise taxes, motor vehicle tax</li>
-        <li>Energy: industrial and residential electric power consumption</li>
-        <li>Other: total bankruptcies, PR Economic Activity Index</li>
-      </ul>
-      <p><strong>Data sources:</strong></p>
-      <ul style="margin: 8px 0 8px 20px; font-size: 0.9rem; color: var(--secondary-text);">
-        <li><a href="https://jp.pr.gov" style="color: var(--primary-text);">Puerto Rico Planning Board</a> (Junta de Planificacion) &mdash; monthly economic indicators</li>
-        <li><a href="https://www.mercadolaboral.pr.gov" style="color: var(--primary-text);">PR Dept. of Labor, LMI Division</a> &mdash; Business Employment Dynamics (job flows)</li>
-        <li><a href="https://oui.doleta.gov" style="color: var(--primary-text);">US Dept. of Labor, ETA</a> &mdash; Weekly unemployment insurance claims</li>
-        <li><a href="https://www.desarrollo.pr.gov" style="color: var(--primary-text);">PR Dept. of Economic Development (DDEC)</a> &mdash; Auto sales</li>
-      </ul>
-    </div>
-  </div>
-
-  <!-- Latest Reading -->
   <div class="panel" id="latest">
-    <h2>Current conditions <span class="panel-note">August 2026 (preliminary)</span></h2>
-
-    <div class="signal-readout">
-      <div class="signal-primary">
-        <span class="signal-label">PR-LMCI level</span>
-        <strong class="signal-value">-2.83</strong>
-        <span class="signal-status">below average &bull; improving</span>
-        <span class="signal-vintage">Release vintage August 2026</span>
+    <h2>Latest readings <span class="panel-note">August 2026</span></h2>
+    <div class="readings">
+      <div class="reading">
+        <span class="lbl">Unemployment rate</span>
+        <strong class="val">6.1%</strong>
+        <span class="l1">+0.5 points over three months; 5.7% a year earlier</span>
+        <span class="l2">Low since 2014: 5.4% (September 2024). 2014 average: 13.8%</span>
+        <a href="#unemployment">Chart &darr;</a>
       </div>
-      <div class="signal-components">
-        <div class="component">
-          <span>Momentum</span>
-          <strong>+0.12</strong>
-          <small>improving</small>
-        </div>
-        <div class="component">
-          <span>Diffusion</span>
-          <strong>60.0%</strong>
-          <small>Share of indicators improving</small>
-        </div>
-        <div class="component">
-          <span>Probability improving</span>
-          <strong>63%</strong>
-          <small>Balance of risks, not a point forecast</small>
-        </div>
-        <div class="component">
-          <span>Reporting coverage</span>
-          <strong>62%</strong>
-          <small>40 indicators in the current model</small>
-        </div>
+      <div class="reading">
+        <span class="lbl">Private payrolls, 3-month change</span>
+        <strong class="val">−0.18%</strong>
+        <span class="l1">−0.18% in July 2026; −0.33% a year earlier</span>
+        <span class="l2">Negative for 2 months; last negative before that in September 2025</span>
+        <a href="#payrolls">Chart &darr;</a>
+      </div>
+      <div class="reading">
+        <span class="lbl">Breadth, series improving</span>
+        <strong class="val">64%</strong>
+        <span class="l1">14 of the 22 series reported so far improved over three months</span>
+        <span class="l2">Within the usual range (26%–71%). Higher than 73% of the 118 comparison months</span>
+        <a href="#improving">By group &darr;</a>
       </div>
     </div>
-      <p style="font-size:0.85rem; margin-bottom:16px; padding:10px 12px; border:1px solid var(--border-primary);"><strong>Preliminary.</strong> The August 2026 reading is based on partial data — 62% of indicators reported and will be revised as additional indicators are released.</p>
-
-    <p class="release-table-label">Recent trajectory</p>
-    <img class="hero-chart" src="fig7_recent.png" alt="Recent PR-LMCI conditions">
-    <p class="release-table-label">Release comparison</p>
-    <!-- Summary Comparison Table (Chicago Fed style) -->
-    <div class="table-wrap">
-      <table class="mini">
-        <thead>
-          <tr>
-            <th></th>
-            <th style="text-align:right;">Latest<br><span class="muted" style="font-weight:400;">(August 2026)</span></th>
-            <th style="text-align:right;">Previous Month<br><span class="muted" style="font-weight:400;">(Jul 2026)</span></th>
-            <th style="text-align:right;">Year Ago<br><span class="muted" style="font-weight:400;">(Aug 2025)</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>PR-LMCI Level</strong></td>
-            <td style="text-align:right; font-weight:600;">-2.83</td>
-            <td style="text-align:right;">-2.95</td>
-            <td style="text-align:right;">-2.97</td>
-          </tr>
-          <tr>
-            <td><strong>PR-LMCI Momentum</strong></td>
-            <td style="text-align:right; font-weight:600;">+0.12</td>
-            <td style="text-align:right;">+0.01</td>
-            <td style="text-align:right;">-0.06</td>
-          </tr>
-          <tr>
-            <td><strong>Diffusion Index</strong></td>
-            <td style="text-align:right; font-weight:600;">60.0%</td>
-            <td style="text-align:right;">51.7%</td>
-            <td style="text-align:right;">44.2%</td>
-          </tr>
-          <tr>
-            <td><strong>Prob. Improving</strong></td>
-            <td style="text-align:right; font-weight:600;">63%</td>
-            <td style="text-align:right;" colspan="2" class="muted">--</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <h3 style="font-size:1rem; font-weight:600; margin:22px 0 4px;">Labor Flows (BED)
-      <span class="panel-note">Job flows &bull; as of Dec 2025</span></h3>
-    <div class="table-wrap">
-      <table class="mini">
-        <thead>
-          <tr>
-            <th></th>
-            <th style="text-align:right;">Latest<br><span class="muted" style="font-weight:400;">(Dec 2025)</span></th>
-            <th style="text-align:right;">Previous<br><span class="muted" style="font-weight:400;">(Nov 2025)</span></th>
-            <th style="text-align:right;">Year Ago<br><span class="muted" style="font-weight:400;">(Dec 2024)</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>Hiring Rate</strong></td>
-            <td style="text-align:right; font-weight:600;">1.19%</td>
-            <td style="text-align:right;">1.27%</td>
-            <td style="text-align:right;">1.16%</td>
-          </tr>
-          <tr>
-            <td><strong>Separations Rate</strong></td>
-            <td style="text-align:right; font-weight:600;">1.39%</td>
-            <td style="text-align:right;">1.44%</td>
-            <td style="text-align:right;">1.45%</td>
-          </tr>
-          <tr>
-            <td><strong>Net Flow</strong></td>
-            <td style="text-align:right; font-weight:600;">-0.20 pp</td>
-            <td style="text-align:right;">-0.17 pp</td>
-            <td style="text-align:right;">-0.29 pp</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-      <p class="fineprint" style="margin-top:8px;"><strong>Note.</strong> Business Employment Dynamics (BED) job flows are published quarterly by the PR Dept. of Labor with a lag. The most recent available quarter is <strong>Dec 2025</strong>, so these rows trail the August 2026 index reading and will advance when the next BED release is posted.</p>
-
-    <div style="margin-top: 16px; font-size: 0.9rem; color: var(--secondary-text);">
-      Based on 40 indicators. The PR-LMCI level is below average and conditions are improving.
-    </div>
-
-    <!-- Narrative -->
-    <div class="narrative" style="margin-top: 20px;">
-      <p>The Puerto Rico Labor Market Conditions Index (PR-LMCI) rose to -2.83 in August 2026, indicating that labor market conditions are below average. The PR-LMCI Momentum registered +0.12, suggesting conditions are improving. The index has been below its historical average for 187 consecutive months (see PR-LMCI Level below). The August 2026 reading is preliminary (62% of indicators reported) and will be revised as additional data arrive.</p>
-      <p>The hiring rate, which measures gross job gains as a share of employment, stood at 1.19% in December 2025, below its 12-month average of 1.53%. The separations rate registered 1.39%, with separations exceeding hiring. The net flow rate of -0.20 percentage points suggests net employment contraction (see Hiring and Separations Rates below). These job-flow figures come from the Business Employment Dynamics series, which is published quarterly with a lag; December 2025 is the most recent period available, so they trail the August 2026 index reading above.</p>
-      <p>The unemployment rate rose to 6.1% in August 2026. Over the three months through December 2025, changes in the hiring rate were the dominant flow-based driver of unemployment rate movements (see Contributions to Unemployment Rate below). The model-implied distribution for the next-month unemployment-rate change puts 28% odds on a decrease, 17% on no change, and 55% on an increase (see Unemployment Rate Change Probabilities below). This characterizes the balance of risks rather than a point forecast; out of sample the distribution does not improve on a no-change baseline for the direction of the next move.</p>
-      <p>The diffusion index, which measures the share of indicators improving month-over-month, stood at 60.0%, indicating broad-based conditions (see Diffusion Index below). The Momentum Gauge suggests a 63% probability that conditions will improve in the coming month, versus 37% for deterioration.</p>
-      <p>The current reading places PR labor market conditions at the 41st percentile of all observations since 1999, below the median of historical readings. For comparison, the average PR-LMCI was -3.64 in the pre-Maria period (2015-2017), -4.78 in the post-Maria/pre-COVID period, and -3.30 since mid-2021. The index is currently most influenced by economic activity index, cement production, government  - sa (thousands of persons (sa)) (pro-cyclical) and education and health services, professional and business services, excise taxes (counter-cyclical). (See Recent Conditions below.)</p>
-
-    </div>
-    <div class="fineprint" style="margin-top: 12px;">
-      <strong>Note:</strong> Narrative generated from structured data tables.
-      All figures cited refer to charts below.
-    </div>
   </div>
 
-  <!-- Hiring and Separations (Chicago Fed: Hiring Rate + Separations Rate) -->
-  <div class="panel" id="flows">
-    <h2>Hiring and Separations Rates <span class="panel-note">Inflow and outflow rates of employment</span></h2>
+  <div class="panel" id="improving">
+    <h2>What's improving <span class="panel-note">The 24 breadth series by group, August 2026</span></h2>
+    <div class="gcards">
+<div class="gcard">
+        <div class="ghead"><span class="gname">Unemployment and claims</span>
+          <span class="gcount"><strong>4</strong> of 5 improving &middot; 2 without a reading</span></div>
+        <div class="gbar" aria-hidden="true"><span class="seg up" style="flex:4"></span><span class="seg down" style="flex:1"></span><span class="seg na" style="flex:2"></span></div>
+        <ul class="glist">
+<li class="down" title="Unemployment rate: not improving; lower is better"><span class="ic" aria-hidden="true">&#9660;</span><span class="nm">Unemployment rate</span><span class="ch">+0.5 pp</span><span class="sr">Not improving</span></li>
+<li class="up" title="Unemployed 15+ weeks share: improving; lower is better"><span class="ic" aria-hidden="true">&#9650;</span><span class="nm">Unemployed 15+ weeks share</span><span class="ch">−5.6 pp</span><span class="sr">Improving</span></li>
+<li class="na" title="Job losers&#x27; share: no reading; lower is better"><span class="ic" aria-hidden="true">&ndash;</span><span class="nm">Job losers&#x27; share</span><span class="ch">no reading</span><span class="sr">No reading</span></li>
+<li class="up" title="Job leavers&#x27; share: improving; higher is better"><span class="ic" aria-hidden="true">&#9650;</span><span class="nm">Job leavers&#x27; share</span><span class="ch">+7.9 pp</span><span class="sr">Improving</span></li>
+<li class="na" title="U-to-E outflow proxy: no reading; higher is better"><span class="ic" aria-hidden="true">&ndash;</span><span class="nm">U-to-E outflow proxy</span><span class="ch">no reading</span><span class="sr">No reading</span></li>
+<li class="up" title="Initial claims rate: improving; lower is better"><span class="ic" aria-hidden="true">&#9650;</span><span class="nm">Initial claims rate</span><span class="ch">−0.02 pp</span><span class="sr">Improving</span></li>
+<li class="up" title="Insured unemployment rate: improving; lower is better"><span class="ic" aria-hidden="true">&#9650;</span><span class="nm">Insured unemployment rate</span><span class="ch">−0.6 pp</span><span class="sr">Improving</span></li>
+        </ul></div>
+<div class="gcard">
+        <div class="ghead"><span class="gname">Employment and participation</span>
+          <span class="gcount"><strong>3</strong> of 3 improving</span></div>
+        <div class="gbar" aria-hidden="true"><span class="seg up" style="flex:3"></span></div>
+        <ul class="glist">
+<li class="up" title="Employment-population ratio: improving; higher is better"><span class="ic" aria-hidden="true">&#9650;</span><span class="nm">Employment-population ratio</span><span class="ch">+0.6 pp</span><span class="sr">Improving</span></li>
+<li class="up" title="Participation rate: improving; higher is better"><span class="ic" aria-hidden="true">&#9650;</span><span class="nm">Participation rate</span><span class="ch">+0.8 pp</span><span class="sr">Improving</span></li>
+<li class="up" title="PMI employment: improving; higher is better"><span class="ic" aria-hidden="true">&#9650;</span><span class="nm">PMI employment</span><span class="ch">+0.7 index pts</span><span class="sr">Improving</span></li>
+        </ul></div>
+<div class="gcard">
+        <div class="ghead"><span class="gname">Payrolls, hours and pay</span>
+          <span class="gcount"><strong>2</strong> of 4 improving</span></div>
+        <div class="gbar" aria-hidden="true"><span class="seg up" style="flex:2"></span><span class="seg down" style="flex:2"></span></div>
+        <ul class="glist">
+<li class="down" title="Private payrolls: not improving; higher is better"><span class="ic" aria-hidden="true">&#9660;</span><span class="nm">Private payrolls</span><span class="ch">−0.18%</span><span class="sr">Not improving</span></li>
+<li class="up" title="Aggregate weekly hours: improving; higher is better"><span class="ic" aria-hidden="true">&#9650;</span><span class="nm">Aggregate weekly hours</span><span class="ch">+1.60%</span><span class="sr">Improving</span></li>
+<li class="up" title="Hourly earnings: improving; higher is better"><span class="ic" aria-hidden="true">&#9650;</span><span class="nm">Hourly earnings</span><span class="ch">+2.62%</span><span class="sr">Improving</span></li>
+<li class="down" title="Admin. and support services: not improving; higher is better"><span class="ic" aria-hidden="true">&#9660;</span><span class="nm">Admin. and support services</span><span class="ch">−2.76%</span><span class="sr">Not improving</span></li>
+        </ul></div>
+<div class="gcard">
+        <div class="ghead"><span class="gname">Payrolls by industry</span>
+          <span class="gcount"><strong>5</strong> of 10 improving</span></div>
+        <div class="gbar" aria-hidden="true"><span class="seg up" style="flex:5"></span><span class="seg down" style="flex:5"></span></div>
+        <ul class="glist">
+<li class="down" title="Mining, logging, construction: not improving; higher is better"><span class="ic" aria-hidden="true">&#9660;</span><span class="nm">Mining, logging, construction</span><span class="ch">−0.75%</span><span class="sr">Not improving</span></li>
+<li class="up" title="Manufacturing: improving; higher is better"><span class="ic" aria-hidden="true">&#9650;</span><span class="nm">Manufacturing</span><span class="ch">+1.37%</span><span class="sr">Improving</span></li>
+<li class="up" title="Trade, transport., utilities: improving; higher is better"><span class="ic" aria-hidden="true">&#9650;</span><span class="nm">Trade, transport., utilities</span><span class="ch">+0.26%</span><span class="sr">Improving</span></li>
+<li class="down" title="Information: not improving; higher is better"><span class="ic" aria-hidden="true">&#9660;</span><span class="nm">Information</span><span class="ch">−1.67%</span><span class="sr">Not improving</span></li>
+<li class="up" title="Financial activities: improving; higher is better"><span class="ic" aria-hidden="true">&#9650;</span><span class="nm">Financial activities</span><span class="ch">+0.59%</span><span class="sr">Improving</span></li>
+<li class="down" title="Prof. and business serv.: not improving; higher is better"><span class="ic" aria-hidden="true">&#9660;</span><span class="nm">Prof. and business serv.</span><span class="ch">−1.11%</span><span class="sr">Not improving</span></li>
+<li class="down" title="Education and health: not improving; higher is better"><span class="ic" aria-hidden="true">&#9660;</span><span class="nm">Education and health</span><span class="ch">−0.62%</span><span class="sr">Not improving</span></li>
+<li class="down" title="Leisure and hospitality: not improving; higher is better"><span class="ic" aria-hidden="true">&#9660;</span><span class="nm">Leisure and hospitality</span><span class="ch">−0.85%</span><span class="sr">Not improving</span></li>
+<li class="up" title="Other services: improving; higher is better"><span class="ic" aria-hidden="true">&#9650;</span><span class="nm">Other services</span><span class="ch">+2.12%</span><span class="sr">Improving</span></li>
+<li class="up" title="Government: improving; higher is better"><span class="ic" aria-hidden="true">&#9650;</span><span class="nm">Government</span><span class="ch">+4.09%</span><span class="sr">Improving</span></li>
+        </ul></div>
+    </div>
+    <p class="fineprint" style="margin-top:14px"><span class="key up">&#9650; improving</span>
+    <span class="key down">&#9660; not improving</span> <span class="key na">&ndash; no reading this month</span>
+    &nbsp;The figure next to each series is its change over three months: the difference in percentage points
+    (pp) for rates and shares, in index points for the PMI, and the percent change for payrolls, hours and
+    earnings. Each is judged in the direction that
+    means a stronger labor market, so a fall in the unemployment rate counts as improving.</p>
+    <p class="release-table-label" style="margin-top:36px">The last 12 months</p>
+<div class="table-wrap"><table class="hgrid">
+      <thead><tr><th></th><th scope="col">Sep<br><small>25</small></th><th scope="col">Oct<br><small>&nbsp;</small></th><th scope="col">Nov<br><small>&nbsp;</small></th><th scope="col">Dec<br><small>&nbsp;</small></th><th scope="col">Jan<br><small>26</small></th><th scope="col">Feb<br><small>&nbsp;</small></th><th scope="col">Mar<br><small>&nbsp;</small></th><th scope="col">Apr<br><small>&nbsp;</small></th><th scope="col">May<br><small>&nbsp;</small></th><th scope="col">Jun<br><small>&nbsp;</small></th><th scope="col">Jul<br><small>&nbsp;</small></th><th scope="col">Aug<br><small>&nbsp;</small></th></tr></thead>
+      <tbody>
+<tr class="grow"><th colspan="13" scope="rowgroup"><span class="pin">Unemployment and claims</span></th></tr>
+<tr><th scope="row">Unemployment rate</th><td class="down" title="Unemployment rate, September 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Unemployment rate, October 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Unemployment rate, November 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Unemployment rate, December 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Unemployment rate, January 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Unemployment rate, February 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Unemployment rate, March 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Unemployment rate, April 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Unemployment rate, May 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Unemployment rate, June 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Unemployment rate, July 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Unemployment rate, August 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td></tr>
+<tr><th scope="row">Unemployed 15+ weeks share</th><td class="down" title="Unemployed 15+ weeks share, September 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Unemployed 15+ weeks share, October 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Unemployed 15+ weeks share, November 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Unemployed 15+ weeks share, December 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Unemployed 15+ weeks share, January 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Unemployed 15+ weeks share, February 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Unemployed 15+ weeks share, March 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Unemployed 15+ weeks share, April 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Unemployed 15+ weeks share, May 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Unemployed 15+ weeks share, June 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Unemployed 15+ weeks share, July 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Unemployed 15+ weeks share, August 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td></tr>
+<tr><th scope="row">Job losers&#x27; share</th><td class="na" title="Job losers&#x27; share, September 2025: no reading"><span class="gl" aria-hidden="true"></span><span class="sr">no reading</span></td><td class="na" title="Job losers&#x27; share, October 2025: no reading"><span class="gl" aria-hidden="true"></span><span class="sr">no reading</span></td><td class="na" title="Job losers&#x27; share, November 2025: no reading"><span class="gl" aria-hidden="true"></span><span class="sr">no reading</span></td><td class="na" title="Job losers&#x27; share, December 2025: no reading"><span class="gl" aria-hidden="true"></span><span class="sr">no reading</span></td><td class="na" title="Job losers&#x27; share, January 2026: no reading"><span class="gl" aria-hidden="true"></span><span class="sr">no reading</span></td><td class="na" title="Job losers&#x27; share, February 2026: no reading"><span class="gl" aria-hidden="true"></span><span class="sr">no reading</span></td><td class="na" title="Job losers&#x27; share, March 2026: no reading"><span class="gl" aria-hidden="true"></span><span class="sr">no reading</span></td><td class="na" title="Job losers&#x27; share, April 2026: no reading"><span class="gl" aria-hidden="true"></span><span class="sr">no reading</span></td><td class="na" title="Job losers&#x27; share, May 2026: no reading"><span class="gl" aria-hidden="true"></span><span class="sr">no reading</span></td><td class="na" title="Job losers&#x27; share, June 2026: no reading"><span class="gl" aria-hidden="true"></span><span class="sr">no reading</span></td><td class="na" title="Job losers&#x27; share, July 2026: no reading"><span class="gl" aria-hidden="true"></span><span class="sr">no reading</span></td><td class="na" title="Job losers&#x27; share, August 2026: no reading"><span class="gl" aria-hidden="true"></span><span class="sr">no reading</span></td></tr>
+<tr><th scope="row">Job leavers&#x27; share</th><td class="down" title="Job leavers&#x27; share, September 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Job leavers&#x27; share, October 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Job leavers&#x27; share, November 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Job leavers&#x27; share, December 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Job leavers&#x27; share, January 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Job leavers&#x27; share, February 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Job leavers&#x27; share, March 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Job leavers&#x27; share, April 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Job leavers&#x27; share, May 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Job leavers&#x27; share, June 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Job leavers&#x27; share, July 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Job leavers&#x27; share, August 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td></tr>
+<tr><th scope="row">U-to-E outflow proxy</th><td class="down" title="U-to-E outflow proxy, September 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="U-to-E outflow proxy, October 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="U-to-E outflow proxy, November 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="U-to-E outflow proxy, December 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="U-to-E outflow proxy, January 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="U-to-E outflow proxy, February 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="U-to-E outflow proxy, March 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="U-to-E outflow proxy, April 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="U-to-E outflow proxy, May 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="U-to-E outflow proxy, June 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="U-to-E outflow proxy, July 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="na" title="U-to-E outflow proxy, August 2026: no reading"><span class="gl" aria-hidden="true"></span><span class="sr">no reading</span></td></tr>
+<tr><th scope="row">Initial claims rate</th><td class="up" title="Initial claims rate, September 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Initial claims rate, October 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Initial claims rate, November 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Initial claims rate, December 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Initial claims rate, January 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Initial claims rate, February 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Initial claims rate, March 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Initial claims rate, April 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Initial claims rate, May 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Initial claims rate, June 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Initial claims rate, July 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Initial claims rate, August 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td></tr>
+<tr><th scope="row">Insured unemployment rate</th><td class="up" title="Insured unemployment rate, September 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Insured unemployment rate, October 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Insured unemployment rate, November 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Insured unemployment rate, December 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Insured unemployment rate, January 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Insured unemployment rate, February 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Insured unemployment rate, March 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Insured unemployment rate, April 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Insured unemployment rate, May 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Insured unemployment rate, June 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Insured unemployment rate, July 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Insured unemployment rate, August 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td></tr>
+<tr class="grow"><th colspan="13" scope="rowgroup"><span class="pin">Employment and participation</span></th></tr>
+<tr><th scope="row">Employment-population ratio</th><td class="down" title="Employment-population ratio, September 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Employment-population ratio, October 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Employment-population ratio, November 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Employment-population ratio, December 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Employment-population ratio, January 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Employment-population ratio, February 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Employment-population ratio, March 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Employment-population ratio, April 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Employment-population ratio, May 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Employment-population ratio, June 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Employment-population ratio, July 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Employment-population ratio, August 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td></tr>
+<tr><th scope="row">Participation rate</th><td class="down" title="Participation rate, September 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Participation rate, October 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Participation rate, November 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Participation rate, December 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Participation rate, January 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Participation rate, February 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Participation rate, March 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Participation rate, April 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Participation rate, May 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Participation rate, June 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Participation rate, July 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Participation rate, August 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td></tr>
+<tr><th scope="row">PMI employment</th><td class="up" title="PMI employment, September 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="PMI employment, October 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="PMI employment, November 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="PMI employment, December 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="PMI employment, January 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="PMI employment, February 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="PMI employment, March 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="PMI employment, April 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="PMI employment, May 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="PMI employment, June 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="PMI employment, July 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="PMI employment, August 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td></tr>
+<tr class="grow"><th colspan="13" scope="rowgroup"><span class="pin">Payrolls, hours and pay</span></th></tr>
+<tr><th scope="row">Private payrolls</th><td class="down" title="Private payrolls, September 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Private payrolls, October 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Private payrolls, November 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Private payrolls, December 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Private payrolls, January 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Private payrolls, February 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Private payrolls, March 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Private payrolls, April 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Private payrolls, May 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Private payrolls, June 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Private payrolls, July 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Private payrolls, August 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td></tr>
+<tr><th scope="row">Aggregate weekly hours</th><td class="up" title="Aggregate weekly hours, September 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Aggregate weekly hours, October 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Aggregate weekly hours, November 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Aggregate weekly hours, December 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Aggregate weekly hours, January 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Aggregate weekly hours, February 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Aggregate weekly hours, March 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Aggregate weekly hours, April 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Aggregate weekly hours, May 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Aggregate weekly hours, June 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Aggregate weekly hours, July 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Aggregate weekly hours, August 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td></tr>
+<tr><th scope="row">Hourly earnings</th><td class="down" title="Hourly earnings, September 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Hourly earnings, October 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Hourly earnings, November 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Hourly earnings, December 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Hourly earnings, January 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Hourly earnings, February 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Hourly earnings, March 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Hourly earnings, April 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Hourly earnings, May 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Hourly earnings, June 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Hourly earnings, July 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Hourly earnings, August 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td></tr>
+<tr><th scope="row">Admin. and support services</th><td class="down" title="Admin. and support services, September 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Admin. and support services, October 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Admin. and support services, November 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Admin. and support services, December 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Admin. and support services, January 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Admin. and support services, February 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Admin. and support services, March 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Admin. and support services, April 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Admin. and support services, May 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Admin. and support services, June 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Admin. and support services, July 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Admin. and support services, August 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td></tr>
+<tr class="grow"><th colspan="13" scope="rowgroup"><span class="pin">Payrolls by industry</span></th></tr>
+<tr><th scope="row">Mining, logging, construction</th><td class="down" title="Mining, logging, construction, September 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Mining, logging, construction, October 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Mining, logging, construction, November 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Mining, logging, construction, December 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Mining, logging, construction, January 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Mining, logging, construction, February 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Mining, logging, construction, March 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Mining, logging, construction, April 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Mining, logging, construction, May 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Mining, logging, construction, June 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Mining, logging, construction, July 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Mining, logging, construction, August 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td></tr>
+<tr><th scope="row">Manufacturing</th><td class="down" title="Manufacturing, September 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Manufacturing, October 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Manufacturing, November 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Manufacturing, December 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Manufacturing, January 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Manufacturing, February 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Manufacturing, March 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Manufacturing, April 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Manufacturing, May 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Manufacturing, June 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Manufacturing, July 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Manufacturing, August 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td></tr>
+<tr><th scope="row">Trade, transport., utilities</th><td class="down" title="Trade, transport., utilities, September 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Trade, transport., utilities, October 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Trade, transport., utilities, November 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Trade, transport., utilities, December 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Trade, transport., utilities, January 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Trade, transport., utilities, February 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Trade, transport., utilities, March 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Trade, transport., utilities, April 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Trade, transport., utilities, May 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Trade, transport., utilities, June 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Trade, transport., utilities, July 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Trade, transport., utilities, August 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td></tr>
+<tr><th scope="row">Information</th><td class="down" title="Information, September 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Information, October 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Information, November 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Information, December 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Information, January 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Information, February 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Information, March 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Information, April 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Information, May 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Information, June 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Information, July 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Information, August 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td></tr>
+<tr><th scope="row">Financial activities</th><td class="up" title="Financial activities, September 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Financial activities, October 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Financial activities, November 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Financial activities, December 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Financial activities, January 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Financial activities, February 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Financial activities, March 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Financial activities, April 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Financial activities, May 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Financial activities, June 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Financial activities, July 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Financial activities, August 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td></tr>
+<tr><th scope="row">Prof. and business serv.</th><td class="up" title="Prof. and business serv., September 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Prof. and business serv., October 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Prof. and business serv., November 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Prof. and business serv., December 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Prof. and business serv., January 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Prof. and business serv., February 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Prof. and business serv., March 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Prof. and business serv., April 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Prof. and business serv., May 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Prof. and business serv., June 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Prof. and business serv., July 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Prof. and business serv., August 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td></tr>
+<tr><th scope="row">Education and health</th><td class="down" title="Education and health, September 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Education and health, October 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Education and health, November 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Education and health, December 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Education and health, January 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Education and health, February 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Education and health, March 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Education and health, April 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Education and health, May 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Education and health, June 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Education and health, July 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Education and health, August 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td></tr>
+<tr><th scope="row">Leisure and hospitality</th><td class="up" title="Leisure and hospitality, September 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Leisure and hospitality, October 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Leisure and hospitality, November 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Leisure and hospitality, December 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Leisure and hospitality, January 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Leisure and hospitality, February 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Leisure and hospitality, March 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Leisure and hospitality, April 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Leisure and hospitality, May 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Leisure and hospitality, June 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Leisure and hospitality, July 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Leisure and hospitality, August 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td></tr>
+<tr><th scope="row">Other services</th><td class="down" title="Other services, September 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Other services, October 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Other services, November 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Other services, December 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Other services, January 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Other services, February 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Other services, March 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Other services, April 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Other services, May 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Other services, June 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Other services, July 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Other services, August 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td></tr>
+<tr><th scope="row">Government</th><td class="down" title="Government, September 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Government, October 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Government, November 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Government, December 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Government, January 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Government, February 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Government, March 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Government, April 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Government, May 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Government, June 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Government, July 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Government, August 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td></tr>
+<tr class="totrow"><th scope="row">Breadth, %</th><td class="tot">30</td><td class="tot">48</td><td class="tot">57</td><td class="tot">57</td><td class="tot">48</td><td class="tot">57</td><td class="tot">70</td><td class="tot">87</td><td class="tot">61</td><td class="tot">52</td><td class="tot">52</td><td class="tot">64</td></tr>
+      </tbody></table></div>
+    <p class="fineprint" style="margin-top:12px">Each cell is one series in one month. Empty cells have no reading:
+    some series arrive later than others, and the job losers' share is often missing. Breadth counts only the
+    series with a reading. Hover a cell for its name and month.</p>
+  </div>
+
+  <div class="panel" id="unemployment">
+    <h2>Unemployment rate <span class="panel-note">Percent of the labor force, seasonally adjusted</span></h2>
+    <div class="range" role="group" aria-label="Time range for the unemployment rate chart" data-chart="c-ur"><button type="button" data-from="2014-01" aria-pressed="true">Since 2014</button><button type="button" data-from="last5" aria-pressed="false">Last 5 years</button><button type="button" data-from="2000-01" aria-pressed="false">Since 2000</button><button type="button" data-from="1990-04" aria-pressed="false">Since 1990</button></div>
+    <div class="chart" id="c-ur" data-label="Unemployment rate, percent"></div>
+    <p class="fineprint chart-note">Local Area Unemployment Statistics (BLS). Shaded: the year after Hurricane Maria
+    and the pandemic months, March 2020 to December 2021. Breaks in the line are four months this page treats
+    as missing for household-survey data: September 2017, March and April 2020, and September 2022.</p>
+  </div>
+
+  <div class="panel" id="payrolls">
+    <h2>Private payrolls <span class="panel-note">Percent change over three months, seasonally adjusted</span></h2>
+    <div class="range" role="group" aria-label="Time range for the payrolls chart" data-chart="c-pay"><button type="button" data-from="2014-01" aria-pressed="true">Since 2014</button><button type="button" data-from="last5" aria-pressed="false">Last 5 years</button><button type="button" data-from="2000-01" aria-pressed="false">Since 2000</button><button type="button" data-from="1990-04" aria-pressed="false">Since 1990</button></div>
+    <div class="chart" id="c-pay" data-label="Three-month percent change in private payroll employment"></div>
+    <p class="fineprint chart-note">Current Employment Statistics, private employment (BLS). The scale is set by the
+    months outside the shaded periods; shaded months beyond it are cut off at the edge, the largest is labeled,
+    and hovering shows every value.</p>
+  </div>
+
+  <div class="panel" id="breadth">
+    <h2>Breadth <span class="panel-note">Share of the reported series, out of 24, improving over three months</span></h2>
+    <div class="range" role="group" aria-label="Time range for the breadth chart" data-chart="c-br"><button type="button" data-from="2014-01" aria-pressed="true">Since 2014</button><button type="button" data-from="last5" aria-pressed="false">Last 5 years</button></div>
+    <div class="chart" id="c-br" data-label="Percent of series improving over three months, with a horizontal band for the usual range, 26% to 71%"></div>
+    <p class="fineprint chart-note">Above 50% means more of the series improved than did not. The usual-range band
+    is the 10th&ndash;90th percentile of breadth in 118 comparison months from January 2014 through August 2026,
+    excluding the shaded Hurricane Maria and pandemic periods; it is a historical comparison, not a forecast, and
+    the number of reported series varies by month. No value when fewer than 12 of the 24 are reported. Hover a
+    month to see how many series it covers.</p>
+  </div>
+
+  <div class="panel" id="method">
+    <h2>Method <span class="panel-note">Why three readings and no index</span></h2>
     <div class="explain">
-      <p><strong>What these measure:</strong> The hiring rate (black solid) measures gross job gains as a share of total
-      employment. The separations rate (red dashed) measures gross job losses. When hiring exceeds separations,
-      employment is expanding. The shaded area shows the gap.</p>
-      <p><strong>Data source:</strong> PR Business Employment Dynamics (quarterly, interpolated to monthly).</p>
-      <p class="muted" style="font-size:0.82rem; margin-top:6px;"><strong>Data through Dec 2025.</strong> BED job flows are quarterly and lag the monthly index; this chart advances when the next quarter is released.</p>
-    </div>
-    <img src="fig2_hiring_separations.png" alt="Hiring and Separations Rates">
-  </div>
-
-  <!-- Contributions to UE Change (Chicago Fed Fig 3) -->
-  <div class="panel">
-    <h2>Contributions to Unemployment Rate <span class="panel-note">Hiring vs separations decomposition</span></h2>
-    <div class="explain">
-      <p><strong>How to read:</strong> Black bars show the contribution of hiring (lower hiring pushes UE up).
-      Red bars show the contribution of separations (higher separations pushes UE up). The line on the right
-      axis tracks the actual unemployment rate level.</p>
-      <p class="muted" style="font-size:0.82rem; margin-top:6px;"><strong>Data through Dec 2025.</strong> BED job flows are quarterly and lag the monthly index; this chart advances when the next quarter is released.</p>
-    </div>
-    <img src="fig3_contributions.png" alt="Contributions to Unemployment Rate">
-  </div>
-
-  <!-- UE Rate Change Probabilities (Chicago Fed Fig 3) -->
-  <div class="panel" id="drivers">
-    <h2>Unemployment Rate Change Probabilities <span class="panel-note">Unconditional distribution &bull; balance of risks</span></h2>
-    <div class="explain">
-      <p><strong>How to read:</strong> Black bars show a probability distribution for next month's
-      unemployment-rate change, implied by the historical relationship between labor-market flows and
-      the unemployment rate. The dashed line is the unconditional historical distribution of monthly
-      changes since 1999. Read this as a characterization of the balance of risks &mdash; the spread of
-      outcomes plausible next month &mdash; not as a point forecast.</p>
-      <p class="fineprint"><strong>Out-of-sample caveat.</strong> In a walk-forward backtest this
-      flow-based distribution does <strong>not</strong> beat a random-walk (assume-no-change) baseline
-      at predicting the level or direction of the next unemployment-rate change. Its value is in sizing
-      the range of outcomes: the &plusmn;1&sigma; band's realized coverage (~71%) is close to its
-      nominal 68%. See <a href="#validation" style="color: var(--primary-text);">Validation &amp;
-      robustness</a>.</p>
-    </div>
-    <img src="fig4_probabilities.png" alt="Unemployment Rate Change Probabilities">
-  </div>
-
-  <!-- Momentum Gauge -->
-  <div class="panel">
-    <h2>Momentum Gauge <span class="panel-note">Probability of improvement vs deterioration</span></h2>
-    <div class="explain">
-      <p><strong>How to read:</strong> The marker shows the probability that labor market conditions
-      improve next month, based on the historical distribution of month-to-month momentum. When the
-      marker is right of center, improvement is more likely than deterioration. Like the
-      unemployment-rate distribution above, treat this as a balance-of-risks read, not a validated
-      point forecast.</p>
-    </div>
-    <img src="fig5_momentum_gauge.png" alt="PR-LMCI Momentum Gauge">
-  </div>
-
-  <!-- PR-LMCI Level -->
-  <div class="panel" id="level">
-    <h2>PR-LMCI Level <span class="panel-note">Level of labor market conditions over time</span></h2>
-    <div class="explain">
-      <p><strong>How to read:</strong> Values above zero indicate above-average conditions; below zero indicates
-      below-average. The 3-month moving average smooths monthly noise. Grey bands mark the 2006-2012
-      recession, Hurricane Maria, and COVID-19.</p>
-    </div>
-    <img src="fig6_activity.png" alt="PR-LMCI Level">
-  </div>
-
-  <!-- Diffusion -->
-  <div class="panel" id="diffusion">
-    <h2>Diffusion Index <span class="panel-note">Breadth of improvement across indicators</span></h2>
-    <div class="explain">
-      <p><strong>How to read:</strong> The diffusion index measures what fraction of the 40 input indicators
-      improved month-over-month. Values above 50% indicate that more indicators are improving than deteriorating
-      (broad-based improvement). Currently at 60.0%.</p>
-    </div>
-    <img src="fig8_diffusion.png" alt="Diffusion Index">
-  </div>
-
-  <!-- Methodology / Technical Note -->
-  <div class="panel" id="methodology">
-    <h2>Methodology <span class="panel-note">Technical note</span></h2>
-    <div class="explain">
-      <p>The PR-LMCI adapts the methodology of the
-      <a href="https://www.chicagofed.org/research/data/chicago-fed-labor-market-indicators/latest-release" style="color: var(--primary-text);">Chicago Fed Labor Market Indicators</a>
-      (Brave, Butters, and Kelley, 2019) to Puerto Rico using locally available data.</p>
-
-      <p><strong>Factor model.</strong> The PR-LMCI level is the first principal component extracted from
-      a standardized panel of 40 monthly indicators using Expectation-Maximization PCA
-      (EM-PCA), which handles missing observations and ragged edges common in Puerto Rico data releases.
-      The index is normalized so that zero represents the historical average. The PR-LMCI Momentum is the
-      first difference of the level.</p>
-
-      <p><strong>Diffusion index.</strong> The share of the 40 input indicators that improved
-      month-over-month, smoothed with a 3-month moving average. Values above 50% indicate broad-based
-      improvement.</p>
-
-      <p><strong>Labor flows.</strong> Hiring and separations rates are derived from the PR Business Employment
-      Dynamics (BED) program, which reports quarterly gross job gains and losses. Quarterly flows are
-      converted to monthly rates by dividing by 3, then expressed as a percentage of total non-farm
-      employment. The contributions to unemployment rate change decompose month-over-month UE changes
-      into the portions attributable to changes in the hiring rate (downward pressure when hiring increases)
-      and the separations rate (upward pressure when separations increase).</p>
-
-      <p><strong>Probability distributions, not point forecasts.</strong> The unemployment-rate change
-      distribution maps recent labor-market flows onto the historical distribution of monthly
-      unemployment-rate changes since 1999; the momentum gauge summarizes the net balance of
-      improvement vs. deterioration risk from the recent PR-LMCI trajectory. Both are presented as
-      unconditional distributions that characterize the balance of risks. Out of sample they do not
-      improve on a naive no-change baseline for the point or direction of the next move (see
-      <a href="#validation" style="color: var(--primary-text);">Validation &amp; robustness</a>), so
-      they should not be read as directional forecasts with an edge.</p>
-
-      <p><strong>Key differences from the Chicago Fed.</strong> The Chicago Fed uses Current Population Survey
-      (CPS) microdata and real-time private sector data (ADP, Indeed, Google Trends, Morning Consult) combined
-      via partial least squares (PLS). These sources are not available for Puerto Rico. Instead, the PR-LMCI
-      uses a curated panel of 40 indicators drawn from the PR Planning Board, BED job flows,
-      DOL unemployment insurance claims, and DDEC auto sales as inputs to a standard PCA factor model.
-      Indicators were selected through a multi-evaluator consensus process prioritizing non-redundancy,
-      category balance, and minimum sample size.</p>
-
-      <p id="validation"><strong>Validation &amp; robustness.</strong> The index is put through a
-      standard battery of robustness checks, summarized below and re-verified whenever the panel of
-      indicators changes.</p>
-      <ul style="margin: 8px 0 8px 20px; font-size: 0.85rem; color: var(--secondary-text);">
-        <li><strong>Strong common factor.</strong> The first principal component explains ~40% of the
-        standardized panel's variance &mdash; roughly 16&times; the ~2.5% a no-structure panel of this
-        size would give &mdash; and the first two components together ~62%. The indicators share a
-        strong common signal.</li>
-        <li><strong>No single series drives it.</strong> Dropping any one indicator and re-estimating
-        leaves the index essentially unchanged (leave-one-out correlation &ge; 0.997).</li>
-        <li><strong>Redundancy is harmless.</strong> Collapsing near-duplicate series to one
-        representative per concept reproduces the index almost exactly (correlation ~1.00), so the
-        level is not an artifact of over-weighting any one category.</li>
-        <li><strong>Imputation is stable; the latest month is soft.</strong> EM imputation and simple
-        mean-fill produce nearly identical histories (correlation ~0.998). But the most recent month is
-        a ragged edge &mdash; often only ~70% of series have reported &mdash; so it is published as
-        <em>preliminary</em> and can move on the order of ~0.5 index points as late data arrive.</li>
-        <li><strong>The level is robust; the driver ranking is era-specific.</strong> Factor loadings
-        reshuffle between the pre-2016 and post-2016 samples (loadings correlation ~0.2). The overall
-        level and momentum are stable, but the ranked list of top drivers should be read within the
-        current era, not as a fixed structural ordering.</li>
-        <li><strong>The unemployment-rate distribution earns its bands, not an edge.</strong> In an
-        expanding-window, walk-forward backtest the flow-based UR forecast does not beat a random walk
-        on the level or direction of the next change; its &plusmn;1&sigma; interval coverage (~71%) is
-        close to the nominal 68%. It is therefore presented as an unconditional distribution.</li>
-        <li><strong>Composition is audited.</strong> Every intended indicator is reconciled against
-        what actually enters the model, and the full indicator universe is periodically re-scanned for
-        overlooked series. The current panel is employment-heavy by data availability, and no
-        high-coverage, non-redundant series is being missed.</li>
-      </ul>
-
-      <p><strong>References:</strong></p>
-      <ul style="margin: 8px 0 8px 20px; font-size: 0.85rem; color: var(--secondary-text);">
-        <li>Brave, S. A., R. A. Butters, and D. Kelley (2019), "A New 'Big Data' Index of U.S. Economic Activity,"
-        <em>Economic Perspectives</em>, Federal Reserve Bank of Chicago, No. 1.</li>
-        <li>Brave, S. A. and J. R. A. Cole (2014), "Labor Market Conditions Index: LMCI Methodology,"
-        Chicago Fed, unpublished.</li>
-        <li>Shimer, R. (2012), "Reassessing the Ins and Outs of Unemployment,"
-        <em>Review of Economic Dynamics</em>, 15(2), pp. 127-148.</li>
-      </ul>
+      <p><strong>No composite index.</strong> Earlier versions of this page combined many series into a single
+      index. In the fixed January 2014–August 2026 evaluation, no composite passed all the checks. The level
+      composite was unstable: re-estimated each month with only the data available up to that month, its recent
+      readings typically shifted (root mean square) by 2.57 times the index's own standard deviation, against a limit of 0.50. The momentum
+      composite was stable but moved almost in step with the three-month change in private payrolls (correlation
+      0.963, above a 0.95 cutoff), so it added little to it. The page now shows the unemployment rate and payroll
+      change directly, plus a count of how widespread improvement is.</p>
+      <p><strong>Unemployment rate.</strong> The seasonally adjusted Local Area Unemployment Statistics estimate,
+      in percent, as published.</p>
+      <p><strong>Private payrolls.</strong> The percent change over three months in seasonally adjusted private
+      employment from the Current Employment Statistics survey.</p>
+      <p><strong>Breadth.</strong> Of the 24 series, the share of those with a reading whose three-month change
+      points to a stronger labor market. Ten describe the level of the market (the unemployment rate,
+      participation, the employment-population ratio, a proxy for how many of the unemployed leave unemployment
+      within a month, three
+      household-survey shares, two unemployment insurance claims rates and the manufacturing PMI's employment index);
+      for these the change is the difference from three months earlier. Fourteen are already three-month changes
+      (payrolls in the 10 industry supersectors, private payrolls, administrative and support services, hourly
+      earnings, aggregate weekly hours). Each is signed so that higher means stronger. An unchanged series counts
+      as not improving. Because series arrive on different dates, the latest month can rest on fewer series than
+      earlier ones.</p>
+      <p><strong>Job losers' share.</strong> This household-survey share counts people on temporary layoff,
+      permanent job losers and people whose temporary job ended. When the survey has too few people on temporary
+      layoff for a reliable estimate, the monthly release leaves that count blank, and the share has no reading
+      for the month. This has become common: the share has a reading in 2 of the 12 months to August 2026.
+      In the other months, breadth rests on the remaining series.</p>
+      <p><strong>What these readings are not.</strong> They describe where the market is and which way it moved.
+      They are not forecasts. Over the 53 months from January 2022 to July 2026 with data, equations predicting
+      next month's change in the unemployment rate from the unemployment rate, the payroll change or both had
+      root mean square errors 1.009, 1.012 and 1.017 times those of assuming no change; none was significantly
+      more accurate.</p>
+      <p><strong>Sources.</strong> U.S. Bureau of Labor Statistics (Local Area Unemployment Statistics; Current
+      Employment Statistics); <a href="https://www.mercadolaboral.pr.gov" style="color: var(--primary-text);">PR
+      Department of Labor and Human Resources</a> household survey; U.S. Department of Labor, ETA 539 weekly
+      claims; Instituto de Estad&iacute;sticas de Puerto Rico manufacturing PMI.</p>
     </div>
   </div>
 
-  <!-- Data Download -->
   <div class="panel" id="data">
-    <h2>Data <span class="panel-note">Download the full time series</span></h2>
-    <div class="explain">
-      <p>The PR-LMCI data is available for download in CSV format.</p>
-      <ul style="margin: 8px 0 8px 20px; font-size: 0.9rem; color: var(--secondary-text);">
-        <li><a href="pr_lmci.csv"><strong>PR-LMCI index</strong></a> &mdash; activity, momentum, diffusion (monthly)</li>
-      </ul>
-    </div>
+    <h2>Data <span class="panel-note">Last 12 months and full download</span></h2>
+    <div class="table-wrap"><table class="mini">
+      <thead><tr><th>Month</th><th>Unemployment rate</th><th>Payrolls, 3-month change</th><th>Breadth (series)</th></tr></thead>
+      <tbody>
+<tr><td>August 2026</td><td>6.1%</td><td>&minus;0.18%</td><td>64% (22)</td></tr>
+<tr><td>July 2026</td><td>6.0%</td><td>&minus;0.18%</td><td>52% (23)</td></tr>
+<tr><td>June 2026</td><td>5.8%</td><td>+0.25%</td><td>52% (23)</td></tr>
+<tr><td>May 2026</td><td>5.6%</td><td>+0.63%</td><td>61% (23)</td></tr>
+<tr><td>April 2026</td><td>5.6%</td><td>+0.96%</td><td>87% (23)</td></tr>
+<tr><td>March 2026</td><td>5.6%</td><td>+0.62%</td><td>70% (23)</td></tr>
+<tr><td>February 2026</td><td>5.6%</td><td>+0.32%</td><td>57% (23)</td></tr>
+<tr><td>January 2026</td><td>5.7%</td><td>+0.16%</td><td>48% (23)</td></tr>
+<tr><td>December 2025</td><td>5.7%</td><td>+0.28%</td><td>57% (23)</td></tr>
+<tr><td>November 2025</td><td>5.7%</td><td>+0.23%</td><td>57% (23)</td></tr>
+<tr><td>October 2025</td><td>5.7%</td><td>+0.33%</td><td>48% (23)</td></tr>
+<tr><td>September 2025</td><td>5.7%</td><td>&minus;0.42%</td><td>30% (23)</td></tr>
+      </tbody></table></div>
+    <p class="fineprint" style="margin-top:16px"><a href="pr_labor_readings.csv"><strong>pr_labor_readings.csv</strong></a>
+    &mdash; all three readings, monthly from 1990 (breadth from 2014).</p>
   </div>
 
   <footer class="footer">
-    <p class="footer-built">Built by SENS ADVISOR. <a href="/#contact">Discuss a business challenge &rarr;</a></p>
     <p>&copy; <span id="copyright-year">2026</span> Sens ABI LLC. All rights reserved. | Standard W9/1099 Process for US Clients</p>
   </footer>
 </div>
+<script type="application/json" id="series">{"months":["1990-01","1990-02","1990-03","1990-04","1990-05","1990-06","1990-07","1990-08","1990-09","1990-10","1990-11","1990-12","1991-01","1991-02","1991-03","1991-04","1991-05","1991-06","1991-07","1991-08","1991-09","1991-10","1991-11","1991-12","1992-01","1992-02","1992-03","1992-04","1992-05","1992-06","1992-07","1992-08","1992-09","1992-10","1992-11","1992-12","1993-01","1993-02","1993-03","1993-04","1993-05","1993-06","1993-07","1993-08","1993-09","1993-10","1993-11","1993-12","1994-01","1994-02","1994-03","1994-04","1994-05","1994-06","1994-07","1994-08","1994-09","1994-10","1994-11","1994-12","1995-01","1995-02","1995-03","1995-04","1995-05","1995-06","1995-07","1995-08","1995-09","1995-10","1995-11","1995-12","1996-01","1996-02","1996-03","1996-04","1996-05","1996-06","1996-07","1996-08","1996-09","1996-10","1996-11","1996-12","1997-01","1997-02","1997-03","1997-04","1997-05","1997-06","1997-07","1997-08","1997-09","1997-10","1997-11","1997-12","1998-01","1998-02","1998-03","1998-04","1998-05","1998-06","1998-07","1998-08","1998-09","1998-10","1998-11","1998-12","1999-01","1999-02","1999-03","1999-04","1999-05","1999-06","1999-07","1999-08","1999-09","1999-10","1999-11","1999-12","2000-01","2000-02","2000-03","2000-04","2000-05","2000-06","2000-07","2000-08","2000-09","2000-10","2000-11","2000-12","2001-01","2001-02","2001-03","2001-04","2001-05","2001-06","2001-07","2001-08","2001-09","2001-10","2001-11","2001-12","2002-01","2002-02","2002-03","2002-04","2002-05","2002-06","2002-07","2002-08","2002-09","2002-10","2002-11","2002-12","2003-01","2003-02","2003-03","2003-04","2003-05","2003-06","2003-07","2003-08","2003-09","2003-10","2003-11","2003-12","2004-01","2004-02","2004-03","2004-04","2004-05","2004-06","2004-07","2004-08","2004-09","2004-10","2004-11","2004-12","2005-01","2005-02","2005-03","2005-04","2005-05","2005-06","2005-07","2005-08","2005-09","2005-10","2005-11","2005-12","2006-01","2006-02","2006-03","2006-04","2006-05","2006-06","2006-07","2006-08","2006-09","2006-10","2006-11","2006-12","2007-01","2007-02","2007-03","2007-04","2007-05","2007-06","2007-07","2007-08","2007-09","2007-10","2007-11","2007-12","2008-01","2008-02","2008-03","2008-04","2008-05","2008-06","2008-07","2008-08","2008-09","2008-10","2008-11","2008-12","2009-01","2009-02","2009-03","2009-04","2009-05","2009-06","2009-07","2009-08","2009-09","2009-10","2009-11","2009-12","2010-01","2010-02","2010-03","2010-04","2010-05","2010-06","2010-07","2010-08","2010-09","2010-10","2010-11","2010-12","2011-01","2011-02","2011-03","2011-04","2011-05","2011-06","2011-07","2011-08","2011-09","2011-10","2011-11","2011-12","2012-01","2012-02","2012-03","2012-04","2012-05","2012-06","2012-07","2012-08","2012-09","2012-10","2012-11","2012-12","2013-01","2013-02","2013-03","2013-04","2013-05","2013-06","2013-07","2013-08","2013-09","2013-10","2013-11","2013-12","2014-01","2014-02","2014-03","2014-04","2014-05","2014-06","2014-07","2014-08","2014-09","2014-10","2014-11","2014-12","2015-01","2015-02","2015-03","2015-04","2015-05","2015-06","2015-07","2015-08","2015-09","2015-10","2015-11","2015-12","2016-01","2016-02","2016-03","2016-04","2016-05","2016-06","2016-07","2016-08","2016-09","2016-10","2016-11","2016-12","2017-01","2017-02","2017-03","2017-04","2017-05","2017-06","2017-07","2017-08","2017-09","2017-10","2017-11","2017-12","2018-01","2018-02","2018-03","2018-04","2018-05","2018-06","2018-07","2018-08","2018-09","2018-10","2018-11","2018-12","2019-01","2019-02","2019-03","2019-04","2019-05","2019-06","2019-07","2019-08","2019-09","2019-10","2019-11","2019-12","2020-01","2020-02","2020-03","2020-04","2020-05","2020-06","2020-07","2020-08","2020-09","2020-10","2020-11","2020-12","2021-01","2021-02","2021-03","2021-04","2021-05","2021-06","2021-07","2021-08","2021-09","2021-10","2021-11","2021-12","2022-01","2022-02","2022-03","2022-04","2022-05","2022-06","2022-07","2022-08","2022-09","2022-10","2022-11","2022-12","2023-01","2023-02","2023-03","2023-04","2023-05","2023-06","2023-07","2023-08","2023-09","2023-10","2023-11","2023-12","2024-01","2024-02","2024-03","2024-04","2024-05","2024-06","2024-07","2024-08","2024-09","2024-10","2024-11","2024-12","2025-01","2025-02","2025-03","2025-04","2025-05","2025-06","2025-07","2025-08","2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08"],"ur":[14.3,14.3,14.2,14.2,14.1,14.1,14.1,14.2,14.4,14.6,14.9,15.1,15.4,15.6,15.8,16.0,16.0,16.0,15.9,15.9,16.0,16.2,16.5,16.8,17.0,17.1,17.1,16.9,16.8,16.7,16.6,16.5,16.4,16.3,16.4,16.6,16.8,17.1,17.2,17.3,17.3,17.3,17.2,17.1,17.0,16.8,16.6,16.3,15.9,15.6,15.2,14.8,14.5,14.3,14.2,14.2,14.1,14.0,13.8,13.7,13.6,13.5,13.5,13.6,13.7,13.8,13.9,13.9,13.9,13.8,13.7,13.5,13.3,13.4,13.6,13.9,14.2,14.4,14.3,13.9,13.3,12.7,12.2,12.1,12.2,12.6,13.1,13.6,13.8,13.9,13.8,13.6,13.6,13.6,13.7,13.9,13.9,13.9,13.7,13.5,13.3,13.2,13.2,13.2,13.1,13.0,12.9,12.8,12.6,12.3,12.0,11.6,11.3,11.2,11.2,11.4,11.6,11.8,11.8,11.6,11.2,10.8,10.5,10.3,10.1,10.0,9.9,9.8,9.7,9.7,9.8,10.0,10.4,10.8,11.1,11.2,11.3,11.4,11.6,11.7,11.8,11.8,11.6,11.4,11.2,13.4,12.8,12.5,12.4,12.4,12.4,12.3,12.1,11.9,11.7,11.7,11.9,12.1,12.3,12.4,12.4,12.2,12.1,11.9,11.8,11.6,11.5,11.4,11.4,11.3,11.2,11.0,10.8,10.5,10.2,10.0,10.0,10.0,10.2,10.4,10.6,10.9,11.2,11.3,11.3,11.2,11.2,11.3,11.5,11.7,11.6,11.4,11.0,10.6,10.4,10.5,10.7,10.9,11.0,10.8,10.5,10.3,10.2,10.2,10.3,10.4,10.6,10.9,11.1,11.3,11.5,11.7,11.7,11.7,11.5,11.2,10.9,10.7,10.6,10.8,11.1,11.5,11.9,12.2,12.5,12.7,13.1,13.5,14.0,14.4,14.7,15.0,15.3,15.6,15.8,15.9,16.0,16.0,15.9,15.9,16.0,16.3,16.6,16.9,17.0,16.9,16.6,16.3,16.0,15.8,15.8,16.0,16.2,16.4,16.5,16.5,16.3,16.1,15.9,15.7,15.6,15.5,15.5,15.4,15.3,15.1,14.9,14.7,14.5,14.2,14.1,14.0,14.0,14.2,14.3,14.3,14.2,14.1,13.8,13.7,13.7,13.8,14.0,14.3,14.5,14.8,14.9,15.0,14.9,14.6,14.2,13.8,13.6,13.6,13.8,14.0,14.0,13.7,13.2,12.6,12.2,12.0,12.1,12.1,12.1,12.1,12.1,12.1,12.0,12.0,12.0,11.9,11.7,11.6,11.5,11.5,11.6,11.6,11.7,11.8,12.0,12.1,12.0,11.9,11.8,11.5,11.2,10.9,10.6,10.4,10.4,10.5,null,11.3,10.9,10.7,10.4,10.2,9.9,9.7,9.5,9.2,9.0,8.7,8.5,8.3,8.3,8.4,8.6,8.7,8.6,8.4,8.1,7.7,7.6,7.7,8.0,8.4,8.7,9.0,9.1,9.1,null,null,8.9,8.3,8.2,8.3,8.6,9.0,9.3,9.3,9.0,8.5,8.2,8.1,8.1,8.3,8.4,8.3,7.9,7.5,7.0,6.7,6.5,6.3,6.1,6.0,5.9,5.8,5.8,5.8,null,6.0,6.0,6.0,6.0,6.0,6.0,6.1,6.2,6.1,6.0,5.8,5.7,5.6,5.6,5.7,5.8,5.9,5.9,5.9,5.8,5.7,5.6,5.5,5.4,5.4,5.4,5.4,5.4,5.5,5.4,5.5,5.5,5.6,5.6,5.7,5.7,5.7,5.7,5.7,5.7,5.6,5.6,5.6,5.6,5.8,6.0,6.1],"pay3":[null,null,null,0.857,0.253,-0.145,-0.09,-0.361,-0.253,-0.525,-0.598,-0.671,-0.418,-0.365,-0.639,-0.11,0.018,0.386,0.0,0.073,0.275,0.018,0.292,0.329,1.517,1.276,1.547,0.45,0.918,0.86,0.789,1.141,0.817,0.836,0.053,-0.211,1.287,1.233,1.625,0.975,1.131,1.251,0.552,0.637,0.481,0.309,0.342,0.7,0.65,0.46,0.204,0.51,0.848,1.202,1.115,0.437,0.97,1.37,1.826,1.143,1.583,1.481,1.327,0.179,0.681,0.679,0.859,0.306,0.819,2.168,2.247,1.847,1.572,1.413,1.595,0.449,1.161,0.877,0.832,0.719,-0.9,2.292,1.96,3.664,0.911,0.745,0.475,0.563,0.089,0.783,-0.53,0.414,-0.235,1.14,0.442,0.529,0.205,0.571,0.702,-0.073,0.16,-0.073,0.818,0.931,0.712,-0.159,0.101,-0.029,2.076,1.253,1.703,2.162,2.446,2.569,1.058,0.972,1.259,0.262,0.261,-0.738,0.316,0.069,0.798,1.0,1.0,0.983,0.475,0.61,0.46,0.729,0.431,0.377,-1.93,-1.504,-1.65,-0.123,-0.504,0.327,0.342,-1.356,-2.093,-2.522,-1.083,-0.458,-0.476,-0.042,-1.032,-0.646,-0.042,-0.38,0.156,-0.45,0.453,0.042,-0.438,0.451,1.045,1.644,1.262,0.587,0.335,0.097,0.056,0.514,0.401,1.68,1.217,0.482,0.355,0.724,1.124,0.313,0.285,0.908,0.759,0.771,0.0,0.498,0.188,0.484,-0.067,-0.121,-0.481,-0.08,-0.121,0.188,0.349,0.148,0.308,-0.08,0.63,0.321,0.468,0.187,0.32,-0.32,-0.612,-1.063,-0.668,-0.736,-0.806,-0.551,-0.297,-1.096,-0.27,-0.595,0.671,-0.081,0.408,0.313,-0.109,-0.271,-0.203,-0.706,-0.951,-2.268,-0.752,-0.603,0.542,-0.758,-0.938,-0.967,-0.528,-0.696,-0.768,-1.62,-1.838,-1.477,-1.618,-1.643,-2.469,-1.659,-1.351,-1.273,-1.496,-1.237,-1.112,-0.387,-0.507,0.09,-0.224,0.045,-0.419,-0.839,-0.764,-0.346,0.393,0.257,0.181,-0.166,-0.03,-0.105,-0.09,0.015,-0.045,0.377,-0.151,-0.075,0.195,0.317,0.83,0.15,0.737,0.27,1.034,0.701,0.821,0.83,0.978,1.333,0.441,0.631,-0.263,0.073,-0.394,-0.073,0.0,-0.117,0.0,-0.468,-0.352,0.015,-0.426,-0.088,-0.411,0.576,0.604,0.618,-0.205,-0.703,-0.732,-0.618,-0.442,-0.619,-0.444,-0.533,-0.252,0.149,0.387,0.476,-0.059,-0.222,-0.296,0.059,-0.223,-0.624,-0.861,-0.64,-0.12,-0.045,0.105,-0.284,0.075,-0.314,-0.135,-0.284,-0.03,0.06,-0.015,0.015,0.33,0.495,0.285,-0.269,-0.359,-0.195,0.0,-0.645,-0.375,-0.105,-0.392,-0.603,-1.952,-7.044,-5.321,-1.731,3.944,2.914,0.561,2.179,1.836,1.937,1.534,1.36,1.11,0.015,0.317,-0.256,1.587,1.232,2.05,0.61,0.594,0.089,-0.059,0.207,0.531,1.124,0.604,0.323,-0.219,0.176,-0.249,-17.109,-15.267,-11.062,11.461,9.0,5.279,2.666,2.499,2.084,1.283,1.466,1.673,2.426,2.312,2.461,2.98,2.973,3.153,2.257,2.44,1.785,1.839,1.747,1.726,0.403,0.194,0.497,1.079,1.051,0.782,1.081,1.313,2.111,-0.46,-0.405,-1.214,0.939,0.854,0.675,0.229,0.591,0.59,0.888,0.615,0.24,0.173,-0.013,0.426,0.16,0.186,-0.066,0.053,0.04,0.411,0.345,0.04,-0.7,0.093,-0.013,0.678,0.185,0.437,-0.066,-0.541,-0.33,-0.423,0.332,0.225,0.279,0.159,0.317,0.622,0.964,0.632,0.25,-0.183,-0.183],"breadth":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,35.71,21.43,21.43,37.5,41.67,25.0,25.0,16.67,37.5,75.0,58.33,66.67,41.67,43.48,50.0,45.83,39.13,33.33,29.17,37.5,60.87,45.83,50.0,47.83,52.17,62.5,45.83,34.78,33.33,26.09,40.0,41.67,65.22,70.0,58.33,39.13,25.0,50.0,39.13,50.0,30.43,33.33,34.78,25.0,12.5,13.04,30.0,31.25,62.5,73.91,45.83,83.33,83.33,87.5,78.26,70.83,66.67,60.87,45.83,41.67,60.87,70.83,70.83,69.57,75.0,66.67,66.67,58.33,58.33,66.67,30.43,26.09,25.0,68.18,43.75,12.5,13.04,12.5,75.0,75.0,66.67,69.57,75.0,62.5,60.87,78.26,73.91,73.91,82.61,82.61,86.96,91.3,79.17,82.61,82.61,82.61,82.61,91.67,86.36,65.22,56.52,50.0,63.64,72.73,75.0,63.64,68.18,87.5,47.83,56.52,43.48,56.52,60.87,54.17,60.87,62.5,70.83,82.61,83.33,50.0,43.48,52.17,54.17,56.52,60.87,41.67,54.17,56.52,65.22,73.91,54.55,26.09,56.52,50.0,60.87,52.17,65.22,47.83,26.09,21.74,30.43,47.83,56.52,56.52,47.83,56.52,69.57,86.96,60.87,52.17,52.17,63.64],"breadth_n":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,14,14,14,24,24,24,24,24,24,24,24,24,24,23,24,24,23,24,24,24,23,24,24,23,23,24,24,23,24,23,20,24,23,20,24,23,24,24,23,24,23,24,23,20,16,23,20,16,24,23,24,24,24,24,23,24,24,23,24,24,23,24,24,23,24,24,24,24,24,24,23,23,20,22,16,16,23,16,16,24,24,23,24,24,23,23,23,23,23,23,23,23,24,23,23,23,23,24,22,23,23,22,22,22,16,22,22,16,23,23,23,23,23,24,23,24,24,23,24,24,23,23,24,23,23,24,24,23,23,23,22,23,23,22,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,22],"bands":[["2017-09","2018-08","Hurricane Maria"],["2020-03","2021-12","Pandemic"]],"usual":[26.09,71.4]}</script>
+
+<script>
+(function () {
+  var D = JSON.parse(document.getElementById('series').textContent);
+  var BANDS = D.bands;
+  var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function idx(m) { var a = m.split('-'); return (+a[0]) * 12 + (+a[1]) - 1; }
+  function lab(i) { return MON[i % 12] + ' ' + Math.floor(i / 12); }
+  var NS = 'http://www.w3.org/2000/svg';
+  function el(tag, attrs, parent) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function niceStep(span, n) {
+    var raw = span / n, p = Math.pow(10, Math.floor(Math.log10(raw))), m = raw / p;
+    return (m < 1.5 ? 1 : m < 3 ? 2 : m < 7 ? 5 : 10) * p;
+  }
+  var CHARTS = [
+    { id: 'c-ur', key: 'ur', fmt: function (v) { return v.toFixed(1) + '%'; }, unit: '%', clipBands: false },
+    { id: 'c-pay', key: 'pay3', fmt: function (v) { return (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(2) + '%'; }, unit: '%', ref: 0, clipBands: true },
+    { id: 'c-br', key: 'breadth', fmt: function (v) { return v.toFixed(0) + '%'; }, unit: '%', ref: 50, fixed: [0, 100], usual: D.usual }
+  ];
+  var start = idx(D.months[0]), last = idx(D.months[D.months.length - 1]);
+
+  CHARTS.forEach(function (c) { c.from = idx('2014-01'); });
+  // on narrow screens the 12-month grid scrolls sideways; open it at the latest month
+  document.querySelectorAll('table.hgrid').forEach(function (t) { t.parentNode.scrollLeft = t.parentNode.scrollWidth; });
+
+  function draw(c) {
+    var from = c.from;
+    var host = document.getElementById(c.id);
+    host.innerHTML = '';
+    var W = Math.max(320, host.clientWidth), H = Math.round(Math.min(380, Math.max(240, W * 0.42)));
+    var L = 44, R = 64, T = 22, B = 30;
+    var pts = [];
+    for (var i = 0; i < D.months.length; i++) {
+      var m = start + i, v = D[c.key][i];
+      if (m >= from && v !== null) pts.push([m, v]);
+    }
+    if (!pts.length) return;
+    var x0 = Math.max(from, pts[0][0]), x1 = last;
+    function inBand(m) { return BANDS.some(function (b) { return m >= idx(b[0]) && m <= idx(b[1]); }); }
+    var dom = pts.filter(function (p) { return !(c.clipBands && inBand(p[0])); }).map(function (p) { return p[1]; });
+    var lo = Math.min.apply(null, dom), hi = Math.max.apply(null, dom);
+    if (c.ref !== undefined) { lo = Math.min(lo, c.ref); hi = Math.max(hi, c.ref); }
+    var pad = (hi - lo) * 0.08 || 1; lo -= pad; hi += pad;
+    if (c.fixed) { lo = c.fixed[0]; hi = c.fixed[1]; }
+    var step = niceStep(hi - lo, 5);
+    lo = Math.floor(lo / step) * step; hi = Math.ceil(hi / step) * step;
+    var X = function (m) { return L + (m - x0) / Math.max(1, x1 - x0) * (W - L - R); };
+    var Y = function (v) { return T + (hi - Math.max(lo, Math.min(hi, v))) / (hi - lo) * (H - T - B); };
+    var svg = el('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'application', 'aria-roledescription': 'chart' }, host);
+    var lblEnd = -1;
+    BANDS.forEach(function (b) {
+      var a = Math.max(idx(b[0]), x0), z = Math.min(idx(b[1]), x1);
+      if (z < a) return;
+      el('rect', { 'class': 'band', x: X(a), y: T, width: Math.max(1, X(z + 1) - X(a)), height: H - T - B }, svg);
+      // a label that would run into the previous one drops one line, inside the plot
+      var t = el('text', { 'class': 'bandlbl', x: X(a) + 4, y: T - 6 }, svg); t.textContent = b[2];
+      if (X(a) + 4 < lblEnd + 6) t.setAttribute('y', T + 12);
+      else lblEnd = X(a) + 4 + t.getComputedTextLength();
+    });
+    var g = el('g', { 'class': 'grid' }, svg), ax = el('g', { 'class': 'ax' }, svg);
+    if (c.usual) {  // horizontal band: breadth's usual range (10th-90th percentiles of the reference months)
+      var ya = Y(c.usual[1]), yb = Y(c.usual[0]);
+      el('rect', { 'class': 'usual', x: L, y: ya, width: W - L - R, height: yb - ya }, svg);
+      el('line', { 'class': 'usual-edge', x1: L, x2: W - R, y1: ya, y2: ya }, svg);
+      el('line', { 'class': 'usual-edge', x1: L, x2: W - R, y1: yb, y2: yb }, svg);
+      var ul = el('text', { 'class': 'usual-lbl', x: L + 6, y: yb - 6 }, svg);
+      ul.textContent = 'Usual range: ' + Math.round(c.usual[0]) + '%–' + Math.round(c.usual[1]) + '% (10th–90th percentiles)';
+    }
+    var dec = step < 1 ? (step < 0.1 ? 2 : 1) : 0;
+    for (var v = lo; v <= hi + 1e-9; v += step) {
+      el('line', { x1: L, x2: W - R, y1: Y(v), y2: Y(v) }, g);
+      var tx = el('text', { x: L - 8, y: Y(v) + 4, 'text-anchor': 'end' }, ax); tx.textContent = v.toFixed(dec) + c.unit;
+    }
+    var span = (x1 - x0) / 12, ystep = span > 24 ? 5 : span > 8 ? 2 : 1;
+    for (var y = Math.ceil(x0 / 12); y * 12 <= x1; y++) {
+      if (y % ystep) continue;
+      var t2 = el('text', { x: X(y * 12), y: H - 8, 'text-anchor': 'middle' }, ax); t2.textContent = y;
+    }
+    if (c.ref !== undefined) el('line', { 'class': 'ref', x1: L, x2: W - R, y1: Y(c.ref), y2: Y(c.ref) }, svg);
+    var d = '', prev = null, clipped = [];
+    pts.forEach(function (p) {
+      if (p[0] < x0) return;
+      d += (prev !== null && p[0] === prev + 1 ? 'L' : 'M') + X(p[0]).toFixed(1) + ',' + Y(p[1]).toFixed(1);
+      if (p[1] < lo || p[1] > hi) clipped.push(p);
+      prev = p[0];
+    });
+    el('path', { 'class': 'ln', d: d }, svg);
+    svg.querySelectorAll('.bandlbl, .usual-lbl').forEach(function (t) { svg.appendChild(t); });  // labels above the line
+    if (clipped.length) {
+      var worst = clipped.reduce(function (a, b) { return Math.abs(b[1]) > Math.abs(a[1]) ? b : a; });
+      var ct = el('text', { 'class': 'clip', x: X(worst[0]) + 6, y: worst[1] < lo ? H - B - 6 : T + 12 }, svg);
+      ct.textContent = 'off scale: ' + c.fmt(worst[1]) + ' (' + lab(worst[0]) + ')';
+    }
+    var lp = pts[pts.length - 1];
+    el('circle', { 'class': 'dot', cx: X(lp[0]), cy: Y(lp[1]), r: 4.5 }, svg);
+    var lt = el('text', { 'class': 'last', x: X(lp[0]) + 9, y: Y(lp[1]) + 4 }, svg); lt.textContent = c.fmt(lp[1]);
+
+    // hover layer: crosshair + tooltip
+    var cross = el('line', { 'class': 'cross', y1: T, y2: H - B, visibility: 'hidden' }, svg);
+    var hdot = el('circle', { 'class': 'dot', r: 4.5, visibility: 'hidden' }, svg);
+    var tip = document.createElement('div'); tip.className = 'tip'; host.appendChild(tip);
+    var hit = el('rect', { x: L, y: 0, width: W - L - R, height: H, fill: 'transparent' }, svg);
+    var byM = {}; pts.forEach(function (p) { byM[p[0]] = p[1]; });
+    var live = document.createElement('span'); live.className = 'sr'; live.setAttribute('aria-live', 'polite'); host.appendChild(live);
+    function hide() { tip.style.display = 'none'; cross.setAttribute('visibility', 'hidden'); hdot.setAttribute('visibility', 'hidden'); }
+    function move(ev) {
+      var r = svg.getBoundingClientRect(), sx = (ev.clientX - r.left) * W / r.width;
+      var m = Math.round(x0 + (sx - L) / (W - L - R) * (x1 - x0));
+      show(Math.max(x0, Math.min(x1, m)));
+    }
+    var cur = null;
+    function show(m) {
+      if (!(m in byM)) { hide(); return; }
+      cur = m;
+      var r = svg.getBoundingClientRect();
+      cross.setAttribute('x1', X(m)); cross.setAttribute('x2', X(m)); cross.setAttribute('visibility', 'visible');
+      hdot.setAttribute('cx', X(m)); hdot.setAttribute('cy', Y(byM[m])); hdot.setAttribute('visibility', 'visible');
+      var extra = '';
+      if (c.key === 'breadth') { var n = D.breadth_n[m - start]; extra = '<small>' + Math.round(byM[m] * n / 100) + ' of ' + n + ' series</small>'; }
+      var band = BANDS.filter(function (b) { return m >= idx(b[0]) && m <= idx(b[1]); });
+      if (band.length) extra += '<small>' + band[0][2] + '</small>';
+      tip.innerHTML = '<small>' + lab(m) + '</small><b>' + c.fmt(byM[m]) + '</b>' + extra;
+      tip.style.display = 'block';
+      var px = X(m) * r.width / W, w = tip.offsetWidth;
+      tip.style.left = (px + 12 + w > r.width ? px - 12 - w : px + 12) + 'px';
+      tip.style.top = '8px';
+      live.textContent = lab(m) + ': ' + c.fmt(byM[m]);
+    }
+    hit.addEventListener('mousemove', move);
+    hit.addEventListener('touchstart', function (e) { move(e.touches[0]); }, { passive: true });
+    hit.addEventListener('mouseleave', hide);
+    // keyboard: focus the chart, then arrow keys step through months with a value; Home/End jump
+    var shown = pts.filter(function (p) { return p[0] >= x0; }).map(function (p) { return p[0]; });
+    svg.setAttribute('tabindex', '0');
+    svg.setAttribute('aria-label', host.getAttribute('data-label') + '. Use the left and right arrow keys to read values by month.');
+    svg.addEventListener('keydown', function (e) {
+      var i = cur === null ? shown.length - 1 : shown.indexOf(cur);
+      if (e.key === 'ArrowLeft') i = Math.max(0, i - (cur === null ? 0 : 1));
+      else if (e.key === 'ArrowRight') i = Math.min(shown.length - 1, i + 1);
+      else if (e.key === 'Home') i = 0;
+      else if (e.key === 'End') i = shown.length - 1;
+      else if (e.key === 'Escape') { hide(); cur = null; return; }
+      else return;
+      e.preventDefault();
+      show(shown[i]);
+    });
+    svg.addEventListener('blur', function () { hide(); cur = null; });
+  }
+  function drawAll() { CHARTS.forEach(draw); }
+  // each chart has its own range buttons, directly above it
+  document.querySelectorAll('.range').forEach(function (g) {
+    var c = CHARTS.filter(function (k) { return k.id === g.getAttribute('data-chart'); })[0];
+    g.querySelectorAll('button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        g.querySelectorAll('button').forEach(function (o) { o.setAttribute('aria-pressed', o === b ? 'true' : 'false'); });
+        var v = b.getAttribute('data-from');
+        c.from = v === 'last5' ? last - 59 : idx(v);
+        draw(c);
+      });
+    });
+  });
+  var rt; window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(drawAll, 120); });
+  drawAll();
+})();
+</script>
+
+
 <script>document.getElementById('copyright-year').textContent=new Date().getFullYear();</script>
 <script>
   // Scroll-progress back-to-top control.
@@ -1302,6 +1429,8 @@
     }
   })();
 </script>
+
+
 
 </body>
 </html>
