@@ -1338,18 +1338,36 @@
   };
 
   // --- Supabase fetch helper (paginates to bypass server max-rows cap) ---
+  // The first page also asks for the row total, so the remaining pages are
+  // fetched together (8 at a time) instead of one after another.
   async function sbQuery(view, params = "") {
-    const pageSize = 1000;
-    let offset = 0, all = [];
-    while (true) {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/${view}?${params}&limit=${pageSize}&offset=${offset}&apikey=${SUPABASE_KEY}`);
+    const pageSize = 1000, parallel = 8;
+    const page = async (offset, count) => {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/${view}?${params}&limit=${pageSize}&offset=${offset}&apikey=${SUPABASE_KEY}`,
+        count ? { headers: { Prefer: "count=exact" } } : undefined);
       if (!res.ok) throw new Error(`Supabase ${view}: ${res.status}`);
-      const rows = await res.json();
-      all = all.concat(rows);
-      if (rows.length < pageSize) break;
-      offset += pageSize;
+      return [await res.json(), res.headers.get("Content-Range")];
+    };
+    const [first, range] = await page(0, true);
+    if (first.length < pageSize) return first;
+    const total = Number((range || "").split("/")[1]);
+    if (!(total > 0)) {   // no total reported: fall back to one page at a time
+      let all = first, offset = pageSize;
+      for (let rows; ; offset += pageSize) {
+        [rows] = await page(offset);
+        all = all.concat(rows);
+        if (rows.length < pageSize) return all;
+      }
     }
-    return all;
+    const offsets = [];
+    for (let o = pageSize; o < total; o += pageSize) offsets.push(o);
+    const pages = new Array(offsets.length);
+    let next = 0;
+    const worker = async () => {
+      while (next < offsets.length) { const i = next++; [pages[i]] = await page(offsets[i]); }
+    };
+    await Promise.all(Array.from({ length: Math.min(parallel, offsets.length) }, worker));
+    return first.concat(...pages);
   }
 
   const num = (v) => (v === null || v === undefined || v === "" || isNaN(Number(v))) ? null : Number(v);
@@ -1513,7 +1531,7 @@
     try {
       [rows, hist] = await Promise.all([
         sbQuery("v_reservoir_status", "select=*"),
-        sbQuery("v_reservoir_history", `select=site_no,measured_at,value&measured_at=gte.${historySince}&order=measured_at.asc`),
+        sbQuery("v_reservoir_history", `select=site_no,measured_at,value&measured_at=gte.${historySince}&order=measured_at.asc,site_no.asc`),
       ]);
     } catch (e) {
       showError(e.message);
