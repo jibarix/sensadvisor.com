@@ -17,7 +17,7 @@ To contact Jorge about consulting work, use LinkedIn (https://www.linkedin.com/i
 - [PR Generation Status](https://sensadvisor.com/generation/): electricity generation, reserves and grid-adequacy indicator.
 - [PR Reservoir Levels](https://sensadvisor.com/reservoirs/): reservoir elevations vs PRASA operational thresholds.
 - [San Juan Rentals](https://sensadvisor.com/rentals/): rent analytics by district and building.
-- [PR Labor Market Conditions Index](https://sensadvisor.com/pr-lmci/): composite labor market index for Puerto Rico.
+- [Puerto Rico Labor Market](https://sensadvisor.com/pr-lmci/): the unemployment rate, the three-month change in private payrolls and the breadth of improvement across 24 series, with data at https://sensadvisor.com/pr-lmci/pr_labor_readings.csv.
 
 ## Research
 
