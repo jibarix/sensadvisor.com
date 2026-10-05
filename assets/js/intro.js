@@ -4,7 +4,9 @@
 //   the name:  already the chip's text colour, it only moves and scales.
 const HOLD = 500;     // the name holds in the middle
 const FLIGHT = 800;   // into the chip, while the cover fades
-export const INTRO_MS = HOLD + FLIGHT;
+// Once per visit: a tab that has already seen the opening skips it.
+const SEEN = (() => { try { return sessionStorage.getItem('intro') === '1'; } catch { return false; } })();
+export const INTRO_MS = SEEN ? 0 : HOLD + FLIGHT;
 const EASE = 'cubic-bezier(.2, .7, .1, 1)';   // --ease
 
 export function startIntro() {
@@ -13,11 +15,12 @@ export function startIntro() {
     const word = document.querySelector('.loader-word');
     const dest = document.querySelector('.chip span');
     const done = () => { cover?.remove(); word?.remove(); html.classList.remove('opening'); };
-    if (!cover || !word || !dest || matchMedia('(prefers-reduced-motion: reduce)').matches) return done();
+    if (SEEN || !cover || !word || !dest || matchMedia('(prefers-reduced-motion: reduce)').matches) return done();
     html.classList.add('opening');
     cover.style.backgroundColor = getComputedStyle(document.querySelector('.hero')).backgroundColor;
 
     const run = () => {
+        try { sessionStorage.setItem('intro', '1'); } catch {}
         // Land exactly on the chip's text: same box, same type, same colour.
         const r = dest.getBoundingClientRect();
         const cs = getComputedStyle(dest);
