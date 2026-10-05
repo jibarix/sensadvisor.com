@@ -64,6 +64,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 .opening .chip span { opacity: 0; }
 @keyframes loader-out { to { opacity: 0; visibility: hidden; } }
+/* Once per visit: intro-seen.js marks a tab that has seen the opening. */
+.seen .loader, .seen .loader-word { display: none; }
 
 /* ─── Chrome: the boxed chip and the menu box ────────────────────────── */
 .chip {
