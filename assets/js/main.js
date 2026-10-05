@@ -160,32 +160,42 @@ for (const row of sides) {
     row.addEventListener('toggle', () => { if (row.open) on(); });
 }
 
-// Pointer parallax, desktop only.
-let px = 0, py = 0;
+// Pointer parallax, desktop only. The pointer sets where the tilt is
+// headed; the frame loop eases toward it.
+let px = 0, py = 0, tx = 0, ty = 0;
 if (fine && !reduced) addEventListener('pointermove', e => {
-    px = e.clientX / innerWidth - 0.5; py = e.clientY / innerHeight - 0.5;
+    tx = e.clientX / innerWidth - 0.5; ty = e.clientY / innerHeight - 0.5;
 }, { passive: true });
 
 // ─── Frame loop ────────────────────────────────────────────────────────
 // Full rate while anything moves. When only the slow drift is left, 15 fps:
 // the drift moves well under a pixel a step, and it saves the phone's battery.
 const IDLE_MS = 1000 / 15;
+// Easing rates are per 60 Hz frame and scaled to the real frame time, so
+// the cube moves at the same speed on 60, 90 and 120 Hz screens. The step
+// is capped so the first frame after an idle stretch doesn't jump.
+const approach = (rate, dt) => reduced ? 1 : 1 - (1 - rate) ** (dt / (1000 / 60));
 let prog = target();
 let lastPaint = 0, seen = [];
 function frame(t) {
     requestAnimationFrame(frame);
     const goal = target();
-    const now = [goal, prog, viewTarget, view[0], view[1], px, py, cube.S, cubeSol];
+    const now = [goal, prog, viewTarget, view[0], view[1], px, py, tx, ty, cube.S, cubeSol];
     const moving = now.some((v, i) => v !== seen[i]);
     if (!moving && t - lastPaint < IDLE_MS) return;
+    const dt = Math.min(t - lastPaint, 50);
     lastPaint = t;
-    prog += (goal - prog) * (reduced ? 1 : 0.16);
+    prog += (goal - prog) * approach(0.16, dt);
     if (Math.abs(goal - prog) < 1e-4) prog = goal;
-    const k = reduced ? 1 : 0.07;
+    const k = approach(0.07, dt);
     for (const i of [0, 1]) {
         view[i] += (viewTarget[i] - view[i]) * k;
         if (Math.abs(viewTarget[i] - view[i]) < 1e-3) view[i] = viewTarget[i];
     }
+    const kp = approach(0.1, dt);
+    px += (tx - px) * kp; py += (ty - py) * kp;
+    if (Math.abs(tx - px) < 1e-4) px = tx;
+    if (Math.abs(ty - py) < 1e-4) py = ty;
     seen = now;
     const drift = reduced ? 0 : Math.sin(t / 2600) * 3;
     paintProgress(cube.render(prog, view[0] - py * 8, view[1] + drift + px * 12));
