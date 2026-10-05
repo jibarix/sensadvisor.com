@@ -3,7 +3,7 @@
 // windows). Only the wrapper changed: an exported starter instead of an IIFE.
 export function startMonitor() {
     var SB = "https://grovomkpsqgzakfuvuii.supabase.co";
-    var KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdyb3ZvbWtwc3FnemFrZnV2dWlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NzkxMjgsImV4cCI6MjA5MDE1NTEyOH0.U_ZH5gJij5NLkU786mV58uJ0orHZ6ElMkCtyoyuCvBg";
+    var KEY = "sb_publishable_-nryP1oOokVWjjn5pnxosA_gqTm2QiF";
     function sb(path) {
         return fetch(SB + "/rest/v1/" + path + "&apikey=" + KEY, { cache: "no-store" })
             .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); });
