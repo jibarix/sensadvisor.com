@@ -167,17 +167,28 @@ if (fine && !reduced) addEventListener('pointermove', e => {
 }, { passive: true });
 
 // ─── Frame loop ────────────────────────────────────────────────────────
+// Full rate while anything moves. When only the slow drift is left, 15 fps:
+// the drift moves well under a pixel a step, and it saves the phone's battery.
+const IDLE_MS = 1000 / 15;
 let prog = target();
+let lastPaint = 0, seen = [];
 function frame(t) {
+    requestAnimationFrame(frame);
     const goal = target();
+    const now = [goal, prog, viewTarget, view[0], view[1], px, py, cube.S, cubeSol];
+    const moving = now.some((v, i) => v !== seen[i]);
+    if (!moving && t - lastPaint < IDLE_MS) return;
+    lastPaint = t;
     prog += (goal - prog) * (reduced ? 1 : 0.16);
     if (Math.abs(goal - prog) < 1e-4) prog = goal;
     const k = reduced ? 1 : 0.07;
-    view[0] += (viewTarget[0] - view[0]) * k;
-    view[1] += (viewTarget[1] - view[1]) * k;
+    for (const i of [0, 1]) {
+        view[i] += (viewTarget[i] - view[i]) * k;
+        if (Math.abs(viewTarget[i] - view[i]) < 1e-3) view[i] = viewTarget[i];
+    }
+    seen = now;
     const drift = reduced ? 0 : Math.sin(t / 2600) * 3;
     paintProgress(cube.render(prog, view[0] - py * 8, view[1] + drift + px * 12));
-    requestAnimationFrame(frame);
 }
 
 // ─── Reset: a new random position and its expression ───────────────────
