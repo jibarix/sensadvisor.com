@@ -1101,6 +1101,7 @@
     <div class="panel-note" id="gr-lead" style="margin:0">&nbsp;</div>
   </div>
 
+  <script src="/assets/js/public-data.js"></script>
   <script>
   (function(){
     var MUT="var(--secondary-text)", GRID="var(--chart-grid)";
@@ -1113,8 +1114,6 @@
       ELEVATED:{range:"2.5–10%", desc:"dipped to 2.5–10%",      color:"var(--gr-elev)"},
       NORMAL:  {range:"≥ 10%",   desc:"stayed at or above 10%", color:"var(--gr-norm)"}
     };
-    var SB="https://grovomkpsqgzakfuvuii.supabase.co/rest/v1";
-    var KEY="sb_publishable_-nryP1oOokVWjjn5pnxosA_gqTm2QiF";
     var STALE_MS=45*60*1000, SKEW_MS=30*60*1000;
     var TIERS=null;
     var fmt=function(n){return Math.round(n).toLocaleString('en-US');};
@@ -1341,7 +1340,7 @@
     function ago(ts){ var t=Date.parse(ts); if(isNaN(t)) return null; return Date.now()-t; }
     function mins(ms){ return Math.round(ms/60000); }
 
-    function grab(url){ return fetch(url+'&apikey='+KEY).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); }); }
+    function grab(path){ var i=path.indexOf('?'); return PublicData.query(path.slice(0,i), path.slice(i+1)); }
     function grabSafe(url){ return grab(url).then(function(x){return x;}, function(){return null;}); }
     // ZERO IS A READING, NOT A GAP — an operating reserve of zero is the most critical value
     // this feed can report, and a guard of the form `x > 0` suppresses exactly the moment the
@@ -1350,11 +1349,11 @@
     function present(v){ return v!==null && v!==undefined && v!=='' && isFinite(+v); }
 
     Promise.all([
-      grabSafe(SB+'/v_grid_risk_tiers?select=*&order=tier_order.asc'),
-      grabSafe(SB+'/v_grid_risk_meta?select=*&limit=1'),
-      grabSafe(SB+'/v_generation_latest?select=metrics,observed_at&limit=1'),
-      grabSafe(SB+'/v_outage_snapshots_slim?select=snapshot,observed_at&order=observed_at.desc&limit=1'),
-      grabSafe(SB+'/v_generation_units?select=plant,unit,mw&order=mw.desc&limit=1')
+      grabSafe('v_grid_risk_tiers?select=*&order=tier_order.asc'),
+      grabSafe('v_grid_risk_meta?select=*&limit=1'),
+      grabSafe('v_generation_latest?select=metrics,observed_at&limit=1'),
+      grabSafe('v_outage_snapshots_slim?select=snapshot,observed_at&order=observed_at.desc&limit=1'),
+      grabSafe('v_generation_units?select=plant,unit,mw&order=mw.desc&limit=1')
     ]).then(function(r){
       TIERS=(r[0]&&r[0].length)? buildTiers(r[0]) : null;
       if(r[1]&&r[1][0]) applyMeta(r[1][0]);
@@ -1552,8 +1551,6 @@
 <script src="/assets/vendor/chartjs-adapter-date-fns-3.0.0.bundle.min.js"></script>
 <script>
   // --- Config ---
-  const SUPABASE_URL = "https://grovomkpsqgzakfuvuii.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_-nryP1oOokVWjjn5pnxosA_gqTm2QiF";
 
   const AST_TZ = "America/Puerto_Rico";
 
@@ -1774,22 +1771,11 @@
   let viewMode = "total";
   let uptimeViewMode = "total";
 
-  // --- Supabase fetch helper (paginates to bypass server max-rows cap) ---
-  // The first page goes alone (most queries fit in it). If it comes back full, the
-  // rest are fetched in parallel batches rather than one round-trip per page.
-  async function sbQuery(table, params = "") {
-    const pageSize = 1000, batch = 6;
-    const page = async (offset) => {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}&limit=${pageSize}&offset=${offset}&apikey=${SUPABASE_KEY}`);
-      if (!res.ok) throw new Error(`Supabase ${table}: ${res.status}`);
-      return res.json();
-    };
-    let all = await page(0);
-    for (let next = pageSize; all.length === next; next += batch * pageSize) {
-      const pages = await Promise.all(Array.from({ length: batch }, (_, i) => page(next + i * pageSize)));
-      for (const rows of pages) all = all.concat(rows);
-    }
-    return all;
+  // --- Data: static files written by the publisher, not the database ---
+  // PublicData.query (assets/js/public-data.js) answers the same view + select/filter/order
+  // the page used to send to the database, from the published JSON files.
+  function sbQuery(table, params = "") {
+    return PublicData.query(table, params);
   }
 
   // --- Parse outage snapshot (from v_outage_snapshots_slim) ---

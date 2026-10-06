@@ -1314,10 +1314,9 @@
 
 <script src="/assets/vendor/chart-4.5.1.umd.js"></script>
 <script src="/assets/vendor/chartjs-adapter-date-fns-3.0.0.bundle.min.js"></script>
+<script src="/assets/js/public-data.js"></script>
 <script>
   // --- Config ---
-  const SUPABASE_URL = "https://grovomkpsqgzakfuvuii.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_-nryP1oOokVWjjn5pnxosA_gqTm2QiF";
   const AST_TZ = "America/Puerto_Rico";
   const chartFont = { family: "'Source Code Pro', monospace" };
 
@@ -1337,37 +1336,11 @@
     return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
   };
 
-  // --- Supabase fetch helper (paginates to bypass server max-rows cap) ---
-  // The first page also asks for the row total, so the remaining pages are
-  // fetched together (8 at a time) instead of one after another.
-  async function sbQuery(view, params = "") {
-    const pageSize = 1000, parallel = 8;
-    const page = async (offset, count) => {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/${view}?${params}&limit=${pageSize}&offset=${offset}&apikey=${SUPABASE_KEY}`,
-        count ? { headers: { Prefer: "count=exact" } } : undefined);
-      if (!res.ok) throw new Error(`Supabase ${view}: ${res.status}`);
-      return [await res.json(), res.headers.get("Content-Range")];
-    };
-    const [first, range] = await page(0, true);
-    if (first.length < pageSize) return first;
-    const total = Number((range || "").split("/")[1]);
-    if (!(total > 0)) {   // no total reported: fall back to one page at a time
-      let all = first, offset = pageSize;
-      for (let rows; ; offset += pageSize) {
-        [rows] = await page(offset);
-        all = all.concat(rows);
-        if (rows.length < pageSize) return all;
-      }
-    }
-    const offsets = [];
-    for (let o = pageSize; o < total; o += pageSize) offsets.push(o);
-    const pages = new Array(offsets.length);
-    let next = 0;
-    const worker = async () => {
-      while (next < offsets.length) { const i = next++; [pages[i]] = await page(offsets[i]); }
-    };
-    await Promise.all(Array.from({ length: Math.min(parallel, offsets.length) }, worker));
-    return first.concat(...pages);
+  // --- Data: static files written by the publisher, not the database ---
+  // PublicData.query (assets/js/public-data.js) answers the same view + select/filter/order
+  // the page used to send to the database, from the published JSON files.
+  function sbQuery(view, params = "") {
+    return PublicData.query(view, params);
   }
 
   const num = (v) => (v === null || v === undefined || v === "" || isNaN(Number(v))) ? null : Number(v);
