@@ -1252,10 +1252,9 @@
 
 <script src="/assets/vendor/chart-4.5.1.umd.js"></script>
 <script src="/assets/vendor/chartjs-adapter-date-fns-3.0.0.bundle.min.js"></script>
+<script src="/assets/js/public-data.js"></script>
 <script>
   // --- Config ---
-  const SUPABASE_URL = "https://grovomkpsqgzakfuvuii.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_-nryP1oOokVWjjn5pnxosA_gqTm2QiF";
 
   // A unit is "online" when producing at least this many MW.
   const ONLINE_MW = 1;
@@ -1369,22 +1368,11 @@
     refreshChartTheme(chartOutlook);
   };
 
-  // --- Supabase fetch helper (paginates to bypass server max-rows cap) ---
-  // The first page goes alone (most queries fit in it). If it comes back full, the
-  // rest are fetched in parallel batches rather than one round-trip per page.
-  async function sbQuery(view, params = "") {
-    const pageSize = 1000, batch = 6;
-    const page = async (offset) => {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/${view}?${params}&limit=${pageSize}&offset=${offset}&apikey=${SUPABASE_KEY}`);
-      if (!res.ok) throw new Error(`Supabase ${view}: ${res.status}`);
-      return res.json();
-    };
-    let all = await page(0);
-    for (let next = pageSize; all.length === next; next += batch * pageSize) {
-      const pages = await Promise.all(Array.from({ length: batch }, (_, i) => page(next + i * pageSize)));
-      for (const rows of pages) all = all.concat(rows);
-    }
-    return all;
+  // --- Data: static files written by the publisher, not the database ---
+  // PublicData.query (assets/js/public-data.js) answers the same view + select/filter/order
+  // the page used to send to the database, from the published JSON files.
+  function sbQuery(view, params = "") {
+    return PublicData.query(view, params);
   }
 
   const num = (v) => (v === null || v === undefined || v === "" || isNaN(Number(v))) ? null : Number(v);

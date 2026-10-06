@@ -1,15 +1,16 @@
 // Live Puerto Rico monitor, ported verbatim from the current root page
-// (same allowlisted read-only views, same status thresholds and direction
-// windows). Only the wrapper changed: an exported starter instead of an IIFE.
+// (same status thresholds and direction windows). Only the wrapper changed:
+// an exported starter instead of an IIFE. The readings come from the home
+// bundle the publisher writes every 10 minutes (assets/js/public-data.js),
+// not from the database.
 export function startMonitor() {
-    var SB = "https://grovomkpsqgzakfuvuii.supabase.co";
-    var KEY = "sb_publishable_-nryP1oOokVWjjn5pnxosA_gqTm2QiF";
-    function sb(path) {
-        return fetch(SB + "/rest/v1/" + path + "&apikey=" + KEY, { cache: "no-store" })
-            .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); });
+    var homeP = null;
+    function home() { return homeP || (homeP = window.PublicData.home()); }
+    function since(rows, tKey, hours) {
+        var cut = Date.now() - hours * 3600 * 1000;
+        return rows.filter(function (r) { return new Date(r[tKey]).getTime() >= cut; });
     }
     function fmt(n) { return (Math.round(n)).toLocaleString("en-US"); }
-    function iso(ms) { return new Date(ms).toISOString(); }
     // Reading in `rowsDesc` (newest-first) closest to `targetMs` from at or before it.
     function priorTo(rowsDesc, targetMs, tKey) {
         for (var i = 1; i < rowsDesc.length; i++) {
@@ -48,9 +49,10 @@ export function startMonitor() {
         if (ch) ch.innerHTML = "";
     }
     function loadGrid() {
-        var since = iso(Date.now() - 2 * 3600 * 1000);
-        return sb("v_outage_snapshots_slim?select=observed_at,snapshot&observed_at=gte." + since + "&order=observed_at.desc")
-            .then(function (rows) {
+        return home()
+            .then(function (h) {
+                var rows = since(h.outages, "observed_at", 2).reverse()
+                    .map(function (r) { return { observed_at: r.observed_at, snapshot: { total: r.total } }; });
                 var r = rows && rows[0]; if (!r) throw 0;
                 var t = (r.snapshot && r.snapshot.total) || {};
                 var without = t.without || 0, total = t.total || 0, planned = t.planned || 0;
@@ -73,12 +75,10 @@ export function startMonitor() {
             }).catch(function () { fail("mon-grid"); });
     }
     function loadGen() {
-        var since = iso(Date.now() - 2 * 3600 * 1000);
-        return Promise.all([
-            sb("v_generation_latest?select=*"),
-            sb("v_generation_units?select=mw"),
-            sb("v_generation_metrics_history?select=observed_at,operating_reserve_mw&observed_at=gte." + since + "&order=observed_at.desc").catch(function () { return null; })
-        ]).then(function (res) {
+        return home().then(function (h) {
+            var res = [[h.generation],
+                       h.unit_mw.map(function (mw) { return { mw: mw }; }),
+                       since(h.reserve, "observed_at", 2).reverse()];
             var latest = res[0] && res[0][0]; if (!latest) throw 0;
             var m = latest.metrics || {};
             var gen = num(m.totalGeneration), cap = num(m.availableCapacityMw),
@@ -118,11 +118,8 @@ export function startMonitor() {
         }).catch(function () { fail("mon-gen"); });
     }
     function loadWater() {
-        var since = iso(Date.now() - 26 * 3600 * 1000);
-        return Promise.all([
-            sb("v_reservoir_status?select=status,status_rank,measured_at"),
-            sb("v_reservoir_history?select=site_no,measured_at,value&measured_at=gte." + since + "&order=measured_at.asc").catch(function () { return null; })
-        ]).then(function (res) {
+        return home().then(function (h) {
+                var res = [h.reservoir_status, since(h.reservoir_history, "measured_at", 26)];
                 var rows = res[0];
                 if (!rows || !rows.length) throw 0;
                 var total = rows.length;
@@ -178,6 +175,7 @@ export function startMonitor() {
     }
     function refreshAll() {
         var rf = document.getElementById("mon-refresh");
+        homeP = null;
         Promise.all([loadGrid(), loadGen(), loadWater()]).then(function () {
             if (rf) rf.textContent = "";
         });
