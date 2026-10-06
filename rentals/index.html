@@ -31,7 +31,6 @@
   <meta name="twitter:title" content="San Juan Rent Analytics | SENS ADVISOR">
   <meta name="twitter:description" content="San Juan apartment rents: what listings are asking, which neighborhoods cost what, and how quickly listings disappear, across Condado &amp; Miramar, Hato Rey, Santurce and Old San Juan.">
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
   <link rel="preload" href="/fonts/source-code-pro-latin.woff2" as="font" type="font/woff2" crossorigin>
   <style>@font-face{font-family:'Source Code Pro';font-style:normal;font-weight:300 700;font-display:swap;src:url(/fonts/source-code-pro-latin.woff2) format('woff2')}</style>
@@ -715,6 +714,10 @@
     .empty-state { padding: 40px; color: var(--secondary-text); text-align: center; }
     .panel canvas { max-height: 350px; margin-top: 8px; }
     .panel-featured canvas { max-height: 410px; }
+    /* Charts are built as they scroll near; until then their canvas holds
+       the built chart's height so the page doesn't grow mid-scroll. */
+    .panel canvas:not([style]) { width: 100%; height: 350px; }
+    .panel-featured canvas:not([style]) { height: 410px; }
 
     .table-wrap { width: 100%; overflow-x: auto; }
     table { width: 100%; min-width: 880px; margin-top: 8px; border-collapse: collapse; }
@@ -1072,7 +1075,7 @@
       <li><a href="/generation/"><span>02</span>PR Generation Status</a></li>
       <li><a href="/reservoirs/"><span>03</span>PR Reservoir Levels</a></li>
       <li><a href="/rentals/" aria-current="page"><span>04</span>San Juan Rentals</a></li>
-      <li><a href="/pr-lmci/"><span>05</span>PR Labor Market Readings</a></li>
+      <li><a href="/pr-lmci/"><span>05</span>PR Labor Market Index</a></li>
     </ol>
     <a class="sa-menu-mail" href="mailto:consult@sensadvisor.com">consult@sensadvisor.com</a>
   </div>
@@ -1675,6 +1678,7 @@
   </div>
   <script>document.getElementById('copyright-year').textContent=new Date().getFullYear();</script>
 
+  <script src="/assets/vendor/chart-4.5.1.umd.js"></script>
   <script>
     let charts = {};
 
@@ -3432,25 +3436,78 @@
       } catch (e) { showError('estError', e); showError('valError', e); }
     }
 
+    // Each chart loader with the element that marks its place on the page.
     const CHART_LOADERS = [
-      loadLocation,
-      loadSubmarkets, loadSubmarketTrend, loadPerBedroom, loadDistribution,
-      loadFeatureEffect, loadClearance, loadClearProfile, loadNegotiation,
-      loadAgePyramid, loadTrend, loadMixIndex, loadMomentum, loadInventory,
+      [loadSubmarkets, 'subGrid'], [loadLocation, 'locChart'], [loadSubmarketTrend, 'subTrendChart'],
+      [loadPerBedroom, 'bedChart'], [loadDistribution, 'distChart'], [loadFeatureEffect, 'effectChart'],
+      [loadClearance, 'cifChart'], [loadClearProfile, 'clearChart'], [loadNegotiation, 'negAgeChart'],
+      [loadTrend, 'trendChart'], [loadMixIndex, 'mixChart'], [loadMomentum, 'momentumChart'],
+      [loadInventory, 'invChart'], [loadAgePyramid, 'ageChart'],
     ];
     const TABLE_LOADERS = [
       loadMeta, loadStats, loadRecentCuts, loadAreas, loadFeatures,
       loadBuildings, loadQuality, loadEstimator,
     ];
 
-    function refreshAll() {
-      return Promise.all([...CHART_LOADERS, ...TABLE_LOADERS].map(f => f()));
+    // Charts are built the first time their place comes within about a
+    // screen of the viewport, so the first view doesn't wait on all of them.
+    // Building one also fills its captions and tables, which changes the
+    // page's height above anything further down.
+    const builtCharts = new Map();   // loader -> its latest build
+    const waiting = new Map();       // marker element -> loader not yet built
+    let tablesReady = Promise.resolve();
+    const io = 'IntersectionObserver' in window && new IntersectionObserver(entries => {
+      for (const e of entries) if (e.isIntersecting) buildChart(e.target);
+    }, { rootMargin: '800px 0px' });
+
+    function buildChart(el) {
+      const f = waiting.get(el);
+      if (!f) return;
+      waiting.delete(el);
+      if (io) io.unobserve(el);
+      builtCharts.set(f, f());
     }
 
-    // Charts bake theme colors in at construction, so they are rebuilt on toggle.
+    // Before a jump, build the charts above the target (only they can move
+    // it), then let the browser make the jump.
+    function beforeJump(hash) {
+      const target = hash.length > 1 && document.getElementById(decodeURIComponent(hash.slice(1)));
+      const above = target ? [...waiting.keys()].filter(el =>
+        el.compareDocumentPosition(target) & Node.DOCUMENT_POSITION_FOLLOWING) : [];
+      if (!above.length) return null;
+      above.forEach(buildChart);
+      // Charts settle their size a frame after they are built.
+      const frame = () => new Promise(r => requestAnimationFrame(r));
+      return Promise.all([tablesReady, ...builtCharts.values()]).then(frame).then(frame);
+    }
+    let replaying = false;
+    document.addEventListener('click', e => {
+      const a = e.target.closest('a[href^="#"]');
+      if (!a || replaying || e.defaultPrevented) return;
+      const ready = beforeJump(a.hash);
+      if (!ready) return;
+      e.preventDefault();
+      ready.then(() => { replaying = true; a.click(); replaying = false; });
+    });
+
+    function refreshAll() {
+      tablesReady = Promise.all(TABLE_LOADERS.map(f => f()));
+      for (const [f, id] of CHART_LOADERS) {
+        const el = document.getElementById(id);
+        if (!el) { builtCharts.set(f, f()); continue; }
+        waiting.set(el, f);
+        if (io) io.observe(el); else buildChart(el);
+      }
+      const ready = location.hash && beforeJump(location.hash);
+      if (ready) ready.then(() => location.replace(location.hash));
+    }
+
+    // Charts bake theme colors in at construction, so the built ones are
+    // rebuilt on toggle; the rest pick up the new theme when first built.
     window.refreshAnalyticsTheme = function () {
       syncChartTheme();
-      return Promise.all(CHART_LOADERS.map(f => f()));
+      for (const f of builtCharts.keys()) builtCharts.set(f, f());
+      return Promise.all(builtCharts.values());
     };
 
     refreshAll();
