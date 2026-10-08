@@ -1,131 +1,124 @@
 {
-  "generated_at": "2026-10-07T19:23:42.066914+00:00",
-  "data_vintage": "2026-10-07T15:20:00.386000-04:00",
-  "window_start": "2026-09-02",
-  "score_start": "2026-09-05",
-  "score_end": "2026-10-07",
+  "generated_at": "2026-10-08T19:19:09.547310+00:00",
+  "data_vintage": "2026-10-08T15:10:00.492000-04:00",
+  "window_start": "2026-09-03",
+  "score_start": "2026-09-06",
+  "score_end": "2026-10-08",
   "n_scored_days": 33,
   "model_version": "step1-v2-fourier3-weekend-shapeonly",
   "horizon": "1-hour-ahead",
   "evaluation": "rolling-origin backtest (causal, reconstructed; not a prospective archive)",
   "methodology": "identical matched pairs; expanding-window pure-shape drift, no weather (no leakage)",
-  "n_pairs": 4677,
+  "n_pairs": 4674,
   "scores": {
     "genera": {
       "mae_mw": 79.7,
       "mape_pct": 3.37
     },
     "persistence": {
-      "mae_mw": 77.3,
+      "mae_mw": 77.1,
       "mape_pct": 3.24
     },
     "sensadvisor": {
-      "mae_mw": 38.0,
-      "mape_pct": 1.62,
+      "mae_mw": 37.7,
+      "mape_pct": 1.6,
       "beats_genera_pct": 74.0
     },
-    "n_pairs": 4677,
+    "n_pairs": 4674,
     "days": {
       "n_scored_days": 33,
-      "score_start": "2026-09-05",
-      "score_end": "2026-10-07",
+      "score_start": "2026-09-06",
+      "score_end": "2026-10-08",
       "sensadvisor_lower_days": 33,
       "daily": [
         {
-          "date": "2026-09-05",
-          "n_pairs": 144,
-          "sensadvisor_mape": 1.81,
-          "genera_mape": 3.05,
-          "persistence_mape": 3.16
-        },
-        {
           "date": "2026-09-06",
           "n_pairs": 144,
-          "sensadvisor_mape": 1.44,
+          "sensadvisor_mape": 1.38,
           "genera_mape": 3.35,
           "persistence_mape": 3.64
         },
         {
           "date": "2026-09-07",
           "n_pairs": 142,
-          "sensadvisor_mape": 2.34,
+          "sensadvisor_mape": 2.35,
           "genera_mape": 4.39,
           "persistence_mape": 3.09
         },
         {
           "date": "2026-09-08",
           "n_pairs": 140,
-          "sensadvisor_mape": 1.29,
+          "sensadvisor_mape": 1.35,
           "genera_mape": 3.08,
           "persistence_mape": 2.96
         },
         {
           "date": "2026-09-09",
           "n_pairs": 142,
-          "sensadvisor_mape": 1.43,
+          "sensadvisor_mape": 1.46,
           "genera_mape": 2.09,
           "persistence_mape": 3.32
         },
         {
           "date": "2026-09-10",
           "n_pairs": 144,
-          "sensadvisor_mape": 1.03,
+          "sensadvisor_mape": 1.01,
           "genera_mape": 3.74,
           "persistence_mape": 3.1
         },
         {
           "date": "2026-09-11",
           "n_pairs": 142,
-          "sensadvisor_mape": 1.29,
+          "sensadvisor_mape": 1.37,
           "genera_mape": 2.99,
           "persistence_mape": 2.97
         },
         {
           "date": "2026-09-12",
           "n_pairs": 144,
-          "sensadvisor_mape": 2.52,
+          "sensadvisor_mape": 2.56,
           "genera_mape": 5.31,
           "persistence_mape": 2.66
         },
         {
           "date": "2026-09-13",
           "n_pairs": 142,
-          "sensadvisor_mape": 2.26,
+          "sensadvisor_mape": 2.27,
           "genera_mape": 4.19,
           "persistence_mape": 3.46
         },
         {
           "date": "2026-09-14",
           "n_pairs": 144,
-          "sensadvisor_mape": 1.97,
+          "sensadvisor_mape": 1.99,
           "genera_mape": 5.86,
           "persistence_mape": 2.47
         },
         {
           "date": "2026-09-15",
           "n_pairs": 144,
-          "sensadvisor_mape": 1.7,
+          "sensadvisor_mape": 1.72,
           "genera_mape": 6.34,
           "persistence_mape": 3.13
         },
         {
           "date": "2026-09-16",
           "n_pairs": 144,
-          "sensadvisor_mape": 1.43,
+          "sensadvisor_mape": 1.42,
           "genera_mape": 5.1,
           "persistence_mape": 2.33
         },
         {
           "date": "2026-09-17",
           "n_pairs": 144,
-          "sensadvisor_mape": 2.12,
+          "sensadvisor_mape": 2.11,
           "genera_mape": 4.58,
           "persistence_mape": 2.63
         },
         {
           "date": "2026-09-18",
           "n_pairs": 144,
-          "sensadvisor_mape": 1.44,
+          "sensadvisor_mape": 1.47,
           "genera_mape": 2.72,
           "persistence_mape": 3.31
         },
@@ -139,7 +132,7 @@
         {
           "date": "2026-09-20",
           "n_pairs": 144,
-          "sensadvisor_mape": 1.99,
+          "sensadvisor_mape": 2.0,
           "genera_mape": 3.13,
           "persistence_mape": 3.98
         },
@@ -153,14 +146,14 @@
         {
           "date": "2026-09-22",
           "n_pairs": 136,
-          "sensadvisor_mape": 1.64,
+          "sensadvisor_mape": 1.63,
           "genera_mape": 1.82,
           "persistence_mape": 3.43
         },
         {
           "date": "2026-09-23",
           "n_pairs": 144,
-          "sensadvisor_mape": 2.93,
+          "sensadvisor_mape": 2.94,
           "genera_mape": 4.11,
           "persistence_mape": 4.46
         },
@@ -174,28 +167,28 @@
         {
           "date": "2026-09-25",
           "n_pairs": 144,
-          "sensadvisor_mape": 1.14,
+          "sensadvisor_mape": 1.16,
           "genera_mape": 2.94,
           "persistence_mape": 3.37
         },
         {
           "date": "2026-09-26",
           "n_pairs": 144,
-          "sensadvisor_mape": 1.53,
+          "sensadvisor_mape": 1.54,
           "genera_mape": 2.13,
           "persistence_mape": 3.81
         },
         {
           "date": "2026-09-27",
           "n_pairs": 144,
-          "sensadvisor_mape": 1.78,
+          "sensadvisor_mape": 1.77,
           "genera_mape": 2.38,
           "persistence_mape": 3.69
         },
         {
           "date": "2026-09-28",
           "n_pairs": 144,
-          "sensadvisor_mape": 1.33,
+          "sensadvisor_mape": 1.34,
           "genera_mape": 1.84,
           "persistence_mape": 3.53
         },
@@ -216,7 +209,7 @@
         {
           "date": "2026-10-01",
           "n_pairs": 144,
-          "sensadvisor_mape": 1.27,
+          "sensadvisor_mape": 1.26,
           "genera_mape": 3.52,
           "persistence_mape": 2.83
         },
@@ -230,7 +223,7 @@
         {
           "date": "2026-10-03",
           "n_pairs": 144,
-          "sensadvisor_mape": 1.54,
+          "sensadvisor_mape": 1.53,
           "genera_mape": 5.3,
           "persistence_mape": 3.26
         },
@@ -244,7 +237,7 @@
         {
           "date": "2026-10-05",
           "n_pairs": 144,
-          "sensadvisor_mape": 1.28,
+          "sensadvisor_mape": 1.29,
           "genera_mape": 2.02,
           "persistence_mape": 3.56
         },
@@ -257,38 +250,45 @@
         },
         {
           "date": "2026-10-07",
-          "n_pairs": 87,
-          "sensadvisor_mape": 1.84,
-          "genera_mape": 2.77,
-          "persistence_mape": 2.32
+          "n_pairs": 144,
+          "sensadvisor_mape": 1.56,
+          "genera_mape": 3.38,
+          "persistence_mape": 2.72
+        },
+        {
+          "date": "2026-10-08",
+          "n_pairs": 84,
+          "sensadvisor_mape": 1.2,
+          "genera_mape": 2.22,
+          "persistence_mape": 2.96
         }
       ]
     }
   },
   "diurnal_mw": [
-    2469.7,
-    2377.9,
-    2303.1,
-    2249.5,
-    2227.0,
-    2250.6,
-    2261.7,
-    2219.9,
-    2163.5,
-    2084.9,
-    2013.6,
-    2008.7,
-    2042.7,
-    2129.5,
-    2224.5,
-    2385.1,
-    2555.4,
-    2674.7,
-    2759.9,
-    2833.9,
-    2834.5,
-    2769.4,
-    2682.2,
-    2586.2
+    2465.4,
+    2374.3,
+    2300.0,
+    2246.9,
+    2224.9,
+    2249.4,
+    2261.4,
+    2219.0,
+    2160.5,
+    2082.8,
+    2012.9,
+    2008.5,
+    2042.8,
+    2130.5,
+    2225.8,
+    2385.9,
+    2555.6,
+    2673.2,
+    2756.7,
+    2830.0,
+    2829.7,
+    2765.1,
+    2677.5,
+    2580.7
   ]
 }
