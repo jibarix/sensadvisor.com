@@ -19,6 +19,11 @@ To contact Jorge about consulting work, use LinkedIn (https://www.linkedin.com/i
 - [San Juan Rentals](https://sensadvisor.com/rentals/): rent analytics by district and building.
 - [Puerto Rico Labor Market](https://sensadvisor.com/pr-lmci/): the unemployment rate, the three-month change in private payrolls and the breadth of improvement across 24 series, with data at https://sensadvisor.com/pr-lmci/pr_labor_readings.csv.
 
+## Applied AI Notes
+
+- [Applied AI Notes](https://sensadvisor.com/notes/): notes on applying AI in business.
+- What Businesses Are Asking AI to Do, October 2026: a monthly series on what businesses ask AI systems to do, how they say success will be checked, and what they leave unsettled. [Part 1: Called an Agent, Specified as a Workflow](https://sensadvisor.com/notes/ai-requirements/2026-10/agents.html); [Part 2: How Will Anyone Know It Works?](https://sensadvisor.com/notes/ai-requirements/2026-10/acceptance.html); [Part 3: Before You Commission an Agent](https://sensadvisor.com/notes/ai-requirements/2026-10/commissioning.html).
+
 ## Research
 
 - [arXiv:2510.25782](https://arxiv.org/abs/2510.25782): Short-Run Multi-Outcome Effects of Nightlife Regulation in San Juan.

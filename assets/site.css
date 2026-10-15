@@ -102,6 +102,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .menu-h { margin-bottom: 12px; font-family: var(--mono); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: #9aa0a6; }
 .menu-dash li a { justify-content: space-between; gap: 16px; padding: 12px 0; font-size: clamp(18px, 1.6vw, 26px); letter-spacing: -.01em; color: #9aa0a6; transition: color .2s, padding .3s var(--ease); }
 .menu-dash li a::after { content: '↗︎'; font-size: .8em; }
+.menu-dash ol + .menu-h { margin-top: 32px; }
 .menu-dash li a:hover { padding-left: 8px; color: var(--paper); }
 
 /* ─── The rig: crop marks + cube + readout, fixed, moves between halves ── */
@@ -322,6 +323,9 @@ details[open] .pm { transform: rotate(45deg); }
 .svc ul { margin-top: auto; padding-top: 12px; border-top: 1px solid var(--line); font-size: 14px; color: var(--dim); }
 .svc li { padding: 2px 0; }
 .svc li::before { content: '— '; color: var(--signal); }
+/* Link under a card's description, in the space above its list. */
+.svc-more { display: table; margin-top: 12px; font-size: 11px; color: var(--signal); text-decoration: none; }
+.svc-more:hover { text-decoration: underline; }
 
 /* Process: the method, as the second half of Services. */
 .proc-tag { margin-top: 110px; margin-bottom: 40px; }
