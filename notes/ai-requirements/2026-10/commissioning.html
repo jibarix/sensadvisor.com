@@ -1,0 +1,178 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t!=='dark'&&t!=='light'){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.setAttribute('data-theme',t)}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Before You Commission an Agent | What Businesses Are Asking AI to Do | SENS ADVISOR</title>
+<meta name="description" content="What projects on existing AI systems specify differently from new builds, and five questions to settle before building. Part 3 of 3, October 2026.">
+<link rel="canonical" href="https://sensadvisor.com/notes/ai-requirements/2026-10/commissioning.html">
+<meta property="og:title" content="Before You Commission an Agent | What Businesses Are Asking AI to Do | SENS ADVISOR"><meta property="og:description" content="What projects on existing AI systems specify differently from new builds, and five questions to settle before building. Part 3 of 3, October 2026.">
+<meta property="og:url" content="https://sensadvisor.com/notes/ai-requirements/2026-10/commissioning.html"><meta property="og:type" content="article"><meta property="og:site_name" content="SENS ADVISOR">
+<meta property="og:image" content="https://sensadvisor.com/assets/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="article:published_time" content="2026-10-15"><meta name="author" content="Jorge A. Arroyo">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Before You Commission an Agent | What Businesses Are Asking AI to Do | SENS ADVISOR"><meta name="twitter:description" content="What projects on existing AI systems specify differently from new builds, and five questions to settle before building. Part 3 of 3, October 2026.">
+<meta name="twitter:image" content="https://sensadvisor.com/assets/og.png">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Before You Commission an Agent", "description": "What projects on existing AI systems specify differently from new builds, and five questions to settle before building. Part 3 of 3, October 2026.", "url": "https://sensadvisor.com/notes/ai-requirements/2026-10/commissioning.html", "datePublished": "2026-10-15", "inLanguage": "en", "image": "https://sensadvisor.com/assets/og.png", "author": {"@type": "Person", "name": "Jorge A. Arroyo", "url": "https://sensadvisor.com/"}, "publisher": {"@type": "Organization", "name": "SENS ADVISOR", "url": "https://sensadvisor.com/"}, "isPartOf": {"@type": "CreativeWorkSeries", "name": "What Businesses Are Asking AI to Do", "url": "https://sensadvisor.com/notes/"}}</script>
+<link rel="preload" href="/fonts/source-code-pro-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:'Source Code Pro';font-style:normal;font-weight:300 700;font-display:swap;src:url(/fonts/source-code-pro-latin.woff2) format('woff2')}
+:root{--ink:#0e0e10;--paper:#fff;--green:#009646;--dim:#333;--rule:rgba(14,14,16,.16);--gutter:clamp(16px,2.2vw,36px);
+--sans:'Helvetica Neue','Inter','Segoe UI Variable Display','Segoe UI',Arial,sans-serif;
+--mono:'Source Code Pro',ui-monospace,'Cascadia Mono',Consolas,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.45 var(--sans);-webkit-font-smoothing:antialiased}
+:root{--heat:0,150,70}
+:root[data-theme="dark"]{--ink:#ededed;--paper:#0e0e10;--green:#36e08a;--dim:#9aa0a6;--rule:rgba(237,237,237,.16);color-scheme:dark}
+:root{--c-ink:#0e0e10;--c-green:#009646;--c-mid:#6b6b6b;--c-grey:#8a8a8a;--c-light:#a6a6a6;--c-pale:#e4e4e4;}:root[data-theme="dark"]{--c-ink:#ededed;--c-green:#36e08a;--c-mid:#9aa0a6;--c-grey:#6b6e73;--c-light:#55585d;--c-pale:#2a2c30;}
+article{max-width:1480px;margin:0 auto;padding:0 var(--gutter) 40px}
+article>header{margin:clamp(110px,10vw,150px) 0 clamp(56px,7vw,100px)}
+.kicker,th,.legend,.byline,figcaption,footer{font-family:var(--mono);font-weight:400;letter-spacing:.04em}
+.kicker{display:block;max-width:none;font-size:12px;text-transform:uppercase;margin:0 0 56px;padding-top:10px;border-top:1px solid var(--rule)}
+h1{font-weight:400;font-size:clamp(52px,6.4vw,120px);line-height:.92;letter-spacing:-.045em;margin:0;max-width:12ch}
+.sub{max-width:46ch;margin:26px 0 0;font-size:clamp(18px,1.5vw,24px);line-height:1.35;letter-spacing:-.01em}
+.byline{margin-top:44px;font-size:11px;text-transform:uppercase}
+h2{font-weight:400;font-size:clamp(26px,2.4vw,40px);line-height:1.05;letter-spacing:-.03em;
+margin:96px 0 28px;padding-top:10px;border-top:1px solid var(--rule)}
+h3{font-weight:400;font-size:20px;line-height:1.2;letter-spacing:-.01em;margin:44px 0 12px}
+p,ul,ol:not(.questions){max-width:72ch}p{margin:0 0 16px;font-size:17px}
+.lede{font-size:clamp(18px,1.5vw,22px);line-height:1.45;letter-spacing:-.005em}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0 var(--gutter);margin:48px 0}
+.kpi{padding:12px 0 18px;border-top:1px solid var(--rule)}
+.kpi b{display:block;font-size:clamp(44px,4.4vw,72px);font-weight:400;line-height:.92;letter-spacing:-.045em;font-variant-numeric:tabular-nums}
+.kpi span{display:block;font-size:14px;color:var(--dim);margin-top:12px;max-width:30ch}
+figure{margin:28px 0 36px;max-width:980px}figcaption{font-size:11px;text-transform:uppercase;color:var(--dim);margin-top:8px}
+.chart{width:100%;height:auto;display:block}.lbl{font:13.5px var(--sans);fill:var(--ink)}
+.val{font:13px var(--sans);fill:var(--ink)}
+.in{font:11px var(--mono);fill:var(--ink)}.in.dk{fill:var(--paper)}
+.legend{font-size:11px;text-transform:uppercase;color:var(--dim);margin:8px 0}.legend span{margin-right:16px;white-space:nowrap}
+.legend i{display:inline-block;width:10px;height:10px;margin-right:6px;vertical-align:-1px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:var(--gutter);max-width:980px}@media(max-width:720px){.row{grid-template-columns:1fr}}
+table{border-collapse:collapse;width:100%;max-width:980px;font-size:15px;border-top:1px solid var(--ink)}
+td,th{padding:9px 10px 9px 0;border-bottom:1px solid var(--rule);text-align:left;font-variant-numeric:tabular-nums}
+th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);vertical-align:bottom}
+td:not(:first-child),th:not(:first-child){text-align:right}
+.req thead th{white-space:normal}.req tbody th{font:15px var(--sans);letter-spacing:0;color:var(--ink);text-transform:none;white-space:nowrap}
+.req tr.all th,.req tr.all td{border-top:1px solid var(--ink)}
+.heat td.h{text-align:center;padding:9px 6px;border-bottom:2px solid var(--paper)}
+.scroll{overflow-x:auto;max-width:980px}
+.questions{counter-reset:q;list-style:none;padding:0;margin:28px 0;max-width:980px}
+.questions li{counter-increment:q;padding:14px 0 18px 64px;position:relative;border-top:1px solid var(--rule)}
+.questions li:before{content:counter(q,decimal-leading-zero);position:absolute;left:0;top:14px;font:12px var(--mono);letter-spacing:.04em;color:var(--green)}
+.questions b{display:block;font-weight:400;font-size:20px;line-height:1.2;letter-spacing:-.01em;margin-bottom:6px}
+.note{font-size:14px;line-height:1.55;color:var(--dim);max-width:78ch}
+details{max-width:980px;border-top:1px solid var(--rule);padding:12px 0;margin-top:56px}
+details summary{cursor:pointer;font:12px var(--mono);letter-spacing:.04em;text-transform:uppercase}
+footer{font-size:11px;text-transform:uppercase;border-top:1px solid var(--rule);padding:30px 0 6px;margin-top:96px}
+a{color:var(--green)}
+.draft{position:fixed;bottom:0;left:0;right:0;z-index:20;background:#b00020;color:#fff;font:12px var(--mono);text-align:center;padding:8px}
+
+ol.series{list-style:none;padding:0;margin:0 0 clamp(48px,5vw,72px);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 var(--gutter);max-width:none}
+.series li{border-top:1px solid var(--rule);padding:10px 0 0;font:12px/1.5 var(--mono);letter-spacing:.04em;text-transform:uppercase}
+.series li span{display:block;color:var(--dim)}.series a{color:var(--ink);text-decoration:none}.series a:hover{text-decoration:underline}
+.series li[aria-current]{border-top-color:var(--green)}.series li[aria-current] span{color:var(--green)}
+@media(max-width:720px){ol.series{grid-template-columns:1fr}.series li{padding-bottom:10px}}
+.next{margin-top:72px;font:12px var(--mono);letter-spacing:.04em;text-transform:uppercase}
+.next a{color:var(--ink)}
+.kicker a{color:inherit}
+</style>
+<link rel="stylesheet" href="/assets/dash.css"></head><body>
+
+<header class="sa-chrome">
+<a class="sa-chip" href="/" aria-label="SENS ADVISOR, home">SENS ADVISOR</a>
+<div class="sa-chrome-r">
+<button class="sa-menu-btn" type="button" aria-expanded="false" aria-controls="sa-menu">Menu</button>
+<button class="sa-icon-btn sa-theme" type="button" aria-label="Toggle dark mode" aria-pressed="false" title="Toggle dark mode"><span aria-hidden="true">&#9680;</span></button>
+</div>
+</header>
+<nav id="sa-menu" class="sa-menu" aria-label="Applied AI Notes" hidden>
+<div class="sa-menu-body">
+<a class="sa-menu-home" href="/">&larr; Main site</a>
+<p class="sa-menu-h">Applied AI Notes · What Businesses Are Asking AI to Do, October 2026</p>
+<ol class="sa-menu-main"><li><a href="/notes/"><span>01</span>All notes</a></li><li><a href="agents.html"><span>02</span>Called an agent, specified as a workflow</a></li><li><a href="acceptance.html"><span>03</span>How will anyone know it works?</a></li><li><a href="commissioning.html" aria-current="page"><span>04</span>Before you commission an agent</a></li></ol>
+<p class="sa-menu-h">Live data</p>
+<ol class="sa-menu-main"><li><a href="/outages/"><span>05</span>PR Outage Status</a></li><li><a href="/generation/"><span>06</span>PR Generation Status</a></li><li><a href="/reservoirs/"><span>07</span>PR Reservoir Levels</a></li><li><a href="/rentals/"><span>08</span>San Juan Rentals</a></li><li><a href="/pr-lmci/"><span>09</span>PR Labor Market Readings</a></li></ol>
+<a class="sa-menu-mail" href="mailto:consult@sensadvisor.com">consult@sensadvisor.com</a>
+</div>
+</nav>
+<article>
+<header>
+<p class="kicker"><a href="/notes/">Applied AI Notes</a> · What Businesses Are Asking AI to Do · October 2026</p>
+<h1>Before You Commission an Agent</h1>
+<p class="sub">What projects on existing AI systems specify, and five questions to answer before anyone builds.</p>
+<div class="byline">J. A. Arroyo · SENS ADVISOR</div>
+</header>
+<ol class="series" aria-label="What Businesses Are Asking AI to Do, October 2026"><li><span>Part 1 of 3</span><a href="agents.html">Called an agent, specified as a workflow</a></li><li><span>Part 2 of 3</span><a href="acceptance.html">How will anyone know it works?</a></li><li aria-current="page"><span>Part 3 of 3</span><a href="commissioning.html">Before you commission an agent</a></li></ol>
+<p class="lede">In a survey of about 220 real business projects for AI systems that act through software tools,
+published online over roughly the first two weeks of October 2026, one in five (20%) was to fix or extend a system the business already has. These
+requirements are brief less often than those for new builds (14% against 28%) and ask for testing more often
+(61% against 51%), yet their control pattern, whether a fixed workflow or the model decides the next step, is unclear more
+often: 34%, against 24% of new builds.</p>
+<p>The first two articles in this series covered what businesses ask for and what their requirements leave out on
+acceptance and responsibility. This one looks at how requirements for existing systems differ from those for new
+builds, and at five questions that make a project's requirements explicit before anyone builds.</p>
+
+<div class="kpis"><div class="kpi"><b>20%</b><span>of projects fix or extend an existing system</span></div><div class="kpi"><b>61%</b><span>of fix-or-extend projects ask for testing or evaluation</span></div><div class="kpi"><b>34%</b><span>of fix-or-extend projects leave the control pattern unclear</span></div><div class="kpi"><b>24%</b><span>of new-build projects do</span></div></div>
+
+<h2>Testing and tool integration feature more in existing-system work</h2>
+<p>20% of projects concern a system the business already has: fixing it, hardening it or extending it.
+Voice and chat assistants make up 27% of this work, the same share as
+in new builds. Testing and reliability of existing agents make up 16%
+of it, against 1% of new builds, and MCP connectors
+16%, against 6%.</p>
+
+<h2>The trigger and control pattern are more often unclear</h2>
+<p>Requirements for existing systems state a reference check more often than new builds (57% against 47%), but most of that difference comes from projects that are mainly
+about testing; with those set aside, the shares are 51% and 47%. Other differences concern the trigger and
+human involvement: what starts the work is unclear in 32% (against 22%), and they mention human review,
+approval or handoff less often (36% against 48%). The group is small, so these differences are
+indicative.</p>
+<table><thead><tr><th>Requirement</th><th>New build</th><th>Fix or extend</th></tr></thead>
+<tbody><tr><td>Brief specification</td><td>28%</td><td>14%</td></tr><tr><td>Control pattern unclear from the requirements</td><td>24%</td><td>34%</td></tr><tr><td>Trigger unclear</td><td>22%</td><td>32%</td></tr><tr><td>Names the systems to connect</td><td>70%</td><td>66%</td></tr><tr><td>Human review, approval or handoff</td><td>48%</td><td>36%</td></tr><tr><td>Deployment, monitoring, maintenance</td><td>48%</td><td>48%</td></tr><tr><td>Testing or evaluation</td><td>51%</td><td>61%</td></tr><tr><td>Guardrails, privacy, compliance</td><td>46%</td><td>43%</td></tr><tr><td>Reference check stated</td><td>47%</td><td>57%</td></tr><tr><td>No check stated</td><td>41%</td><td>32%</td></tr></tbody></table>
+<p class="note">This table includes projects whose main purpose is testing.</p>
+
+<h2>Five questions to answer first</h2>
+<p>These are my recommendations, drawn from the screening worksheet I use with clients, and they apply to work on an
+existing system as much as to a new build. Requirements that answer them are easier to price, build and test, and they
+show early whether an agent is worth considering at all.</p>
+<ol class="questions">
+<li><b>What starts the work?</b>An incoming call, a new lead, a schedule, or a person handing over a job. Decide which
+actions may proceed automatically and where a person must review.</li>
+<li><b>What can the system change?</b>List the systems it reads and the ones it writes to, and which actions need a
+person's approval first.</li>
+<li><b>Which decisions stay open?</b>Write the strongest fixed workflow first and, where it leaves decisions unresolved,
+compare letting a model direct the work against it, under the same limits on cost and time.</li>
+<li><b>How will you know it works?</b>Collect representative cases before building, agree on acceptance criteria,
+using known answers where available, and name the results that would count as failure.</li>
+<li><b>Who handles exceptions?</b>Name the person who reviews uncertain cases, the point at which the system hands over,
+and who maintains it once it is live.</li>
+</ol>
+
+<h2>What this means</h2>
+<p>Existing-system requirements in this sample ask for testing more often than new-build requirements, but more often
+leave the trigger and control pattern unclear. Both new and existing projects can make those explicit and define
+acceptance criteria before work begins: known answers where they can be
+collected, and clear criteria for judgment where they cannot. My recommended starting points are representative cases with
+agreed acceptance criteria, a clear line between what the system may do alone and what needs approval, and a named owner for exceptions.
+They give both sides a fair basis for judging the work and holding each other to account.</p>
+
+<p class="next">Back to the start: <a href="agents.html">Called an agent, specified as a workflow</a></p>
+<details><summary>Method and limits</summary>
+<p>I surveyed requirements that businesses published online for AI projects over roughly the first two weeks of October 2026, kept those that ask
+for a system acting through software tools, and kept the projects to build a new system or fix or extend an existing
+one. A language model classified each set of requirements against a fixed codebook built on the design process
+and task-screening worksheet I use in practice: the task, the trigger, the design the requirements imply, how success
+would be checked, the requirements stated, the level of specification and the tools named.</p>
+<p>Limits. The requirements were published in one place over about two weeks, so they describe these projects, not the
+whole market; shares are of projects, and one business may have several. Each project has one retained set of
+labels; longer requirements were reclassified from the full text, and the latest result was kept.
+The success-check label was reviewed separately: a second model labelled every project twice, and where its labels and the original disagreed, about a third of projects, a third model settled the label under written rules. Where all three agreed, the label was checked against the same rules, and the third model settled any the check would change, although agreement does not establish correctness. Other labels were not independently re-coded, and no manual audit has been done. The classification read the full text of each set of requirements and reflects what they state, not the
+system eventually built; businesses may have plans they did not write down. Shares for small groups, such as
+existing-system work and possible agent cases, are indicative.</p>
+<p>Each edition uses the same sources, window and codebook, so editions can be compared; changes describe the mix of
+requirements, not market growth.</p>
+</details>
+<details><summary>Use of AI tools</summary>
+<p>A language model classified the requirements against my codebook and helped draft the analysis code and this text,
+and other AI models re-checked the success-check labels and reviewed the method and claims. I designed the framework and the codebook, checked the figures and am
+responsible for the conclusions.</p>
+</details>
+<footer>SENS ADVISOR · consult@sensadvisor.com · October 2026 edition</footer>
+</article>
+<script src="/assets/dash.js" defer></script></body></html>

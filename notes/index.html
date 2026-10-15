@@ -1,0 +1,104 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t!=='dark'&&t!=='light'){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.setAttribute('data-theme',t)}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Applied AI Notes | SENS ADVISOR</title>
+<meta name="description" content="Notes by Jorge A. Arroyo on applying AI in business: what to build, how to check that it works, and what to settle before anyone builds.">
+<link rel="canonical" href="https://sensadvisor.com/notes/">
+<meta property="og:title" content="Applied AI Notes | SENS ADVISOR"><meta property="og:description" content="Notes by Jorge A. Arroyo on applying AI in business: what to build, how to check that it works, and what to settle before anyone builds.">
+<meta property="og:url" content="https://sensadvisor.com/notes/"><meta property="og:type" content="website"><meta property="og:site_name" content="SENS ADVISOR">
+<meta property="og:image" content="https://sensadvisor.com/assets/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Applied AI Notes | SENS ADVISOR"><meta name="twitter:description" content="Notes by Jorge A. Arroyo on applying AI in business: what to build, how to check that it works, and what to settle before anyone builds.">
+<meta name="twitter:image" content="https://sensadvisor.com/assets/og.png">
+<link rel="preload" href="/fonts/source-code-pro-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:'Source Code Pro';font-style:normal;font-weight:300 700;font-display:swap;src:url(/fonts/source-code-pro-latin.woff2) format('woff2')}
+:root{--ink:#0e0e10;--paper:#fff;--green:#009646;--dim:#333;--rule:rgba(14,14,16,.16);--gutter:clamp(16px,2.2vw,36px);
+--sans:'Helvetica Neue','Inter','Segoe UI Variable Display','Segoe UI',Arial,sans-serif;
+--mono:'Source Code Pro',ui-monospace,'Cascadia Mono',Consolas,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.45 var(--sans);-webkit-font-smoothing:antialiased}
+:root{--heat:0,150,70}
+:root[data-theme="dark"]{--ink:#ededed;--paper:#0e0e10;--green:#36e08a;--dim:#9aa0a6;--rule:rgba(237,237,237,.16);color-scheme:dark}
+:root{--c-ink:#0e0e10;--c-green:#009646;--c-mid:#6b6b6b;--c-grey:#8a8a8a;--c-light:#a6a6a6;--c-pale:#e4e4e4;}:root[data-theme="dark"]{--c-ink:#ededed;--c-green:#36e08a;--c-mid:#9aa0a6;--c-grey:#6b6e73;--c-light:#55585d;--c-pale:#2a2c30;}
+article{max-width:1480px;margin:0 auto;padding:0 var(--gutter) 40px}
+article>header{margin:clamp(110px,10vw,150px) 0 clamp(56px,7vw,100px)}
+.kicker,th,.legend,.byline,figcaption,footer{font-family:var(--mono);font-weight:400;letter-spacing:.04em}
+.kicker{display:block;max-width:none;font-size:12px;text-transform:uppercase;margin:0 0 56px;padding-top:10px;border-top:1px solid var(--rule)}
+h1{font-weight:400;font-size:clamp(52px,6.4vw,120px);line-height:.92;letter-spacing:-.045em;margin:0;max-width:12ch}
+.sub{max-width:46ch;margin:26px 0 0;font-size:clamp(18px,1.5vw,24px);line-height:1.35;letter-spacing:-.01em}
+.byline{margin-top:44px;font-size:11px;text-transform:uppercase}
+h2{font-weight:400;font-size:clamp(26px,2.4vw,40px);line-height:1.05;letter-spacing:-.03em;
+margin:96px 0 28px;padding-top:10px;border-top:1px solid var(--rule)}
+h3{font-weight:400;font-size:20px;line-height:1.2;letter-spacing:-.01em;margin:44px 0 12px}
+p,ul,ol:not(.questions){max-width:72ch}p{margin:0 0 16px;font-size:17px}
+.lede{font-size:clamp(18px,1.5vw,22px);line-height:1.45;letter-spacing:-.005em}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0 var(--gutter);margin:48px 0}
+.kpi{padding:12px 0 18px;border-top:1px solid var(--rule)}
+.kpi b{display:block;font-size:clamp(44px,4.4vw,72px);font-weight:400;line-height:.92;letter-spacing:-.045em;font-variant-numeric:tabular-nums}
+.kpi span{display:block;font-size:14px;color:var(--dim);margin-top:12px;max-width:30ch}
+figure{margin:28px 0 36px;max-width:980px}figcaption{font-size:11px;text-transform:uppercase;color:var(--dim);margin-top:8px}
+.chart{width:100%;height:auto;display:block}.lbl{font:13.5px var(--sans);fill:var(--ink)}
+.val{font:13px var(--sans);fill:var(--ink)}
+.in{font:11px var(--mono);fill:var(--ink)}.in.dk{fill:var(--paper)}
+.legend{font-size:11px;text-transform:uppercase;color:var(--dim);margin:8px 0}.legend span{margin-right:16px;white-space:nowrap}
+.legend i{display:inline-block;width:10px;height:10px;margin-right:6px;vertical-align:-1px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:var(--gutter);max-width:980px}@media(max-width:720px){.row{grid-template-columns:1fr}}
+table{border-collapse:collapse;width:100%;max-width:980px;font-size:15px;border-top:1px solid var(--ink)}
+td,th{padding:9px 10px 9px 0;border-bottom:1px solid var(--rule);text-align:left;font-variant-numeric:tabular-nums}
+th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);vertical-align:bottom}
+td:not(:first-child),th:not(:first-child){text-align:right}
+.req thead th{white-space:normal}.req tbody th{font:15px var(--sans);letter-spacing:0;color:var(--ink);text-transform:none;white-space:nowrap}
+.req tr.all th,.req tr.all td{border-top:1px solid var(--ink)}
+.heat td.h{text-align:center;padding:9px 6px;border-bottom:2px solid var(--paper)}
+.scroll{overflow-x:auto;max-width:980px}
+.questions{counter-reset:q;list-style:none;padding:0;margin:28px 0;max-width:980px}
+.questions li{counter-increment:q;padding:14px 0 18px 64px;position:relative;border-top:1px solid var(--rule)}
+.questions li:before{content:counter(q,decimal-leading-zero);position:absolute;left:0;top:14px;font:12px var(--mono);letter-spacing:.04em;color:var(--green)}
+.questions b{display:block;font-weight:400;font-size:20px;line-height:1.2;letter-spacing:-.01em;margin-bottom:6px}
+.note{font-size:14px;line-height:1.55;color:var(--dim);max-width:78ch}
+details{max-width:980px;border-top:1px solid var(--rule);padding:12px 0;margin-top:56px}
+details summary{cursor:pointer;font:12px var(--mono);letter-spacing:.04em;text-transform:uppercase}
+footer{font-size:11px;text-transform:uppercase;border-top:1px solid var(--rule);padding:30px 0 6px;margin-top:96px}
+a{color:var(--green)}
+.draft{position:fixed;bottom:0;left:0;right:0;z-index:20;background:#b00020;color:#fff;font:12px var(--mono);text-align:center;padding:8px}
+
+ol.series{list-style:none;padding:0;margin:0 0 clamp(48px,5vw,72px);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 var(--gutter);max-width:none}
+.series li{border-top:1px solid var(--rule);padding:10px 0 0;font:12px/1.5 var(--mono);letter-spacing:.04em;text-transform:uppercase}
+.series li span{display:block;color:var(--dim)}.series a{color:var(--ink);text-decoration:none}.series a:hover{text-decoration:underline}
+.series li[aria-current]{border-top-color:var(--green)}.series li[aria-current] span{color:var(--green)}
+@media(max-width:720px){ol.series{grid-template-columns:1fr}.series li{padding-bottom:10px}}
+.next{margin-top:72px;font:12px var(--mono);letter-spacing:.04em;text-transform:uppercase}
+.next a{color:var(--ink)}
+.kicker a{color:inherit}
+.questions a{color:var(--ink);text-decoration:none}.questions a:hover{text-decoration:underline}</style>
+<link rel="stylesheet" href="/assets/dash.css"></head><body>
+<header class="sa-chrome">
+<a class="sa-chip" href="/" aria-label="SENS ADVISOR, home">SENS ADVISOR</a>
+<div class="sa-chrome-r">
+<button class="sa-menu-btn" type="button" aria-expanded="false" aria-controls="sa-menu">Menu</button>
+<button class="sa-icon-btn sa-theme" type="button" aria-label="Toggle dark mode" aria-pressed="false" title="Toggle dark mode"><span aria-hidden="true">&#9680;</span></button>
+</div>
+</header>
+<nav id="sa-menu" class="sa-menu" aria-label="Applied AI Notes" hidden>
+<div class="sa-menu-body">
+<a class="sa-menu-home" href="/">&larr; Main site</a>
+<p class="sa-menu-h">Applied AI Notes · What Businesses Are Asking AI to Do, October 2026</p>
+<ol class="sa-menu-main"><li><a href="/notes/" aria-current="page"><span>01</span>All notes</a></li><li><a href="ai-requirements/2026-10/agents.html"><span>02</span>Called an agent, specified as a workflow</a></li><li><a href="ai-requirements/2026-10/acceptance.html"><span>03</span>How will anyone know it works?</a></li><li><a href="ai-requirements/2026-10/commissioning.html"><span>04</span>Before you commission an agent</a></li></ol>
+<p class="sa-menu-h">Live data</p>
+<ol class="sa-menu-main"><li><a href="/outages/"><span>05</span>PR Outage Status</a></li><li><a href="/generation/"><span>06</span>PR Generation Status</a></li><li><a href="/reservoirs/"><span>07</span>PR Reservoir Levels</a></li><li><a href="/rentals/"><span>08</span>San Juan Rentals</a></li><li><a href="/pr-lmci/"><span>09</span>PR Labor Market Readings</a></li></ol>
+<a class="sa-menu-mail" href="mailto:consult@sensadvisor.com">consult@sensadvisor.com</a>
+</div>
+</nav>
+<article>
+<header>
+<p class="kicker">Applied AI Notes</p>
+<h1>Applied AI Notes</h1>
+<p class="sub">Notes on applying AI in business: what to build, how to check that it works, and what to settle before anyone builds.</p>
+<div class="byline">J. A. Arroyo · SENS ADVISOR</div>
+</header>
+<h2>What Businesses Are Asking AI to Do</h2>
+<p>A monthly series on what businesses ask AI systems to do: what they want built, how they say success will be checked, and what they leave unsettled.</p>
+<h3>October 2026 edition</h3>
+<ol class="questions"><li><b><a href="ai-requirements/2026-10/agents.html">Called an Agent, Specified as a Workflow</a></b>Part 1 of 3 · What businesses ask AI systems to do, and what their requirements actually describe.</li><li><b><a href="ai-requirements/2026-10/acceptance.html">How Will Anyone Know It Works?</a></b>Part 2 of 3 · What the requirements say about acceptance, oversight and running the system once it is live.</li><li><b><a href="ai-requirements/2026-10/commissioning.html">Before You Commission an Agent</a></b>Part 3 of 3 · What projects on existing AI systems specify, and five questions to answer before anyone builds.</li></ol>
+<footer>SENS ADVISOR · consult@sensadvisor.com</footer>
+</article>
+<script src="/assets/dash.js" defer></script></body></html>

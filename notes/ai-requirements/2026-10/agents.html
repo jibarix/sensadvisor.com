@@ -1,0 +1,195 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t!=='dark'&&t!=='light'){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.setAttribute('data-theme',t)}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Called an Agent, Specified as a Workflow | What Businesses Are Asking AI to Do | SENS ADVISOR</title>
+<meta name="description" content="What businesses need from AI systems that act through software tools, and how often an “agent” is a workflow. Part 1 of 3, October 2026.">
+<link rel="canonical" href="https://sensadvisor.com/notes/ai-requirements/2026-10/agents.html">
+<meta property="og:title" content="Called an Agent, Specified as a Workflow | What Businesses Are Asking AI to Do | SENS ADVISOR"><meta property="og:description" content="What businesses need from AI systems that act through software tools, and how often an “agent” is a workflow. Part 1 of 3, October 2026.">
+<meta property="og:url" content="https://sensadvisor.com/notes/ai-requirements/2026-10/agents.html"><meta property="og:type" content="article"><meta property="og:site_name" content="SENS ADVISOR">
+<meta property="og:image" content="https://sensadvisor.com/assets/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="article:published_time" content="2026-10-15"><meta name="author" content="Jorge A. Arroyo">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Called an Agent, Specified as a Workflow | What Businesses Are Asking AI to Do | SENS ADVISOR"><meta name="twitter:description" content="What businesses need from AI systems that act through software tools, and how often an “agent” is a workflow. Part 1 of 3, October 2026.">
+<meta name="twitter:image" content="https://sensadvisor.com/assets/og.png">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Called an Agent, Specified as a Workflow", "description": "What businesses need from AI systems that act through software tools, and how often an “agent” is a workflow. Part 1 of 3, October 2026.", "url": "https://sensadvisor.com/notes/ai-requirements/2026-10/agents.html", "datePublished": "2026-10-15", "inLanguage": "en", "image": "https://sensadvisor.com/assets/og.png", "author": {"@type": "Person", "name": "Jorge A. Arroyo", "url": "https://sensadvisor.com/"}, "publisher": {"@type": "Organization", "name": "SENS ADVISOR", "url": "https://sensadvisor.com/"}, "isPartOf": {"@type": "CreativeWorkSeries", "name": "What Businesses Are Asking AI to Do", "url": "https://sensadvisor.com/notes/"}}</script>
+<link rel="preload" href="/fonts/source-code-pro-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:'Source Code Pro';font-style:normal;font-weight:300 700;font-display:swap;src:url(/fonts/source-code-pro-latin.woff2) format('woff2')}
+:root{--ink:#0e0e10;--paper:#fff;--green:#009646;--dim:#333;--rule:rgba(14,14,16,.16);--gutter:clamp(16px,2.2vw,36px);
+--sans:'Helvetica Neue','Inter','Segoe UI Variable Display','Segoe UI',Arial,sans-serif;
+--mono:'Source Code Pro',ui-monospace,'Cascadia Mono',Consolas,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.45 var(--sans);-webkit-font-smoothing:antialiased}
+:root{--heat:0,150,70}
+:root[data-theme="dark"]{--ink:#ededed;--paper:#0e0e10;--green:#36e08a;--dim:#9aa0a6;--rule:rgba(237,237,237,.16);color-scheme:dark}
+:root{--c-ink:#0e0e10;--c-green:#009646;--c-mid:#6b6b6b;--c-grey:#8a8a8a;--c-light:#a6a6a6;--c-pale:#e4e4e4;}:root[data-theme="dark"]{--c-ink:#ededed;--c-green:#36e08a;--c-mid:#9aa0a6;--c-grey:#6b6e73;--c-light:#55585d;--c-pale:#2a2c30;}
+article{max-width:1480px;margin:0 auto;padding:0 var(--gutter) 40px}
+article>header{margin:clamp(110px,10vw,150px) 0 clamp(56px,7vw,100px)}
+.kicker,th,.legend,.byline,figcaption,footer{font-family:var(--mono);font-weight:400;letter-spacing:.04em}
+.kicker{display:block;max-width:none;font-size:12px;text-transform:uppercase;margin:0 0 56px;padding-top:10px;border-top:1px solid var(--rule)}
+h1{font-weight:400;font-size:clamp(52px,6.4vw,120px);line-height:.92;letter-spacing:-.045em;margin:0;max-width:12ch}
+.sub{max-width:46ch;margin:26px 0 0;font-size:clamp(18px,1.5vw,24px);line-height:1.35;letter-spacing:-.01em}
+.byline{margin-top:44px;font-size:11px;text-transform:uppercase}
+h2{font-weight:400;font-size:clamp(26px,2.4vw,40px);line-height:1.05;letter-spacing:-.03em;
+margin:96px 0 28px;padding-top:10px;border-top:1px solid var(--rule)}
+h3{font-weight:400;font-size:20px;line-height:1.2;letter-spacing:-.01em;margin:44px 0 12px}
+p,ul,ol:not(.questions){max-width:72ch}p{margin:0 0 16px;font-size:17px}
+.lede{font-size:clamp(18px,1.5vw,22px);line-height:1.45;letter-spacing:-.005em}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0 var(--gutter);margin:48px 0}
+.kpi{padding:12px 0 18px;border-top:1px solid var(--rule)}
+.kpi b{display:block;font-size:clamp(44px,4.4vw,72px);font-weight:400;line-height:.92;letter-spacing:-.045em;font-variant-numeric:tabular-nums}
+.kpi span{display:block;font-size:14px;color:var(--dim);margin-top:12px;max-width:30ch}
+figure{margin:28px 0 36px;max-width:980px}figcaption{font-size:11px;text-transform:uppercase;color:var(--dim);margin-top:8px}
+.chart{width:100%;height:auto;display:block}.lbl{font:13.5px var(--sans);fill:var(--ink)}
+.val{font:13px var(--sans);fill:var(--ink)}
+.in{font:11px var(--mono);fill:var(--ink)}.in.dk{fill:var(--paper)}
+.legend{font-size:11px;text-transform:uppercase;color:var(--dim);margin:8px 0}.legend span{margin-right:16px;white-space:nowrap}
+.legend i{display:inline-block;width:10px;height:10px;margin-right:6px;vertical-align:-1px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:var(--gutter);max-width:980px}@media(max-width:720px){.row{grid-template-columns:1fr}}
+table{border-collapse:collapse;width:100%;max-width:980px;font-size:15px;border-top:1px solid var(--ink)}
+td,th{padding:9px 10px 9px 0;border-bottom:1px solid var(--rule);text-align:left;font-variant-numeric:tabular-nums}
+th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);vertical-align:bottom}
+td:not(:first-child),th:not(:first-child){text-align:right}
+.req thead th{white-space:normal}.req tbody th{font:15px var(--sans);letter-spacing:0;color:var(--ink);text-transform:none;white-space:nowrap}
+.req tr.all th,.req tr.all td{border-top:1px solid var(--ink)}
+.heat td.h{text-align:center;padding:9px 6px;border-bottom:2px solid var(--paper)}
+.scroll{overflow-x:auto;max-width:980px}
+.questions{counter-reset:q;list-style:none;padding:0;margin:28px 0;max-width:980px}
+.questions li{counter-increment:q;padding:14px 0 18px 64px;position:relative;border-top:1px solid var(--rule)}
+.questions li:before{content:counter(q,decimal-leading-zero);position:absolute;left:0;top:14px;font:12px var(--mono);letter-spacing:.04em;color:var(--green)}
+.questions b{display:block;font-weight:400;font-size:20px;line-height:1.2;letter-spacing:-.01em;margin-bottom:6px}
+.note{font-size:14px;line-height:1.55;color:var(--dim);max-width:78ch}
+details{max-width:980px;border-top:1px solid var(--rule);padding:12px 0;margin-top:56px}
+details summary{cursor:pointer;font:12px var(--mono);letter-spacing:.04em;text-transform:uppercase}
+footer{font-size:11px;text-transform:uppercase;border-top:1px solid var(--rule);padding:30px 0 6px;margin-top:96px}
+a{color:var(--green)}
+.draft{position:fixed;bottom:0;left:0;right:0;z-index:20;background:#b00020;color:#fff;font:12px var(--mono);text-align:center;padding:8px}
+
+ol.series{list-style:none;padding:0;margin:0 0 clamp(48px,5vw,72px);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 var(--gutter);max-width:none}
+.series li{border-top:1px solid var(--rule);padding:10px 0 0;font:12px/1.5 var(--mono);letter-spacing:.04em;text-transform:uppercase}
+.series li span{display:block;color:var(--dim)}.series a{color:var(--ink);text-decoration:none}.series a:hover{text-decoration:underline}
+.series li[aria-current]{border-top-color:var(--green)}.series li[aria-current] span{color:var(--green)}
+@media(max-width:720px){ol.series{grid-template-columns:1fr}.series li{padding-bottom:10px}}
+.next{margin-top:72px;font:12px var(--mono);letter-spacing:.04em;text-transform:uppercase}
+.next a{color:var(--ink)}
+.kicker a{color:inherit}
+</style>
+<link rel="stylesheet" href="/assets/dash.css"></head><body>
+
+<header class="sa-chrome">
+<a class="sa-chip" href="/" aria-label="SENS ADVISOR, home">SENS ADVISOR</a>
+<div class="sa-chrome-r">
+<button class="sa-menu-btn" type="button" aria-expanded="false" aria-controls="sa-menu">Menu</button>
+<button class="sa-icon-btn sa-theme" type="button" aria-label="Toggle dark mode" aria-pressed="false" title="Toggle dark mode"><span aria-hidden="true">&#9680;</span></button>
+</div>
+</header>
+<nav id="sa-menu" class="sa-menu" aria-label="Applied AI Notes" hidden>
+<div class="sa-menu-body">
+<a class="sa-menu-home" href="/">&larr; Main site</a>
+<p class="sa-menu-h">Applied AI Notes · What Businesses Are Asking AI to Do, October 2026</p>
+<ol class="sa-menu-main"><li><a href="/notes/"><span>01</span>All notes</a></li><li><a href="agents.html" aria-current="page"><span>02</span>Called an agent, specified as a workflow</a></li><li><a href="acceptance.html"><span>03</span>How will anyone know it works?</a></li><li><a href="commissioning.html"><span>04</span>Before you commission an agent</a></li></ol>
+<p class="sa-menu-h">Live data</p>
+<ol class="sa-menu-main"><li><a href="/outages/"><span>05</span>PR Outage Status</a></li><li><a href="/generation/"><span>06</span>PR Generation Status</a></li><li><a href="/reservoirs/"><span>07</span>PR Reservoir Levels</a></li><li><a href="/rentals/"><span>08</span>San Juan Rentals</a></li><li><a href="/pr-lmci/"><span>09</span>PR Labor Market Readings</a></li></ol>
+<a class="sa-menu-mail" href="mailto:consult@sensadvisor.com">consult@sensadvisor.com</a>
+</div>
+</nav>
+<article>
+<header>
+<p class="kicker"><a href="/notes/">Applied AI Notes</a> · What Businesses Are Asking AI to Do · October 2026</p>
+<h1>Called an Agent, Specified as a Workflow</h1>
+<p class="sub">What businesses ask AI systems to do, and what their requirements actually describe.</p>
+<div class="byline">J. A. Arroyo · SENS ADVISOR</div>
+</header>
+<ol class="series" aria-label="What Businesses Are Asking AI to Do, October 2026"><li aria-current="page"><span>Part 1 of 3</span><a href="agents.html">Called an agent, specified as a workflow</a></li><li><span>Part 2 of 3</span><a href="acceptance.html">How will anyone know it works?</a></li><li><span>Part 3 of 3</span><a href="commissioning.html">Before you commission an agent</a></li></ol>
+<p class="lede">For my first series, I plan to track each month what businesses ask AI systems to do: what they
+want built, how they say success will be checked, and what they leave unsettled. This is the October 2026 edition.</p>
+<p class="lede">I surveyed the requirements of about 220 real business projects published online over roughly the first two weeks of October 2026:
+businesses setting out what they want built, or improved, with AI systems that act through software tools.
+87% of them ask for an “agent”, but classified by what their requirements describe rather than by the label, 49% of those describe a fixed workflow and
+18% a model that has to choose its next step.</p>
+<p>The classification uses the framework I use with clients to decide when a task needs an agent at all. This first
+article covers what businesses ask for and what their requirements describe; the second covers how they say success
+will be checked, and the third what to settle before commissioning a system.</p>
+
+<div class="kpis"><div class="kpi"><b>87%</b><span>of projects ask for an “agent”</span></div><div class="kpi"><b>49%</b><span>of those describe a fixed workflow</span></div><div class="kpi"><b>18%</b><span>of those describe a model that chooses its next step</span></div><div class="kpi"><b>13%</b><span>of all projects are flagged as possible agent cases</span></div></div>
+
+<h2>Assistants and business workflows lead</h2>
+<p>About a quarter of projects are for a chat or voice assistant: answering customers, qualifying leads, booking
+appointments and updating the business's own systems as it goes. The next largest group automates a business workflow end to end, followed by multi-agent platforms, tool
+integrations through the Model Context Protocol (MCP), content pipelines and research monitors.</p>
+<p>The demand sits close to revenue: sales and lead generation is the largest named business domain (16%
+of projects), ahead of internal operations (12%), marketing
+(11%) and customer support (10%). Real estate and
+healthcare appear as small niches; finance, accounting and insurance together account for 3% of
+this sample.</p>
+<figure><svg viewBox="0 0 680 394" class="chart" role="img"><text x="0" y="21" class="lbl">Chat or voice assistant</text><rect x="270" y="8" width="310.0" height="18" style="fill:var(--c-ink)"/><text x="588.0" y="21" class="val">27%</text><text x="0" y="51" class="lbl">Business workflow automation</text><rect x="270" y="38" width="172.8" height="18" style="fill:var(--c-ink)"/><text x="450.78688524590166" y="51" class="val">15%</text><text x="0" y="81" class="lbl">Multi-agent platform</text><rect x="270" y="68" width="111.8" height="18" style="fill:var(--c-ink)"/><text x="389.8032786885246" y="81" class="val">10%</text><text x="0" y="111" class="lbl">Tool integration (MCP)</text><rect x="270" y="98" width="91.5" height="18" style="fill:var(--c-ink)"/><text x="369.4754098360656" y="111" class="val">8%</text><text x="0" y="141" class="lbl">Content pipeline</text><rect x="270" y="128" width="86.4" height="18" style="fill:var(--c-ink)"/><text x="364.39344262295083" y="141" class="val">8%</text><text x="0" y="171" class="lbl">Outreach sequencing</text><rect x="270" y="158" width="50.8" height="18" style="fill:var(--c-ink)"/><text x="328.8196721311475" y="171" class="val">4%</text><text x="0" y="201" class="lbl">Research or monitoring</text><rect x="270" y="188" width="50.8" height="18" style="fill:var(--c-ink)"/><text x="328.8196721311475" y="201" class="val">4%</text><text x="0" y="231" class="lbl">Knowledge Q&amp;A</text><rect x="270" y="218" width="45.7" height="18" style="fill:var(--c-ink)"/><text x="323.7377049180328" y="231" class="val">4%</text><text x="0" y="261" class="lbl">Testing, reliability, safety</text><rect x="270" y="248" width="40.7" height="18" style="fill:var(--c-ink)"/><text x="318.655737704918" y="261" class="val">4%</text><text x="0" y="291" class="lbl">Autonomous operations</text><rect x="270" y="278" width="25.4" height="18" style="fill:var(--c-ink)"/><text x="303.40983606557376" y="291" class="val">2%</text><text x="0" y="321" class="lbl">Document extraction</text><rect x="270" y="308" width="25.4" height="18" style="fill:var(--c-ink)"/><text x="303.40983606557376" y="321" class="val">2%</text><text x="0" y="351" class="lbl">Coding agent or dev tool</text><rect x="270" y="338" width="20.3" height="18" style="fill:var(--c-ink)"/><text x="298.327868852459" y="351" class="val">2%</text><text x="0" y="381" class="lbl">Other</text><rect x="270" y="368" width="101.6" height="18" style="fill:var(--c-ink)"/><text x="379.6393442622951" y="381" class="val">9%</text></svg><figcaption>Share of projects, by the task the AI system is to perform.</figcaption></figure>
+
+<h2>Called an agent, specified as a workflow</h2>
+<p>I classified each project that asks for an “agent” by what its requirements actually describe, not by the label.
+49% describe a fixed workflow: a sequence of steps with a model inside,
+possibly with branches and retries, where the order of work is known in advance. Only
+18% describe a model that has to choose its next step from what it finds, which
+is what makes a system an agent. Another 6% describe plain
+code or a single model call, and 27% do not give enough detail to tell.</p>
+<p>The tools point the same way: among projects that name a low-code automation platform (n8n, Make or Zapier),
+64% describe a fixed workflow and 14% a model
+that chooses its next step. A typical example is a lead arriving in a CRM, a model classifying it and drafting a reply,
+and the workflow routing it: an “AI agent” in name, a fixed sequence in practice.</p>
+<p>That is not a criticism: where a fixed workflow meets the acceptance criteria, it avoids the added complexity of
+letting a model direct the work, and its behaviour is easier to test. The label matters because it shapes what gets
+built and how it is judged.</p>
+<figure><svg viewBox="0 0 760 184" class="chart" role="img"><text x="0" y="21" class="lbl">Chat or voice assistant</text><rect x="230.0" y="8" width="304.2" height="18" style="fill:var(--c-ink)"><title>Chat or voice assistant, Fixed workflow: 60%</title></rect><text x="382.1" y="20.5" text-anchor="middle" class="in dk">60%</text><rect x="534.2" y="8" width="107.4" height="18" style="fill:var(--c-green)"><title>Chat or voice assistant, Model chooses next step: 21%</title></rect><text x="587.9" y="20.5" text-anchor="middle" class="in dk">21%</text><rect x="641.6" y="8" width="17.9" height="18" style="fill:var(--c-mid)"><title>Chat or voice assistant, One model call: 4%</title></rect><rect x="659.5" y="8" width="80.5" height="18" style="fill:var(--c-pale)"><title>Chat or voice assistant, Too vague to tell: 16%</title></rect><text x="699.7" y="20.5" text-anchor="middle" class="in">16%</text><text x="0" y="51" class="lbl">Business workflow automation</text><rect x="230.0" y="38" width="244.8" height="18" style="fill:var(--c-ink)"><title>Business workflow automation, Fixed workflow: 48%</title></rect><text x="352.4" y="50.5" text-anchor="middle" class="in dk">48%</text><rect x="474.8" y="38" width="20.4" height="18" style="fill:var(--c-green)"><title>Business workflow automation, Model chooses next step: 4%</title></rect><rect x="495.2" y="38" width="20.4" height="18" style="fill:var(--c-mid)"><title>Business workflow automation, One model call: 4%</title></rect><rect x="515.6" y="38" width="20.4" height="18" style="fill:var(--c-light)"><title>Business workflow automation, Plain code: 4%</title></rect><rect x="536.0" y="38" width="204.0" height="18" style="fill:var(--c-pale)"><title>Business workflow automation, Too vague to tell: 40%</title></rect><text x="638.0" y="50.5" text-anchor="middle" class="in">40%</text><text x="0" y="81" class="lbl">Multi-agent platform</text><rect x="230.0" y="68" width="92.7" height="18" style="fill:var(--c-ink)"><title>Multi-agent platform, Fixed workflow: 18%</title></rect><text x="276.4" y="80.5" text-anchor="middle" class="in dk">18%</text><rect x="322.7" y="68" width="208.6" height="18" style="fill:var(--c-green)"><title>Multi-agent platform, Model chooses next step: 41%</title></rect><text x="427.0" y="80.5" text-anchor="middle" class="in dk">41%</text><rect x="531.4" y="68" width="208.6" height="18" style="fill:var(--c-pale)"><title>Multi-agent platform, Too vague to tell: 41%</title></rect><text x="635.7" y="80.5" text-anchor="middle" class="in">41%</text><text x="0" y="111" class="lbl">Content pipeline</text><rect x="230.0" y="98" width="382.5" height="18" style="fill:var(--c-ink)"><title>Content pipeline, Fixed workflow: 75%</title></rect><text x="421.2" y="110.5" text-anchor="middle" class="in dk">75%</text><rect x="612.5" y="98" width="63.8" height="18" style="fill:var(--c-green)"><title>Content pipeline, Model chooses next step: 12%</title></rect><text x="644.4" y="110.5" text-anchor="middle" class="in dk">12%</text><rect x="676.2" y="98" width="63.8" height="18" style="fill:var(--c-pale)"><title>Content pipeline, Too vague to tell: 12%</title></rect><text x="708.1" y="110.5" text-anchor="middle" class="in">12%</text><text x="0" y="141" class="lbl">Outreach sequencing</text><rect x="230.0" y="128" width="510.0" height="18" style="fill:var(--c-ink)"><title>Outreach sequencing, Fixed workflow: 100%</title></rect><text x="485.0" y="140.5" text-anchor="middle" class="in dk">100%</text><text x="0" y="171" class="lbl">Other categories</text><rect x="230.0" y="158" width="178.1" height="18" style="fill:var(--c-ink)"><title>Other categories, Fixed workflow: 35%</title></rect><text x="319.0" y="170.5" text-anchor="middle" class="in dk">35%</text><rect x="408.1" y="158" width="89.0" height="18" style="fill:var(--c-green)"><title>Other categories, Model chooses next step: 17%</title></rect><text x="452.6" y="170.5" text-anchor="middle" class="in dk">17%</text><rect x="497.1" y="158" width="24.3" height="18" style="fill:var(--c-mid)"><title>Other categories, One model call: 5%</title></rect><rect x="521.4" y="158" width="40.5" height="18" style="fill:var(--c-light)"><title>Other categories, Plain code: 8%</title></rect><text x="541.7" y="170.5" text-anchor="middle" class="in">8%</text><rect x="561.9" y="158" width="178.1" height="18" style="fill:var(--c-pale)"><title>Other categories, Too vague to tell: 35%</title></rect><text x="651.0" y="170.5" text-anchor="middle" class="in">35%</text></svg><div class="legend"><span><i style="background:var(--c-ink)"></i>Fixed workflow</span><span><i style="background:var(--c-green)"></i>Model chooses next step</span><span><i style="background:var(--c-mid)"></i>One model call</span><span><i style="background:var(--c-light)"></i>Plain code</span><span><i style="background:var(--c-pale)"></i>Too vague to tell</span></div>
+<figcaption>Projects asking for an “agent”, by the design their requirements imply.</figcaption></figure>
+
+<h2>Where model-directed control may help</h2>
+<p>A separate screen asks a different question: not what design the requirements describe, but whether the task holds a
+decision that a fixed procedure might leave unresolved. It flags 13% of projects as possible agent cases, whose open decisions fall into three kinds:</p>
+<ul>
+<li><b>What to do next, given results.</b> Choosing next week's topics and formats from performance data, the next
+hypothesis to test, the next change to make toward a ranking goal.</li>
+<li><b>How to carry out a free-form request.</b> Turning a spoken or written request into the right actions across
+several applications, or handling whatever a caller or a phone menu presents mid-conversation.</li>
+<li><b>How to resolve evidence that does not fit.</b> Deciding which source to check next when records conflict, or
+how to read a form or portal the system has not seen before.</li>
+</ul>
+<p>These projects more often name a step that needs interpretation, human review or guardrails. More of them also
+state how success would be judged and ask for testing or evaluation as part of the work, so on the whole their requirements are more complete than those of other projects.</p>
+<table><thead><tr><th>Requirement</th><th>Possible agent cases</th><th>All other projects</th></tr></thead>
+<tbody><tr><td>A step that needs interpretation</td><td>90%</td><td>30%</td></tr><tr><td>Human review, approval or handoff</td><td>86%</td><td>40%</td></tr><tr><td>Guardrails, privacy, compliance</td><td>90%</td><td>39%</td></tr><tr><td>Deployment, monitoring, maintenance</td><td>66%</td><td>45%</td></tr><tr><td>Testing or evaluation</td><td>69%</td><td>51%</td></tr><tr><td>No success check stated</td><td>17%</td><td>43%</td></tr></tbody></table>
+<p class="note">Passing the screen warrants comparing model-directed control with the strongest fixed workflow; it does
+not show that an agent is needed. Interpretation is part of the screen, so that difference is partly built in.</p>
+
+<h2>What they build with</h2>
+<p>Low-code automation platforms (n8n, Make, Zapier) are named in 36% of projects, and OpenAI in 30%, while developer agent frameworks such as LangChain and LangGraph appear
+in only 12%. These categories can overlap,
+and the requirements may not name every tool used.</p>
+<figure><svg viewBox="0 0 680 454" class="chart" role="img"><text x="0" y="21" class="lbl">n8n</text><rect x="180" y="8" width="400.0" height="18" style="fill:var(--c-mid)"/><text x="588.0" y="21" class="val">32%</text><text x="0" y="51" class="lbl">OpenAI</text><rect x="180" y="38" width="377.5" height="18" style="fill:var(--c-mid)"/><text x="565.4647887323944" y="51" class="val">30%</text><text x="0" y="81" class="lbl">Python</text><rect x="180" y="68" width="332.4" height="18" style="fill:var(--c-mid)"/><text x="520.3943661971831" y="81" class="val">26%</text><text x="0" y="111" class="lbl">Claude</text><rect x="180" y="98" width="326.8" height="18" style="fill:var(--c-mid)"/><text x="514.7605633802816" y="111" class="val">26%</text><text x="0" y="141" class="lbl">Make</text><rect x="180" y="128" width="236.6" height="18" style="fill:var(--c-mid)"/><text x="424.6197183098592" y="141" class="val">19%</text><text x="0" y="171" class="lbl">MCP</text><rect x="180" y="158" width="225.4" height="18" style="fill:var(--c-mid)"/><text x="413.3521126760563" y="171" class="val">18%</text><text x="0" y="201" class="lbl">GoHighLevel</text><rect x="180" y="188" width="169.0" height="18" style="fill:var(--c-mid)"/><text x="357.01408450704224" y="201" class="val">13%</text><text x="0" y="231" class="lbl">Twilio</text><rect x="180" y="218" width="140.8" height="18" style="fill:var(--c-mid)"/><text x="328.8450704225352" y="231" class="val">11%</text><text x="0" y="261" class="lbl">Zapier</text><rect x="180" y="248" width="140.8" height="18" style="fill:var(--c-mid)"/><text x="328.8450704225352" y="261" class="val">11%</text><text x="0" y="291" class="lbl">Node.js</text><rect x="180" y="278" width="123.9" height="18" style="fill:var(--c-mid)"/><text x="311.943661971831" y="291" class="val">10%</text><text x="0" y="321" class="lbl">PostgreSQL</text><rect x="180" y="308" width="107.0" height="18" style="fill:var(--c-mid)"/><text x="295.0422535211268" y="321" class="val">9%</text><text x="0" y="351" class="lbl">Retell</text><rect x="180" y="338" width="107.0" height="18" style="fill:var(--c-mid)"/><text x="295.0422535211268" y="351" class="val">9%</text><text x="0" y="381" class="lbl">HubSpot</text><rect x="180" y="368" width="95.8" height="18" style="fill:var(--c-mid)"/><text x="283.7746478873239" y="381" class="val">8%</text><text x="0" y="411" class="lbl">LangChain</text><rect x="180" y="398" width="95.8" height="18" style="fill:var(--c-mid)"/><text x="283.7746478873239" y="411" class="val">8%</text><text x="0" y="441" class="lbl">Vapi</text><rect x="180" y="428" width="95.8" height="18" style="fill:var(--c-mid)"/><text x="283.7746478873239" y="441" class="val">8%</text></svg><figcaption>The 15 tools named most often; share of projects naming each.</figcaption></figure>
+
+<h2>What this means</h2>
+<p>The demand is real and practical: businesses want systems that answer, book, qualify and update the tools they
+already run, and much of what they describe can be built as a well-designed workflow. The word “agent” should open a
+conversation about design, not settle it, and the tasks flagged as possible agent cases deserve a direct comparison
+with the strongest workflow before anyone commits to an agent.</p>
+
+<p class="next">Next: <a href="acceptance.html">How will anyone know it works?</a></p>
+<details><summary>Method and limits</summary>
+<p>I surveyed requirements that businesses published online for AI projects over roughly the first two weeks of October 2026, kept those that ask
+for a system acting through software tools, and kept the projects to build a new system or fix or extend an existing
+one. A language model classified each set of requirements against a fixed codebook built on the design process
+and task-screening worksheet I use in practice: the task, the trigger, the design the requirements imply, how success
+would be checked, the requirements stated, the level of specification and the tools named.</p>
+<p>Limits. The requirements were published in one place over about two weeks, so they describe these projects, not the
+whole market; shares are of projects, and one business may have several. Each project has one retained set of
+labels; longer requirements were reclassified from the full text, and the latest result was kept.
+The success-check label was reviewed separately: a second model labelled every project twice, and where its labels and the original disagreed, about a third of projects, a third model settled the label under written rules. Where all three agreed, the label was checked against the same rules, and the third model settled any the check would change, although agreement does not establish correctness. Other labels were not independently re-coded, and no manual audit has been done. The classification read the full text of each set of requirements and reflects what they state, not the
+system eventually built; businesses may have plans they did not write down. Shares for small groups, such as
+existing-system work and possible agent cases, are indicative.</p>
+<p>Each edition uses the same sources, window and codebook, so editions can be compared; changes describe the mix of
+requirements, not market growth.</p>
+</details>
+<details><summary>Use of AI tools</summary>
+<p>A language model classified the requirements against my codebook and helped draft the analysis code and this text,
+and other AI models re-checked the success-check labels and reviewed the method and claims. I designed the framework and the codebook, checked the figures and am
+responsible for the conclusions.</p>
+</details>
+<footer>SENS ADVISOR · consult@sensadvisor.com · October 2026 edition</footer>
+</article>
+<script src="/assets/dash.js" defer></script></body></html>

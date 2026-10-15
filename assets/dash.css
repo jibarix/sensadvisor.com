@@ -86,6 +86,11 @@
 .sa-menu-home:hover { color: #36e08a; box-shadow: inset 0 0 0 1px #36e08a; }
 .sa-menu-h { margin: 0 0 12px; color: #9aa0a6; }
 .sa-menu-mail { display: block; margin-top: 28px; font-size: 13px; }
+/* A second group (Notes) under the dashboards. */
+.sa-menu-main + .sa-menu-h { margin-top: 32px; }
+.sa-menu-main + .sa-menu-h + .sa-menu-main a { padding: 8px 0; font-size: clamp(18px, 1.6vw, 26px); }
+/* Scroll when the groups outgrow a short screen; 'safe' keeps the top reachable. */
+.sa-menu { overflow-y: auto; align-items: safe end; }
 html.sa-menu-open { overflow: hidden; }
 
 /* The section index: a hairline row that pins to the top, its links set
