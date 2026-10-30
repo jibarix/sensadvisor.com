@@ -1,17 +1,11 @@
-/* v8 (2026-10-09): the method as a flowchart with a branch. One main path
-   for every engagement; at 06 the Intelligence remedy branches into an AI
-   track (A1-A5) to the right of the spine, which rejoins it above 07.
-   Connect and Centralize carry down the spine to Build & validate, with the
-   AI track's spine passing between that box and its note. Dashed lines are
-   return paths: Stabilize, A4 back to A1, and 08 back to 01.
-   Delete this file, its <link> and the .flow markup to drop the trial;
-   ?process=cards shows the cards instead. */
+/* v9 (2026-10-30): the applied-AI process as one spine, 12 steps. No AI side
+   track: the whole flow is the AI process. Dashed lines are return paths:
+   Stabilize back to 04; 10 back to 08 (adjust and rerun); 12 back to 09
+   (new test cases); 12 back to 01 (next process). */
 
 .flow { max-width: calc(50% - var(--gutter)); }
-html:not(.proc-cards) .cards,
-html.proc-cards .flow { display: none; }
 
-/* ─── Grid: lane label | loop | step box | note ─────────────────────── */
+/* ─── Grid: lane label | outer loop | inner loop | step box | note ──── */
 .fc {
     --bw: 196px;   /* step box column */
     --bh: 50px;    /* step box height */
@@ -19,15 +13,12 @@ html.proc-cards .flow { display: none; }
     --dh: 76px;
     --cg: 18px;    /* box to note */
     --rg: 30px;    /* between steps */
-    --g: 22px;     /* main spine to the AI track's left edge: puts --ax between Build & validate's box and note */
-    --acg: 28px;   /* AI box to note: room for the A4 return path */
-    --ax: calc(var(--bw) / 2 + var(--g) + var(--dw) / 2);   /* AI track centre line */
     position: relative; display: grid;
-    grid-template-columns: 96px 22px var(--bw) minmax(0, 1fr); row-gap: var(--rg);
+    grid-template-columns: 96px 22px 16px var(--bw) minmax(0, 1fr); row-gap: var(--rg);
 }
 .flow-chart { display: contents; list-style: none; }
 .flow-chart > li {
-    position: relative; z-index: 1; grid-column: 3 / 5;
+    position: relative; z-index: 1; grid-column: 4 / 6;
     display: grid; grid-template-columns: var(--bw) minmax(0, 1fr); column-gap: var(--cg); align-items: start;
 }
 .flow-chart > li:nth-child(1) { grid-row: 1; } .flow-chart > li:nth-child(2) { grid-row: 2; }
@@ -36,19 +27,20 @@ html.proc-cards .flow { display: none; }
 .flow-chart > li:nth-child(7) { grid-row: 7; } .flow-chart > li:nth-child(8) { grid-row: 8; }
 .flow-chart > li:nth-child(9) { grid-row: 9; } .flow-chart > li:nth-child(10) { grid-row: 10; }
 .flow-chart > li:nth-child(11) { grid-row: 11; } .flow-chart > li:nth-child(12) { grid-row: 12; }
-.flow-chart > li:nth-child(13) { grid-row: 13; } .flow-chart > li:nth-child(14) { grid-row: 14; }
 
 /* Lanes: a rule half a gap above their first step, the label under it. */
 .fc-band { grid-column: 1 / -1; margin-top: calc(var(--rg) / -2); border-top: 1px solid var(--line); pointer-events: none; }
 .fc-band span { display: block; padding-top: 8px; font-size: 10px; letter-spacing: .08em; color: var(--dim); }
-.fc-b1 { grid-row: 1 / 4; margin-top: 0; border-top: 0; }
+.fc-b1 { grid-row: 1 / 5; margin-top: 0; border-top: 0; }
 .fc-b1 span { padding-top: 0; }
-.fc-b2 { grid-row: 4 / 7; }
-.fc-b3 { grid-row: 7 / 13; }
-.fc-b4 { grid-row: 13 / 15; }
+.fc-b2 { grid-row: 5 / 8; }
+.fc-b3 { grid-row: 8 / 11; }
+.fc-b4 { grid-row: 11 / 13; }
 
-/* One spine from the middle of 01 to the middle of 08; the boxes cover it. */
-.fc-spine { grid-column: 3; grid-row: 1 / 15; justify-self: center; width: 1px; margin: calc(var(--bh) / 2) 0; background: var(--line); }
+/* One spine from the middle of 01 to the middle of 12; the boxes cover it.
+   It ends on row 11 and reaches down into 12, so a tall note beside 12
+   cannot push its end below the box. */
+.fc-spine { grid-column: 4; grid-row: 1 / 12; justify-self: center; width: 1px; margin: calc(var(--bh) / 2) 0 calc(-1 * (var(--rg) + var(--bh) / 2)); background: var(--line); }
 
 /* ─── Steps ─────────────────────────────────────────────────────────── */
 .fc-box {
@@ -65,15 +57,12 @@ html.proc-cards .flow { display: none; }
 
 .fc-note { margin: 0; min-height: var(--bh); display: flex; flex-direction: column; justify-content: center; color: var(--dim); }
 p.fc-note, .fc-sub { font-size: 11px; letter-spacing: .04em; }
-.fc-chips { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 20px; font-size: 11px; color: var(--fg); }
+.fc-chips { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; font-size: 11px; color: var(--fg); }
 .fc-chips span { position: relative; padding: 3px 7px; border: 1px solid var(--line); }
-/* Each arrow rides with the chip it points to, so a wrapped chip keeps it. */
-/* Three alternatives, not a sequence: no arrows between them. */
-.fc-chips { gap: 6px 8px; }
 .fc-chips .fc-chip-ai { border-color: var(--accent); border-left-width: 3px; }
 .fc-sub { margin: 5px 0 0; }
 
-/* ─── Step 04: the gate ─────────────────────────────────────────────── */
+/* ─── Decisions ─────────────────────────────────────────────────────── */
 .fc-dia {
     justify-self: center; width: var(--dw); height: var(--dh); padding: 0;
     flex-direction: column; justify-content: center; gap: 3px; border: 0; background: none;
@@ -86,9 +75,9 @@ p.fc-note, .fc-sub { font-size: 11px; letter-spacing: .04em; }
 /* The name sits on the diamond's widest line; the number rides above it. */
 .fc-dia > .mono { position: absolute; left: 0; right: 0; bottom: calc(50% + 11px); text-align: center; line-height: 1; }
 .fc-key .fc-note { min-height: var(--dh); }
-.fc-yes { position: absolute; top: calc(var(--dh) + 5px); left: calc(var(--bw) / 2 + 9px); font-size: 10px; color: var(--dim); }
+.fc-yes { position: absolute; top: calc(var(--dh) + 5px); left: calc(var(--bw) / 2 + 9px); font-size: 10px; color: var(--dim); white-space: nowrap; padding: 0 4px; margin-left: -4px; background: var(--bg); }
 
-/* The branch: out to Stabilize on a solid arm, back on a dashed one.
+/* 04's branch: out to Stabilize on a solid arm, back on a dashed one.
    Both arms start on the diamond's edge, 9px above and below its tip. */
 .fc-branch { position: relative; }
 .fc-arm {
@@ -106,73 +95,33 @@ p.fc-note, .fc-sub { font-size: 11px; letter-spacing: .04em; }
     padding: 0 12px; border: 1px solid var(--line); background: var(--bg); font-size: 15px; color: var(--fg);
 }
 
-/* ─── The loop: dashed, from 08 back up into 01 ─────────────────────── */
-.fc-loop {
-    position: relative; grid-column: 2; grid-row: 1 / 15; margin: calc(var(--bh) / 2) 0;
-    border: 1px dashed var(--line); border-right: 0;
-}
-.fc-loop::after { content: ''; position: absolute; top: -4.5px; right: 0; border: 4px solid transparent; border-right: 0; border-left: 6px solid var(--line); }
-.fc-loop span {
+/* ─── Return paths ──────────────────────────────────────────────────── */
+/* Outer: 12 back up into 01, the next process. */
+.fc-loop, .fc-feed { position: relative; margin: calc(var(--bh) / 2) 0 calc(-1 * (var(--rg) + var(--bh) / 2)); border: 1px dashed var(--line); border-right: 0; }
+.fc-loop { grid-column: 2 / 4; grid-row: 1 / 12; }
+/* Inner: 12 back into 09, problems in operation become test cases. */
+.fc-feed { grid-column: 3; grid-row: 9 / 12; }
+.fc-loop::after, .fc-feed::after { content: ''; position: absolute; top: -4.5px; right: 0; border: 4px solid transparent; border-right: 0; border-left: 6px solid var(--line); }
+.fc-loop span, .fc-feed span {
     position: absolute; top: 50%; left: -1px; translate: -50% -50%; rotate: 180deg; writing-mode: vertical-rl;
     padding: 8px 0; background: var(--bg); font-size: 10px; letter-spacing: .06em; color: var(--dim); white-space: nowrap;
 }
+/* Its label sits beside Test and Bar met?, clear of the Roll out lane label. */
+.fc-feed span { top: 30%; }
+/* The test loop: 10 back up into 08, just right of the boxes. */
+.fc-retry { position: relative; grid-column: 4 / 6; grid-row: 8 / 10; pointer-events: none; }
+.fc-retry::before {
+    content: ''; position: absolute; top: calc(var(--bh) / 2); bottom: calc(-1 * (var(--rg) + var(--dh) / 2));
+    left: calc(var(--bw) / 2 + var(--dw) / 2); width: calc(var(--bw) / 2 - var(--dw) / 2 + var(--cg) / 2);
+    border: 1px dashed var(--accent); border-left: 0;
+}
+.fc-retry::after {
+    content: ''; position: absolute; top: calc(var(--bh) / 2 - 4.5px); left: var(--bw);
+    border: 4px solid transparent; border-left: 0; border-right: 6px solid var(--accent);
+}
 
-/* ─── The AI track ──────────────────────────────────────────────────
-   Its steps sit right of the spine, centred on --ax; the spine keeps
-   running past them on the left for Connect and Centralize. */
-.flow-chart > li.fc-ai {
-    grid-template-columns: var(--dw) minmax(0, 1fr); column-gap: var(--acg);
-    padding-left: calc(var(--bw) / 2 + var(--g));
-}
-.flow-chart > li.fc-ai::before { left: calc(var(--ax) - 4px); }
-.fc-ai .fc-box:not(.fc-dia) { border-left: 3px solid var(--accent); }
-.fc-ai .fc-box b { font-size: 17px; }
-
-/* Out of 06's right tip, across, and down into A1; the label sits left of
-   the drop, just above the AI track's lane rule, clear of 06's note. */
-.fc-fork { position: relative; grid-column: 3 / 5; grid-row: 6; pointer-events: none; }
-.fc-fork::before {
-    content: ''; position: absolute; top: calc(var(--dh) / 2); left: calc(var(--bw) / 2 + var(--dw) / 2);
-    width: var(--g); height: calc(100% - var(--dh) / 2 + var(--rg) - 1px);
-    border-top: 1px solid var(--line); border-right: 1px solid var(--line);
-}
-.fc-fork span {
-    position: absolute; top: calc(100% + 2px); right: calc(100% - var(--ax) + 6px);
-    font-size: 10px; letter-spacing: .04em; color: var(--dim); white-space: nowrap; padding: 0 3px; background: var(--bg);
-}
-/* The track's own spine, from A1's centre past Build & validate. */
-.fc-rail { position: relative; grid-column: 3 / 5; grid-row: 7 / 13; pointer-events: none; }
-.fc-rail::before { content: ''; position: absolute; top: calc(var(--dh) / 2); bottom: 0; left: var(--ax); width: 1px; background: var(--line); }
-/* Back to the spine half a gap above 07, whose arrowhead it shares. */
-.fc-join { position: relative; grid-column: 3 / 5; grid-row: 12; pointer-events: none; }
-.fc-join::before {
-    content: ''; position: absolute; top: 100%; left: calc(var(--bw) / 2); width: calc(var(--ax) - var(--bw) / 2); height: calc(var(--rg) / 2);
-    border-right: 1px solid var(--line); border-bottom: 1px solid var(--line);
-}
-/* A4 back to A1, dashed, just right of the boxes. */
-.fc-redo { position: relative; grid-column: 3 / 5; grid-row: 7 / 10; pointer-events: none; }
-.fc-redo::before {
-    content: ''; position: absolute; top: calc(var(--dh) / 2); bottom: calc(-1 * (var(--rg) + var(--bh) / 2));
-    left: calc(var(--ax) + var(--dw) / 2); width: calc(var(--acg) / 2);
-    border: 1px dashed var(--line); border-left: 0;
-}
-.fc-redo::after {
-    content: ''; position: absolute; top: calc(var(--dh) / 2 - 4.5px); left: calc(var(--ax) + var(--dw) / 2 - 1px);
-    border: 4px solid transparent; border-left: 0; border-right: 6px solid var(--line);
-}
-/* Build & validate: a plain step on the spine; its note clears the AI
-   track's spine, which passes in the gap. */
-.flow-chart > li.fc-bv { column-gap: calc(2 * (var(--ax) - var(--bw))); }
-.fc-bv .fc-box b { font-size: 17px; white-space: nowrap; }
-/* 06's note likewise clears the drop into A1. */
-.flow-chart > li.fc-remedy { column-gap: calc(2 * (var(--ax) - var(--bw))); }
-
-/* Connect and Centralize ride the spine past the AI track. */
-.fc-bypass { position: relative; grid-column: 3; grid-row: 7 / 12; pointer-events: none; }
-.fc-bypass span {
-    position: absolute; top: 50%; left: calc(var(--bw) / 2); translate: -50% -50%; rotate: 180deg; writing-mode: vertical-rl;
-    padding: 8px 0; background: var(--bg); font-size: 10px; letter-spacing: .06em; color: var(--dim); white-space: nowrap;
-}
+/* Words for screen readers where a line carries the meaning. */
+.fc-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
 /* ─── Legend ────────────────────────────────────────────────────────── */
 .fc-legend {
@@ -183,38 +132,43 @@ p.fc-note, .fc-sub { font-size: 11px; letter-spacing: .04em; }
 .fc-legend i { display: inline-block; }
 .lg-box { width: 13px; height: 9px; border: 1px solid var(--line); }
 .lg-dia { width: 8px; height: 8px; margin: 0 2px; border: 1.5px solid var(--accent); rotate: 45deg; }
-.lg-ai { width: 13px; height: 9px; border: 1px solid var(--line); border-left: 3px solid var(--accent); }
-.lg-fork { width: 14px; height: 9px; margin-top: 9px; border-top: 1px solid var(--line); border-right: 1px solid var(--line); }
-.lg-line, .lg-loop { width: 20px; border-top: 1px solid var(--line); }
+.lg-line, .lg-loop, .lg-test { width: 20px; border-top: 1px solid var(--line); }
 .lg-loop { border-top-style: dashed; }
+.lg-test { border-top: 1px dashed var(--accent); }
 
 @media (max-width: 900px) { .flow { max-width: none; } }
 /* Narrow laptops get the half column, phones the full width: both use the
    compact grid, with the lane labels at the right end of their rule. */
 @media (max-width: 1180px) {
-    .fc { --bw: 150px; --bh: 46px; --dw: 140px; --dh: 70px; --cg: 12px; --rg: 28px; grid-template-columns: 0 14px var(--bw) minmax(0, 1fr); }
-    /* Lane labels move to the right end of their rule. */
+    .fc { --bw: 150px; --bh: 46px; --dw: 140px; --dh: 70px; --cg: 12px; --rg: 28px; grid-template-columns: 0 14px 12px var(--bw) minmax(0, 1fr); }
+    /* Lane labels sit on their rule, in the gap between steps, so a tall
+       note can never run into them. */
     .fc-band { position: relative; }
-    .fc-band span { position: absolute; right: 0; top: 0; padding-top: 4px; }
+    .fc-band span { position: absolute; right: 0; top: 0; translate: 0 -50%; padding: 0 0 0 6px; line-height: 1.2; background: var(--bg); }
     .fc { margin-top: 20px; }
     .fc-b1 { margin-top: calc(var(--rg) / -2); border-top: 1px solid var(--line); }
-    .fc-b1 span { padding-top: 4px; }
+    .fc-b1 span { padding-top: 0; }
     .fc-box { padding: 0 10px; gap: 9px; }
     .fc-box b { font-size: 16px; }
     .fc-dia b { font-size: 15px; }
     .fc-arm { --arm-x: -35px; --side-x: 104px; }
     .fc-arm i { font-size: 9px; letter-spacing: .01em; }
     .fc-side { left: 104px; height: 36px; padding: 0 9px; font-size: 14px; }
-    .fc { --g: 14px; --acg: 24px; }
-    .fc-bv .fc-box b { font-size: 14px; }
-    .fc-ai .fc-box b { font-size: 15px; }
-    .fc-fork span, .fc-bypass span { font-size: 9px; }
+    .fc-loop span, .fc-feed span { font-size: 9px; }
 }
-/* Phones: AI notes drop under their box, right of the track's spine, and the
-   A4 return path is left to the note's words. */
+/* Phones: a narrower step column so notes get room. Stabilize is pinned to
+   the right edge with its label above it. */
 @media (max-width: 600px) {
-    .flow-chart > li.fc-ai { row-gap: 6px; }
-    .fc-ai .fc-note { grid-column: 1 / -1; min-height: 0; margin-left: calc(var(--dw) / 2 + 10px); }
-    .fc-ai.fc-key .fc-note { min-height: 0; }
-    .fc-redo { display: none; }
+    .fc { --bw: 136px; --dw: 128px; --dh: 66px; --cg: 10px; }
+    .fc-branch { --side-w: 76px; }
+    .fc-arm { --arm-x: -31px; width: auto; right: var(--side-w); }
+    .fc-arm i { left: auto; right: calc(-1 * var(--side-w)); bottom: 22px; }
+    .fc-side { left: auto; right: 0; width: var(--side-w); justify-content: center; padding: 0; font-size: 13px; }
+}
+/* Phones and the narrow half column: 10's note and exit drop under the
+   diamond, right of the spine, so the exit never overlaps the note. */
+@media (max-width: 600px), (min-width: 901px) and (max-width: 1180px) {
+    .flow-chart > li.fc-gate { row-gap: 6px; }
+    .fc-gate .fc-note { grid-column: 1 / -1; min-height: 0; margin-left: calc(var(--bw) / 2 + 12px); }
+    .fc-gate .fc-yes { position: static; grid-column: 1 / -1; justify-self: start; margin-left: calc(var(--bw) / 2 + 5px); white-space: normal; }
 }
