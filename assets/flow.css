@@ -165,10 +165,11 @@ p.fc-note, .fc-sub { font-size: 11px; letter-spacing: .04em; }
     .fc-arm i { left: auto; right: calc(-1 * var(--side-w)); bottom: 22px; }
     .fc-side { left: auto; right: 0; width: var(--side-w); justify-content: center; padding: 0; font-size: 13px; }
 }
-/* Phones and the narrow half column: 10's note and exit drop under the
-   diamond, right of the spine, so the exit never overlaps the note. */
+/* 10's exit gets its own row under the diamond, right of the spine, so a
+   note taller than the diamond never runs into it. */
+.flow-chart > li.fc-gate { row-gap: 6px; }
+.fc-gate .fc-yes { position: static; grid-column: 1 / -1; justify-self: start; margin-left: calc(var(--bw) / 2 + 5px); white-space: normal; }
+/* Phones and the narrow half column: the note drops under the diamond too. */
 @media (max-width: 600px), (min-width: 901px) and (max-width: 1180px) {
-    .flow-chart > li.fc-gate { row-gap: 6px; }
     .fc-gate .fc-note { grid-column: 1 / -1; min-height: 0; margin-left: calc(var(--bw) / 2 + 12px); }
-    .fc-gate .fc-yes { position: static; grid-column: 1 / -1; justify-self: start; margin-left: calc(var(--bw) / 2 + 5px); white-space: normal; }
 }
