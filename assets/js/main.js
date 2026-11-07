@@ -46,7 +46,9 @@ function measure() {
     maxScroll = Math.max(1, html.scrollHeight - innerHeight);
     // Phones: the cube scrolls away with the page after it lands under the
     // projects, so the solve finishes where it lands, while it's in view.
-    if (phone.matches) maxScroll = Math.max(1, Math.min(maxScroll, projFoot.getBoundingClientRect().top + scrollY - landAt(projFoot)));
+    // Rounded down: scroll stops on whole pixels, and a fraction short of
+    // the landing would leave the last turn unfinished.
+    if (phone.matches) maxScroll = Math.max(1, Math.min(maxScroll, Math.floor(projFoot.getBoundingClientRect().top + scrollY - landAt(projFoot))));
     paintSectionTurns();
 }
 const target = () => Math.min(1, Math.max(0, scrollY / maxScroll));
