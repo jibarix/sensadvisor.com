@@ -14,6 +14,9 @@ const html = document.documentElement;
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const fine = matchMedia('(pointer: fine)').matches;
 const clamp = v => Math.min(1, Math.max(0, v));
+// The signal: front speed px/s, soft front px, fade behind it px, px of
+// front between signals, and how far out it dims.
+const G = { v: 150, w: 90, L: 220, P: 1200, reach: 600 };
 const ease = t => t < .5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
 
 // Seeded, so the neuron keeps its shape between visits and resizes.
@@ -36,6 +39,8 @@ function grow(w, h) {
     const cols = Math.ceil(w / CW), rows = Math.ceil(h / CH);
     const dens = new Float32Array(cols * rows);
     const dist = new Float32Array(cols * rows).fill(1e9);
+    const body = new Uint8Array(cols * rows), src = new Uint8Array(cols * rows);
+    let from = 0;   // the soma being grown
     const u = Math.min(w, h);
     const stamp = (x, y, r, v, d) => {
         const reach = Math.max(r, CW * .5);
@@ -46,7 +51,7 @@ function grow(w, h) {
             if (q >= 1) continue;
             const i = rr * cols + c;
             dens[i] = Math.max(dens[i], v * (.4 + .6 * Math.sqrt(1 - q * q)));   // a lit tube
-            dist[i] = Math.min(dist[i], d);
+            if (d < dist[i]) { dist[i] = d; src[i] = from; }
         }
     };
     const out = (x, y) => x < -w * .15 || x > w * 1.15 || y < -h * .15 || y > h * 1.15;
@@ -68,7 +73,8 @@ function grow(w, h) {
         { x: .93, y: .82, r: .09, n: 7 },
         { x: -.04, y: 1.02, r: .08, n: 5 },
     ];
-    for (const s of somas) {
+    for (const [si, s] of somas.entries()) {
+        from = si;
         const sx = s.x * w, sy = s.y * h, R = s.r * u;
         // The cell body: a round, slightly lumpy sphere, lit from the top
         // left, with the bright rim an electron micrograph gives an edge.
@@ -85,7 +91,10 @@ function grow(w, h) {
             const lit = Math.max(0, nx * L[0] + ny * L[1] + nz * L[2]);
             const i = rr * cols + c;
             dens[i] = Math.max(dens[i], clamp(.14 + lit * .8 + q ** 8 * .5 + (rnd() - .5) * .08));
-            dist[i] = 0;
+            // Distance from the centre, so a signal lights the body from
+            // the inside out and carries on into the dendrites.
+            body[i] = 1;
+            if (q * R * .85 < dist[i]) { dist[i] = q * R * .85; src[i] = si; }
         }
         const a0 = rnd() * Math.PI * 2;
         for (let k = 0; k < s.n; k++) {
@@ -94,6 +103,7 @@ function grow(w, h) {
         }
     }
     // One long axon from the first soma towards the second.
+    from = 0;
     let x = somas[0].x * w, y = somas[0].y * h, d = 0, th = 3.2;
     let ang = Math.atan2(somas[1].y * h - y, somas[1].x * w - x);
     for (let n = 0; n < 900 && !out(x, y); n++) {
@@ -107,10 +117,10 @@ function grow(w, h) {
     const parts = [];
     for (let rr = 0; rr < rows; rr++) for (let c = 0; c < cols; c++) {
         const i = rr * cols + c, v = dens[i];
-        if (dist[i] > 0 ? v < .3 || rnd() < .5 * (1 - v) : v < .12) continue;   // bodies solid, branches sparse
+        if (!body[i] ? v < .3 || rnd() < .5 * (1 - v) : v < .12) continue;   // bodies solid, branches sparse
         const g = Math.round(clamp(v + (rnd() - .5) * .35) * (RAMP.length - 1));
         const hx = (c + .5) * CW, hy = (rr + .5) * CH, ha = .05 + v * .5;
-        parts.push({ hx, hy, ha, ch: RAMP[g], d: dist[i], dv: v,
+        parts.push({ hx, hy, ha, ch: RAMP[g], d: dist[i], dv: v, src: src[i],
             x: hx, y: hy, s: HOME_SIZE, a: ha, key: null, tg: null, tw: null });
     }
     return parts;
@@ -302,12 +312,19 @@ export function startNeurons() {
             const size = p.s * 2;
             ctx.globalAlpha = a;
             ctx.drawImage(glyph(p.font, ch, FG), p.x - p.s, p.y - p.s, size, size);
-            // A signal travels out from each soma along the dendrites.
+            // A signal swells in each soma and travels out along the
+            // dendrites: a soft front, a slow fade behind it, dimmer
+            // towards the ends. Each soma fires on its own beat.
             if (home && mode === 'home' && !reduced) {
-                const ph = ((t / 1000 * .16 - p.d / 760) % 1 + 1) % 1;
-                if (ph < .05) {
-                    ctx.globalAlpha = (1 - ph / .05) * (.35 + p.dv * .6);
-                    ctx.drawImage(glyph(p.font, ch, ACCENT), p.x - p.s, p.y - p.s, size, size);
+                const front = ((t / 1000 * G.v + p.src * G.P * .37) % G.P + G.P) % G.P;
+                const s = front - p.d;
+                if (s > 0) {
+                    const rise = Math.min(1, s / G.w), up = rise * rise * (3 - 2 * rise);
+                    const g = up * Math.exp(-Math.max(0, s - G.w) / G.L) * (.4 + .6 * Math.exp(-p.d / G.reach));
+                    if (g > .02) {
+                        ctx.globalAlpha = g * (.3 + p.dv * .6);
+                        ctx.drawImage(glyph(p.font, ch, ACCENT), p.x - p.s, p.y - p.s, size, size);
+                    }
                 }
             }
         }
