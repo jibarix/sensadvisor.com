@@ -44,6 +44,9 @@ function measure() {
     // Layout size, not the rendered one: the rig is scaled in some sections.
     cube.setSize(Math.round(Math.min(scene.offsetWidth, scene.offsetHeight) * 0.18));
     maxScroll = Math.max(1, html.scrollHeight - innerHeight);
+    // Phones: the cube scrolls away with the page after it lands under the
+    // projects, so the solve finishes where it lands, while it's in view.
+    if (phone.matches) maxScroll = Math.max(1, Math.min(maxScroll, projFoot.getBoundingClientRect().top + scrollY - landAt(projFoot)));
     paintSectionTurns();
 }
 const target = () => Math.min(1, Math.max(0, scrollY / maxScroll));
@@ -227,6 +230,9 @@ addEventListener('keydown', e => { if (e.key === 'Escape' && !menu.hidden) { set
 const heroFoot = $('.hero-foot'), projFoot = $('.proj-foot');
 let dockQueued = false;
 const ease = t => t * t * (3 - 2 * t);
+const phone = matchMedia('(max-width: 900px)');
+// Where the end slot settles: centred below the top bar.
+const landAt = slot => 54 + Math.max(0, (innerHeight - 54 - slot.offsetHeight) / 2);
 function updateDock() {
     dockQueued = false;
     // The rig rides in the hero's cube slot, below the intro. Once the
@@ -237,7 +243,7 @@ function updateDock() {
     // below the top bar, then rides on with the page. Scroll-linked both
     // ways, so scrolling back up reverses every move.
     const hero = heroFoot.getBoundingClientRect(), end = projFoot.getBoundingClientRect();
-    const land = 54 + Math.max(0, (innerHeight - 54 - end.height) / 2);
+    const land = landAt(projFoot);
     const p = ease(Math.min(1, Math.max(0, (54 - hero.top) / 250)));
     const q = ease(Math.min(1, Math.max(0, (land + 250 - end.top) / 250)));
     const y = q > 0 ? (1 - q) * 4 + q * (end.top - 54) : (1 - p) * (hero.top - 54) + p * 4;
