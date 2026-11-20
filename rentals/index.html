@@ -23,13 +23,14 @@
   <meta property="og:url" content="https://sensadvisor.com/rentals/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="SENS ADVISOR">
-  <meta property="og:image" content="https://sensadvisor.com/assets/og.png">
+  <meta property="og:image" content="https://sensadvisor.com/assets/og/rentals.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Jorge A. Arroyo, Business Systems &amp; Analytics Architect, SENS ADVISOR">
+  <meta property="og:image:alt" content="San Juan Rental Market — SENS ADVISOR analytics card">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="San Juan Rent Analytics | SENS ADVISOR">
   <meta name="twitter:description" content="San Juan apartment rents: what listings are asking, which neighborhoods cost what, and how quickly listings disappear, across Condado &amp; Miramar, Hato Rey, Santurce and Old San Juan.">
+  <meta name="twitter:image" content="https://sensadvisor.com/assets/og/rentals.png">
 
 
   <link rel="preload" href="/fonts/source-code-pro-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -88,21 +89,7 @@
       --surface-muted: rgba(22, 23, 26, 0.9);
     }
   }
-  body, .site-header, .nav, .nav-dropdown-menu, .analytics-index, .panel { transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease; }
-  .theme-toggle {
-    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-    background: none; border: none; cursor: pointer; color: var(--primary-text);
-    padding: 6px; margin: 0; border-radius: 4px; transition: background 0.2s ease;
-  }
-  .theme-toggle:hover { background: var(--accent-light); }
-  .theme-toggle svg { width: 20px; height: 20px; display: block; }
-  .theme-toggle .ic-sun { display: none; }
-  :root[data-theme="dark"] .theme-toggle .ic-sun { display: block; }
-  :root[data-theme="dark"] .theme-toggle .ic-moon { display: none; }
-  .theme-toggle-label { display: none; }
-  .theme-toggle .lbl-light { display: none; }
-  :root[data-theme="dark"] .theme-toggle .lbl-light { display: inline; }
-  :root[data-theme="dark"] .theme-toggle .lbl-dark { display: none; }
+  body, .analytics-index, .panel { transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease; }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -124,350 +111,7 @@
       line-height: 1.6;
       min-height: 100vh;
     }
-  /* Shared site navigation and page-level analytics index. */
-  .site-header {
-    position: relative;
-    z-index: 1100;
-    display: flex;
-    align-items: center;
-    height: var(--nav-h);
-    padding: 0 var(--page-gutter);
-    background: transparent;
-  }
-  .site-header-inner {
-    position: relative;
-    display: flex;
-    align-items: center;
-    /* Three slots, so space-between is what centres the link row. An auto
-       margin on .nav would collapse it against the actions instead. */
-    justify-content: space-between;
-    gap: clamp(16px, 3vw, 40px);
-    width: 100%;
-    max-width: 1480px;
-    margin: 0 auto;
-    padding: 0;
-  }
-  .logo {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    color: var(--primary-text);
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-decoration: none;
-    white-space: nowrap;
-  }
-  .nav { display: flex; align-items: center; gap: clamp(16px, 2vw, 30px); }
-  .nav a,
-  .nav-dropdown-trigger {
-    color: var(--primary-text);
-    font-size: 0.78rem;
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    text-decoration: none;
-    text-transform: uppercase;
-    padding: 8px 0;
-    border-bottom: 2px solid transparent;
-    transition: border-color 0.2s ease;
-    cursor: pointer;
-    user-select: none;
-    white-space: nowrap;
-  }
-  /* 85% of the ink, which is what the home bar's rgba(255,255,255,.85) comes
-     to once the blend has resolved it - not --border-primary, which is a hard
-     #000 here because it draws the 2px brutalist panel rules. */
-  .nav a:hover,
-  .nav-dropdown-trigger:hover,
-  .nav-dropdown-trigger[aria-expanded="true"] {
-    border-bottom-color: var(--nav-rule);
-  }
-  /* A real <button> now that JS drives it. Reset only the UA chrome: the type
-     comes from the shared rule above, so `font: inherit` here would desync its
-     size from the sibling links. */
-  .nav-dropdown-trigger {
-    background: none;
-    border: 0;
-    border-bottom: 2px solid transparent;
-    font-family: inherit;
-    line-height: inherit;
-  }
-  .nav-dropdown { position: relative; }
-  /* Same skin as the home panel: hairline rule, 12px radius, the sheet
-     surface, one deep soft shadow. It was a 2px hard-black box on a 4px
-     radius, which is the dashboards' data-panel treatment, not the menu's.
-     It can stay a child of its trigger here; on the home page it has to be a
-     fixed sibling of the bar, because an opaque panel inside a blended bar
-     paints |page - panel| and the page ghosts straight through it. */
-  .nav-dropdown-menu {
-    position: absolute;
-    top: calc(100% + 8px);
-    left: 0;
-    z-index: 1000;
-    min-width: 240px;
-    border: 1px solid var(--sheet-line);
-    border-radius: 12px;
-    background: var(--sheet-bg);
-    box-shadow: 0 18px 40px var(--sheet-shadow);
-    overflow: hidden;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-6px);
-    /* visibility/opacity rather than display:none - display cannot animate. */
-    transition: opacity 0.18s ease, transform 0.18s ease,
-                visibility 0s linear 0.18s;
-  }
-  .nav-dropdown.open .nav-dropdown-menu {
-    opacity: 1;
-    visibility: visible;
-    transform: none;
-    transition: opacity 0.18s ease, transform 0.18s ease;
-  }
-  .nav-dropdown-menu a {
-    display: block;
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--sheet-line);
-    color: var(--sheet-fg);
-    font-size: 0.82rem;
-    text-decoration: none;
-    transition: background 0.2s ease;
-  }
-  .nav-dropdown-menu a:last-child { border-bottom: none; }
-  .nav-dropdown-menu a:hover { background: var(--sheet-soft); }
-  /* No equivalent on the home page, where no dashboard is ever the current
-     one. Same marker the sheet's sub-list uses. */
-  .nav-dropdown-menu a[aria-current="page"] {
-    color: var(--sheet-fg);
-    font-weight: 700;
-    box-shadow: inset 3px 0 0 var(--signal);
-  }
-  /* Menu button + floating sheet. Replaces the old inline drawer, which
-     pushed the page down as it opened. The sheet is a fixed overlay so the
-     page stays put; the bar is not fixed, so JS parks the sheet under it.
-
-     Geometry, timings, structure AND palette are copied from the home page's
-     sheet, so the opened panel is the same object on both.
-
-     The bar chrome carries its own surface tokens rather than borrowing the
-     page's. The page tokens look like the right roles but are not:
-     --border-primary is #000 here (it draws the 2px brutalist panel rules), so
-     reusing it would rule the sheet in hard black where the home sheet uses a
-     13% hairline; --secondary-text is #333 against a 55%-alpha grey. Same
-     declarations, very different weight. */
-  :root {
-    --nav-h: 64px;
-    --nav-rule: rgba(19, 19, 21, 0.85);
-    --nav-wash: rgba(19, 19, 21, 0.14);
-    --sheet-gap: 6px;
-    --sheet-radius: 16px;
-    --sheet-bg: #f3f1ec;
-    --sheet-fg: #131315;
-    --sheet-line: rgba(19, 19, 21, 0.13);
-    --sheet-dim: rgba(19, 19, 21, 0.55);
-    --sheet-soft: rgba(19, 19, 21, 0.06);
-    --sheet-scrim: rgba(19, 19, 21, 0.34);
-    --sheet-shadow: rgba(0, 0, 0, 0.45);
-  }
-  :root[data-theme="dark"] {
-    --nav-rule: rgba(237, 237, 237, 0.85);
-    --nav-wash: rgba(255, 255, 255, 0.14);
-    --sheet-bg: #17181b;
-    --sheet-fg: #ededed;
-    --sheet-line: rgba(255, 255, 255, 0.13);
-    --sheet-dim: rgba(237, 237, 237, 0.55);
-    --sheet-soft: rgba(255, 255, 255, 0.05);
-    --sheet-scrim: rgba(0, 0, 0, 0.5);
-    --sheet-shadow: rgba(0, 0, 0, 0.5);
-  }
-  /* The head script always stamps data-theme, so this is only the no-JS net -
-     but every other token here is declared all three ways, so these are too. */
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --nav-rule: rgba(237, 237, 237, 0.85);
-      --nav-wash: rgba(255, 255, 255, 0.14);
-      --sheet-bg: #17181b;
-      --sheet-fg: #ededed;
-      --sheet-line: rgba(255, 255, 255, 0.13);
-      --sheet-dim: rgba(237, 237, 237, 0.55);
-      --sheet-soft: rgba(255, 255, 255, 0.05);
-      --sheet-scrim: rgba(0, 0, 0, 0.5);
-      --sheet-shadow: rgba(0, 0, 0, 0.5);
-    }
-  }
-
-  /* Action cluster: equal bounded slots, like a set of instrument keys. The
-     page's own .theme-toggle is a 6px pad on a 4px radius; inside the bar it
-     becomes a 40px key, the same one the home page uses. Scoped to
-     .site-header so any other toggle on the page keeps its own shape. */
-  .nav-actions {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    flex-shrink: 0;
-  }
-  .site-header .theme-toggle,
-  .menu-btn {
-    display: grid;
-    place-items: center;
-    width: 40px;
-    height: 40px;
-    padding: 0;
-    margin: 0;
-    border: 0;
-    border-radius: 10px;
-    background: transparent;
-    color: var(--primary-text);
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-  }
-  .site-header .theme-toggle:hover,
-  .menu-btn:hover { background: var(--nav-wash); }
-  .site-header .theme-toggle:focus-visible,
-  .menu-btn:focus-visible {
-    outline: 2px solid var(--signal);
-    outline-offset: 2px;
-  }
-  .site-header .theme-toggle svg { width: 18px; height: 18px; }
-  .site-header .theme-toggle-label { display: none; }
-  .menu-btn { display: none; }
-  .menu-icon { display: grid; gap: 5px; width: 18px; }
-  .menu-icon span {
-    display: block;
-    width: 100%;
-    height: 1.5px;
-    background: currentColor;
-    border-radius: 2px;
-    transition: transform 0.34s cubic-bezier(.16, 1, .3, 1),
-                opacity 0.2s ease;
-  }
-  .menu-btn[aria-expanded="true"] .menu-icon span:nth-child(1) {
-    transform: translateY(3.25px) rotate(45deg);
-  }
-  .menu-btn[aria-expanded="true"] .menu-icon span:nth-child(2) {
-    transform: translateY(-3.25px) rotate(-45deg);
-  }
-
-  /* Both sit below .site-header (z-index 1100), so the bar stays lit and the
-     button stays clickable to close. */
-  .navscrim {
-    position: fixed;
-    inset: 0;
-    z-index: 1090;
-    background: var(--sheet-scrim);
-    -webkit-backdrop-filter: blur(4px);
-    backdrop-filter: blur(4px);
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.32s ease, visibility 0s linear 0.32s;
-  }
-  .navsheet {
-    position: fixed;
-    /* The home bar is fixed so it can key off --nav-h; this one scrolls, so
-       JS writes --sheet-top from the bar's live position instead. */
-    top: var(--sheet-top, 64px);
-    left: var(--sheet-gap);
-    z-index: 1095;
-    width: calc(100% - (var(--sheet-gap) * 2));
-    /* svh, not vh: mobile browser chrome would otherwise clip the sheet. */
-    max-height: calc(100svh - var(--sheet-top, 64px) - var(--sheet-gap));
-    padding: 8px;
-    border-radius: var(--sheet-radius);
-    background: var(--sheet-bg);
-    color: var(--sheet-fg);
-    box-shadow: 0 24px 60px var(--sheet-shadow);
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-10px);
-    /* visibility/opacity rather than display:none - display can't animate. */
-    transition: opacity 0.32s cubic-bezier(.16, 1, .3, 1),
-                transform 0.32s cubic-bezier(.16, 1, .3, 1),
-                visibility 0s linear 0.32s;
-  }
-  html.sheet-open .navscrim,
-  html.sheet-open .navsheet {
-    opacity: 1;
-    visibility: visible;
-    transition-delay: 0s;
-  }
-  html.sheet-open .navsheet { transform: translateY(0); }
-  /* The scroll container is <html>; locking <body> alone will not hold it. */
-  html.sheet-open,
-  html.sheet-open body { overflow: hidden; }
-
-  .sheet-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    width: 100%;
-    min-height: 56px;
-    padding: 0 14px;
-    border: 0;
-    border-radius: 10px;
-    background: transparent;
-    color: inherit;
-    font-family: inherit;
-    font-size: 0.82rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    text-decoration: none;
-    text-align: left;
-    cursor: pointer;
-    transition: background-color 0.18s ease;
-  }
-  .sheet-row + .sheet-row,
-  .sheet-group + .sheet-row,
-  .sheet-row + .sheet-group,
-  .sheet-group + .sheet-group { border-top: 1px solid var(--sheet-line); }
-  .sheet-row:hover { background: var(--sheet-soft); }
-  .sheet-row:focus-visible {
-    outline: 2px solid var(--signal);
-    outline-offset: -2px;
-  }
-  .sheet-ind {
-    color: var(--sheet-dim);
-    font-size: 0.95rem;
-    line-height: 1;
-    transition: transform 0.3s cubic-bezier(.16, 1, .3, 1);
-  }
-  .sheet-disc[aria-expanded="true"] .sheet-ind { transform: rotate(45deg); }
-  /* 0fr -> 1fr animates to the content's real height, no magic numbers. */
-  .sheet-sub {
-    display: grid;
-    grid-template-rows: 0fr;
-    transition: grid-template-rows 0.34s cubic-bezier(.16, 1, .3, 1);
-  }
-  .sheet-disc[aria-expanded="true"] + .sheet-sub { grid-template-rows: 1fr; }
-  .sheet-sub-inner { overflow: hidden; }
-  .sheet-sub a {
-    display: flex;
-    align-items: center;
-    min-height: 46px;
-    padding: 0 14px 0 28px;
-    color: var(--sheet-dim);
-    font-size: 0.78rem;
-    letter-spacing: 0.04em;
-    text-decoration: none;
-    border-radius: 8px;
-  }
-  .sheet-sub a:hover { background: var(--sheet-soft); color: var(--sheet-fg); }
-  /* Not on the home page, where no dashboard is ever the current one. */
-  .sheet-sub a[aria-current="page"] {
-    color: var(--sheet-fg);
-    font-weight: 700;
-    box-shadow: inset 3px 0 0 var(--signal);
-  }
-  @media (min-width: 769px) {
-    /* Never leave the sheet stranded open on resize to desktop. */
-    .navsheet, .navscrim { display: none; }
-  }
-  @media print {
-    .navsheet, .navscrim { display: none !important; }
-  }
-
+  /* Page-level analytics index. */
   .analytics-index {
     position: sticky;
     top: 0;
@@ -512,13 +156,6 @@
   }
 
   @media (max-width: 768px) {
-    .site-header-inner {
-      padding-top: 15px;
-      padding-bottom: 15px;
-      flex-wrap: wrap;
-    }
-    .menu-btn { display: grid; }
-    .nav { display: none; }
     .analytics-index-inner {
       gap: 22px;
       overflow-x: auto;
@@ -646,14 +283,11 @@
     }
     .stat-card .value { margin-bottom: 5px; font-size: clamp(1.55rem, 3vw, 2.35rem); font-weight: 700; line-height: 1; }
     .stat-card .change { margin-top: 10px; font-size: 0.72rem; font-weight: 500; }
-    .change.positive { color: var(--signal); }
-    .change.negative { color: #d94848; }
 
     .analysis-section {
       margin-top: 76px;
       scroll-margin-top: 56px;
     }
-    #neighborhoods { scroll-margin-top: 56px; }
     .section-heading {
       display: grid;
       grid-template-columns: minmax(220px, 0.65fr) minmax(0, 1.35fr);
@@ -700,7 +334,6 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 0 clamp(28px, 4vw, 58px);
     }
-    .grid-wide { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .loading { padding: 40px; color: var(--secondary-text); font-weight: 500; text-align: center; }
     .error {
       margin: 15px 0;
@@ -711,7 +344,6 @@
       font-size: 0.78rem;
       font-weight: 500;
     }
-    .empty-state { padding: 40px; color: var(--secondary-text); text-align: center; }
     .panel canvas { max-height: 350px; margin-top: 8px; }
     .panel-featured canvas { max-height: 410px; }
     /* Charts are built as they scroll near; until then their canvas holds
@@ -744,18 +376,7 @@
 
     a { color: var(--primary-text); font-weight: 500; }
     a:hover { color: var(--secondary-text); }
-    .disclaimer {
-      display: grid;
-      grid-template-columns: minmax(210px, 0.65fr) minmax(0, 1.35fr);
-      gap: clamp(28px, 5vw, 78px);
-      margin-top: 80px;
-      padding-top: 30px;
-      border-top: 1px solid var(--border-primary);
-    }
-    .disclaimer h2 { font-size: 1.1rem; font-weight: 700; }
     .disclaimer-copy { columns: 2; column-gap: 36px; }
-    .disclaimer h3 { break-after: avoid; margin: 0 0 6px; font-size: 0.78rem; font-weight: 700; }
-    .disclaimer p { break-inside: avoid; margin-bottom: 18px; color: var(--secondary-text); font-size: 0.74rem; }
 
     .estimator {
       display: grid;
@@ -796,10 +417,8 @@
       .dashboard-header h1 { font-size: clamp(2.45rem, 13vw, 4.2rem); }
       .data-meta { grid-template-columns: 1fr; }
       .overview,
-      .section-heading,
-      .disclaimer { grid-template-columns: 1fr; }
-      .grid,
-      .grid-wide { grid-template-columns: 1fr; }
+      .section-heading { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
       .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .disclaimer-copy { columns: 1; }
     }
@@ -868,8 +487,6 @@
       line-height: 1.75;
     }
     .muted { color: var(--secondary-text); }
-    /* Narrow tables should not inherit the 880px floor meant for wide ones. */
-    table.table-tight { min-width: 0; }
     .fact-list { margin: 10px 0 0; padding: 0; list-style: none; }
     .fact-list li {
       position: relative;
@@ -1184,7 +801,7 @@
         <div class="panel">
           <h2>Asking rent by district <span class="panel-note">Median &middot; bar spans P25&ndash;P75</span></h2>
           <div id="subPriceError"></div>
-          <canvas id="subPriceChart"></canvas>
+          <canvas id="subPriceChart" role="img" aria-label="Bar chart of asking rent by district: median, with a bar from the 25th to the 75th percentile"></canvas>
         </div>
         <!-- This slot used to chart each district's 30-day take-down rate. The
              same four numbers are on the district cards directly above and on
@@ -1196,7 +813,7 @@
         <div class="panel">
           <h2>Same apartment, different district <span class="panel-note" id="locNote">Model estimate &middot; vs Hato Rey</span></h2>
           <div id="locError"></div>
-          <canvas id="locChart"></canvas>
+          <canvas id="locChart" role="img" aria-label="Chart of the pricing model&#39;s estimate for the same apartment in each district, relative to the reference district"></canvas>
           <p class="panel-caption" id="locCaption"></p>
         </div>
       </div>
@@ -1204,7 +821,7 @@
       <div class="panel panel-featured">
         <h2>Which districts are getting more expensive <span class="panel-note" id="subTrendNote">Indexed &middot; new listings</span></h2>
         <div id="subTrendError"></div>
-        <canvas id="subTrendChart"></canvas>
+        <canvas id="subTrendChart" role="img" aria-label="Line chart of the rolling median asking rent on new listings in each district, indexed to its first point"></canvas>
         <p class="panel-caption" id="subTrendCaption"></p>
       </div>
 
@@ -1216,7 +833,7 @@
             <thead>
               <tr>
                 <th>Neighborhood</th><th>District</th><th>Asking now</th><th>Typical range</th>
-                <th>Per bedroom</th><th>Listings since Mar</th><th>Live now</th><th>Pulled in 30d</th>
+                <th>Per bedroom</th><th id="areaSinceHead">Listings in period</th><th>Live now</th><th>Pulled in 30d</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -1236,9 +853,9 @@
         <p>
           Size explains more of the price than anything except location: in the pricing model,
           taking out district and neighbourhood costs the most accuracy, bedrooms and bathrooms come
-          next, and the advertised extras add less once those two are known. Studios are pulled out
-          of the one-bedroom pile where the ad text says so, because the source site has no studio
-          category and files them all as one-bedrooms.
+          next, and the advertised extras add less once those two are known. Studios are counted
+          as studios where the ad text says so, because the source site&rsquo;s efficiency option
+          is optional and many studios are filed as one-bedrooms instead.
         </p>
       </div>
 
@@ -1246,13 +863,13 @@
         <div class="panel">
           <h2>Rent by bedroom count <span class="panel-note">Bar spans P25&ndash;P75</span></h2>
           <div id="bedError"></div>
-          <canvas id="bedChart"></canvas>
+          <canvas id="bedChart" role="img" aria-label="Bar chart of asking rent by bedroom count: median, with a bar from the 25th to the 75th percentile"></canvas>
           <p class="panel-caption" id="bedCaption"></p>
         </div>
         <div class="panel">
           <h2>What is actually on the market <span class="panel-note">Live listings by price</span></h2>
           <div id="distError"></div>
-          <canvas id="distChart"></canvas>
+          <canvas id="distChart" role="img" aria-label="Histogram of live listings by monthly asking rent, in $100 steps"></canvas>
           <p class="panel-caption" id="distCaption"></p>
         </div>
       </div>
@@ -1260,7 +877,7 @@
       <div class="panel panel-featured">
         <h2>What the extras cost <span class="panel-note">Rent gap, with 95% confidence range</span></h2>
         <div id="effectError"></div>
-        <div class="chart-tall chart-xtall"><canvas id="effectChart"></canvas></div>
+        <div class="chart-tall chart-xtall"><canvas id="effectChart" role="img" aria-label="Chart of the rent gap associated with each advertised feature, with a 95% confidence range"></canvas></div>
         <p class="panel-caption" id="effectCaption"></p>
         <p class="panel-caption">
           Read the bar, not the dot. The dot is the measured gap; the bar is the range the gap could
@@ -1315,14 +932,14 @@
       <div class="panel panel-featured">
         <h2>What happens to a listing <span class="panel-note">Share by day, all listings</span></h2>
         <div id="cifError"></div>
-        <canvas id="cifChart"></canvas>
+        <canvas id="cifChart" role="img" aria-label="Stacked area chart of the share of listings taken down, expired, and still listed, by days since first listed"></canvas>
         <p class="panel-caption" id="cifCaption"></p>
       </div>
 
       <div class="panel panel-featured">
         <h2>What actually rents <span class="panel-note">Gap to the rest of its own group, with 95% range</span></h2>
         <div id="clearError"></div>
-        <div class="chart-tall"><canvas id="clearChart"></canvas></div>
+        <div class="chart-tall"><canvas id="clearChart" role="img" aria-label="Chart of how much faster or slower each segment is taken down than the rest of its group, with a 95% range"></canvas></div>
         <p class="panel-caption" id="clearCaption"></p>
         <p class="panel-caption">
           Zero is the rest of the segment&rsquo;s own group: two-bedrooms against the other sizes,
@@ -1382,7 +999,7 @@
       <div class="panel panel-featured">
         <h2>Room to negotiate arrives on a clock <span class="panel-note">Share already cut, by how long the listing has been up</span></h2>
         <div id="negAgeError"></div>
-        <canvas id="negAgeChart"></canvas>
+        <canvas id="negAgeChart" role="img" aria-label="Chart of the share of listings that have cut their asking price, by how long they have been listed"></canvas>
         <p class="panel-caption" id="negAgeCaption"></p>
       </div>
 
@@ -1425,9 +1042,9 @@
 
       <div class="grid">
         <div class="panel">
-          <h2>How deep the cuts go <span class="panel-note">Every recorded reduction</span></h2>
+          <h2>How deep the cuts go <span class="panel-note">Deepest markdown, one per apartment that cut</span></h2>
           <div id="negDepthError"></div>
-          <canvas id="negDepthChart"></canvas>
+          <canvas id="negDepthChart" role="img" aria-label="Histogram of how far apartments that cut have marked down their asking price, in percent"></canvas>
           <p class="panel-caption" id="negDepthCaption"></p>
         </div>
         <div class="panel">
@@ -1475,21 +1092,21 @@
       <div class="panel panel-featured">
         <h2>Asking rent on new listings <span class="panel-note" id="trendNote">Rolling median</span></h2>
         <div id="trendError"></div>
-        <canvas id="trendChart"></canvas>
+        <canvas id="trendChart" role="img" aria-label="Line chart of the rolling median asking rent on new listings, with a band from the 25th to the 75th percentile"></canvas>
         <p class="panel-caption" id="trendCaption"></p>
       </div>
 
       <div class="panel panel-featured">
         <h2>Same apartment, month by month <span class="panel-note" id="mixNote">Mix-adjusted index &middot; new listings</span></h2>
         <div id="mixError"></div>
-        <canvas id="mixChart"></canvas>
+        <canvas id="mixChart" role="img" aria-label="Line chart of the mix-adjusted asking rent index on new listings, month by month"></canvas>
         <p class="panel-caption" id="mixCaption"></p>
       </div>
 
       <div class="panel panel-featured">
         <h2>When landlords change the price <span class="panel-note">Cuts vs increases per month</span></h2>
         <div id="momentumError"></div>
-        <canvas id="momentumChart"></canvas>
+        <canvas id="momentumChart" role="img" aria-label="Chart of price cuts and price increases per month"></canvas>
         <p class="panel-caption" id="momentumCaption"></p>
       </div>
 
@@ -1497,13 +1114,13 @@
         <div class="panel">
           <h2>How much is on the market <span class="panel-note">Live listings per day</span></h2>
           <div id="invError"></div>
-          <canvas id="invChart"></canvas>
+          <canvas id="invChart" role="img" aria-label="Chart of the number of live listings per day"></canvas>
           <p class="panel-caption" id="invCaption"></p>
         </div>
         <div class="panel">
           <h2>How old the current inventory is <span class="panel-note">Days since first listed</span></h2>
           <div id="ageError"></div>
-          <canvas id="ageChart"></canvas>
+          <canvas id="ageChart" role="img" aria-label="Bar chart of current listings by how long they have been listed"></canvas>
           <p class="panel-caption" id="ageCaption"></p>
         </div>
       </div>
@@ -1636,11 +1253,12 @@
           fixed, and is the figure to read for whether like-for-like asks have changed.
         </p>
 
-        <h3>Missing bedroom counts are recovered, not dropped</h3>
+        <h3>Studios are read from the ad text, and blank bedroom counts mostly stay blank</h3>
         <p>
-          Where the bedroom field is blank but the description states the count in Spanish or English,
-          the count is read from the text. Where the ad describes a studio or efficiency, it is counted
-          as a studio even though the site filed it as a one-bedroom. Rent-per-bedroom treats a studio
+          Where the ad describes a studio or efficiency, it is counted as a studio whether the site
+          filed it as an efficiency, as a one-bedroom, or with no bedroom count at all. Where the
+          bedroom field is blank and the description states a count in Spanish or English, the count
+          is read from the text; where it does not, the count stays unknown. Rent-per-bedroom treats a studio
           as one sleeping space rather than zero, since dividing by zero would drop the cheapest segment
           off the chart entirely. <span id="bedRecovery"></span>
         </p>
@@ -1766,10 +1384,31 @@
       return { ...a, ticks: { ...a.ticks, callback: v => '$' + v.toLocaleString() } };
     };
 
+    // meta.json is read by the header and by every caption that names the month
+    // collection starts in. Promise cached for the same reason as submarkets().
+    let META = null;
+    const meta = () => (META = META || getJSON('meta.json'));
+
+    // "since Mar" / "since March", from the window the exporter actually used
+    // rather than a month typed into the page. The year is added once the
+    // window no longer starts in the current one, and a missing or unreadable
+    // meta.json degrades to wording that names no month at all.
+    async function sinceWindow(form) {
+      try {
+        const start = new Date((await meta()).window_start + 'T00:00:00');
+        if (isNaN(start)) throw new Error('no window_start');
+        const month = start.toLocaleDateString('en-US', { month: form });
+        const year = start.getFullYear();
+        return `since ${month}${year === new Date().getFullYear() ? '' : ' ' + year}`;
+      } catch (e) {
+        return form === 'short' ? 'whole period' : 'since collection began';
+      }
+    }
+
     // ── Header + headline stats ──────────────────────────────────────────
     async function loadMeta() {
       try {
-        const d = await getJSON('meta.json');
+        const d = await meta();
         document.getElementById('metaBand').textContent =
           `$${d.band_low.toLocaleString()}–$${d.band_high.toLocaleString()} monthly`;
         document.getElementById('metaWindow').textContent =
@@ -1849,6 +1488,7 @@
       try {
         const d = await submarkets();
         const rows = d.districts;
+        const since = await sinceWindow('long');
 
         // District cards lead the section: this is the first thing somebody
         // shopping San Juan wants, and it should not be a chart. All four
@@ -1860,7 +1500,7 @@
             <div class="sub-rent">${fmtUSD(r.median_rent ?? r.median_rent_period)}</div>
             <div class="sub-range">${r.median_rent != null
               ? `typical ${fmtUSD(r.p25)}&ndash;${fmtUSD(r.p75)}`
-              : 'since March; too few listed now'}</div>
+              : `${since}; too few listed now`}</div>
             <dl class="sub-facts">
               <div><dt>Per bedroom</dt><dd>${fmtUSD(r.median_rent_per_bedroom)}</dd></div>
               <div><dt>Live now</dt><dd>${fmt(r.n_active)}</dd></div>
@@ -1982,6 +1622,9 @@
         // that the space where the price should be is the point.
         const shown = d.areas.filter(a => a.median_rent != null);
         const held = d.areas.length - shown.length;
+        const since = await sinceWindow('long');
+        document.getElementById('areaSinceHead').textContent =
+          `Listings ${await sinceWindow('short')}`;
         document.querySelector('#areaTable tbody').innerHTML = shown.map(a => `
           <tr>
             <td><strong>${a.area}</strong></td>
@@ -2008,10 +1651,17 @@
           (held ? `, which needs at least ${d.min_live} of them: ${held} further ` +
                   `${held === 1 ? 'area is' : 'areas are'} tracked but not shown, because an area ` +
                   `with three apartments left is three landlords rather than a neighborhood` : '') +
-          `. The listing counts and the pulled-in-30-days column cover the whole period since March, ` +
+          `. The listing counts and the pulled-in-30-days column cover the whole period ${since}, ` +
           `which is what makes them worth reading at all.`;
       } catch (e) { showError('areaError', e); }
     }
+
+    const LINE_DASHES = [[], [7, 3], [2, 2], [9, 3, 2, 3], [1, 3]];
+
+    // A median resting on fewer listings than this is printed, but the caption
+    // says so. Looser than the exporter's min_group, which decides whether a
+    // figure is published at all.
+    const THIN_N = 30;
 
     async function loadSubmarketTrend() {
       try {
@@ -2027,13 +1677,19 @@
               data: s.points.map(p => p.index),
               borderColor: colors[i % colors.length],
               backgroundColor: colors[i % colors.length],
+              // Three of the five palette entries are greys, so each line also
+              // gets its own dash pattern and is not told apart by shade alone.
+              borderDash: LINE_DASHES[i % LINE_DASHES.length],
               borderWidth: 2, pointRadius: 0, tension: 0.3,
             })),
           },
           options: {
             responsive: true, maintainAspectRatio: false,
             interaction: { mode: 'index', intersect: false },
-            plugins: { tooltip: { callbacks: {
+            plugins: {
+              // A line swatch rather than a box, so the legend shows the dash.
+              legend: { labels: { usePointStyle: true, pointStyle: 'line', pointStyleWidth: 34 } },
+              tooltip: { callbacks: {
               label: c => {
                 const s = series[c.datasetIndex];
                 const p = s.points[c.dataIndex];
@@ -2054,6 +1710,9 @@
         const spread = latest.length > 1 ? Math.max(...latest) - Math.min(...latest) : null;
         const allDown = series.length && series.every(s => s.change_pct < 0);
         const allUp = series.length && series.every(s => s.change_pct > 0);
+        const thin = series
+          .map(s => ({ district: s.district, n: Math.min(...s.points.map(p => p.n)) }))
+          .filter(t => t.n < THIN_N);
         document.getElementById('subTrendCaption').textContent =
           `Each line is the median asking rent on listings posted in the trailing ${d.roll_weeks} ` +
           `weeks, indexed to its own starting point` +
@@ -2064,7 +1723,9 @@
               `district — but a median of new listings also moves when the mix of what gets listed ` +
               `moves. The mix-adjusted index in section 05 separates the two.`
             : `The districts did not move together, so the reading worth taking is the gap between ` +
-              `the lines rather than the wobble in any one.`);
+              `the lines rather than the wobble in any one.`) +
+          thin.map(t => ` ${t.district} is the thin line: as few as ${fmt(t.n)} listings sit ` +
+            `behind one of its points, so read it as a direction, not a level.`).join('');
       } catch (e) { showError('subTrendError', e); }
     }
 
@@ -2113,9 +1774,9 @@
             `(${(100 * (two.median_rent - one.median_rent) / one.median_rent).toFixed(0)}%).`);
         }
         if (src.studio) {
-          bits.push(`${fmt(src.studio)} of these were filed by the source site as one-bedrooms and ` +
-            `moved to the studio column because the ad text calls them studios or efficiencies — the ` +
-            `site has no studio category at all.`);
+          bits.push(`${fmt(src.studio)} of these are in the studio column because the ad text calls ` +
+            `them studios or efficiencies, whatever the bedroom field says — the site's efficiency ` +
+            `option is optional, and many studios are filed as one-bedrooms or left blank.`);
         }
         if (src.text) {
           bits.push(`${fmt(src.text)} had a blank bedroom field and the count was read out of the ` +
@@ -2125,6 +1786,10 @@
           bits.push(`${fmt(src.unknown)} never state a size and are shown separately rather than ` +
             `guessed at.`);
         }
+        rows.filter(r => r.segment !== 'Unstated' && r.n < THIN_N).forEach(r => {
+          bits.push(`The ${r.segment} bar rests on ${fmt(r.n)} listings, so its median moves with ` +
+            `which few happen to be listed.`);
+        });
         document.getElementById('bedCaption').textContent = bits.join(' ');
       } catch (e) { showError('bedError', e); }
     }
@@ -2159,7 +1824,7 @@
         });
 
         // Where the middle of the market actually sits, in plain counts.
-        const total = d.counts.reduce((a, b) => a + b, 0);
+        const total = d.counts.reduce((a, b) => a + b, 0) + (d.above_top_edge || 0);
         let under = 0;
         for (let i = 0; i < d.counts.length; i++) {
           if (d.edges[i] < 1500) under += d.counts[i];
@@ -2168,9 +1833,14 @@
           `${fmtPct0(100 * under / total)} of what is listed right now asks under $1,500. ` +
           `Collection targets $${d.band_low.toLocaleString()}–$${d.band_high.toLocaleString()} a ` +
           `month, so this is the more affordable end of San Juan rather than the whole city` +
-          `${d.above_top_edge ? `; a further ${d.above_top_edge} listings ask more than ` +
-          `$${d.edges[d.edges.length - 1].toLocaleString()} and run off the right edge of the chart, ` +
-          `counted in every total but not drawn` : ''}.`;
+          `${d.n_out_of_band ? `; a further ${fmt(d.n_out_of_band)} live ` +
+          `${d.n_out_of_band === 1 ? 'listing is' : 'listings are'} priced outside that band and ` +
+          `left out here, as ${d.n_out_of_band === 1 ? 'it is' : 'they are'} from every other ` +
+          `figure on the page` : ''}` +
+          `${d.above_top_edge ? `; ${fmt(d.above_top_edge)} ` +
+          `${d.n_out_of_band != null ? 'inside the band ' : ''}ask more than ` +
+          `$${d.edges[d.edges.length - 1].toLocaleString()} and run off the right edge of the ` +
+          `chart` : ''}.`;
       } catch (e) { showError('distError', e); }
     }
 
@@ -2311,12 +1981,30 @@
         const shrunk = rows
           .filter(r => r.adj && r.significant && !r.adjusted_significant)
           .map(r => r.name);
+        // Only gaps that are still clear of zero after adjusting get a sentence
+        // about how the adjustment moved them; a row whose range spans zero has
+        // no direction to explain.
+        const sameSign = r => r.delta * r.delta_adjusted > 0;
         const grew = rows
-          .filter(r => r.adj && Math.abs(r.delta_adjusted) - Math.abs(r.delta) > 200)
+          .filter(r => r.adj && r.adjusted_significant && sameSign(r) &&
+                       Math.abs(r.delta_adjusted) - Math.abs(r.delta) > 200)
           .map(r => r.name);
+        // Raw gap one side of zero, like-for-like gap clearly on the other.
+        const flipped = rows
+          .filter(r => r.adj && r.adjusted_significant && r.delta * r.delta_adjusted < 0);
+        const flipUp = flipped.filter(r => r.delta_adjusted > 0).map(r => r.name);
+        const flipDown = flipped.filter(r => r.delta_adjusted < 0).map(r => r.name);
         const stated = rows.filter(r => r.mode === 'stated').length;
         const cheapest = rows.filter(r => r.sig && r.est < 0 && /^(amen_|util_)/.test(r.feature))
           .sort((a, b) => a.est - b.est)[0];
+        // "The expensive listings take it for granted" only explains a discount
+        // on something ordinary that is being compared against silence: a
+        // feature a quarter of all ads bother to mention. It does not explain a
+        // discount on a rare feature (solar), nor one measured against ads that
+        // explicitly say no.
+        const GRANTED_MIN_SHARE = 0.25;
+        const takenForGranted = cheapest && cheapest.mode !== 'stated' &&
+          cheapest.n_with / (cheapest.n_with + cheapest.n_without) >= GRANTED_MIN_SHARE;
         // Features whose yes-group is concentrated enough in a few districts
         // that district x size left no comparable cells to work in.
         const sizeOnly = rows.filter(r => r.adj && r.adjusted_by === 'size').map(r => r.name);
@@ -2330,9 +2018,20 @@
               `adjustment: the gap was measuring where the apartment is and how big it is. `
             : '') +
           (grew.length
-            ? `${grew.join(' and ')} ${grew.length > 1 ? 'get' : 'gets'} larger after it, because ` +
-              `those units are smaller or in cheaper districts than average and the raw gap was ` +
-              `hiding it. `
+            ? `${grew.join(' and ')} ${grew.length > 1 ? 'get' : 'gets'} larger after it: where ` +
+              `those units are and how big they are was cancelling part of the gap. `
+            : '') +
+          (flipUp.length
+            ? `${flipUp.join(' and ')} ${flipUp.length > 1 ? 'change' : 'changes'} sign: a discount ` +
+              `before adjusting, a premium after, because the listings that offer ` +
+              `${flipUp.length > 1 ? 'them' : 'it'} are smaller or in cheaper districts than ` +
+              `average. `
+            : '') +
+          (flipDown.length
+            ? `${flipDown.join(' and ')} ${flipDown.length > 1 ? 'change' : 'changes'} sign the ` +
+              `other way: a premium before adjusting, a discount after, because the listings ` +
+              `that offer ${flipDown.length > 1 ? 'them' : 'it'} are larger or in dearer ` +
+              `districts than average. `
             : '') +
           (sizeOnly.length
             ? `${sizeOnly.join(', ')} ${sizeOnly.length > 1 ? 'are' : 'is'} adjusted for bedroom ` +
@@ -2344,11 +2043,15 @@
           `${stated} of the comparisons are against listings that explicitly say no; the rest are ` +
           `against listings that simply never mention it, because too few ads bother to state a ` +
           `negative. Silence is not denial` +
-          (cheapest
-            ? `, and the most likely reading of ${cheapest.name.toLowerCase()} showing up as a ` +
-              `discount (${fmtUSDSigned(cheapest.est)}) is that the expensive listings take it for ` +
-              `granted and never bother to advertise it`
-            : '') +
+          (!cheapest ? ''
+            : takenForGranted
+              ? `, and the most likely reading of ${cheapest.name.toLowerCase()} showing up as a ` +
+                `discount (${fmtUSDSigned(cheapest.est)}) is that the expensive listings take it for ` +
+                `granted and never bother to advertise it`
+              : `, and ${cheapest.name.toLowerCase()} showing up as a discount ` +
+                `(${fmtUSDSigned(cheapest.est)}) describes the ${fmt(cheapest.n_with)} listings that ` +
+                `${cheapest.mode === 'stated' ? 'say yes' : 'mention it'}, not what the feature ` +
+                `does to a rent`) +
           `. Based on ${fmt(d.n_units)} apartments.`;
       } catch (e) { showError('effectError', e); }
     }
@@ -2357,7 +2060,14 @@
     async function loadClearance() {
       try {
         const d = await getJSON('days_on_market.json');
-        const pts = (key, scale) => d.curve.map(p => ({ x: p.t, y: p[key] * (scale || 100) }));
+        // Each point is drawn at the running total of the shares beneath it and
+        // keeps its own share in `v` for the tooltip, so every band is exactly as
+        // tall as the share it stands for.
+        const band = (key, below) => d.curve.map(p => ({
+          x: p.t,
+          y: 100 * below.concat(key).reduce((s, k) => s + p[k], 0),
+          v: 100 * p[key],
+        }));
 
         // Stacked areas rather than three lines: the three shares partition the
         // cohort at every day, and stacking is what makes that legible.
@@ -2365,22 +2075,23 @@
         charts.cif = new Chart(document.getElementById('cifChart'), {
           type: 'line',
           data: { datasets: [
-            { label: 'Taken down (likely rented)', data: pts('cif_withdrawn'),
+            { label: 'Taken down (likely rented)', data: band('cif_withdrawn', []),
               borderColor: colors[0], backgroundColor: withAlpha(colors[0], 0.5),
               borderWidth: 1.5, pointRadius: 0, stepped: 'after', fill: 'origin' },
-            { label: 'Expired on the site', data: pts('cif_expired'),
+            { label: 'Expired on the site', data: band('cif_expired', ['cif_withdrawn']),
               borderColor: DANGER, backgroundColor: withAlpha(DANGER, 0.35),
               borderWidth: 1.5, pointRadius: 0, stepped: 'after', fill: '-1' },
-            { label: 'Still listed', data: pts('still_listed'),
-              borderColor: colors[2], backgroundColor: 'transparent',
-              borderWidth: 2, pointRadius: 0, stepped: 'after', borderDash: [5, 3] },
+            { label: 'Still listed',
+              data: band('still_listed', ['cif_withdrawn', 'cif_expired']),
+              borderColor: colors[2], backgroundColor: withAlpha(colors[2], 0.12),
+              borderWidth: 0, pointRadius: 0, stepped: 'after', fill: '-1' },
           ] },
           options: {
             responsive: true, maintainAspectRatio: false,
             interaction: { mode: 'nearest', axis: 'x', intersect: false },
             plugins: { tooltip: { callbacks: {
               title: items => `Day ${Math.round(items[0].parsed.x)}`,
-              label: c => `${c.dataset.label}: ${c.parsed.y.toFixed(1)}%`,
+              label: c => `${c.dataset.label}: ${c.raw.v.toFixed(1)}%`,
             } } },
             scales: {
               y: { ...AX(), min: 0, max: 100, stacked: false,
@@ -2657,7 +2368,7 @@
                   `${fmtPct1(a.pct)} had cut by day ${a.day}`,
                   a.ci_low == null ? '' : `95% range ${fmtPct1(a.ci_low)}–${fmtPct1(a.ci_high)}`,
                   `${fmt(a.n_cut)} of ${fmt(a.n_eligible)} listings that lasted that long`,
-                  `Typical cut ${fmtPct1(a.median_cut_pct)}`,
+                  `Typical cut ${fmtOff(a.median_cut_pct)}`,
                 ].filter(Boolean);
               },
             } } },
@@ -2693,7 +2404,7 @@
               : `<td style="background: rgba(var(--signal-rgb), ${
                     (0.30 * c.cut_rate / maxRate).toFixed(3)})">
                    <strong>${fmtPct1(c.cut_rate)}</strong>
-                   <span class="cell-sub">${fmtPct1(c.expected_markdown_pct)} expected ·
+                   <span class="cell-sub">${fmtOff(c.expected_markdown_pct)} expected off ·
                      n=${fmt(c.n)}</span>
                  </td>`)).join('')}
           </tr>`).join('');
@@ -2751,9 +2462,9 @@
               <td><strong>${fmtPct1(l.cut_rate)}</strong></td>
               <td><span class="muted">${l.ci_low == null ? '—'
                 : `${fmtPct1(l.ci_low)}–${fmtPct1(l.ci_high)}`}</span></td>
-              <td>${fmtPct1(l.median_cut_pct)}</td>
-              <td>${fmtUSDSigned(l.median_cut_usd)}</td>
-              <td><strong>${fmtPct1(l.expected_markdown_pct)}</strong></td>
+              <td>${fmtOff(l.median_cut_pct)}</td>
+              <td>${fmtUSDOff(l.median_cut_usd)}</td>
+              <td><strong>${fmtOff(l.expected_markdown_pct)}</strong></td>
             </tr>`).join('')).join('');
 
         // The widest gap with intervals that do not touch is the only segment
@@ -2782,26 +2493,43 @@
           `everyone in that segment, including the majority who never move.`;
 
         // ── depth ─────────────────────────────────────────────────────────
+        // One markdown per apartment that cut -- opening ask to its lowest ask,
+        // however many separate reductions that took -- so the bars count
+        // apartments, not reductions. Cuts deeper than the first edge get an
+        // open-ended bar of their own instead of falling off the chart.
         const h = d.depth_hist;
+        // Older exports have no below_bottom_edge field; infer the overflow from n_cut so the
+        // deepest cuts still get their bar instead of silently dropping off the chart.
+        const below = h.below_bottom_edge != null ? h.below_bottom_edge
+          : Math.max(0, (d.n_cut || 0) - h.counts.reduce((x, y) => x + y, 0));
+        const depthBars = h.counts.map((n, i) => ({
+          n, tick: `${h.edges[i]}%`, range: `${h.edges[i]}% to ${h.edges[i + 1]}%`,
+        }));
+        if (below) {
+          depthBars.unshift({
+            n: below, tick: `< ${h.edges[0]}%`, range: `Deeper than ${h.edges[0]}%`,
+          });
+        }
         destroyChart('negDepth');
         charts.negDepth = new Chart(document.getElementById('negDepthChart'), {
           type: 'bar',
           data: {
-            labels: h.counts.map((_, i) => `${h.edges[i]}%`),
-            datasets: [{ label: 'Listings', data: h.counts, backgroundColor: colors[0] }],
+            labels: depthBars.map(b => b.tick),
+            datasets: [{ label: 'Apartments', data: depthBars.map(b => b.n),
+                         backgroundColor: colors[0] }],
           },
           options: {
             responsive: true, maintainAspectRatio: false,
             plugins: { tooltip: { callbacks: {
-              title: items => `${h.edges[items[0].dataIndex]}% to ${h.edges[items[0].dataIndex + 1]}%`,
-              label: c => `${c.parsed.y} listings`,
+              title: items => depthBars[items[0].dataIndex].range,
+              label: c => `${c.parsed.y} apartments`,
             } } },
             scales: { y: AX(), x: { ...AX_X(), ticks: { ...AX_X().ticks, maxRotation: 0 } } },
           },
         });
 
-        const total = h.counts.reduce((x, y) => x + y, 0);
-        const deep = h.counts.reduce((s, c, i) => s + (h.edges[i + 1] <= -10 ? c : 0), 0);
+        const total = h.counts.reduce((x, y) => x + y, 0) + below;
+        const deep = h.counts.reduce((s, c, i) => s + (h.edges[i + 1] <= -10 ? c : 0), below);
         const token = h.counts.reduce((s, c, i) => s + (h.edges[i] >= -4 ? c : 0), 0);
         const ageDepths = d.by_age.map(a => a.median_cut_pct).filter(x => x != null)
           .map(Math.abs);
@@ -2811,9 +2539,10 @@
           .filter(l => l.n >= 100 && l.median_cut_pct != null)
           .map(l => Math.abs(l.median_cut_pct));
         document.getElementById('negDepthCaption').innerHTML =
-          `${fmt(d.n_cut)} recorded reductions. The middle one takes ` +
-          `<strong>${fmtOff(d.median_cut_pct)}</strong> off the ask ` +
-          `(${fmtUSDOff(d.median_cut_usd)} a month), a quarter go past ` +
+          `${fmt(d.n_cut)} apartments have cut their asking price, each counted once at its deepest ` +
+          `markdown from the opening ask. The middle one has taken ` +
+          `<strong>${fmtOff(d.median_cut_pct)}</strong> off ` +
+          `(${fmtUSDOff(d.median_cut_usd)} a month), a quarter have gone past ` +
           `${fmtOff(d.p25_cut_pct)}, and ${fmtPct0(100 * deep / total)} are 10% or deeper. ` +
           `The deepest on record is ${fmtOff(d.deepest_cut_pct)}. Only ` +
           `${fmtPct0(100 * token / total)} come in under 4% &mdash; when a landlord decides to move, ` +
@@ -2911,7 +2640,7 @@
       } catch (e) { showError('ageError', e); }
     }
 
-    // ── 04 Which way it's going ──────────────────────────────────────────
+    // ── 05 Which way it's going ──────────────────────────────────────────
     async function loadTrend() {
       try {
         const d = await getJSON('price_trend.json');
@@ -2946,7 +2675,7 @@
           },
         });
         document.getElementById('trendNote').textContent =
-          `${d.roll_weeks}-week rolling median &middot; shaded band is P25–P75`;
+          `${d.roll_weeks}-week rolling median · shaded band is P25–P75`;
         const move = d.change_pct;
         const verdict = (move == null) ? 'has not moved measurably'
           : Math.abs(move) < 5 ? `has been flat (${fmtSigned(move, '%')} over the whole window)`
@@ -3080,7 +2809,7 @@
               afterBody: items => {
                 const r = rows[items[0].dataIndex];
                 const bits = [];
-                if (r.median_cut_pct != null) bits.push(`median cut ${r.median_cut_pct}%`);
+                if (r.median_cut_pct != null) bits.push(`median cut ${fmtOff(r.median_cut_pct)}`);
                 if (r.median_hike_pct != null) bits.push(`median increase +${r.median_hike_pct}%`);
                 return bits.join('  ·  ');
               },
@@ -3147,6 +2876,8 @@
       try {
         const d = await getJSON('buildings.json');
         const rows = d.buildings;
+        const since = await sinceWindow('long');
+        const sinceShort = await sinceWindow('short');
 
         // "mostly 2BR" is a fair description at 80% and a false one at 33%, so
         // the qualifier is earned rather than printed by default.
@@ -3188,7 +2919,7 @@
                   ? `<strong>${fmtUSD(b.median_rent)}</strong>` +
                     `<span class="cell-sub">${fmtUSD(b.p25_rent)}&ndash;${fmtUSD(b.p75_rent)}</span>`
                   : `<strong class="muted">${fmtUSD(b.median_rent_period)}</strong>` +
-                    `<span class="cell-sub">since Mar</span>`}</td>
+                    `<span class="cell-sub">${sinceShort}</span>`}</td>
             <td>${prem}</td>
             <td>${b.n_with_history ? `${b.n_cut} of ${b.n_with_history}` : '<span class="muted">—</span>'}` +
               `${b.n_cut && b.median_cut_pct != null ? `<span class="cell-sub">typically ${fmtOff(b.median_cut_pct)}</span>` : ''}</td>
@@ -3237,9 +2968,9 @@
           // say so, because they sit side by side and read as one statement.
           `“Asking now” is the median of the building's listings still on the site, shown for ` +
           `${d.n_priced_live} of ${rows.length} buildings — below ${d.min_live} live listings it is ` +
-          `replaced by what the building has asked since March, because two apartments are not a ` +
+          `replaced by what the building has asked ${since}, because two apartments are not a ` +
           `building's price. The premium beside it is a period figure either way: it is built from ` +
-          `every apartment the building has advertised since March, against neighbours measured the ` +
+          `every apartment the building has advertised ${since}, against neighbours measured the ` +
           `same way. ` +
           `A building earns a row at <strong>${d.min_units} distinct apartments from ` +
           `${d.min_landlords} different phone numbers, none of them holding more than ` +
@@ -3311,11 +3042,11 @@
 
         const src = d.bed_sources || {};
         document.getElementById('bedRecovery').textContent =
-          `That recovers ${fmt(d.n_beds_rescued)} counts — ${fmt(src.text || 0)} read from the text ` +
-          `where the field was blank and ${fmt(src.studio || 0)} corrected to studio — against ` +
-          `${fmt(src.listed || 0)} taken from the listing field as given and ${fmt(src.unknown || 0)} ` +
-          `still unknown. It is what keeps the per-bedroom figures from being a survey of only the ` +
-          `listings that filled the form in properly.`;
+          `In numbers: ${fmt(src.studio || 0)} apartments are classed as studios on the strength of ` +
+          `the ad text, ${fmt(src.text || 0)} had a blank field filled from the description, ` +
+          `${fmt(src.listed || 0)} use the listing field as given, and ${fmt(src.unknown || 0)} ` +
+          `remain unknown and sit out of the per-bedroom figures. The studio reading is the one ` +
+          `that matters: without it the cheapest segment would be folded into the one-bedrooms.`;
 
         // The sweeps are individually uninteresting; their total is not, because
         // it says how much of the corpus has no usable start date.
@@ -3334,10 +3065,18 @@
         document.getElementById('bandLeakCopy').textContent =
           `Collection targets rents between $${d.band_low.toLocaleString()} and ` +
           `$${d.band_high.toLocaleString()} a month, and every figure on this page is computed inside ` +
-          `that band. ${fmt(d.n_units_above_band)} apartments sit above the ceiling and ` +
-          `${fmt(d.n_units_out_of_band)} fall outside the band either way: the source site's own price ` +
+          `that band. Over the whole collection window ${fmt(d.n_units_above_band)} apartments sit ` +
+          `above the ceiling and ${fmt(d.n_units_out_of_band)} fall outside the band either way` +
+          `${d.n_active_out_of_band != null
+              ? ` (${fmt(d.n_active_out_of_band)} of them live and priced right now, the count the ` +
+                `price histogram's caption gives)` : ''}: the source site's own price ` +
           `filter leaks on featured placements, so they arrive uninvited. They are reported here rather ` +
-          `than hidden, but they are not counted anywhere above — this is a page about the ` +
+          // n_active_out_of_band arrives with the exporter that also trims the histogram to the
+          // band; older exports still plot the live out-of-band listings there.
+          `than hidden, but they are not counted anywhere above` +
+          `${d.n_active_out_of_band != null ? ', the price histogram included'
+              : ' (the price histogram still plots the live ones)'} — ` +
+          `this is a page about the ` +
           `$${d.band_low.toLocaleString()}–$${d.band_high.toLocaleString()} market, not about every ` +
           `apartment in San Juan.`;
       } catch (e) { /* prose stands on its own; see above */ }
