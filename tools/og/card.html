@@ -1,0 +1,111 @@
+<!doctype html>
+<!-- Share-preview cards for the analytics pages (1200x630). Rendered to /assets/og/<page>.png
+     by tools/og/render.sh with headless Chrome; open card.html?page=outages to preview one.
+     The cards carry no live figures, so they never go stale. -->
+<html lang="en"><head><meta charset="utf-8"><title>og card</title>
+<style>
+@font-face{font-family:'Source Code Pro';font-weight:300 700;src:url(../../fonts/source-code-pro-latin.woff2) format('woff2')}
+html,body{margin:0;width:1200px;height:630px;overflow:hidden;background:#0e0e10;color:#ededed}
+body{position:relative;font-family:'Segoe UI Variable Display','Segoe UI','Helvetica Neue',Arial,sans-serif}
+.mono{font-family:'Source Code Pro',Consolas,monospace;letter-spacing:.06em;text-transform:uppercase}
+.brand{position:absolute;left:64px;top:56px;font-size:16px;color:#ededed}
+.brand i{display:inline-block;width:11px;height:11px;background:#009646;margin-right:12px}
+.eyebrow{position:absolute;left:64px;top:190px;font-size:15px;color:#2bd46f}
+h1{position:absolute;left:62px;top:218px;width:640px;margin:0;font-weight:400;font-size:76px;line-height:1.02;letter-spacing:-.03em}
+.rule{position:absolute;left:64px;top:450px;width:640px;border-top:1px solid #3a3a3f}
+.sub{position:absolute;left:64px;top:470px;width:640px;font-size:25px;line-height:1.35;color:#c8c8cc}
+.url{position:absolute;left:64px;bottom:44px;font-size:15px;color:#2bd46f;text-transform:lowercase}
+.tag{position:absolute;right:64px;bottom:44px;font-size:15px;color:#9aa0a6}
+svg{position:absolute;left:770px;top:150px;width:370px;height:330px}
+</style></head><body>
+<div class="brand mono"><i></i>SENS ADVISOR</div>
+<div class="eyebrow mono" id="eyebrow"></div>
+<h1 id="title"></h1>
+<div class="rule"></div>
+<div class="sub" id="sub"></div>
+<div class="url mono" id="url"></div>
+<div class="tag mono">San Juan, Puerto Rico</div>
+<svg id="art" viewBox="0 0 370 330" fill="none" stroke-linecap="round" stroke-linejoin="round"></svg>
+<script>
+var G = ['#0b3d22', '#13603a', '#1b8a4f', '#009646', '#2bd46f'];
+function bars(vals, color) {
+    var w = 370 / vals.length, s = '';
+    vals.forEach(function (v, i) { s += '<rect x="' + (i * w + 4) + '" y="' + (320 - v) + '" width="' + (w - 8) + '" height="' + v + '" fill="' + (color ? color(i, v) : G[3]) + '"/>'; });
+    return s;
+}
+function line(pts, stroke, width) {
+    return '<polyline points="' + pts.map(function (p) { return p.join(','); }).join(' ') + '" stroke="' + stroke + '" stroke-width="' + width + '"/>';
+}
+function axis() { return '<line x1="0" y1="321" x2="370" y2="321" stroke="#3a3a3f" stroke-width="2"/>'; }
+var PAGES = {
+    outages: {
+        eyebrow: 'Analytics / Grid', title: 'Puerto Rico Power Outages', url: 'sensadvisor.com/outages',
+        sub: 'Live service interruptions by region, with grid availability and history.',
+        art: function () {
+            var v = [60, 72, 58, 90, 140, 220, 180, 120, 95, 80, 70, 64];
+            return axis() + bars(v, function (i, x) { return x > 150 ? '#e63946' : x > 100 ? '#f4a261' : G[2]; });
+        }
+    },
+    generation: {
+        eyebrow: 'Analytics / Grid', title: 'Puerto Rico Generation', url: 'sensadvisor.com/generation',
+        sub: 'Reserves, load-relief risk, hourly generation and units online vs offline.',
+        art: function () {
+            var cap = [], gen = [];
+            for (var i = 0; i <= 24; i++) {
+                var x = i * 370 / 24, d = Math.sin((i - 7) / 24 * 2 * Math.PI);
+                cap.push([x, 70 + 8 * Math.sin(i / 3)]); gen.push([x, 190 - 90 * Math.max(d, -0.4) ]);
+            }
+            var area = '<polygon points="' + gen.map(function (p) { return p.join(','); }).join(' ') + ' 370,320 0,320" fill="#0b3d22"/>';
+            return axis() + area + line(gen, G[4], 4) + line(cap, '#9aa0a6', 3).replace('/>', ' stroke-dasharray="8 8"/>');
+        }
+    },
+    reservoirs: {
+        eyebrow: 'Analytics / Water', title: 'Puerto Rico Reservoir Levels', url: 'sensadvisor.com/reservoirs',
+        sub: 'USGS gauge levels against PRASA’s operating thresholds, reservoir by reservoir.',
+        art: function () {
+            var s = '', levels = [0.82, 0.55, 0.68, 0.36, 0.74], w = 62;
+            levels.forEach(function (l, i) {
+                var x = 6 + i * 74, top = 320 - 300 * l;
+                s += '<rect x="' + x + '" y="20" width="' + w + '" height="300" stroke="#3a3a3f" stroke-width="2"/>';
+                s += '<rect x="' + x + '" y="' + top + '" width="' + w + '" height="' + (320 - top) + '" fill="' + (l < 0.4 ? '#f4a261' : G[i % 2 ? 2 : 3]) + '"/>';
+                s += '<line x1="' + (x - 4) + '" y1="' + (320 - 300 * 0.45) + '" x2="' + (x + w + 4) + '" y2="' + (320 - 300 * 0.45) + '" stroke="#ededed" stroke-width="2" stroke-dasharray="5 5"/>';
+            });
+            return s;
+        }
+    },
+    'pr-lmci': {
+        eyebrow: 'Analytics / Labor', title: 'Puerto Rico Labor Market', url: 'sensadvisor.com/pr-lmci',
+        sub: 'Unemployment, private payroll momentum and the breadth of improvement across 24 series.',
+        art: function () {
+            var a = [], b = [];
+            for (var i = 0; i <= 30; i++) {
+                var x = i * 370 / 30;
+                a.push([x, 250 - i * 5 + 18 * Math.sin(i / 2.5)]); b.push([x, 120 + i * 3 + 12 * Math.cos(i / 3)]);
+            }
+            return axis() + '<line x1="0" y1="200" x2="370" y2="200" stroke="#3a3a3f" stroke-width="2" stroke-dasharray="6 6"/>'
+                + line(b, '#9aa0a6', 3) + line(a, G[4], 4) + '<circle cx="370" cy="' + a[30][1] + '" r="7" fill="#2bd46f"/>';
+        }
+    },
+    rentals: {
+        eyebrow: 'Analytics / Housing', title: 'San Juan Rental Market', url: 'sensadvisor.com/rentals',
+        sub: 'Asking rents, price cuts and how fast listings go, from Condado to Old San Juan.',
+        art: function () {
+            var s = axis(), hs = [220, 290, 170, 250, 200];
+            hs.forEach(function (h, i) {
+                var x = 6 + i * 74, w = 62;
+                s += '<rect x="' + x + '" y="' + (320 - h) + '" width="' + w + '" height="' + h + '" fill="' + G[1 + i % 3] + '"/>';
+                for (var y = 320 - h + 18; y < 300; y += 30)
+                    for (var k = 0; k < 3; k++) s += '<rect x="' + (x + 8 + k * 18) + '" y="' + y + '" width="10" height="14" fill="' + ((i * 7 + y + k * 3) % 5 ? '#0e0e10' : '#2bd46f') + '"/>';
+            });
+            return s;
+        }
+    }
+};
+var p = PAGES[new URLSearchParams(location.search).get('page')] || PAGES.outages;
+document.getElementById('eyebrow').textContent = p.eyebrow;
+document.getElementById('title').textContent = p.title;
+document.getElementById('sub').textContent = p.sub;
+document.getElementById('url').textContent = p.url;
+document.getElementById('art').innerHTML = p.art();
+</script>
+</body></html>
