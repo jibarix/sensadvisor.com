@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.clarity.ms https://*.clarity.ms; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.clarity.ms https://c.bing.com; font-src 'self'; connect-src 'self' https://*.clarity.ms https://c.bing.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<!-- Theme init: set data-theme before paint to avoid a flash -->
+<script>
+(function () {
+  try {
+    var t = localStorage.getItem('theme');
+    if (t !== 'dark' && t !== 'light') {
+      t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+})();
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PR Economy Monitor | SENS ADVISOR</title>
+
+<meta name="description" content="Puerto Rico economic indicators in one place: activity index, inflation, consumer spending, tourism, construction, government revenue, trade and electricity, each with the month it describes.">
+<meta property="og:title" content="PR Economy Monitor">
+<meta property="og:description" content="Puerto Rico's economy in its main island-wide indicators, read after inflation and against the same month a year earlier.">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://sensadvisor.com/economy/">
+<meta property="og:url" content="https://sensadvisor.com/economy/">
+<meta property="og:image" content="https://sensadvisor.com/assets/og/economy.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Puerto Rico Economy Monitor — SENS ADVISOR analytics card">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="PR Economy Monitor">
+<meta name="twitter:description" content="Puerto Rico's economy in its main island-wide indicators, read after inflation and against the same month a year earlier.">
+
+<link rel="preload" href="/fonts/source-code-pro-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>@font-face{font-family:'Source Code Pro';font-style:normal;font-weight:300 700;font-display:swap;src:url(/fonts/source-code-pro-latin.woff2) format('woff2')}</style>
+
+<style>
+  :root {
+    --primary-bg: #ffffff;
+    --primary-text: #000000;
+    --secondary-text: #333333;
+    --border-primary: #000000;
+    --accent-light: #f0f0f0;
+    --accent-lighter: #f9f9f9;
+    --ok: #76ad2a;
+    --warn: #faa72a;
+    --crit: #e04343;
+    --page-gutter: clamp(20px, 4vw, 64px);
+    --signal: #008f43;
+    --grid-dot: rgba(0, 0, 0, 0.065);
+    --chart-text: #333333;
+    --chart-grid: #dddddd;
+  }
+
+  /* ===== Dark theme (shared toggle; syncs via localStorage 'theme') ===== */
+  :root[data-theme="dark"] {
+    --primary-bg: #0e0e10;
+    --primary-text: #ededed;
+    --secondary-text: #9aa0a6;
+    --border-primary: #3a3d42;
+    --accent-light: #212327;
+    --accent-lighter: #16171a;
+
+    --signal: #36e08a;
+    --grid-dot: rgba(255, 255, 255, 0.055);
+    --chart-text: #d7d9dc;
+    --chart-grid: #34373c;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --primary-bg: #0e0e10;
+      --primary-text: #ededed;
+      --secondary-text: #9aa0a6;
+      --border-primary: #3a3d42;
+      --accent-light: #212327;
+      --accent-lighter: #16171a;
+
+      --signal: #36e08a;
+      --grid-dot: rgba(255, 255, 255, 0.055);
+      --chart-text: #d7d9dc;
+      --chart-grid: #34373c;
+    }
+  }
+  body, .analytics-index, .panel { transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease; }
+  /* Charts carry baked-in light colors; float them on a light tile so they stay legible in dark mode. */
+  :root[data-theme="dark"] canvas { background: #ffffff; }
+  :root[data-theme="dark"] .panel img[src$=".png"] { background: #ffffff; }
+
+  /* Scroll progress and quick return for a long analytical page. */
+  .back-to-top {
+    --top-progress: 0deg;
+    position: fixed;
+    right: clamp(18px, 2.2vw, 40px);
+    bottom: calc(clamp(18px, 2.2vw, 40px) + env(safe-area-inset-bottom, 0px));
+    z-index: 8000;
+    display: grid;
+    width: 58px;
+    height: 58px;
+    place-content: center;
+    gap: 1px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: conic-gradient(var(--signal) var(--top-progress), var(--accent-light) 0);
+    color: var(--primary-text);
+    font-family: inherit;
+    font-size: 0.58rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(12px) scale(0.94);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    isolation: isolate;
+  }
+  .back-to-top::before {
+    content: "";
+    position: absolute;
+    inset: 2px;
+    z-index: -1;
+    border-radius: inherit;
+    background: var(--primary-bg);
+    transition: background-color 0.25s ease;
+  }
+  .back-to-top .top-arrow { font-size: 0.9rem; line-height: 0.8; letter-spacing: 0; }
+  .back-to-top.is-visible { opacity: 0.9; pointer-events: auto; transform: translateY(0) scale(1); }
+  .back-to-top:hover { opacity: 1; transform: translateY(-3px) scale(1); }
+  .back-to-top:focus-visible { opacity: 1; outline: 2px solid var(--signal); outline-offset: 4px; }
+  @media print { .back-to-top { display: none; } }
+  @media (max-width: 480px) { .back-to-top { width: 52px; height: 52px; } }
+  @media (prefers-reduced-motion: reduce) {
+    .back-to-top { transition: none; }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html {
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
+    scroll-behavior: smooth;
+    scroll-padding-top: 56px;
+  }
+
+  body {
+    font-family: 'Source Code Pro', monospace;
+    position: relative;
+    background-color: var(--primary-bg);
+    background-image: radial-gradient(circle, var(--grid-dot) 1px, transparent 1px);
+    background-size: 34px 34px;
+    background-attachment: fixed;
+    color: var(--primary-text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  .analytics-index {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-bottom: 1px solid var(--border-primary);
+    background: color-mix(in srgb, var(--primary-bg) 94%, transparent);
+    backdrop-filter: blur(14px);
+  }
+  .analytics-index-inner {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 0 var(--page-gutter);
+  }
+  .analytics-index-label {
+    margin-right: auto;
+    color: var(--secondary-text);
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .analytics-index a {
+    flex: 0 0 auto;
+    padding: 11px 0 10px;
+    border-bottom: 2px solid transparent;
+    color: var(--secondary-text);
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .analytics-index a:hover,
+  .analytics-index a:focus-visible {
+    color: var(--primary-text);
+    border-bottom-color: var(--signal);
+  }
+
+  @media (max-width: 768px) {
+    .analytics-index-inner {
+      gap: 22px;
+      overflow-x: auto;
+      overscroll-behavior-inline: contain;
+      scrollbar-width: none;
+    }
+    .analytics-index-inner::-webkit-scrollbar { display: none; }
+    .analytics-index-label { display: none; }
+  }
+
+  .container {
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 0 var(--page-gutter);
+  }
+
+  .header {
+    background: transparent;
+    margin: clamp(40px, 6vw, 72px) 0 clamp(28px, 4vw, 44px);
+  }
+
+  .header-kicker {
+    display: block;
+    margin-bottom: clamp(14px, 1.6vw, 22px);
+    color: var(--signal);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .header h1 { font-size: 1.8rem; font-weight: 600; margin-top: 10px; }
+  .header .subtitle { font-size: 0.9rem; color: var(--secondary-text); margin-top: 6px; max-width: 64ch; }
+
+  .panel {
+    background: var(--primary-bg);
+    border: 2px solid var(--border-primary);
+    border-radius: 8px; padding: 26px; margin-bottom: 34px;
+    transition: all 0.2s ease;
+  }
+  .panel:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  }
+  .panel h2 {
+    font-size: 1.25rem; font-weight: 600; margin-bottom: 14px;
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap;
+  }
+  .panel-note { font-size: 0.75rem; font-weight: 400; color: var(--secondary-text); }
+  .explain p { font-size: 0.8rem; color: var(--secondary-text); margin-bottom: 12px; }
+
+  .chart-container { position: relative; width: 100%; height: 350px; }
+  .chart-container.tall { height: 560px; }
+
+  .nav-anchor { display: block; position: relative; top: 0; visibility: hidden; }
+
+  .controls { display: flex; gap: 12px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+  .controls select, .controls button {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.85rem; padding: 6px 12px;
+    border: 2px solid var(--border-primary); border-radius: 4px;
+    background: var(--primary-bg); color: var(--primary-text); cursor: pointer;
+  }
+  .controls button:hover { background: var(--primary-text); color: var(--primary-bg); }
+  .controls button.active { background: var(--primary-text); color: var(--primary-bg); }
+  .controls .spacer { flex: 1; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--accent-light); }
+  th {
+    font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--secondary-text); border-bottom: 2px solid var(--border-primary);
+  }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  tr:hover { background: var(--accent-lighter); }
+  th.sortable { cursor: pointer; user-select: none; }
+  th.sortable:hover { color: var(--primary-text); }
+  th.sortable:focus-visible { outline: 2px solid var(--primary-text); outline-offset: -2px; color: var(--primary-text); }
+  th.sortable::after { content: " \2195"; opacity: 0.3; }
+  th.sortable.asc::after { content: " \2191"; opacity: 1; }
+  th.sortable.desc::after { content: " \2193"; opacity: 1; }
+  .table-wrap { overflow-x: auto; }
+  .no-data { text-align: center; padding: 40px; color: var(--secondary-text); font-style: italic; }
+
+  .badge { font-size: 0.68rem; font-weight: 700; padding: 1px 7px; border-radius: 10px; letter-spacing: 0.3px; white-space: nowrap; }
+  .badge-op { background: var(--accent-light); color: #444; border: 1px solid #ccc; }
+  /* Status badge: the band's text colour arrives as two custom properties (light / dark),
+     so the badge follows the theme toggle without a re-render. */
+  .badge-status { color: var(--badge-text); }
+  :root[data-theme="dark"] .badge-status { color: var(--badge-text-dark, var(--primary-text)); }
+  :root[data-theme="dark"] .badge-op { color: var(--secondary-text); border-color: var(--border-primary); }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .badge-status { color: var(--badge-text-dark, var(--primary-text)); }
+    :root:not([data-theme="light"]) .badge-op { color: var(--secondary-text); border-color: var(--border-primary); }
+  }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+  }
+
+  .table-details > summary {
+    cursor: pointer; font-size: 0.82rem; font-weight: 600; color: var(--secondary-text);
+    padding: 6px 0; margin-top: 4px;
+  }
+  .table-details > summary:hover { color: var(--primary-text); }
+  .table-details[open] > summary { margin-bottom: 8px; }
+  /* ---- Provenance grammar: measurements look factual, official thresholds look
+     attributed, model outputs look visibly provisional, old data looks dated. ---- */
+  .prov {
+    display: inline-flex; align-items: center; gap: 4px; vertical-align: middle;
+    font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+    padding: 1px 6px; border-radius: 10px; white-space: nowrap; line-height: 1.5;
+  }
+  .prov-measured   { border: 1.5px solid #111;                 color: #111;     background: transparent; }
+  .prov-official   { border: 1px solid #2c6a86;                color: #1f5a72;  background: rgba(58,134,168,0.10); }
+  .prov-historical { border: 1px solid rgba(150,110,80,0.6);   color: #7a5a3a;  background: rgba(150,110,80,0.10); }
+
+  .layer-banner {
+    display: flex; align-items: center; gap: 9px; flex-wrap: wrap;
+    font-size: 0.74rem; color: var(--secondary-text);
+    padding: 8px 12px; border: 1px solid var(--accent-light); border-radius: 6px; margin-bottom: 16px;
+  }
+  .layer-measured   { background: rgba(0,0,0,0.03); }
+  .layer-official   { background: rgba(58,134,168,0.06); }
+  .layer-historical { background: rgba(150,110,80,0.07); }
+
+  /* Dark-mode legibility: the provenance badges / layer banners above use hardcoded
+     light-theme colors (e.g. #111 measured), which go near-invisible on the dark
+     surface. Re-light them; these selectors outrank the plain .prov-* rules. */
+  :root[data-theme="dark"] .prov-measured   { border-color: var(--primary-text); color: var(--primary-text); }
+  :root[data-theme="dark"] .prov-official   { border-color: #4f93ad; color: #7fc4e0; }
+  :root[data-theme="dark"] .prov-historical { border-color: rgba(190,150,110,0.6); color: #cba680; }
+  :root[data-theme="dark"] .layer-measured  { background: rgba(255,255,255,0.04); }
+  .source-note {
+    font-size: 0.75rem; color: var(--secondary-text); margin-top: 30px;
+    padding-top: 16px; border-top: 1px solid var(--accent-light);
+  }
+  .source-note a { color: var(--primary-text); }
+
+  /* Status hero */
+  .status-hero {
+    border: 3px solid var(--border-primary); border-radius: 12px;
+    padding: 32px 32px; margin-bottom: 22px;
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center; gap: 8px;
+    transition: border-color 0.4s ease, background 0.4s ease;
+  }
+  .status-dot {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+    margin-bottom: 4px;
+    animation: pulse 2s ease-in-out infinite;
+    box-shadow: 0 0 12px rgba(0,0,0,0.15);
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 12px rgba(0,0,0,0.15); }
+    50% { opacity: 0.6; box-shadow: 0 0 24px rgba(0,0,0,0.25); }
+  }
+  .status-hero .status-label { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.3px; line-height: 1.1; }
+  .status-hero .status-reason { font-size: 0.95rem; color: var(--secondary-text); max-width: 680px; }
+  .status-hero .status-breakdown {
+    display: flex; gap: 10px; margin-top: 12px;
+    font-size: 0.8rem; color: var(--secondary-text); flex-wrap: wrap;
+    justify-content: center;
+  }
+  .status-hero .status-breakdown .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 10px; border-radius: 12px; border: 1px solid #ddd; font-weight: 600;
+  }
+  .status-hero .status-breakdown .chip .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .status-hero .status-timestamp { font-size: 0.75rem; color: var(--secondary-text); margin-top: 10px; }
+  .status-hero .status-change {
+    margin-top: 8px; font-size: 0.85rem; color: var(--secondary-text);
+    display: flex; flex-wrap: wrap; gap: 4px 18px;
+  }
+  .status-hero .status-change:empty { display: none; }
+  .status-hero .status-change .arrow { font-weight: 700; font-size: 0.95rem; }
+
+  /* Stat tiles */
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px; margin-bottom: 34px;
+  }
+  .stat-tile {
+    border: 2px solid var(--border-primary); border-radius: 8px;
+    padding: 16px 18px; display: flex; flex-direction: column; gap: 4px;
+    transition: all 0.2s ease;
+  }
+  .stat-tile:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.10); }
+  .stat-tile .stat-label {
+    font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--secondary-text);
+  }
+  .stat-tile .stat-value { font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .stat-tile .stat-value small { font-size: 0.85rem; font-weight: 500; color: var(--secondary-text); }
+  .stat-tile .stat-sub { font-size: 0.72rem; color: var(--secondary-text); }
+  .stat-tile.accent-crit { border-color: var(--crit); }
+  .stat-tile.accent-warn { border-color: var(--warn); }
+  .stat-tile.accent-ok { border-color: var(--ok); }
+
+  @media (max-width: 768px) {
+    .status-hero { padding: 24px 18px; }
+    .status-hero .status-label { font-size: 1.2rem; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .chart-container { height: 300px; }
+    .chart-container.tall { height: 620px; }
+  }
+
+  /* ===== Water-system analytical shell ===== */
+  :root[data-theme="dark"] canvas { background: transparent; }
+  /* clip, not hidden: hidden makes .container a scroll container, which leaves the sticky
+     panel headings below with nothing to stick against. flow-root keeps the block
+     formatting context that hidden used to provide. */
+  .container { display: flow-root; overflow-x: clip; }
+  .header { margin: clamp(52px, 9vw, 128px) 0 clamp(48px, 8vw, 104px); }
+  .header-kicker { margin-bottom: clamp(18px, 2vw, 28px); }
+  .header h1 {
+    max-width: 1180px;
+    margin: 0;
+    font-size: clamp(3.25rem, 7.6vw, 8.2rem);
+    font-weight: 600;
+    line-height: 0.88;
+    letter-spacing: -0.075em;
+    text-wrap: balance;
+  }
+  .page-sub {
+    max-width: 900px;
+    margin-top: clamp(24px, 4vw, 48px);
+    color: var(--secondary-text);
+    font-size: clamp(0.9rem, 1.25vw, 1.08rem);
+  }
+  .monitor-meta {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-top: clamp(26px, 4vw, 48px);
+    border-top: 1px solid var(--border-primary);
+    border-bottom: 1px solid var(--border-primary);
+    color: var(--secondary-text);
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .monitor-meta span { padding: 14px 16px 14px 0; }
+  .monitor-meta span + span { padding-left: 16px; border-left: 1px solid var(--accent-light); }
+  .monitor-meta strong { color: var(--primary-text); font-weight: 600; }
+  .signal-readout {
+    display: grid;
+    grid-template-columns: minmax(540px, 1.15fr) minmax(420px, 0.85fr);
+    margin: 0 0 clamp(46px, 7vw, 94px);
+    border-top: 2px solid var(--border-primary);
+    border-bottom: 1px solid var(--border-primary);
+  }
+  .status-hero {
+    display: grid;
+    grid-template-columns: minmax(170px, 0.42fr) minmax(0, 0.58fr);
+    align-items: stretch;
+    gap: 0;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-right: 1px solid var(--border-primary);
+    border-radius: 0;
+    text-align: left;
+  }
+  .reservoir-primary {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    justify-content: center;
+    padding: clamp(28px, 4vw, 54px) clamp(20px, 3vw, 42px) clamp(28px, 4vw, 54px) 0;
+    border-right: 1px solid var(--accent-light);
+  }
+  .signal-label,
+  .signal-vintage {
+    color: var(--secondary-text);
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .reservoir-count {
+    margin: 16px 0 6px;
+    font-size: clamp(4.6rem, 8vw, 8.5rem);
+    font-weight: 500;
+    line-height: 0.82;
+    letter-spacing: -0.09em;
+    font-variant-numeric: tabular-nums;
+  }
+  .reservoir-primary-status {
+    color: var(--signal);
+    font-size: 0.76rem;
+    font-weight: 700;
+    line-height: 1.35;
+    text-transform: uppercase;
+  }
+  .signal-vintage { margin-top: 28px; }
+  .status-detail {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: clamp(28px, 4vw, 54px);
+  }
+  .status-dot { width: 14px; height: 14px; margin: 0 0 18px; }
+  .status-hero .status-label {
+    font-size: clamp(1.7rem, 3vw, 3.2rem);
+    font-weight: 500;
+    line-height: 0.96;
+    letter-spacing: -0.055em;
+  }
+  .status-hero .status-reason { margin-top: 16px; font-size: 0.84rem; }
+  .status-hero .status-breakdown {
+    display: flex;
+    width: 100%;
+    gap: 8px;
+    justify-content: flex-start;
+    margin-top: 22px;
+  }
+  .status-hero .status-breakdown .chip {
+    padding: 3px 8px;
+    border-color: var(--accent-light);
+    border-radius: 0;
+  }
+  .status-hero .status-change { margin-top: 18px; }
+  .status-hero .status-timestamp { margin-top: 12px; }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    min-width: 0;
+    margin: 0;
+  }
+  .stat-tile {
+    min-height: 130px;
+    justify-content: space-between;
+    padding: clamp(18px, 2.5vw, 30px);
+    border: 0;
+    border-bottom: 1px solid var(--accent-light);
+    border-radius: 0;
+  }
+  .stat-tile:nth-child(odd) { border-right: 1px solid var(--accent-light); }
+  .stat-tile:hover { transform: none; box-shadow: none; }
+  .stat-tile.accent-crit { border-top: 3px solid var(--crit); }
+  .stat-tile.accent-warn { border-top: 3px solid var(--warn); }
+  .stat-tile.accent-ok { border-top: 3px solid var(--ok); }
+  .stat-tile .stat-value {
+    margin-top: 18px;
+    font-size: clamp(1.45rem, 2.5vw, 2.45rem);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.05em;
+  }
+  .panel {
+    display: grid;
+    grid-template-columns: minmax(210px, 0.28fr) minmax(0, 1fr);
+    gap: 0 clamp(28px, 6vw, 96px);
+    min-width: 0;
+    margin: 0;
+    padding: clamp(42px, 7vw, 96px) 0;
+    border: 0;
+    border-top: 1px solid var(--border-primary);
+    border-radius: 0;
+    background: transparent;
+  }
+  .panel:hover { transform: none; box-shadow: none; }
+  .panel h2 {
+    align-self: start;
+    position: sticky;
+    top: 74px;
+    display: block;
+    max-width: 300px;
+    margin: 0;
+    font-size: clamp(1.35rem, 2vw, 2.05rem);
+    line-height: 1.08;
+    letter-spacing: -0.035em;
+  }
+  .panel h2 .panel-note {
+    display: block;
+    width: auto;
+    max-width: 270px;
+    margin-top: 12px;
+    line-height: 1.45;
+  }
+  .panel > :not(h2) { grid-column: 2; min-width: 0; }
+  .panel .chart-container {
+    min-height: 320px;
+    border-top: 1px solid var(--accent-light);
+    padding-top: 18px;
+  }
+  .panel .table-wrap { min-width: 0; }
+  #res-table { min-width: 1040px; }
+  .layer-banner { border-radius: 0; }
+  .explain p { font-size: clamp(0.82rem, 0.95vw, 0.92rem); }
+  .source-note { margin: 0; padding: 22px 0 54px; }
+  .footer {
+    padding: 30px 0 6px;
+    border-top: 1px solid var(--border-primary);
+    color: var(--secondary-text);
+    font-size: 0.68rem;
+    letter-spacing: 0.05em;
+    text-align: left;
+    text-transform: uppercase;
+  }
+  @media (max-width: 1120px) {
+    .signal-readout { grid-template-columns: 1fr; }
+    .status-hero { border-right: 0; border-bottom: 1px solid var(--border-primary); }
+  }
+  @media (max-width: 980px) {
+    .panel { grid-template-columns: 1fr; gap: 24px; }
+    .panel h2 { position: static; max-width: none; }
+    .panel h2 .panel-note { max-width: none; }
+    .panel > :not(h2) { grid-column: 1; }
+  }
+  @media (max-width: 680px) {
+    .container { padding: 0 var(--page-gutter); }
+    .header { margin-top: 42px; }
+    .header h1 { font-size: clamp(2.8rem, 12vw, 4.4rem); }
+    .monitor-meta { grid-template-columns: 1fr; }
+    .monitor-meta span { padding: 11px 0; }
+    .monitor-meta span + span {
+      padding-left: 0;
+      border-top: 1px solid var(--accent-light);
+      border-left: 0;
+    }
+    .status-hero { grid-template-columns: 1fr; }
+    .reservoir-primary {
+      padding-right: 0;
+      border-right: 0;
+      border-bottom: 1px solid var(--accent-light);
+    }
+    .status-detail { padding-right: 0; padding-left: 0; }
+    .stats-grid { grid-template-columns: 1fr; }
+    .stat-tile {
+      min-height: 108px;
+      border-right: 0 !important;
+      border-bottom: 1px solid var(--accent-light) !important;
+    }
+    .panel .chart-container { height: 300px; min-height: 300px; }
+    .panel .chart-container.tall { height: 620px; min-height: 620px; }
+  /* ===== Economy page ===== */
+  .panel .chart-container + .chart-container { margin-top: 28px; }
+  .chg { font-variant-numeric: tabular-nums; font-weight: 600; }
+  .chg.good { color: #1d7a3c; }
+  .chg.bad  { color: #b32020; }
+  .chg.flat { color: var(--secondary-text); }
+  :root[data-theme="dark"] .chg.good { color: #7fd99a; }
+  :root[data-theme="dark"] .chg.bad  { color: #ff9a9a; }
+  .tag {
+    display: inline-block; margin-left: 4px; padding: 0 5px; border: 1px solid var(--border-primary);
+    font-family: var(--sa-mono, 'Source Code Pro', monospace); font-size: 10px; letter-spacing: .04em;
+    text-transform: uppercase; color: var(--secondary-text); vertical-align: 1px;
+  }
+  .st { font-family: var(--sa-mono, 'Source Code Pro', monospace); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; }
+  .st::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 7px; vertical-align: 0; }
+  .st-live::before { background: var(--ok); }
+  .st-lagging::before { background: var(--warn); }
+  .st-stale::before { background: var(--crit); }
+  #econ-table .block-row th {
+    padding-top: 18px; background: transparent; color: var(--secondary-text);
+    font-family: var(--sa-mono, 'Source Code Pro', monospace); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; text-align: left;
+  }
+  #econ-table th.num { text-align: right; }
+  .pulse-month { margin: 26px 0 4px; font-size: 1rem; font-weight: 600; }
+  .pulse-month:first-child { margin-top: 8px; }
+  .pulse-month span { font-weight: 400; color: var(--secondary-text); font-size: 0.85rem; margin-left: 6px; }
+  .panel .chart-container.pulse-bars { min-height: 0; }
+  details.pulse-table { margin-top: 28px; }
+  .explain a { color: var(--signal); }
+  details.pulse-table summary { cursor: pointer; color: var(--secondary-text); font-size: 0.85rem; margin-bottom: 10px; }
+  }
+</style>
+<!-- Microsoft Clarity Analytics -->
+<script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "rdalx1jkyh");
+</script>
+<link rel="stylesheet" href="/assets/dash.css">
+</head>
+<body>
+<button class="back-to-top" type="button" aria-label="Back to top" aria-hidden="true" tabindex="-1">
+  <span>Top</span>
+  <span class="top-arrow" aria-hidden="true">&#8593;</span>
+</button>
+<header class="sa-chrome">
+  <a class="sa-chip" href="/" aria-label="SENS ADVISOR, home">SENS ADVISOR</a>
+  <div class="sa-chrome-r">
+    <button class="sa-menu-btn" type="button" aria-expanded="false" aria-controls="sa-menu">Menu</button>
+    <button class="sa-icon-btn sa-theme" type="button" aria-label="Toggle dark mode" aria-pressed="false" title="Toggle dark mode"><span aria-hidden="true">&#9680;</span></button>
+  </div>
+</header>
+<nav id="sa-menu" class="sa-menu" aria-label="Dashboards" hidden>
+  <div class="sa-menu-body">
+    <a class="sa-menu-home" href="/">&larr; Main site</a>
+    <p class="sa-menu-h">Live data</p>
+    <ol class="sa-menu-main">
+      <li><a href="/outages/"><span>01</span>PR Outage Status</a></li>
+      <li><a href="/generation/"><span>02</span>PR Generation Status</a></li>
+      <li><a href="/reservoirs/"><span>03</span>PR Reservoir Levels</a></li>
+      <li><a href="/rentals/"><span>04</span>San Juan Rentals</a></li>
+      <li><a href="/pr-lmci/"><span>05</span>PR Labor Market Readings</a></li>
+      <li><a href="/economy/" aria-current="page"><span>06</span>PR Economy Monitor</a></li>
+    </ol>
+    <p class="sa-menu-h">Notes</p>
+    <ol class="sa-menu-main">
+      <li><a href="/notes/"><span>07</span>Applied AI Notes</a></li>
+    </ol>
+    <a class="sa-menu-mail" href="mailto:consult@sensadvisor.com">consult@sensadvisor.com</a>
+  </div>
+</nav>
+
+<nav class="analytics-index" aria-label="Dashboard sections">
+  <div class="analytics-index-inner">
+    <span class="analytics-index-label">PR economy</span>
+    <a href="#pulse">Pulse</a>
+    <a href="#scoreboard">Indicators</a>
+    <a href="#activity">Activity</a>
+    <a href="#prices">Prices</a>
+    <a href="#consumer">Consumer</a>
+    <a href="#tourism">Tourism</a>
+    <a href="#construction">Construction</a>
+    <a href="#fiscal">Fiscal</a>
+    <a href="#trade">Trade</a>
+    <a href="#energy">Energy</a>
+    <a href="#method">Method</a>
+  </div>
+</nav>
+<script src="/assets/dash.js" defer></script>
+<div class="container">
+  <header class="header">
+    <span class="header-kicker">Analytics / Economy</span>
+    <h1>Puerto Rico Economy Monitor</h1>
+    <p class="page-sub">The main island-wide indicators in one place, each shown with the month it actually describes. Dollar figures are read after inflation, and every change is against the same month a year earlier.</p>
+    <div class="monitor-meta">
+      <span><strong>Latest data</strong><br><span id="meta-edition">&mdash;</span></span>
+      <span><strong>Refresh</strong><br>Weekly, as agencies publish</span>
+      <span><strong>Sources</strong><br>Planning Board / DDEC / DTRH / US DOL</span>
+    </div>
+  </header>
+
+  <span class="nav-anchor" id="pulse"></span>
+  <div class="signal-readout">
+    <div class="status-hero" aria-live="polite">
+      <div class="reservoir-primary">
+        <span class="signal-label">Economic Activity Index &middot; vs a year earlier</span>
+        <strong class="reservoir-count" id="hero-value">&mdash;</strong>
+        <span class="reservoir-primary-status" id="hero-status">Loading</span>
+        <span class="signal-vintage" id="hero-vintage">&nbsp;</span>
+      </div>
+      <div class="status-detail">
+        <div class="status-label" id="status-label">Loading&hellip;</div>
+        <div class="status-reason" id="status-reason">Reading the latest edition.</div>
+        <div class="status-breakdown" id="status-breakdown"></div>
+        <div class="status-timestamp" id="status-timestamp"></div>
+      </div>
+    </div>
+    <div class="stats-grid" id="stats-grid"></div>
+  </div>
+
+  <span class="nav-anchor" id="scoreboard"></span>
+  <div class="panel">
+    <h2>All indicators <span class="panel-note">Change from a year earlier, grouped by the month each indicator last reported</span></h2>
+    <div class="explain">
+      <p>Green means the change went the way that is good for the economy (more sales, more revenue, fewer bankruptcies, cheaper gasoline), red the other way; grey marks indicators with no good direction, such as the price index itself. <b>Real</b> marks dollar series read after Puerto Rico's own consumer price index. Each group compares one month with the same month a year before, so bars in different groups describe different months. Hotel occupancy is a change in percentage points.</p>
+    </div>
+    <div id="pulse-groups"></div>
+    <details class="pulse-table">
+      <summary>Show as table, with latest levels</summary>
+    <div class="table-wrap">
+      <table id="econ-table">
+        <thead>
+          <tr>
+            <th scope="col">Indicator</th>
+            <th scope="col">Month</th>
+            <th scope="col" class="num">Latest</th>
+            <th scope="col" class="num">1-yr change</th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody><tr><td colspan="5" class="no-data">Loading&hellip;</td></tr></tbody>
+      </table>
+    </div>
+    </details>
+  </div>
+
+  <span class="nav-anchor" id="activity"></span>
+  <div class="panel">
+    <h2>Economic activity <span class="panel-note">Economic Activity Index (IAE) &middot; monthly</span></h2>
+    <div class="explain">
+      <p>The Economic Activity Index combines payroll jobs, electricity generation, cement sales and gasoline consumption into one monthly reading of the island's economy. The dashed line is its 12-month average, which smooths out single-month noise.</p>
+    </div>
+    <div class="chart-container"><canvas id="chart-activity" role="img" aria-label="Line chart: Puerto Rico Economic Activity Index by month, with its 12-month average."></canvas></div>
+  </div>
+
+  <span class="nav-anchor" id="prices"></span>
+  <div class="panel">
+    <h2>Prices <span class="panel-note">Puerto Rico CPI &middot; change from a year earlier, %</span></h2>
+    <div class="explain">
+      <p>Inflation for all items and four of the main spending groups, from the consumer price index the Puerto Rico Department of Labor publishes. Above zero, prices are higher than a year before.</p>
+      <p><b>Electricity-corrected line (estimate).</b> The official index has held its electricity component at one value for years, so it misses every change in power rates. The green line in the first chart swaps that frozen value for the residential price the US Energy Information Administration measures each month (<a href="https://www.eia.gov/electricity/monthly/">Electric Power Monthly</a>, table 8.4). The price is converted to index points with the 2016&ndash;2018 ratio between the two, when both still moved, and weighted at 2.8% of all items, a share inferred from the index's own history because it is not published. It starts in January 2025, the first month with a year-earlier EIA price, and it can come in below the official rate when electricity gets cheaper. It is our estimate, not an official figure.</p>
+    </div>
+    <div class="chart-container"><canvas id="chart-prices-corrected" role="img" aria-label="Line chart: all-items inflation, official and with electricity corrected (estimate), by month since 2024."></canvas></div>
+    <div class="chart-container"><canvas id="chart-prices" role="img" aria-label="Line chart: year-over-year inflation for all items, all items with electricity corrected (estimate), food and beverages, housing, transportation and medical care, by month."></canvas></div>
+  </div>
+
+  <span class="nav-anchor" id="consumer"></span>
+  <div class="panel">
+    <h2>Consumer spending <span class="panel-note">New vehicle sales and retail sales after inflation</span></h2>
+    <div class="explain">
+      <p>New cars and light trucks sold each month (left axis, with the 12-month average dashed) and total retail sales in today's dollars (right axis, $ millions). Retail reporting restarted on a new basis in July 2025 that runs higher than the old one, so the two are drawn as separate lines and not compared across the break.</p>
+    </div>
+    <div class="chart-container"><canvas id="chart-consumer" role="img" aria-label="Line chart: monthly new vehicle sales with their 12-month average, and real retail sales in millions of dollars on the old and new reporting bases."></canvas></div>
+  </div>
+
+  <span class="nav-anchor" id="tourism"></span>
+  <div class="panel">
+    <h2>Tourism <span class="panel-note">Airport passengers and hotel occupancy</span></h2>
+    <div class="explain">
+      <p>Passengers through Luis Mu&ntilde;oz Mar&iacute;n airport each month (left axis, millions) and the occupancy rate of hotels and paradores (right axis, %). Cruise ship calls are in the indicator table above.</p>
+    </div>
+    <div class="chart-container"><canvas id="chart-tourism" role="img" aria-label="Line chart: monthly passengers at San Juan airport in millions and the hotel occupancy rate in percent."></canvas></div>
+  </div>
+
+  <span class="nav-anchor" id="construction"></span>
+  <div class="panel">
+    <h2>Construction <span class="panel-note">Cement sales &middot; thousand 94-pound bags a month</span></h2>
+    <div class="explain">
+      <p>Cement sold each month (left axis, thousands of 94-pound bags, 12-month average dashed) is a quick read on building activity.</p>
+    </div>
+    <div class="chart-container"><canvas id="chart-construction" role="img" aria-label="Line chart: monthly cement sales with their 12-month average."></canvas></div>
+  </div>
+
+  <span class="nav-anchor" id="fiscal"></span>
+  <div class="panel">
+    <h2>Government revenue <span class="panel-note">Last 12 months, after inflation &middot; $ millions</span></h2>
+    <div class="explain">
+      <p>General Fund net revenues and the sales and use tax (IVU, 11.5%) added up over the trailing 12 months, so each point is a full year of collections and the seasonal swings cancel out.</p>
+    </div>
+    <div class="chart-container"><canvas id="chart-fiscal" role="img" aria-label="Line chart: trailing 12-month General Fund net revenues and sales and use tax collections, in millions of inflation-adjusted dollars."></canvas></div>
+  </div>
+
+  <span class="nav-anchor" id="trade"></span>
+  <div class="panel">
+    <h2>External trade <span class="panel-note">Last 12 months, after inflation &middot; $ billions</span></h2>
+    <div class="explain">
+      <p>Exports, imports and the difference between them, each summed over the trailing 12 months. Puerto Rico's exports are dominated by pharmaceuticals, so swings in a few plants move the total.</p>
+    </div>
+    <div class="chart-container"><canvas id="chart-trade" role="img" aria-label="Line chart: trailing 12-month exports, imports and trade balance in billions of inflation-adjusted dollars."></canvas></div>
+  </div>
+
+  <span class="nav-anchor" id="energy"></span>
+  <div class="panel">
+    <h2>Electricity <span class="panel-note">Generation and consumption &middot; million kWh a month</span></h2>
+    <div class="explain">
+      <p>Power generated and power sold to customers each month, with generation's 12-month average dashed. For the grid today, see <a href="/generation/">PR Generation Status</a>.</p>
+    </div>
+    <div class="chart-container"><canvas id="chart-energy" role="img" aria-label="Line chart: monthly electricity generation and consumption in million kilowatt-hours, with generation's 12-month average."></canvas></div>
+  </div>
+
+  <span class="nav-anchor" id="method"></span>
+  <div class="panel">
+    <h2>How to read it <span class="panel-note">Method and known breaks</span></h2>
+    <div class="explain">
+      <p><b>One month per indicator.</b> Agencies publish on different schedules, so each indicator carries its own month. Series behind the freshest month are marked as lagging rather than shown as current.</p>
+      <p><b>Year-over-year first.</b> Most series are not seasonally adjusted, so each is compared with the same month a year earlier. Rates, such as hotel occupancy, change in percentage points.</p>
+      <p><b>Corrected inflation.</b> The bar and line marked &ldquo;electricity corrected&rdquo; are our estimate, explained under Prices. Dollar series below are still deflated with the official index.</p>
+      <p><b>After inflation.</b> Retail sales, government revenue and trade are deflated with Puerto Rico's all-items consumer price index. That index publishes later than some dollar series, so a real change can trail the nominal one by a month or two.</p>
+    </div>
+  </div>
+
+  <div class="source-note">
+    <p><b>Data sources:</b> Puerto Rico Planning Board, <a href="https://jp.pr.gov/planificacion-en-desarrollo-socioeconomico/">Indicadores Econ&oacute;micos</a> monthly workbook (Economic Activity Index, tourism, construction, revenues, trade, energy, bankruptcies, gasoline prices); PR Department of Labor (DTRH), <a href="https://www.mercadolaboral.pr.gov/Tablas_Estadisticas/Otras_Tablas/T_Indice_Precio.aspx">consumer price index</a>; DDEC, new vehicle sales and retail sales. Gathered and cleaned by SENS ADVISOR's data pipeline. This page is not affiliated with any of these agencies.</p>
+  </div>
+
+  <footer class="footer">
+    <p class="footer-built">Built by SENS ADVISOR. <a href="/#contact">Discuss a business challenge &rarr;</a></p>
+    <p>&copy; <span id="copyright-year">2026</span> Sens ABI LLC. All rights reserved. | Standard W9/1099 Process for US Clients</p>
+  </footer>
+</div>
+<script>document.getElementById('copyright-year').textContent=new Date().getFullYear();</script>
+
+
+<script src="/assets/vendor/chart-4.5.1.umd.js"></script>
+<script>
+  // Data: economy/data.json, the island-wide part of the Monthly Economy Monitor. It is written
+  // by pr-data-pipeline (monthly_report/export_json.py) and committed here by that repo's
+  // weekly workflow, so this page never talks to the database.
+  const DATA_URL = "data.json";
+  const chartFont = { family: "'Source Code Pro', monospace" };
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g,
+    c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const isNum = (v) => typeof v === "number" && isFinite(v);
+  const fmt = (n, d = 0) => isNum(n)
+    ? n.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d }) : "—";
+  // U+2212 for negatives, as on the labor page.
+  const signed = (n, d = 1) => !isNum(n) ? "—"
+    : (n > 0 ? "+" : n < 0 ? "−" : "") + fmt(Math.abs(n), d);
+  const monthLabel = (ym) => { const [y, m] = String(ym).split("-"); return MONTHS[+m - 1] + " " + y; };
+  const periodToYm = (p) => { const s = String(Math.round(p)); return s.slice(0, 4) + "-" + s.slice(4, 6); };
+
+  // --- Latest level, per indicator. Units in the bundle are the source's own; this turns each
+  // into something a reader recognises. Keys not listed fall back to a plain number.
+  function compact(v, unit) {
+    const a = Math.abs(v);
+    if (a >= 1e9) return fmt(v / 1e9, 2) + "B" + unit;
+    if (a >= 1e6) return fmt(v / 1e6, a >= 1e8 ? 0 : 2) + "M" + unit;
+    if (a >= 1e4) return fmt(v / 1e3, 0) + "K" + unit;
+    return fmt(v, 0) + unit;
+  }
+  const LEVEL = {
+    eai: r => fmt(r.level, 1),
+    hotel_occ: r => fmt(r.level, 1) + "%",
+    auto_total: r => fmt(r.level, 0) + " units",
+    retail_total: r => "$" + compact(r.level, ""),
+    sju_pax: r => compact(r.level, ""),
+    cruise: r => fmt(r.level, 0) + " ships",
+    cement: r => compact(r.level * 1e3, "") + " bags",
+    gf_rev: r => "$" + compact(r.level * 1e3, ""), sut: r => "$" + compact(r.level * 1e3, ""),
+    exports: r => "$" + compact(r.level * 1e3, ""), imports: r => "$" + compact(r.level * 1e3, ""),
+    power_gen: r => fmt(r.level, 0) + "M kWh", power_use: r => fmt(r.level, 0) + "M kWh",
+    bankruptcies: r => fmt(r.level, 0),
+    cpi_all: r => fmt(r.level, 1),
+    gas_regular: r => fmt(r.level, 1) + "¢/liter",
+  };
+  const levelText = (r) => isNum(r.level) ? (LEVEL[r.key] || (x => fmt(x.level, 1)))(r) : "—";
+
+  // The headline change: real when the series has one, percentage points for rates.
+  function change(r) {
+    const real = isNum(r.real_yoy_pct);
+    const v = real ? r.real_yoy_pct : r.yoy_pct;
+    if (!isNum(v)) return { text: "—", v: null, real: false };
+    return { text: r.is_pp ? signed(v, 1) + " pp" : signed(v * 100, 1) + "%", v, real };
+  }
+  function tone(r, v) {
+    if (!isNum(v) || v === 0 || r.better === "neutral") return "flat";
+    return (v > 0) === (r.better === "up") ? "good" : "bad";
+  }
+  function statusText(r) {
+    if (r.status === "STALE") return "Stale";
+    if (r.status === "LAGGING") return "Lags " + r.lag_months + " mo";
+    return "Current";
+  }
+
+  // --- Charts ---
+  const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  function palette() {
+    return [css("--signal") || "#008f43", css("--secondary-text") || "#666", "#3a86a8", "#d1793f", "#8a63b8"];
+  }
+  // Labor lives on /pr-lmci/; foreclosures stopped updating in Dec 2025.
+  const DROP = new Set(["emp_sa", "unrate_sa", "lf_sa", "partrate", "payroll_sa", "ui_initial", "foreclosures"]);
+  let DATA = null;
+  const charts = [];
+
+  // Category axis of "YYYY-MM" labels; a tick only at each January, labelled with the year.
+  function xAxis() {
+    return {
+      grid: { display: false },
+      ticks: {
+        autoSkip: false, maxRotation: 0,
+        callback(v) { const l = this.getLabelForValue(v); return l.endsWith("-01") ? l.slice(0, 4) : ""; },
+      },
+    };
+  }
+  function yAxis(title, pos, fmtTick, opts) {
+    return Object.assign({
+      position: pos,
+      title: { display: !!title, text: title, color: css("--chart-text") },
+      grid: { display: pos === "left", color: css("--chart-grid") },
+      ticks: { color: css("--chart-text"), callback: fmtTick || (v => fmt(v, 0)) },
+    }, opts || {});
+  }
+
+  // series: [{ key, label, axis: "y"|"y2", dash, color (palette index), digits, suffix }]
+  function lineChart(id, rows, series, scales) {
+    const el = document.getElementById(id);
+    if (!el || !rows || !rows.length) return;
+    // Trim leading and trailing months where every series is empty.
+    const has = r => series.some(s => isNum(r[s.key]));
+    let a = 0, b = rows.length - 1;
+    while (a < b && !has(rows[a])) a++;
+    while (b > a && !has(rows[b])) b--;
+    rows = rows.slice(a, b + 1);
+    const pal = palette();
+    const chart = new Chart(el, {
+      type: "line",
+      data: {
+        labels: rows.map(r => r.month),
+        datasets: series.map(s => ({
+          label: s.label,
+          data: rows.map(r => isNum(r[s.key]) ? r[s.key] : null),
+          yAxisID: s.axis || "y",
+          borderColor: pal[s.color || 0],
+          backgroundColor: pal[s.color || 0],
+          borderWidth: s.dash ? 1.5 : (s.color ? 2 : 2.5),
+          borderDash: s.dash ? [6, 5] : [],
+          pointRadius: 0, pointHoverRadius: 4, tension: 0.15, spanGaps: !!s.span,
+        })),
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, animation: false,
+        interaction: { mode: "index", intersect: false },
+        plugins: {
+          legend: { position: "bottom", labels: { boxWidth: 14, boxHeight: 2, color: css("--chart-text"), font: chartFont } },
+          tooltip: {
+            callbacks: {
+              title: items => monthLabel(items[0].label),
+              label: ctx => {
+                const s = series[ctx.datasetIndex];
+                return ctx.parsed.y == null ? null
+                  : " " + s.label + ": " + (s.prefix || "") + fmt(ctx.parsed.y, s.digits ?? 1) + (s.suffix || "");
+              },
+            },
+          },
+        },
+        scales: Object.assign({ x: xAxis() }, scales),
+      },
+    });
+    charts.push(chart);
+  }
+
+  const zeroLine = { grid: { display: true, color: c => c.tick.value === 0 ? css("--chart-text") : css("--chart-grid") } };
+
+  // One horizontal bar chart per comparison month, all on the same x scale so bars compare.
+  const FULL = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  function pulseGroups() {
+    const g = new Map();
+    DATA.pulse.forEach(r => { const c = change(r); if (isNum(c.v)) { if (!g.has(r.as_of)) g.set(r.as_of, []); g.get(r.as_of).push(r); } });
+    return [...g.entries()].sort((a, b) => b[0] - a[0]);
+  }
+  function renderPulseShell() {
+    document.getElementById("pulse-groups").innerHTML = pulseGroups().map(([per, rows], i) => {
+      const y = Math.floor(per / 100), m = per % 100;
+      const head = FULL[m - 1] + " " + y;
+      return `<h3 class="pulse-month">${head} <span>vs ${FULL[m - 1]} ${y - 1} · ${rows.length} indicator${rows.length > 1 ? "s" : ""}</span></h3>` +
+        `<div class="chart-container pulse-bars" style="height:${rows.length * 38 + 30}px;min-height:0"><canvas id="pulse-g${i}" role="img" ` +
+        `aria-label="${esc(head)}: ${esc(rows.map(r => r.label.replace(/ \(real\)$/, "") + " " + change(r).text).join(", "))}"></canvas></div>`;
+    }).join("");
+  }
+  const barValueLabels = {
+    id: "barValueLabels",
+    afterDatasetsDraw(chart) {
+      const { ctx } = chart, meta = chart.getDatasetMeta(0), texts = chart.data.datasets[0].texts;
+      ctx.save(); ctx.font = "12px " + chartFont.family; ctx.fillStyle = css("--chart-text"); ctx.textBaseline = "middle";
+      meta.data.forEach((bar, i) => {
+        const neg = chart.data.datasets[0].data[i] < 0;
+        ctx.textAlign = neg ? "right" : "left";
+        ctx.fillText(texts[i], bar.x + (neg ? -6 : 6), bar.y);
+      });
+      ctx.restore();
+    },
+  };
+  function drawPulse() {
+    const groups = pulseGroups();
+    const pctOf = r => { const c = change(r); return r.is_pp ? c.v : c.v * 100; };
+    const all = DATA.pulse.map(r => isNum(change(r).v) ? pctOf(r) : 0);
+    const lo = Math.floor(Math.min(0, ...all) * 1.35 / 10) * 10, hi = Math.ceil(Math.max(0, ...all) * 1.2 / 10) * 10;
+    const col = { good: css("--signal"), bad: css("--crit"), flat: css("--secondary-text") };
+    groups.forEach(([per, rows], i) => {
+      const el = document.getElementById("pulse-g" + i);
+      if (!el) return;
+      charts.push(new Chart(el, {
+        type: "bar",
+        data: {
+          labels: rows.map(r => r.label.replace(/ \(real\)$/, "") + (change(r).real ? " (real)" : "")),
+          datasets: [{
+            data: rows.map(pctOf),
+            texts: rows.map(r => change(r).text),
+            backgroundColor: rows.map(r => col[tone(r, change(r).v)]),
+            barThickness: 18,
+          }],
+        },
+        options: {
+          indexAxis: "y", responsive: true, maintainAspectRatio: false, animation: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: ctx => { const r = rows[ctx.dataIndex];
+              return " " + change(r).text + " vs a year earlier · latest " + levelText(r); } } },
+          },
+          scales: {
+            x: { min: lo, max: hi,
+                 grid: { color: c => c.tick.value === 0 ? css("--chart-text") : css("--chart-grid") },
+                 ticks: { color: css("--chart-text"), callback: v => fmt(v, 0) + "%" } },
+            y: { grid: { display: false }, ticks: { color: css("--chart-text"), autoSkip: false },
+                 afterFit: a => { a.width = Math.min(260, a.chart.width * 0.42); } },  // same width in every group, so the zero lines align
+          },
+        },
+        plugins: [barValueLabels],
+      }));
+    });
+  }
+
+  function drawCharts() {
+    charts.splice(0).forEach(c => c.destroy());
+    Chart.defaults.font.family = chartFont.family;
+    Chart.defaults.color = css("--chart-text") || "#333";
+    Chart.defaults.borderColor = css("--chart-grid") || "#ddd";
+    drawPulse();
+    const F = DATA.figures;
+    const pct = v => fmt(v, 0) + "%";
+    lineChart("chart-activity", F.eai, [
+      { key: "eai", label: "Economic Activity Index" },
+      { key: "eai_12mo_avg", label: "12-month average", dash: true, color: 1 },
+    ], { y: yAxis("Index", "left", v => fmt(v, 0)) });
+    lineChart("chart-prices-corrected", F.inflation.filter(r => r.month >= "2024-01"), [
+      { key: "All Items", label: "All items, official", color: 1, suffix: "%", digits: 2 },
+      { key: "All Items, electricity corrected", label: "All items, electricity corrected (estimate)", suffix: "%", digits: 2 },
+    ], { y: yAxis("Change from a year earlier", "left", v => fmt(v, 1) + "%", zeroLine) });
+    lineChart("chart-prices", F.inflation, [
+      { key: "All Items", label: "All items", suffix: "%" },
+      { key: "Food & Beverages", label: "Food & beverages", color: 2, suffix: "%" },
+      { key: "Housing", label: "Housing", color: 1, suffix: "%" },
+      { key: "Transportation", label: "Transportation", color: 3, suffix: "%" },
+      { key: "Medical Care", label: "Medical care", color: 4, suffix: "%" },
+    ], { y: yAxis("Change from a year earlier", "left", pct, zeroLine) });
+    lineChart("chart-consumer", F.consumer, [
+      { key: "auto_units", label: "Vehicles sold", digits: 0 },
+      { key: "auto_12mo_avg", label: "Vehicles, 12-month average", dash: true, color: 0, digits: 0 },
+      { key: "retail_real_usd_m_old_vintage", label: "Retail sales, old basis ($M)", axis: "y2", color: 1, digits: 0, prefix: "$" },
+      { key: "retail_real_usd_m_new_vintage", label: "Retail sales, new basis ($M)", axis: "y2", color: 2, digits: 0, prefix: "$" },
+    ], { y: yAxis("Vehicles a month", "left"), y2: yAxis("Retail sales, $M", "right", v => "$" + fmt(v, 0)) });
+    lineChart("chart-tourism", F.tourism, [
+      { key: "sju_passengers_millions", label: "SJU passengers (millions)", digits: 2, suffix: "M" },
+      { key: "hotel_occupancy_pct", label: "Hotel occupancy", axis: "y2", color: 1, suffix: "%" },
+      { key: "hotel_occupancy_12mo_avg", label: "Occupancy, 12-month average", axis: "y2", dash: true, color: 1, suffix: "%" },
+    ], { y: yAxis("Passengers, millions", "left", v => fmt(v, 1)), y2: yAxis("Occupancy", "right", pct) });
+    lineChart("chart-construction", F.construction, [
+      { key: "cement_000_sacks", label: "Cement (thousand bags)", digits: 0, suffix: "K" },
+      { key: "cement_12mo_avg", label: "Cement, 12-month average", dash: true, color: 0, digits: 0, suffix: "K" },
+    ], { y: yAxis("Thousand bags", "left") });
+    lineChart("chart-fiscal", F.fiscal, [
+      { key: "genfund_ttm_real_usd_m", label: "General Fund net revenue ($M, 12 mo)", digits: 0, prefix: "$" },
+      { key: "sut_ttm_real_usd_m", label: "Sales & use tax ($M, 12 mo)", axis: "y2", color: 2, digits: 0, prefix: "$" },
+    ], { y: yAxis("General Fund, $M", "left", v => "$" + fmt(v, 0)), y2: yAxis("Sales & use tax, $M", "right", v => "$" + fmt(v, 0)) });
+    lineChart("chart-trade", F.trade, [
+      { key: "exports_ttm_real_usd_b", label: "Exports ($B, 12 mo)", prefix: "$" },
+      { key: "imports_ttm_real_usd_b", label: "Imports ($B, 12 mo)", color: 2, prefix: "$" },
+      { key: "trade_balance_ttm_real_usd_b", label: "Balance ($B, 12 mo)", color: 1, dash: true, prefix: "$" },
+    ], { y: yAxis("$ billions", "left", v => "$" + fmt(v, 0), zeroLine) });
+    lineChart("chart-energy", F.energy, [
+      { key: "generation_m_kwh", label: "Generation (M kWh)", digits: 0 },
+      { key: "consumption_m_kwh", label: "Consumption (M kWh)", color: 2, digits: 0 },
+      { key: "generation_12mo_avg", label: "Generation, 12-month average", dash: true, color: 1, digits: 0 },
+    ], { y: yAxis("Million kWh", "left") });
+  }
+  window.refreshAnalyticsTheme = function () { if (DATA) drawCharts(); };
+
+  // --- Text parts ---
+  function renderHeader() {
+    const P = DATA.pulse.filter(r => !r.derived), M = DATA.meta;
+    const by = k => P.find(r => r.key === k);
+    const range = M.oldest_as_of === M.freshest_as_of ? M.freshest_as_of : M.oldest_as_of + " – " + M.freshest_as_of;
+    document.getElementById("meta-edition").textContent = range + ", by indicator";
+
+    const eai = by("eai");
+    if (eai) {
+      const c = change(eai);
+      document.getElementById("hero-value").textContent = c.text;
+      document.getElementById("hero-status").textContent =
+        !isNum(c.v) ? "No reading" : c.v > 0 ? "Above a year earlier" : c.v < 0 ? "Below a year earlier" : "Flat on the year";
+      document.getElementById("hero-vintage").textContent = eai.as_of_label + " · index " + fmt(eai.level, 1);
+    }
+
+    document.getElementById("status-label").textContent = "Data through " + M.freshest_as_of;
+    const live = P.filter(r => r.status === "LIVE").length, lag = P.filter(r => r.status === "LAGGING").length,
+          stale = P.filter(r => r.status === "STALE").length;
+    document.getElementById("status-reason").textContent =
+      live + " of " + P.length + " indicators have " + M.freshest_as_of + " data; " + lag +
+      " are one to three months behind, because agencies publish on different schedules. Each change below compares that indicator's own latest month with the same month a year earlier." +
+      (stale ? " " + stale + " has stopped updating." : "");
+    const chip = (n, label, color) => n ? `<span class="chip"><span class="dot" style="background:${color}"></span>${n} ${label}</span>` : "";
+    document.getElementById("status-breakdown").innerHTML =
+      chip(live, "current", "var(--ok)") + chip(lag, "lagging", "var(--warn)") + chip(stale, "stale", "var(--crit)");
+    document.getElementById("status-timestamp").textContent = "Oldest latest reading: " + M.oldest_as_of;
+
+    const tiles = [
+      ["cpi_all", "Inflation (CPI)"], ["retail_total", "Retail sales"],
+      ["gf_rev", "General Fund revenue"], ["cement", "Cement sales"],
+    ];
+    document.getElementById("stats-grid").innerHTML = tiles.map(([k, label]) => {
+      const r = by(k);
+      if (!r) return "";
+      const c = change(r);
+      const main = k === "cpi_all" ? c.text : levelText(r);
+      const cc = DATA.pulse.find(x => x.key === "cpi_corrected");
+      const sub = k === "cpi_all"
+        ? "Official, all items · " + esc(r.as_of_label) +
+          (cc ? "<br>Electricity corrected (est.): " + esc(change(cc).text) + " · " + esc(cc.as_of_label) : "")
+        : `<span class="chg ${tone(r, c.v)}">${esc(c.text)}</span> vs a year earlier${c.real ? " (real)" : ""} · ${esc(r.as_of_label)}`;
+      return `<div class="stat-tile"><span class="stat-label">${esc(label)}</span>` +
+             `<span class="stat-value">${esc(main)}</span><span class="stat-sub">${sub}</span></div>`;
+    }).join("");
+  }
+
+  const BLOCKS = { Activity: "Activity", Consumer: "Consumer", Tourism: "Tourism",
+    Construction: "Construction", Fiscal: "Government revenue", Energy: "Electricity", Trade: "Trade",
+    Stress: "Financial stress", Prices: "Prices" };
+
+  function renderTable() {
+    let html = "", block = null;
+    DATA.pulse.forEach(r => {
+      if (r.block !== block) {
+        block = r.block;
+        html += `<tr class="block-row"><th colspan="5" scope="colgroup">${esc(BLOCKS[block] || block)}</th></tr>`;
+      }
+      const c = change(r);
+      const month = c.real && isNum(r.real_as_of) && Math.round(r.real_as_of) !== r.as_of
+        ? r.as_of_label + " (real: " + monthLabel(periodToYm(r.real_as_of)) + ")" : r.as_of_label;
+      html += `<tr><td>${esc(r.label.replace(/ \(real\)$/, ""))}${r.sa ? ' <span class="tag">SA</span>' : ""}</td>` +
+        `<td>${esc(month)}</td><td class="num">${esc(levelText(r))}</td>` +
+        `<td class="num"><span class="chg ${tone(r, c.v)}">${esc(c.text)}</span>${c.real ? ' <span class="tag">real</span>' : ""}</td>` +
+        `<td><span class="st st-${esc(String(r.status).toLowerCase())}">${esc(statusText(r))}</span></td></tr>`;
+    });
+    document.querySelector("#econ-table tbody").innerHTML = html;
+  }
+
+  async function init() {
+    try {
+      const r = await fetch(DATA_URL, { cache: "no-cache" });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      DATA = await r.json();
+      DATA.pulse = DATA.pulse.filter(r => !DROP.has(r.key));
+    } catch (e) {
+      document.getElementById("status-label").textContent = "Data unavailable";
+      document.getElementById("status-reason").textContent = "The latest edition could not be loaded. Try again shortly.";
+      document.querySelector("#econ-table tbody").innerHTML = '<tr><td colspan="5" class="no-data">No data.</td></tr>';
+      return;
+    }
+    renderHeader();
+    renderTable();
+    renderPulseShell();
+    drawCharts();
+  }
+  init();
+</script>
+<script>
+  // Scroll-progress back-to-top control.
+  (function () {
+    var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var backToTop = document.querySelector('.back-to-top');
+    var topControlFrame = 0;
+
+    function syncBackToTop() {
+      topControlFrame = 0;
+      if (!backToTop) return;
+      var scrollable = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      var progress = Math.min(1, Math.max(0, window.scrollY / scrollable));
+      var revealAt = Math.max(420, window.innerHeight * 0.8);
+      var visible = window.scrollY > revealAt;
+      backToTop.style.setProperty('--top-progress', (progress * 360).toFixed(1) + 'deg');
+      backToTop.classList.toggle('is-visible', visible);
+      backToTop.setAttribute('aria-hidden', visible ? 'false' : 'true');
+      backToTop.tabIndex = visible ? 0 : -1;
+    }
+
+    function queueTopControlSync() {
+      if (!topControlFrame) { topControlFrame = window.requestAnimationFrame(syncBackToTop); }
+    }
+
+    if (backToTop) {
+      backToTop.addEventListener('click', function () {
+        window.scrollTo({ top: 0, behavior: reducedMotion ? 'auto' : 'smooth' });
+      });
+      syncBackToTop();
+      window.addEventListener('scroll', queueTopControlSync, { passive: true });
+      window.addEventListener('resize', queueTopControlSync, { passive: true });
+    }
+  })();
+</script>
+</body>
+</html>

@@ -99,6 +99,18 @@ var PAGES = {
             });
             return s;
         }
+    },
+    economy: {
+        eyebrow: 'Analytics / Economy', title: 'Puerto Rico Economy Monitor', url: 'sensadvisor.com/economy',
+        sub: 'Activity, prices, spending, tourism, construction, revenue and trade, each against a year earlier.',
+        art: function () {
+            var s = axis(), v = [0.55, -0.35, 0.8, 0.25, -0.6, 0.45, 0.15];
+            v.forEach(function (x, i) {
+                var y = 22 + i * 40, w = Math.abs(x) * 170;
+                s += '<rect x="' + (x < 0 ? 185 - w : 185) + '" y="' + y + '" width="' + w + '" height="26" fill="' + (x < 0 ? '#e5484d' : G[1 + i % 3]) + '"/>';
+            });
+            return s + '<line x1="185" y1="8" x2="185" y2="306" stroke="#ededed" stroke-width="2"/>';
+        }
     }
 };
 var p = PAGES[new URLSearchParams(location.search).get('page')] || PAGES.outages;
