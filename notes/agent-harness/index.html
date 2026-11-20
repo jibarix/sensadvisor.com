@@ -1,0 +1,182 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t!=='dark'&&t!=='light'){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.setAttribute('data-theme',t)}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>What Turns a Model into an Agent | Applied AI Notes | SENS ADVISOR</title>
+<meta name="description" content="What makes an AI system agentic, how an agent harness is built, part by part, from a reading of Codex, Gemini CLI and Pi, and the ways a business can get one.">
+<link rel="canonical" href="https://sensadvisor.com/notes/agent-harness/">
+<meta property="og:title" content="What Turns a Model into an Agent | Applied AI Notes | SENS ADVISOR"><meta property="og:description" content="What makes an AI system agentic, how an agent harness is built, part by part, from a reading of Codex, Gemini CLI and Pi, and the ways a business can get one.">
+<meta property="og:url" content="https://sensadvisor.com/notes/agent-harness/"><meta property="og:type" content="article"><meta property="og:site_name" content="SENS ADVISOR">
+<meta property="og:image" content="https://sensadvisor.com/assets/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="article:published_time" content="2026-11-20"><meta name="author" content="Jorge A. Arroyo">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="What Turns a Model into an Agent | Applied AI Notes | SENS ADVISOR"><meta name="twitter:description" content="What makes an AI system agentic, how an agent harness is built, part by part, from a reading of Codex, Gemini CLI and Pi, and the ways a business can get one.">
+<meta name="twitter:image" content="https://sensadvisor.com/assets/og.png">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "What Turns a Model into an Agent", "description": "What makes an AI system agentic, how an agent harness is built, part by part, from a reading of Codex, Gemini CLI and Pi, and the ways a business can get one.", "url": "https://sensadvisor.com/notes/agent-harness/", "datePublished": "2026-11-20", "inLanguage": "en", "image": "https://sensadvisor.com/assets/og.png", "author": {"@type": "Person", "name": "Jorge A. Arroyo", "url": "https://sensadvisor.com/"}, "publisher": {"@type": "Organization", "name": "SENS ADVISOR", "url": "https://sensadvisor.com/"}}</script>
+<link rel="preload" href="/fonts/source-code-pro-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:'Source Code Pro';font-style:normal;font-weight:300 700;font-display:swap;src:url(/fonts/source-code-pro-latin.woff2) format('woff2')}
+:root{--ink:#0e0e10;--paper:#fff;--green:#009646;--dim:#333;--rule:rgba(14,14,16,.16);--gutter:clamp(16px,2.2vw,36px);
+--sans:'Helvetica Neue','Inter','Segoe UI Variable Display','Segoe UI',Arial,sans-serif;
+--mono:'Source Code Pro',ui-monospace,'Cascadia Mono',Consolas,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.45 var(--sans);-webkit-font-smoothing:antialiased}
+:root{--heat:0,150,70}
+:root[data-theme="dark"]{--ink:#ededed;--paper:#0e0e10;--green:#36e08a;--dim:#9aa0a6;--rule:rgba(237,237,237,.16);color-scheme:dark}
+:root{--c-ink:#0e0e10;--c-green:#009646;--c-mid:#6b6b6b;--c-grey:#8a8a8a;--c-light:#a6a6a6;--c-pale:#e4e4e4;}:root[data-theme="dark"]{--c-ink:#ededed;--c-green:#36e08a;--c-mid:#9aa0a6;--c-grey:#6b6e73;--c-light:#55585d;--c-pale:#2a2c30;}
+article{max-width:1480px;margin:0 auto;padding:0 var(--gutter) 40px}
+article>header{margin:clamp(110px,10vw,150px) 0 clamp(56px,7vw,100px)}
+.kicker,th,.legend,.byline,figcaption,footer{font-family:var(--mono);font-weight:400;letter-spacing:.04em}
+.kicker{display:block;max-width:none;font-size:12px;text-transform:uppercase;margin:0 0 56px;padding-top:10px;border-top:1px solid var(--rule)}
+h1{font-weight:400;font-size:clamp(52px,6.4vw,120px);line-height:.92;letter-spacing:-.045em;margin:0;max-width:12ch}
+.sub{max-width:46ch;margin:26px 0 0;font-size:clamp(18px,1.5vw,24px);line-height:1.35;letter-spacing:-.01em}
+.byline{margin-top:44px;font-size:11px;text-transform:uppercase}
+h2{font-weight:400;font-size:clamp(26px,2.4vw,40px);line-height:1.05;letter-spacing:-.03em;
+margin:96px 0 28px;padding-top:10px;border-top:1px solid var(--rule)}
+h3{font-weight:400;font-size:20px;line-height:1.2;letter-spacing:-.01em;margin:44px 0 12px}
+p,ul,ol:not(.questions){max-width:72ch}p{margin:0 0 16px;font-size:17px}
+.lede{font-size:clamp(18px,1.5vw,22px);line-height:1.45;letter-spacing:-.005em}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0 var(--gutter);margin:48px 0}
+.kpi{padding:12px 0 18px;border-top:1px solid var(--rule)}
+.kpi b{display:block;font-size:clamp(44px,4.4vw,72px);font-weight:400;line-height:.92;letter-spacing:-.045em;font-variant-numeric:tabular-nums}
+.kpi span{display:block;font-size:14px;color:var(--dim);margin-top:12px;max-width:30ch}
+figure{margin:28px 0 36px;max-width:980px}figcaption{font-size:11px;text-transform:uppercase;color:var(--dim);margin-top:8px}
+.chart{width:100%;height:auto;display:block}.lbl{font:13.5px var(--sans);fill:var(--ink)}
+.val{font:13px var(--sans);fill:var(--ink)}
+.in{font:11px var(--mono);fill:var(--ink)}.in.dk{fill:var(--paper)}
+.legend{font-size:11px;text-transform:uppercase;color:var(--dim);margin:8px 0}.legend span{margin-right:16px;white-space:nowrap}
+.legend i{display:inline-block;width:10px;height:10px;margin-right:6px;vertical-align:-1px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:var(--gutter);max-width:980px}@media(max-width:720px){.row{grid-template-columns:1fr}}
+table{border-collapse:collapse;width:100%;max-width:980px;font-size:15px;border-top:1px solid var(--ink)}
+td,th{padding:9px 10px 9px 0;border-bottom:1px solid var(--rule);text-align:left;font-variant-numeric:tabular-nums}
+th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);vertical-align:bottom}
+td:not(:first-child),th:not(:first-child){text-align:right}
+.req thead th{white-space:normal}.req tbody th{font:15px var(--sans);letter-spacing:0;color:var(--ink);text-transform:none;white-space:nowrap}
+.req tr.all th,.req tr.all td{border-top:1px solid var(--ink)}
+.heat td.h{text-align:center;padding:9px 6px;border-bottom:2px solid var(--paper)}
+.scroll{overflow-x:auto;max-width:980px}
+.questions{counter-reset:q;list-style:none;padding:0;margin:28px 0;max-width:980px}
+.questions li{counter-increment:q;padding:14px 0 18px 64px;position:relative;border-top:1px solid var(--rule)}
+.questions li:before{content:counter(q,decimal-leading-zero);position:absolute;left:0;top:14px;font:12px var(--mono);letter-spacing:.04em;color:var(--green)}
+.questions b{display:block;font-weight:400;font-size:20px;line-height:1.2;letter-spacing:-.01em;margin-bottom:6px}
+.note{font-size:14px;line-height:1.55;color:var(--dim);max-width:78ch}
+details{max-width:980px;border-top:1px solid var(--rule);padding:12px 0;margin-top:56px}
+details summary{cursor:pointer;font:12px var(--mono);letter-spacing:.04em;text-transform:uppercase}
+footer{font-size:11px;text-transform:uppercase;border-top:1px solid var(--rule);padding:30px 0 6px;margin-top:96px}
+a{color:var(--green)}
+.draft{position:fixed;bottom:0;left:0;right:0;z-index:20;background:#b00020;color:#fff;font:12px var(--mono);text-align:center;padding:8px}
+
+.since{max-width:980px;border:1px solid var(--rule);padding:18px 22px 6px;margin:0 0 24px}
+.since h3{margin:0 0 10px;font-family:var(--mono);font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+.chart .grid{stroke:var(--rule);stroke-width:1}.chart .tick{font:10.5px var(--mono);fill:var(--dim)}
+.chart .link{stroke:var(--dim);stroke-width:2;opacity:.5}
+.chart .oct{fill:var(--paper);stroke:var(--c-grey);stroke-width:2}.chart .nov{fill:var(--green);stroke:var(--paper);stroke-width:2}
+.chart .lbl.mv{font-weight:600}.chart .hit{fill:transparent}.chart .dr:hover .hit{fill:var(--rule)}
+.legend i.ko{background:none;border:2px solid var(--c-grey);border-radius:50%}.legend i.kn{background:var(--green);border-radius:50%}
+details table{margin:18px 0}
+.kicker a{color:inherit}
+table.parts{margin:28px 0 40px}table.parts td,table.parts th{text-align:left!important;vertical-align:top}table.parts td:first-child{white-space:nowrap;padding-right:18px}ol,ul{margin:0 0 16px;font-size:17px}li{margin:0 0 6px}figure.dgf{overflow-x:auto;margin:32px 0 40px}figure.dgf svg{display:block;width:100%;min-width:640px;height:auto}.dg .bx{fill:none;stroke:var(--c-ink);stroke-width:1}.dg .fr{fill:none;stroke:var(--c-mid);stroke-width:1;stroke-dasharray:4 3}.dg .md{fill:none;stroke:var(--c-green);stroke-width:2}.dg .ln{fill:none;stroke:var(--c-ink);stroke-width:1.5}.dg .dl{fill:none;stroke:var(--c-mid);stroke-width:1;stroke-dasharray:3 3}.dg .ahd{fill:var(--c-ink)}.dg .sq{fill:var(--c-green)}.dg text{fill:var(--c-ink);font-family:var(--sans)}.dg .t1{font-size:16px}.dg .ti{font-size:14px}.dg .t3{font-size:12px;fill:var(--c-mid)}.dg .t2{font-size:12px;font-family:var(--mono);fill:var(--c-mid)}.dg .hd{font-size:11px;font-family:var(--mono);letter-spacing:.06em;fill:var(--c-mid)}.dg .num{font-family:var(--mono);font-size:14px;fill:var(--c-green)}</style>
+<link rel="stylesheet" href="/assets/dash.css"></head><body>
+<header class="sa-chrome">
+<a class="sa-chip" href="/" aria-label="SENS ADVISOR, home">SENS ADVISOR</a>
+<div class="sa-chrome-r">
+<button class="sa-menu-btn" type="button" aria-expanded="false" aria-controls="sa-menu">Menu</button>
+<button class="sa-icon-btn sa-theme" type="button" aria-label="Toggle dark mode" aria-pressed="false" title="Toggle dark mode"><span aria-hidden="true">&#9680;</span></button>
+</div>
+</header>
+<nav id="sa-menu" class="sa-menu" aria-label="Applied AI Notes" hidden>
+<div class="sa-menu-body">
+<a class="sa-menu-home" href="/">&larr; Main site</a>
+<p class="sa-menu-h">Applied AI Notes</p>
+<ol class="sa-menu-main"><li><a href="/notes/"><span>01</span>All notes</a></li>
+<li><a href="./" aria-current="page"><span>02</span>What Turns a Model into an Agent</a></li>
+<li><a href="/notes/ai-requirements/2026-11/"><span>03</span>What Businesses Are Asking AI to Do</a></li></ol>
+<p class="sa-menu-h">Live data</p>
+<ol class="sa-menu-main"><li><a href="/outages/"><span>05</span>PR Outage Status</a></li><li><a href="/generation/"><span>06</span>PR Generation Status</a></li><li><a href="/reservoirs/"><span>07</span>PR Reservoir Levels</a></li><li><a href="/rentals/"><span>08</span>San Juan Rentals</a></li><li><a href="/pr-lmci/"><span>09</span>PR Labor Market Readings</a></li></ol>
+<a class="sa-menu-mail" href="mailto:consult@sensadvisor.com">consult@sensadvisor.com</a>
+</div>
+</nav>
+<article>
+<header>
+<p class="kicker"><a href="/notes/">Applied AI Notes</a> · November 2026</p>
+<h1>What Turns a Model into an Agent</h1>
+<p class="sub">The harness: the code around the model that lets it act, and what to ask of whoever builds it.</p>
+<div class="byline">J. A. Arroyo · SENS ADVISOR</div>
+</header>
+<h2>What makes a system agentic</h2>
+<p class="lede">A language model on its own produces text. It cannot open a file, send an email or update a record. What it can do, once trained for it, is to write a structured request in place of an answer, naming a tool and the arguments to pass to it. Something else has to read that request, run the tool and hand the result back to the model.</p>
+<p>A system becomes agentic when that exchange runs in a loop and the model decides what happens next. In the design process I use with clients, an agent is a model that chooses the next step in a loop, with tools, limits and stopping rules. A fixed workflow, by contrast, sets the path in advance, even when it calls a model at some of its steps. The distinction matters because many requests for an agent describe the second kind of system. Of the projects asking for an “agent” in my November survey of published requirements, 41% describe a fixed workflow, 18% a model choosing its next step, 5% plain code or a single model call, and 36% too little to tell.</p>
+<h2>The harness is the easy part to explain</h2>
+<p>The code that runs the loop is called the harness. Claude Code’s documentation defines it as “the layer around the model that provides the tools and manages the context the model sees”, and the slides for lecture 6 of Carnegie Mellon’s course 11-768 write it as a sum: “Harness = prompts + tools + agent loop + context management”. The slides of Harvard’s course CS 2680 put the division of labour in one line: “The model proposes for an action and the harness executes it”.</p>
+<p>In the three open-source harnesses I read for this note, the loop takes the same shape, shown below.</p>
+<figure class="dgf"><svg viewBox="0 0 800 320" class="dg" role="img" aria-labelledby="loop-t loop-d">
+<title id="loop-t">The agent loop: the model proposes, the harness executes</title>
+<desc id="loop-d">The model either replies or asks for a tool. A tool request goes to the harness, which checks permission, runs the tool if allowed inside the sandbox and caps the output, then adds the result to the conversation and calls the model again. Controls vary by tool, harness and configuration. The loop normally ends when the model replies without asking for a tool; a budget, loop detection or user interruption may stop it earlier.</desc>
+<defs><marker id="ah1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="ahd"/></marker></defs>
+<text x="0" y="44" class="t2">Normally ends: a reply that asks for no tool</text>
+<path d="M70 110V56" class="ln" marker-end="url(#ah1)"/>
+<rect x="0" y="110" width="140" height="70" rx="4" class="md"/>
+<text x="70" y="141" text-anchor="middle" class="t1">Model</text>
+<text x="70" y="163" text-anchor="middle" class="t3">proposes a step</text>
+<rect x="250" y="70" width="550" height="240" rx="4" class="fr"/>
+<text x="266" y="94" class="hd">HARNESS · EXECUTES AND ENFORCES</text>
+<path d="M140 145H262" class="ln" marker-end="url(#ah1)"/>
+<text x="196" y="136" text-anchor="middle" class="t3">tool request</text>
+<rect x="266" y="110" width="160" height="70" rx="4" class="bx"/>
+<text x="278" y="139" class="num">1</text><text x="294" y="139" class="ti">Check permission</text>
+<text x="278" y="163" class="t3">allow, ask or refuse</text>
+<path d="M426 145H442" class="ln" marker-end="url(#ah1)"/>
+<rect x="446" y="110" width="160" height="70" rx="4" class="bx"/>
+<text x="458" y="139" class="num">2</text><text x="474" y="139" class="ti">Run if allowed</text>
+<text x="458" y="163" class="t3">inside the sandbox</text>
+<path d="M606 145H622" class="ln" marker-end="url(#ah1)"/>
+<rect x="626" y="110" width="160" height="70" rx="4" class="bx"/>
+<text x="638" y="139" class="num">3</text><text x="654" y="139" class="ti">Cap the output</text>
+<text x="638" y="163" class="t3">trim what is too large</text>
+<path d="M706 180V250H70V184" class="ln" marker-end="url(#ah1)"/>
+<text x="478" y="240" text-anchor="middle" class="t3">result added to the conversation; the model is called again</text>
+<text x="266" y="292" class="t2">May stop earlier: a budget, loop detection or user interruption.</text>
+</svg><figcaption>Simplified loop drawn from Codex, Gemini CLI and Pi. Controls vary by tool, harness and configuration; Pi needs extensions for approvals and external isolation for sandboxing.</figcaption></figure>
+<p>The same model in a different harness is therefore a different agent, with other tools, other information and other limits. The Harvard slides give the reason in a phrase of their own: “Model capability sets the ceiling; Harness determines realized performance”.</p>
+<h2>The anatomy of a harness</h2>
+<p>I read three harnesses part by part, from their source code, at their commits of 19 November 2026, without installing or running any of them: OpenAI’s Codex, Google’s Gemini CLI, and Pi, a small open-source harness by Mario Zechner. Pi’s agent core comes to about 2,500 lines, and its separate coding-agent package adds about 79,000, while the core packages of Codex and Gemini CLI are each about 150,000 lines, excluding tests. Since the package boundaries differ, these sizes give an order of magnitude rather than a comparison. The basic loop can be sketched in a few lines, and most of the implementation in each harness handles the systems around it.</p>
+<p>The figure groups the parts by when they act, and the table sets out what each one does.</p>
+<figure class="dgf"><svg viewBox="0 0 800 300" class="dg" role="img" aria-labelledby="anat-t anat-d">
+<title id="anat-t">The parts of a harness, by when they act</title>
+<desc id="anat-d">Before each model call, the harness supplies the instructions, the list of tools offered, and the context, compacted when it grows too long. On each tool request it applies permissions, hooks, the sandbox and output caps. Across the whole run it applies limits, starts sub-agents and selects the models it calls. These are typical points of use; hooks and compaction can also act elsewhere.</desc>
+<defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="ahd"/></marker></defs>
+<rect x="0" y="40" width="220" height="150" rx="4" class="bx"/>
+<text x="16" y="64" class="hd">BEFORE EACH MODEL CALL</text>
+<rect x="16" y="91" width="7" height="7" class="sq"/><text x="32" y="99" class="ti">Instructions</text>
+<rect x="16" y="119" width="7" height="7" class="sq"/><text x="32" y="127" class="ti">Tools offered</text>
+<rect x="16" y="147" width="7" height="7" class="sq"/><text x="32" y="155" class="ti">Context and compaction</text>
+<path d="M220 115H254" class="ln" marker-end="url(#ah2)"/>
+<rect x="258" y="80" width="150" height="70" rx="4" class="md"/>
+<text x="333" y="111" text-anchor="middle" class="t1">Model</text>
+<text x="333" y="133" text-anchor="middle" class="t3">chooses the next step</text>
+<path d="M408 115H440" class="ln" marker-end="url(#ah2)"/>
+<rect x="444" y="40" width="356" height="150" rx="4" class="bx"/>
+<text x="460" y="64" class="hd">ON EACH TOOL REQUEST</text>
+<rect x="460" y="91" width="7" height="7" class="sq"/><text x="476" y="99" class="ti">Permissions</text>
+<rect x="640" y="91" width="7" height="7" class="sq"/><text x="656" y="99" class="ti">Hooks</text>
+<rect x="460" y="119" width="7" height="7" class="sq"/><text x="476" y="127" class="ti">Sandbox</text>
+<rect x="640" y="119" width="7" height="7" class="sq"/><text x="656" y="127" class="ti">Output caps</text>
+<text x="460" y="166" class="t3">before the tool runs, while it runs, and on its result</text>
+<path d="M333 150V216" class="dl"/>
+<rect x="0" y="220" width="800" height="70" rx="4" class="bx"/>
+<text x="16" y="244" class="hd">ACROSS THE RUN</text>
+<rect x="16" y="264" width="7" height="7" class="sq"/><text x="32" y="272" class="ti">Limits</text>
+<rect x="200" y="264" width="7" height="7" class="sq"/><text x="216" y="272" class="ti">Sub-agents</text>
+<rect x="384" y="264" width="7" height="7" class="sq"/><text x="400" y="272" class="ti">Models</text>
+</svg><figcaption>The ten parts, grouped by typical points of use. Hooks and compaction can also act elsewhere. Each is described in the table below.</figcaption></figure>
+<table class="parts"><thead><tr><th>Part</th><th>What it does</th><th>What a buyer should ask</th></tr></thead><tbody><tr><td>Instructions</td><td>The standing prompt, plus project instructions loaded at startup or as needed</td><td>Where do the rules for this business live, and who can change them?</td></tr><tr><td>Tools</td><td>What the model can ask for: read, search, edit, run, send</td><td>Which actions can it take, and which are left out on purpose?</td></tr><tr><td>Permissions</td><td>A policy that allows, asks or refuses before a tool runs</td><td>Which actions need a person’s approval?</td></tr><tr><td>Sandbox</td><td>Limits on what a running tool can touch, the network included</td><td>If a tool call goes wrong, what can it reach?</td></tr><tr><td>Context and compaction</td><td>What the model sees, and how old history is summarised as it approaches a set limit</td><td>What is kept when history is summarised: instructions, approvals, decisions?</td></tr><tr><td>Output caps</td><td>How much of a tool’s result is shown to the model</td><td>What happens when a result is too large to show?</td></tr><tr><td>Limits</td><td>What stops a run that does not end on its own</td><td>Who or what stops a runaway, and at what cost?</td></tr><tr><td>Hooks and extensions</td><td>Points where the business’s own code can check or block a step</td><td>Where can my own checks run?</td></tr><tr><td>Sub-agents</td><td>Further loops started by the first, with limits on how many</td><td>Is the work split across agents, and why?</td></tr><tr><td>Models</td><td>Which models it can call</td><td>Am I tied to one provider?</td></tr></tbody></table>
+<p>The three agree on the loop and differ on most of the rest, in design choices that a business relying on one of them should know about.</p>
+<ul><li><b>Enforcement.</b> Codex and Gemini CLI can enforce permissions and a sandbox outside the model. Pi has no built-in approval policy for each call and no operating-system sandbox, so approval checks come from extensions and isolation from a container or a virtual machine.</li><li><b>Number of tools.</b> Pi exposes four standard coding tools by default and Gemini CLI about twenty-five, although extensions and connected tool servers can change both counts.</li><li><b>Timing of summaries.</b> Gemini CLI compacts at half the context window by default, while Codex compacts at nine tenths, or earlier when a configured or model-specific limit is lower.</li><li><b>Runaways.</b> I found no default cap on tool rounds in the main loop of any of the three. Gemini CLI detects repeated loops, Codex has a budget gate, and otherwise it falls to the user to interrupt a runaway run.</li></ul>
+<h2>Ways to get a harness</h2>
+<p><b>Writing it on a model API.</b> In a separate reading of the code of 110 applied agentic projects published with research papers since 2024, the largest group, 45%, had recognisable model-API calls and no detected use of an agent framework. The loop is easy to write, but each of the other parts in the table has to be written, taken from a library or the provider, or gone without. These are research projects, and production code may look different.</p>
+<p><b>Using a workflow framework, such as LangGraph.</b> A framework of this kind gives the work a typed state and a graph of steps and branches. It can express fixed workflows with programmed branches, as well as loops in which the model chooses its next step. Either way, the parts that sit around the model, from approvals to sandboxing, need to be checked against the table rather than assumed.</p>
+<p><b>Building on an existing harness.</b> Codex, Gemini CLI and Pi can each be driven from other programs, through software development kits or a headless mode. A business that does so inherits the harness’s choices on enforcement, tools, compaction and limits, and should read them before relying on them, since all three change often and were each updated on the day I read them.</p>
+<p>Provider offerings also include the OpenAI Agents SDK, the Claude Agent SDK and Google’s Agent Development Kit, while some hosted services operate the harness for the business. Each supplies the loop and some of the parts in the table; which permission controls and limits it enforces still needs to be checked in the documentation or with the vendor.</p>
+<p>The choice depends on the task. A path that can be written down in advance is a workflow, which a framework or plain code can carry. A task in which the model has to choose its next step needs a harness, and whoever builds it should be able to answer every question in the table.</p>
+<details><summary>Method and limits</summary><p>For each harness, one reading agent read the repository without changing it. I checked about twenty of its file and line references by hand, and a model from a different provider reviewed the reading. Claude Code is not included, because its source is not public. “Default” means the default written in the code, not what a running installation was observed to do. The count of 110 projects also comes from a static reading of their code, and its categories are code signatures, not judgements of what each system does.</p></details>
+<details><summary>Use of AI tools</summary><p>Claude (Anthropic) agents read the repositories and drafted this text under my direction, and a Codex model (OpenAI) reviewed the reading and the draft; I checked the references and the final wording.</p></details>
+<footer>SENS ADVISOR · consult@sensadvisor.com · November 2026</footer>
+</article>
+<script src="/assets/dash.js" defer></script></body></html>

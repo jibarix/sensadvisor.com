@@ -56,6 +56,12 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://sensadvisor.com/notes/agent-harness/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://sensadvisor.com/notes/ai-requirements/2026-11/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
