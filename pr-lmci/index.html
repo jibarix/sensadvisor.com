@@ -15,20 +15,20 @@
 })();
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Puerto Rico Labor Market | SENS ADVISOR</title>
+<title>Puerto Rico Labor Market Readings | SENS ADVISOR</title>
 
 <meta name="description" content="The Puerto Rico labor market: the unemployment rate, the three-month change in private payrolls and the breadth of improvement across 24 series.">
-<meta property="og:title" content="Puerto Rico Labor Market">
+<meta property="og:title" content="Puerto Rico Labor Market Readings">
 <meta property="og:description" content="The Puerto Rico labor market: the unemployment rate, the three-month change in private payrolls and the breadth of improvement across 24 series.">
 <meta property="og:type" content="website">
 <link rel="canonical" href="https://sensadvisor.com/pr-lmci/">
 <meta property="og:url" content="https://sensadvisor.com/pr-lmci/">
-<meta property="og:image" content="https://sensadvisor.com/assets/og.png">
+<meta property="og:image" content="https://sensadvisor.com/assets/og/pr-lmci.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Jorge A. Arroyo, Business Systems &amp; Analytics Architect, SENS ADVISOR">
+<meta property="og:image:alt" content="Puerto Rico Labor Market — SENS ADVISOR analytics card">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Puerto Rico Labor Market">
+<meta name="twitter:title" content="Puerto Rico Labor Market Readings">
 <meta name="twitter:description" content="The Puerto Rico labor market: the unemployment rate, the three-month change in private payrolls and the breadth of improvement across 24 series.">
 
 <link rel="preload" href="/fonts/source-code-pro-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -41,15 +41,12 @@
     --secondary-text: #333333;
     --border-primary: #000000;
     --accent-light: #f0f0f0;
-    --accent-lighter: #f9f9f9;
     --page-gutter: clamp(20px, 4vw, 64px);
     --signal: #008f43;
-    --signal-rgb: 0, 143, 67;
     --grid-dot: rgba(0, 0, 0, 0.065);
     --chart-text: #333333;
     --chart-muted: #707070;
     --chart-grid: #dddddd;
-    --surface-muted: #f7f7f7;
   }
 
   /* ===== Dark theme (shared toggle; syncs via localStorage 'theme') ===== */
@@ -59,15 +56,12 @@
     --secondary-text: #9aa0a6;
     --border-primary: #3a3d42;
     --accent-light: #212327;
-    --accent-lighter: #16171a;
 
     --signal: #36e08a;
-    --signal-rgb: 54, 224, 138;
     --grid-dot: rgba(255, 255, 255, 0.055);
     --chart-text: #d7d9dc;
     --chart-muted: #9aa0a6;
     --chart-grid: #34373c;
-    --surface-muted: rgba(22, 23, 26, 0.9);
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -76,33 +70,15 @@
       --secondary-text: #9aa0a6;
       --border-primary: #3a3d42;
       --accent-light: #212327;
-      --accent-lighter: #16171a;
 
       --signal: #36e08a;
-      --signal-rgb: 54, 224, 138;
       --grid-dot: rgba(255, 255, 255, 0.055);
       --chart-text: #d7d9dc;
       --chart-muted: #9aa0a6;
       --chart-grid: #34373c;
-      --surface-muted: rgba(22, 23, 26, 0.9);
     }
   }
-  body, .site-header, .nav, .nav-dropdown-menu, .analytics-index, .panel { transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease; }
-  /* Theme toggle button */
-  .theme-toggle {
-    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-    background: none; border: none; cursor: pointer; color: var(--primary-text);
-    padding: 6px; margin: 0; border-radius: 4px; transition: background 0.2s ease;
-  }
-  .theme-toggle:hover { background: var(--accent-light); }
-  .theme-toggle svg { width: 20px; height: 20px; display: block; }
-  .theme-toggle .ic-sun { display: none; }
-  :root[data-theme="dark"] .theme-toggle .ic-sun { display: block; }
-  :root[data-theme="dark"] .theme-toggle .ic-moon { display: none; }
-  .theme-toggle-label { display: none; }
-  .theme-toggle .lbl-light { display: none; }
-  :root[data-theme="dark"] .theme-toggle .lbl-light { display: inline; }
-  :root[data-theme="dark"] .theme-toggle .lbl-dark { display: none; }
+  body, .analytics-index, .panel { transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease; }
 
   /* Scroll progress and quick return for a long analytical page. */
   .back-to-top {
@@ -173,353 +149,6 @@
     min-height: 100vh;
   }
 
-  /* ===== Shared site navigation - mirrors the sensadvisor.com home
-     menu (brand + top-level links + Analytics dropdown, collapsing to
-     a menu button + floating sheet on phones), plus a sticky per-page
-     section index. ===== */
-  .site-header {
-    position: relative;
-    z-index: 1100;
-    display: flex;
-    align-items: center;
-    height: var(--nav-h);
-    padding: 0 var(--page-gutter);
-    background: transparent;
-  }
-  .site-header-inner {
-    position: relative;
-    display: flex;
-    align-items: center;
-    /* Three slots, so space-between is what centres the link row. An auto
-       margin on .nav would collapse it against the actions instead. */
-    justify-content: space-between;
-    gap: clamp(16px, 3vw, 40px);
-    width: 100%;
-    max-width: 1480px;
-    margin: 0 auto;
-    padding: 0;
-  }
-  .logo {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    color: var(--primary-text);
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-decoration: none;
-    white-space: nowrap;
-  }
-  .nav { display: flex; align-items: center; gap: clamp(16px, 2vw, 30px); }
-  .nav a,
-  .nav-dropdown-trigger {
-    color: var(--primary-text);
-    font-size: 0.78rem;
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    text-decoration: none;
-    text-transform: uppercase;
-    padding: 8px 0;
-    border-bottom: 2px solid transparent;
-    transition: border-color 0.2s ease;
-    cursor: pointer;
-    user-select: none;
-    white-space: nowrap;
-  }
-  /* 85% of the ink, which is what the home bar's rgba(255,255,255,.85) comes
-     to once the blend has resolved it - not --border-primary, which is a hard
-     #000 here because it draws the 2px brutalist panel rules. */
-  .nav a:hover,
-  .nav-dropdown-trigger:hover,
-  .nav-dropdown-trigger[aria-expanded="true"] {
-    border-bottom-color: var(--nav-rule);
-  }
-  /* A real <button> now that JS drives it. Reset only the UA chrome: the type
-     comes from the shared rule above, so `font: inherit` here would desync its
-     size from the sibling links. */
-  .nav-dropdown-trigger {
-    background: none;
-    border: 0;
-    border-bottom: 2px solid transparent;
-    font-family: inherit;
-    line-height: inherit;
-  }
-  .nav-dropdown { position: relative; }
-  /* Same skin as the home panel: hairline rule, 12px radius, the sheet
-     surface, one deep soft shadow. It was a 2px hard-black box on a 4px
-     radius, which is the dashboards' data-panel treatment, not the menu's.
-     It can stay a child of its trigger here; on the home page it has to be a
-     fixed sibling of the bar, because an opaque panel inside a blended bar
-     paints |page - panel| and the page ghosts straight through it. */
-  .nav-dropdown-menu {
-    position: absolute;
-    top: calc(100% + 8px);
-    left: 0;
-    z-index: 1000;
-    min-width: 240px;
-    border: 1px solid var(--sheet-line);
-    border-radius: 12px;
-    background: var(--sheet-bg);
-    box-shadow: 0 18px 40px var(--sheet-shadow);
-    overflow: hidden;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-6px);
-    /* visibility/opacity rather than display:none - display cannot animate. */
-    transition: opacity 0.18s ease, transform 0.18s ease,
-                visibility 0s linear 0.18s;
-  }
-  .nav-dropdown.open .nav-dropdown-menu {
-    opacity: 1;
-    visibility: visible;
-    transform: none;
-    transition: opacity 0.18s ease, transform 0.18s ease;
-  }
-  .nav-dropdown-menu a {
-    display: block;
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--sheet-line);
-    color: var(--sheet-fg);
-    font-size: 0.82rem;
-    text-decoration: none;
-    transition: background 0.2s ease;
-  }
-  .nav-dropdown-menu a:last-child { border-bottom: none; }
-  .nav-dropdown-menu a:hover { background: var(--sheet-soft); }
-  /* No equivalent on the home page, where no dashboard is ever the current
-     one. Same marker the sheet's sub-list uses. */
-  .nav-dropdown-menu a[aria-current="page"] {
-    color: var(--sheet-fg);
-    font-weight: 700;
-    box-shadow: inset 3px 0 0 var(--signal);
-  }
-  /* Menu button + floating sheet. Replaces the old inline drawer, which
-     pushed the page down as it opened. The sheet is a fixed overlay so the
-     page stays put; the bar is not fixed, so JS parks the sheet under it.
-
-     Geometry, timings, structure AND palette are copied from the home page's
-     sheet, so the opened panel is the same object on both.
-
-     The bar chrome carries its own surface tokens rather than borrowing the
-     page's. The page tokens look like the right roles but are not:
-     --border-primary is #000 here (it draws the 2px brutalist panel rules), so
-     reusing it would rule the sheet in hard black where the home sheet uses a
-     13% hairline; --secondary-text is #333 against a 55%-alpha grey. Same
-     declarations, very different weight. */
-  :root {
-    --nav-h: 64px;
-    --nav-rule: rgba(19, 19, 21, 0.85);
-    --nav-wash: rgba(19, 19, 21, 0.14);
-    --sheet-gap: 6px;
-    --sheet-radius: 16px;
-    --sheet-bg: #f3f1ec;
-    --sheet-fg: #131315;
-    --sheet-line: rgba(19, 19, 21, 0.13);
-    --sheet-dim: rgba(19, 19, 21, 0.55);
-    --sheet-soft: rgba(19, 19, 21, 0.06);
-    --sheet-scrim: rgba(19, 19, 21, 0.34);
-    --sheet-shadow: rgba(0, 0, 0, 0.45);
-  }
-  :root[data-theme="dark"] {
-    --nav-rule: rgba(237, 237, 237, 0.85);
-    --nav-wash: rgba(255, 255, 255, 0.14);
-    --sheet-bg: #17181b;
-    --sheet-fg: #ededed;
-    --sheet-line: rgba(255, 255, 255, 0.13);
-    --sheet-dim: rgba(237, 237, 237, 0.55);
-    --sheet-soft: rgba(255, 255, 255, 0.05);
-    --sheet-scrim: rgba(0, 0, 0, 0.5);
-    --sheet-shadow: rgba(0, 0, 0, 0.5);
-  }
-  /* The head script always stamps data-theme, so this is only the no-JS net -
-     but every other token here is declared all three ways, so these are too. */
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --nav-rule: rgba(237, 237, 237, 0.85);
-      --nav-wash: rgba(255, 255, 255, 0.14);
-      --sheet-bg: #17181b;
-      --sheet-fg: #ededed;
-      --sheet-line: rgba(255, 255, 255, 0.13);
-      --sheet-dim: rgba(237, 237, 237, 0.55);
-      --sheet-soft: rgba(255, 255, 255, 0.05);
-      --sheet-scrim: rgba(0, 0, 0, 0.5);
-      --sheet-shadow: rgba(0, 0, 0, 0.5);
-    }
-  }
-
-  /* Action cluster: equal bounded slots, like a set of instrument keys. The
-     page's own .theme-toggle is a 6px pad on a 4px radius; inside the bar it
-     becomes a 40px key, the same one the home page uses. Scoped to
-     .site-header so any other toggle on the page keeps its own shape. */
-  .nav-actions {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    flex-shrink: 0;
-  }
-  .site-header .theme-toggle,
-  .menu-btn {
-    display: grid;
-    place-items: center;
-    width: 40px;
-    height: 40px;
-    padding: 0;
-    margin: 0;
-    border: 0;
-    border-radius: 10px;
-    background: transparent;
-    color: var(--primary-text);
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-  }
-  .site-header .theme-toggle:hover,
-  .menu-btn:hover { background: var(--nav-wash); }
-  .site-header .theme-toggle:focus-visible,
-  .menu-btn:focus-visible {
-    outline: 2px solid var(--signal);
-    outline-offset: 2px;
-  }
-  .site-header .theme-toggle svg { width: 18px; height: 18px; }
-  .site-header .theme-toggle-label { display: none; }
-  .menu-btn { display: none; }
-  .menu-icon { display: grid; gap: 5px; width: 18px; }
-  .menu-icon span {
-    display: block;
-    width: 100%;
-    height: 1.5px;
-    background: currentColor;
-    border-radius: 2px;
-    transition: transform 0.34s cubic-bezier(.16, 1, .3, 1),
-                opacity 0.2s ease;
-  }
-  .menu-btn[aria-expanded="true"] .menu-icon span:nth-child(1) {
-    transform: translateY(3.25px) rotate(45deg);
-  }
-  .menu-btn[aria-expanded="true"] .menu-icon span:nth-child(2) {
-    transform: translateY(-3.25px) rotate(-45deg);
-  }
-
-  /* Both sit below .site-header (z-index 1100), so the bar stays lit and the
-     button stays clickable to close. */
-  .navscrim {
-    position: fixed;
-    inset: 0;
-    z-index: 1090;
-    background: var(--sheet-scrim);
-    -webkit-backdrop-filter: blur(4px);
-    backdrop-filter: blur(4px);
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.32s ease, visibility 0s linear 0.32s;
-  }
-  .navsheet {
-    position: fixed;
-    /* The home bar is fixed so it can key off --nav-h; this one scrolls, so
-       JS writes --sheet-top from the bar's live position instead. */
-    top: var(--sheet-top, 64px);
-    left: var(--sheet-gap);
-    z-index: 1095;
-    width: calc(100% - (var(--sheet-gap) * 2));
-    /* svh, not vh: mobile browser chrome would otherwise clip the sheet. */
-    max-height: calc(100svh - var(--sheet-top, 64px) - var(--sheet-gap));
-    padding: 8px;
-    border-radius: var(--sheet-radius);
-    background: var(--sheet-bg);
-    color: var(--sheet-fg);
-    box-shadow: 0 24px 60px var(--sheet-shadow);
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-10px);
-    /* visibility/opacity rather than display:none - display can't animate. */
-    transition: opacity 0.32s cubic-bezier(.16, 1, .3, 1),
-                transform 0.32s cubic-bezier(.16, 1, .3, 1),
-                visibility 0s linear 0.32s;
-  }
-  html.sheet-open .navscrim,
-  html.sheet-open .navsheet {
-    opacity: 1;
-    visibility: visible;
-    transition-delay: 0s;
-  }
-  html.sheet-open .navsheet { transform: translateY(0); }
-  /* The scroll container is <html>; locking <body> alone will not hold it. */
-  html.sheet-open,
-  html.sheet-open body { overflow: hidden; }
-
-  .sheet-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    width: 100%;
-    min-height: 56px;
-    padding: 0 14px;
-    border: 0;
-    border-radius: 10px;
-    background: transparent;
-    color: inherit;
-    font-family: inherit;
-    font-size: 0.82rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    text-decoration: none;
-    text-align: left;
-    cursor: pointer;
-    transition: background-color 0.18s ease;
-  }
-  .sheet-row + .sheet-row,
-  .sheet-group + .sheet-row,
-  .sheet-row + .sheet-group,
-  .sheet-group + .sheet-group { border-top: 1px solid var(--sheet-line); }
-  .sheet-row:hover { background: var(--sheet-soft); }
-  .sheet-row:focus-visible {
-    outline: 2px solid var(--signal);
-    outline-offset: -2px;
-  }
-  .sheet-ind {
-    color: var(--sheet-dim);
-    font-size: 0.95rem;
-    line-height: 1;
-    transition: transform 0.3s cubic-bezier(.16, 1, .3, 1);
-  }
-  .sheet-disc[aria-expanded="true"] .sheet-ind { transform: rotate(45deg); }
-  /* 0fr -> 1fr animates to the content's real height, no magic numbers. */
-  .sheet-sub {
-    display: grid;
-    grid-template-rows: 0fr;
-    transition: grid-template-rows 0.34s cubic-bezier(.16, 1, .3, 1);
-  }
-  .sheet-disc[aria-expanded="true"] + .sheet-sub { grid-template-rows: 1fr; }
-  .sheet-sub-inner { overflow: hidden; }
-  .sheet-sub a {
-    display: flex;
-    align-items: center;
-    min-height: 46px;
-    padding: 0 14px 0 28px;
-    color: var(--sheet-dim);
-    font-size: 0.78rem;
-    letter-spacing: 0.04em;
-    text-decoration: none;
-    border-radius: 8px;
-  }
-  .sheet-sub a:hover { background: var(--sheet-soft); color: var(--sheet-fg); }
-  /* Not on the home page, where no dashboard is ever the current one. */
-  .sheet-sub a[aria-current="page"] {
-    color: var(--sheet-fg);
-    font-weight: 700;
-    box-shadow: inset 3px 0 0 var(--signal);
-  }
-  @media (min-width: 769px) {
-    /* Never leave the sheet stranded open on resize to desktop. */
-    .navsheet, .navscrim { display: none; }
-  }
-  @media print {
-    .navsheet, .navscrim { display: none !important; }
-  }
-
   .analytics-index {
     position: sticky;
     top: 0;
@@ -564,13 +193,6 @@
   }
 
   @media (max-width: 768px) {
-    .site-header-inner {
-      padding-top: 15px;
-      padding-bottom: 15px;
-      flex-wrap: wrap;
-    }
-    .menu-btn { display: grid; }
-    .nav { display: none; }
     .analytics-index-inner {
       gap: 22px;
       overflow-x: auto;
@@ -719,17 +341,6 @@
     background: #eeeeee;
     filter: invert(0.91) hue-rotate(180deg);
     mix-blend-mode: screen;
-  }
-
-  .callout {
-    border: 2px solid var(--border-primary);
-    padding: 20px; margin-bottom: 20px;
-  }
-
-  .callout-title {
-    font-weight: 700; font-size: 1rem; margin-bottom: 12px;
-    display: flex; justify-content: space-between; align-items: baseline;
-    flex-wrap: wrap; gap: 6px;
   }
 
   .signal-readout {
@@ -894,9 +505,10 @@
   .tip b { font-weight: 600; }
   .tip small { display: block; color: var(--secondary-text); }
   .chart-note { margin-top: 12px; }
-  :root { --up: #008f43; --down: #c4c7cc; }
+  :root { --up: #007a39; --down: #c4c7cc; }
   :root[data-theme="dark"] { --up: #36e08a; --down: #4a4d52; }
   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --up: #36e08a; --down: #4a4d52; } }
+  main { display: flex; flex-direction: column; }   /* as .container, so the layout inside is unchanged */
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .gcards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0;
     border-top: 2px solid var(--border-primary); }
@@ -936,8 +548,7 @@
   table.hgrid td { height: 20px; min-width: 22px; border-radius: 2px; text-align: center; }
   table.hgrid td .gl { font-size: 8px; line-height: 1; }
   table.hgrid td.up .gl { color: var(--primary-bg); }
-  table.hgrid td.down .gl { color: var(--chart-muted); }
-  :root[data-theme="dark"] table.hgrid td.down .gl { color: var(--chart-text); }
+  table.hgrid td.down .gl { color: var(--chart-text); }
   .chart svg:focus-visible { outline: 2px solid var(--signal); outline-offset: 4px; }
   table.hgrid td.up { background: var(--up); }
   table.hgrid td.down { background: var(--down); }
@@ -1003,6 +614,7 @@
 </nav>
 <script src="/assets/dash.js" defer></script>
 <div class="container">
+<main>
 
   <header class="header">
     <span class="header-kicker">Analytics / Labor</span>
@@ -1013,8 +625,8 @@
     </div>
     <div class="meta">
       <span><strong>Data through</strong><br>September 2026</span>
-      <span><strong>Data retrieved</strong><br>November 15, 2026</span>
-      <span><strong>Page generated</strong><br>2026-11-15 16:42 UTC</span>
+      <span><strong>Data retrieved</strong><br>November 20, 2026</span>
+      <span><strong>Page generated</strong><br>2026-11-20 14:54 UTC</span>
     </div>
   </header>
 
@@ -1032,7 +644,7 @@
         <span class="lbl">Private payrolls, 3-month change</span>
         <strong class="val">+0.20%</strong>
         <span class="l1">−0.18% in August 2026; −0.42% a year earlier</span>
-        <span class="l2">Positive; -0.18% the month before</span>
+        <span class="l2">Positive after 2 negative months</span>
         <a href="#payrolls">Chart &darr;</a>
       </div>
       <div class="reading">
@@ -1057,7 +669,7 @@
 <li class="down" title="Unemployed 15+ weeks share: not improving; lower is better"><span class="ic" aria-hidden="true">&#9660;</span><span class="nm">Unemployed 15+ weeks share</span><span class="ch">+9.6 pp</span><span class="sr">Not improving</span></li>
 <li class="na" title="Job losers&#x27; share: no reading; lower is better"><span class="ic" aria-hidden="true">&ndash;</span><span class="nm">Job losers&#x27; share</span><span class="ch">no reading</span><span class="sr">No reading</span></li>
 <li class="up" title="Job leavers&#x27; share: improving; higher is better"><span class="ic" aria-hidden="true">&#9650;</span><span class="nm">Job leavers&#x27; share</span><span class="ch">+8.3 pp</span><span class="sr">Improving</span></li>
-<li class="na" title="U-to-E outflow proxy: no reading; higher is better"><span class="ic" aria-hidden="true">&ndash;</span><span class="nm">U-to-E outflow proxy</span><span class="ch">no reading</span><span class="sr">No reading</span></li>
+<li class="na" title="Unemployment exit-rate proxy: no reading; higher is better"><span class="ic" aria-hidden="true">&ndash;</span><span class="nm">Unemployment exit-rate proxy</span><span class="ch">no reading</span><span class="sr">No reading</span></li>
 <li class="up" title="Initial claims rate: improving; lower is better"><span class="ic" aria-hidden="true">&#9650;</span><span class="nm">Initial claims rate</span><span class="ch">−0.04 pp</span><span class="sr">Improving</span></li>
 <li class="up" title="Insured unemployment rate: improving; lower is better"><span class="ic" aria-hidden="true">&#9650;</span><span class="nm">Insured unemployment rate</span><span class="ch">−0.3 pp</span><span class="sr">Improving</span></li>
         </ul></div>
@@ -1110,9 +722,9 @@
 <tr class="grow"><th colspan="13" scope="rowgroup"><span class="pin">Unemployment and claims</span></th></tr>
 <tr><th scope="row">Unemployment rate</th><td class="down" title="Unemployment rate, October 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Unemployment rate, November 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Unemployment rate, December 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Unemployment rate, January 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Unemployment rate, February 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Unemployment rate, March 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Unemployment rate, April 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Unemployment rate, May 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Unemployment rate, June 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Unemployment rate, July 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Unemployment rate, August 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Unemployment rate, September 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td></tr>
 <tr><th scope="row">Unemployed 15+ weeks share</th><td class="down" title="Unemployed 15+ weeks share, October 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Unemployed 15+ weeks share, November 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Unemployed 15+ weeks share, December 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Unemployed 15+ weeks share, January 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Unemployed 15+ weeks share, February 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Unemployed 15+ weeks share, March 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Unemployed 15+ weeks share, April 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Unemployed 15+ weeks share, May 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Unemployed 15+ weeks share, June 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Unemployed 15+ weeks share, July 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Unemployed 15+ weeks share, August 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Unemployed 15+ weeks share, September 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td></tr>
-<tr><th scope="row">Job losers&#x27; share</th><td class="na" title="Job losers&#x27; share, October 2025: no reading"><span class="gl" aria-hidden="true"></span><span class="sr">no reading</span></td><td class="na" title="Job losers&#x27; share, November 2025: no reading"><span class="gl" aria-hidden="true"></span><span class="sr">no reading</span></td><td class="na" title="Job losers&#x27; share, December 2025: no reading"><span class="gl" aria-hidden="true"></span><span class="sr">no reading</span></td><td class="na" title="Job losers&#x27; share, January 2026: no reading"><span class="gl" aria-hidden="true"></span><span class="sr">no reading</span></td><td class="na" title="Job losers&#x27; share, February 2026: no reading"><span class="gl" aria-hidden="true"></span><span class="sr">no reading</span></td><td class="na" title="Job losers&#x27; share, March 2026: no reading"><span class="gl" aria-hidden="true"></span><span class="sr">no reading</span></td><td class="na" title="Job losers&#x27; share, April 2026: no reading"><span class="gl" aria-hidden="true"></span><span class="sr">no reading</span></td><td class="na" title="Job losers&#x27; share, May 2026: no reading"><span class="gl" aria-hidden="true"></span><span class="sr">no reading</span></td><td class="na" title="Job losers&#x27; share, June 2026: no reading"><span class="gl" aria-hidden="true"></span><span class="sr">no reading</span></td><td class="na" title="Job losers&#x27; share, July 2026: no reading"><span class="gl" aria-hidden="true"></span><span class="sr">no reading</span></td><td class="na" title="Job losers&#x27; share, August 2026: no reading"><span class="gl" aria-hidden="true"></span><span class="sr">no reading</span></td><td class="na" title="Job losers&#x27; share, September 2026: no reading"><span class="gl" aria-hidden="true"></span><span class="sr">no reading</span></td></tr>
+<tr><th scope="row">Job losers&#x27; share</th><td class="na" title="Job losers&#x27; share, October 2025: no three-month change"><span class="gl" aria-hidden="true"></span><span class="sr">no three-month change</span></td><td class="na" title="Job losers&#x27; share, November 2025: no three-month change"><span class="gl" aria-hidden="true"></span><span class="sr">no three-month change</span></td><td class="na" title="Job losers&#x27; share, December 2025: no three-month change"><span class="gl" aria-hidden="true"></span><span class="sr">no three-month change</span></td><td class="na" title="Job losers&#x27; share, January 2026: no three-month change"><span class="gl" aria-hidden="true"></span><span class="sr">no three-month change</span></td><td class="na" title="Job losers&#x27; share, February 2026: no three-month change"><span class="gl" aria-hidden="true"></span><span class="sr">no three-month change</span></td><td class="na" title="Job losers&#x27; share, March 2026: no three-month change"><span class="gl" aria-hidden="true"></span><span class="sr">no three-month change</span></td><td class="na" title="Job losers&#x27; share, April 2026: no three-month change"><span class="gl" aria-hidden="true"></span><span class="sr">no three-month change</span></td><td class="na" title="Job losers&#x27; share, May 2026: no three-month change"><span class="gl" aria-hidden="true"></span><span class="sr">no three-month change</span></td><td class="na" title="Job losers&#x27; share, June 2026: no three-month change"><span class="gl" aria-hidden="true"></span><span class="sr">no three-month change</span></td><td class="na" title="Job losers&#x27; share, July 2026: no three-month change"><span class="gl" aria-hidden="true"></span><span class="sr">no three-month change</span></td><td class="na" title="Job losers&#x27; share, August 2026: no three-month change"><span class="gl" aria-hidden="true"></span><span class="sr">no three-month change</span></td><td class="na" title="Job losers&#x27; share, September 2026: no three-month change"><span class="gl" aria-hidden="true"></span><span class="sr">no three-month change</span></td></tr>
 <tr><th scope="row">Job leavers&#x27; share</th><td class="up" title="Job leavers&#x27; share, October 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Job leavers&#x27; share, November 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Job leavers&#x27; share, December 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Job leavers&#x27; share, January 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Job leavers&#x27; share, February 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Job leavers&#x27; share, March 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Job leavers&#x27; share, April 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Job leavers&#x27; share, May 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Job leavers&#x27; share, June 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Job leavers&#x27; share, July 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Job leavers&#x27; share, August 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Job leavers&#x27; share, September 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td></tr>
-<tr><th scope="row">U-to-E outflow proxy</th><td class="up" title="U-to-E outflow proxy, October 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="U-to-E outflow proxy, November 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="U-to-E outflow proxy, December 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="U-to-E outflow proxy, January 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="U-to-E outflow proxy, February 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="U-to-E outflow proxy, March 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="U-to-E outflow proxy, April 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="U-to-E outflow proxy, May 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="U-to-E outflow proxy, June 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="U-to-E outflow proxy, July 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="U-to-E outflow proxy, August 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="na" title="U-to-E outflow proxy, September 2026: no reading"><span class="gl" aria-hidden="true"></span><span class="sr">no reading</span></td></tr>
+<tr><th scope="row">Unemployment exit-rate proxy</th><td class="up" title="Unemployment exit-rate proxy, October 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Unemployment exit-rate proxy, November 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Unemployment exit-rate proxy, December 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Unemployment exit-rate proxy, January 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Unemployment exit-rate proxy, February 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Unemployment exit-rate proxy, March 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Unemployment exit-rate proxy, April 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Unemployment exit-rate proxy, May 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Unemployment exit-rate proxy, June 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Unemployment exit-rate proxy, July 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Unemployment exit-rate proxy, August 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="na" title="Unemployment exit-rate proxy, September 2026: no three-month change"><span class="gl" aria-hidden="true"></span><span class="sr">no three-month change</span></td></tr>
 <tr><th scope="row">Initial claims rate</th><td class="up" title="Initial claims rate, October 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Initial claims rate, November 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Initial claims rate, December 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Initial claims rate, January 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Initial claims rate, February 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Initial claims rate, March 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Initial claims rate, April 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Initial claims rate, May 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Initial claims rate, June 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Initial claims rate, July 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Initial claims rate, August 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Initial claims rate, September 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td></tr>
 <tr><th scope="row">Insured unemployment rate</th><td class="up" title="Insured unemployment rate, October 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Insured unemployment rate, November 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Insured unemployment rate, December 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Insured unemployment rate, January 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Insured unemployment rate, February 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Insured unemployment rate, March 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Insured unemployment rate, April 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Insured unemployment rate, May 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Insured unemployment rate, June 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Insured unemployment rate, July 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Insured unemployment rate, August 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Insured unemployment rate, September 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td></tr>
 <tr class="grow"><th colspan="13" scope="rowgroup"><span class="pin">Employment and participation</span></th></tr>
@@ -1137,14 +749,17 @@
 <tr><th scope="row">Government</th><td class="down" title="Government, October 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Government, November 2025: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Government, December 2025: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Government, January 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Government, February 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="down" title="Government, March 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Government, April 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="down" title="Government, May 2026: not improving"><span class="gl" aria-hidden="true">&#9660;</span><span class="sr">not improving</span></td><td class="up" title="Government, June 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Government, July 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Government, August 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td><td class="up" title="Government, September 2026: improving"><span class="gl" aria-hidden="true">&#9650;</span><span class="sr">improving</span></td></tr>
 <tr class="totrow"><th scope="row">Breadth, %</th><td class="tot">48</td><td class="tot">57</td><td class="tot">57</td><td class="tot">48</td><td class="tot">57</td><td class="tot">70</td><td class="tot">87</td><td class="tot">61</td><td class="tot">52</td><td class="tot">52</td><td class="tot">65</td><td class="tot">59</td></tr>
       </tbody></table></div>
-    <p class="fineprint" style="margin-top:12px">Each cell is one series in one month. Empty cells have no reading:
-    some series arrive later than others, and the job losers' share is often missing. Breadth counts only the
-    series with a reading. Hover a cell for its name and month.</p>
+    <p class="fineprint" style="margin-top:12px">Each cell is one series in one month. An empty cell means the
+    series has no three-month change for that month, so breadth leaves it out. That happens when the month has
+    no reading or, for the ten series compared with their own level three months earlier, when the earlier
+    month has none: some series arrive later than others, and the job losers' share is often missing. The
+    unemployment exit-rate proxy also needs the following month's survey, so a month stays empty until the next month's data arrives.
+    Hover a cell for its name and month.</p>
   </div>
 
   <div class="panel" id="unemployment">
     <h2>Unemployment rate <span class="panel-note">Percent of the labor force, seasonally adjusted</span></h2>
-    <div class="range" role="group" aria-label="Time range for the unemployment rate chart" data-chart="c-ur"><button type="button" data-from="2014-01" aria-pressed="true">Since 2014</button><button type="button" data-from="last5" aria-pressed="false">Last 5 years</button><button type="button" data-from="2000-01" aria-pressed="false">Since 2000</button><button type="button" data-from="1990-04" aria-pressed="false">Since 1990</button></div>
+    <div class="range" role="group" aria-label="Time range for the unemployment rate chart" data-chart="c-ur"><button type="button" data-from="2014-01" aria-pressed="true">Since 2014</button><button type="button" data-from="last5" aria-pressed="false">Last 5 years</button><button type="button" data-from="2000-01" aria-pressed="false">Since 2000</button><button type="button" data-from="1990-01" aria-pressed="false">Since 1990</button></div>
     <div class="chart" id="c-ur" data-label="Unemployment rate, percent"></div>
     <p class="fineprint chart-note">Local Area Unemployment Statistics (BLS). Shaded: the year after Hurricane Maria
     and the pandemic months, March 2020 to December 2021. Breaks in the line are four months this page treats
@@ -1153,7 +768,7 @@
 
   <div class="panel" id="payrolls">
     <h2>Private payrolls <span class="panel-note">Percent change over three months, seasonally adjusted</span></h2>
-    <div class="range" role="group" aria-label="Time range for the payrolls chart" data-chart="c-pay"><button type="button" data-from="2014-01" aria-pressed="true">Since 2014</button><button type="button" data-from="last5" aria-pressed="false">Last 5 years</button><button type="button" data-from="2000-01" aria-pressed="false">Since 2000</button><button type="button" data-from="1990-04" aria-pressed="false">Since 1990</button></div>
+    <div class="range" role="group" aria-label="Time range for the payrolls chart" data-chart="c-pay"><button type="button" data-from="2014-01" aria-pressed="true">Since 2014</button><button type="button" data-from="last5" aria-pressed="false">Last 5 years</button><button type="button" data-from="2000-01" aria-pressed="false">Since 2000</button><button type="button" data-from="1990-01" aria-pressed="false">Since 1990</button></div>
     <div class="chart" id="c-pay" data-label="Three-month percent change in private payroll employment"></div>
     <p class="fineprint chart-note">Current Employment Statistics, private employment (BLS). The scale is set by the
     months outside the shaded periods; shaded months beyond it are cut off at the edge, the largest is labeled,
@@ -1166,7 +781,8 @@
     <div class="chart" id="c-br" data-label="Percent of series improving over three months, with a horizontal band for the usual range, 26% to 71%"></div>
     <p class="fineprint chart-note">Above 50% means more of the series improved than did not. The usual-range band
     is the 10th&ndash;90th percentile of breadth in 118 comparison months from January 2014 through August 2026,
-    excluding the shaded Hurricane Maria and pandemic periods; it is a historical comparison, not a forecast, and
+    excluding the shaded Hurricane Maria and pandemic periods, as estimated in October 2026 and not
+    recomputed since; it is a historical comparison, not a forecast, and
     the number of reported series varies by month. No value when fewer than 12 of the 24 are reported. Hover a
     month to see how many series it covers.</p>
   </div>
@@ -1199,6 +815,8 @@
       permanent job losers and people whose temporary job ended. When the survey has too few people on temporary
       layoff for a reliable estimate, the monthly release leaves that count blank, and the share has no reading
       for the month. This has become common: the share has a reading in 1 of the 12 months to September 2026.
+      Breadth uses the change from three months earlier, which needs a reading in both months, so the share counts
+      toward breadth, and has a filled cell in the grid above, in 0 of those 12 months.
       In the other months, breadth rests on the remaining series.</p>
       <p><strong>What these readings are not.</strong> They describe where the market is and which way it moved.
       They are not forecasts. Over the 53 months from January 2022 to July 2026 with data, equations predicting
@@ -1233,6 +851,7 @@
     <p class="fineprint" style="margin-top:16px"><a href="pr_labor_readings.csv"><strong>pr_labor_readings.csv</strong></a>
     &mdash; all three readings, monthly from 1990 (breadth from 2014).</p>
   </div>
+</main>
 
   <footer class="footer">
     <p>&copy; <span id="copyright-year">2026</span> Sens ABI LLC. All rights reserved. | Standard W9/1099 Process for US Clients</p>
@@ -1257,6 +876,12 @@
   function niceStep(span, n) {
     var raw = span / n, p = Math.pow(10, Math.floor(Math.log10(raw))), m = raw / p;
     return (m < 1.5 ? 1 : m < 3 ? 2 : m < 7 ? 5 : 10) * p;
+  }
+  // axis tick label: U+2212 for negatives (as in the rest of the page), and no "-0" from float steps
+  function tick(v, dec) {
+    var s = v.toFixed(dec);
+    if (+s === 0) s = (0).toFixed(dec);
+    return s.replace('-', '−');
   }
   var CHARTS = [
     { id: 'c-ur', key: 'ur', fmt: function (v) { return v.toFixed(1) + '%'; }, unit: '%', clipBands: false },
@@ -1315,7 +940,7 @@
     var dec = step < 1 ? (step < 0.1 ? 2 : 1) : 0;
     for (var v = lo; v <= hi + 1e-9; v += step) {
       el('line', { x1: L, x2: W - R, y1: Y(v), y2: Y(v) }, g);
-      var tx = el('text', { x: L - 8, y: Y(v) + 4, 'text-anchor': 'end' }, ax); tx.textContent = v.toFixed(dec) + c.unit;
+      var tx = el('text', { x: L - 8, y: Y(v) + 4, 'text-anchor': 'end' }, ax); tx.textContent = tick(v, dec) + c.unit;
     }
     var span = (x1 - x0) / 12, ystep = span > 24 ? 5 : span > 8 ? 2 : 1;
     for (var y = Math.ceil(x0 / 12); y * 12 <= x1; y++) {
