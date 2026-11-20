@@ -25,10 +25,10 @@
 <meta property="og:type" content="website">
 <link rel="canonical" href="https://sensadvisor.com/reservoirs/">
 <meta property="og:url" content="https://sensadvisor.com/reservoirs/">
-<meta property="og:image" content="https://sensadvisor.com/assets/og.png">
+<meta property="og:image" content="https://sensadvisor.com/assets/og/reservoirs.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Jorge A. Arroyo, Business Systems &amp; Analytics Architect, SENS ADVISOR">
+<meta property="og:image:alt" content="Puerto Rico Reservoir Levels — SENS ADVISOR analytics card">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="PR Reservoir Levels">
 <meta name="twitter:description" content="Puerto Rico reservoir levels compared against PRASA's operating thresholds — per-reservoir status and level history.">
@@ -49,12 +49,9 @@
     --crit: #e04343;
     --page-gutter: clamp(20px, 4vw, 64px);
     --signal: #008f43;
-    --signal-rgb: 0, 143, 67;
     --grid-dot: rgba(0, 0, 0, 0.065);
     --chart-text: #333333;
-    --chart-muted: #707070;
     --chart-grid: #dddddd;
-    --surface-muted: #f7f7f7;
   }
 
   /* ===== Dark theme (shared toggle; syncs via localStorage 'theme') ===== */
@@ -67,12 +64,9 @@
     --accent-lighter: #16171a;
 
     --signal: #36e08a;
-    --signal-rgb: 54, 224, 138;
     --grid-dot: rgba(255, 255, 255, 0.055);
     --chart-text: #d7d9dc;
-    --chart-muted: #9aa0a6;
     --chart-grid: #34373c;
-    --surface-muted: rgba(22, 23, 26, 0.9);
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -84,33 +78,15 @@
       --accent-lighter: #16171a;
 
       --signal: #36e08a;
-      --signal-rgb: 54, 224, 138;
       --grid-dot: rgba(255, 255, 255, 0.055);
       --chart-text: #d7d9dc;
-      --chart-muted: #9aa0a6;
       --chart-grid: #34373c;
-      --surface-muted: rgba(22, 23, 26, 0.9);
     }
   }
-  body, .site-header, .nav, .nav-dropdown-menu, .analytics-index, .panel { transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease; }
+  body, .analytics-index, .panel { transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease; }
   /* Charts carry baked-in light colors; float them on a light tile so they stay legible in dark mode. */
   :root[data-theme="dark"] canvas { background: #ffffff; }
   :root[data-theme="dark"] .panel img[src$=".png"] { background: #ffffff; }
-  /* Theme toggle button */
-  .theme-toggle {
-    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-    background: none; border: none; cursor: pointer; color: var(--primary-text);
-    padding: 6px; margin: 0; border-radius: 4px; transition: background 0.2s ease;
-  }
-  .theme-toggle:hover { background: var(--accent-light); }
-  .theme-toggle svg { width: 20px; height: 20px; display: block; }
-  .theme-toggle .ic-sun { display: none; }
-  :root[data-theme="dark"] .theme-toggle .ic-sun { display: block; }
-  :root[data-theme="dark"] .theme-toggle .ic-moon { display: none; }
-  .theme-toggle-label { display: none; }
-  .theme-toggle .lbl-light { display: none; }
-  :root[data-theme="dark"] .theme-toggle .lbl-light { display: inline; }
-  :root[data-theme="dark"] .theme-toggle .lbl-dark { display: none; }
 
   /* Scroll progress and quick return for a long analytical page. */
   .back-to-top {
@@ -181,353 +157,6 @@
     min-height: 100vh;
   }
 
-  /* ===== Shared site navigation - mirrors the sensadvisor.com home
-     menu (brand + top-level links + Analytics dropdown, collapsing to
-     a menu button + floating sheet on phones), plus a sticky per-page
-     section index. ===== */
-  .site-header {
-    position: relative;
-    z-index: 1100;
-    display: flex;
-    align-items: center;
-    height: var(--nav-h);
-    padding: 0 var(--page-gutter);
-    background: transparent;
-  }
-  .site-header-inner {
-    position: relative;
-    display: flex;
-    align-items: center;
-    /* Three slots, so space-between is what centres the link row. An auto
-       margin on .nav would collapse it against the actions instead. */
-    justify-content: space-between;
-    gap: clamp(16px, 3vw, 40px);
-    width: 100%;
-    max-width: 1480px;
-    margin: 0 auto;
-    padding: 0;
-  }
-  .logo {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    color: var(--primary-text);
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-decoration: none;
-    white-space: nowrap;
-  }
-  .nav { display: flex; align-items: center; gap: clamp(16px, 2vw, 30px); }
-  .nav a,
-  .nav-dropdown-trigger {
-    color: var(--primary-text);
-    font-size: 0.78rem;
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    text-decoration: none;
-    text-transform: uppercase;
-    padding: 8px 0;
-    border-bottom: 2px solid transparent;
-    transition: border-color 0.2s ease;
-    cursor: pointer;
-    user-select: none;
-    white-space: nowrap;
-  }
-  /* 85% of the ink, which is what the home bar's rgba(255,255,255,.85) comes
-     to once the blend has resolved it - not --border-primary, which is a hard
-     #000 here because it draws the 2px brutalist panel rules. */
-  .nav a:hover,
-  .nav-dropdown-trigger:hover,
-  .nav-dropdown-trigger[aria-expanded="true"] {
-    border-bottom-color: var(--nav-rule);
-  }
-  /* A real <button> now that JS drives it. Reset only the UA chrome: the type
-     comes from the shared rule above, so `font: inherit` here would desync its
-     size from the sibling links. */
-  .nav-dropdown-trigger {
-    background: none;
-    border: 0;
-    border-bottom: 2px solid transparent;
-    font-family: inherit;
-    line-height: inherit;
-  }
-  .nav-dropdown { position: relative; }
-  /* Same skin as the home panel: hairline rule, 12px radius, the sheet
-     surface, one deep soft shadow. It was a 2px hard-black box on a 4px
-     radius, which is the dashboards' data-panel treatment, not the menu's.
-     It can stay a child of its trigger here; on the home page it has to be a
-     fixed sibling of the bar, because an opaque panel inside a blended bar
-     paints |page - panel| and the page ghosts straight through it. */
-  .nav-dropdown-menu {
-    position: absolute;
-    top: calc(100% + 8px);
-    left: 0;
-    z-index: 1000;
-    min-width: 240px;
-    border: 1px solid var(--sheet-line);
-    border-radius: 12px;
-    background: var(--sheet-bg);
-    box-shadow: 0 18px 40px var(--sheet-shadow);
-    overflow: hidden;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-6px);
-    /* visibility/opacity rather than display:none - display cannot animate. */
-    transition: opacity 0.18s ease, transform 0.18s ease,
-                visibility 0s linear 0.18s;
-  }
-  .nav-dropdown.open .nav-dropdown-menu {
-    opacity: 1;
-    visibility: visible;
-    transform: none;
-    transition: opacity 0.18s ease, transform 0.18s ease;
-  }
-  .nav-dropdown-menu a {
-    display: block;
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--sheet-line);
-    color: var(--sheet-fg);
-    font-size: 0.82rem;
-    text-decoration: none;
-    transition: background 0.2s ease;
-  }
-  .nav-dropdown-menu a:last-child { border-bottom: none; }
-  .nav-dropdown-menu a:hover { background: var(--sheet-soft); }
-  /* No equivalent on the home page, where no dashboard is ever the current
-     one. Same marker the sheet's sub-list uses. */
-  .nav-dropdown-menu a[aria-current="page"] {
-    color: var(--sheet-fg);
-    font-weight: 700;
-    box-shadow: inset 3px 0 0 var(--signal);
-  }
-  /* Menu button + floating sheet. Replaces the old inline drawer, which
-     pushed the page down as it opened. The sheet is a fixed overlay so the
-     page stays put; the bar is not fixed, so JS parks the sheet under it.
-
-     Geometry, timings, structure AND palette are copied from the home page's
-     sheet, so the opened panel is the same object on both.
-
-     The bar chrome carries its own surface tokens rather than borrowing the
-     page's. The page tokens look like the right roles but are not:
-     --border-primary is #000 here (it draws the 2px brutalist panel rules), so
-     reusing it would rule the sheet in hard black where the home sheet uses a
-     13% hairline; --secondary-text is #333 against a 55%-alpha grey. Same
-     declarations, very different weight. */
-  :root {
-    --nav-h: 64px;
-    --nav-rule: rgba(19, 19, 21, 0.85);
-    --nav-wash: rgba(19, 19, 21, 0.14);
-    --sheet-gap: 6px;
-    --sheet-radius: 16px;
-    --sheet-bg: #f3f1ec;
-    --sheet-fg: #131315;
-    --sheet-line: rgba(19, 19, 21, 0.13);
-    --sheet-dim: rgba(19, 19, 21, 0.55);
-    --sheet-soft: rgba(19, 19, 21, 0.06);
-    --sheet-scrim: rgba(19, 19, 21, 0.34);
-    --sheet-shadow: rgba(0, 0, 0, 0.45);
-  }
-  :root[data-theme="dark"] {
-    --nav-rule: rgba(237, 237, 237, 0.85);
-    --nav-wash: rgba(255, 255, 255, 0.14);
-    --sheet-bg: #17181b;
-    --sheet-fg: #ededed;
-    --sheet-line: rgba(255, 255, 255, 0.13);
-    --sheet-dim: rgba(237, 237, 237, 0.55);
-    --sheet-soft: rgba(255, 255, 255, 0.05);
-    --sheet-scrim: rgba(0, 0, 0, 0.5);
-    --sheet-shadow: rgba(0, 0, 0, 0.5);
-  }
-  /* The head script always stamps data-theme, so this is only the no-JS net -
-     but every other token here is declared all three ways, so these are too. */
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --nav-rule: rgba(237, 237, 237, 0.85);
-      --nav-wash: rgba(255, 255, 255, 0.14);
-      --sheet-bg: #17181b;
-      --sheet-fg: #ededed;
-      --sheet-line: rgba(255, 255, 255, 0.13);
-      --sheet-dim: rgba(237, 237, 237, 0.55);
-      --sheet-soft: rgba(255, 255, 255, 0.05);
-      --sheet-scrim: rgba(0, 0, 0, 0.5);
-      --sheet-shadow: rgba(0, 0, 0, 0.5);
-    }
-  }
-
-  /* Action cluster: equal bounded slots, like a set of instrument keys. The
-     page's own .theme-toggle is a 6px pad on a 4px radius; inside the bar it
-     becomes a 40px key, the same one the home page uses. Scoped to
-     .site-header so any other toggle on the page keeps its own shape. */
-  .nav-actions {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    flex-shrink: 0;
-  }
-  .site-header .theme-toggle,
-  .menu-btn {
-    display: grid;
-    place-items: center;
-    width: 40px;
-    height: 40px;
-    padding: 0;
-    margin: 0;
-    border: 0;
-    border-radius: 10px;
-    background: transparent;
-    color: var(--primary-text);
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-  }
-  .site-header .theme-toggle:hover,
-  .menu-btn:hover { background: var(--nav-wash); }
-  .site-header .theme-toggle:focus-visible,
-  .menu-btn:focus-visible {
-    outline: 2px solid var(--signal);
-    outline-offset: 2px;
-  }
-  .site-header .theme-toggle svg { width: 18px; height: 18px; }
-  .site-header .theme-toggle-label { display: none; }
-  .menu-btn { display: none; }
-  .menu-icon { display: grid; gap: 5px; width: 18px; }
-  .menu-icon span {
-    display: block;
-    width: 100%;
-    height: 1.5px;
-    background: currentColor;
-    border-radius: 2px;
-    transition: transform 0.34s cubic-bezier(.16, 1, .3, 1),
-                opacity 0.2s ease;
-  }
-  .menu-btn[aria-expanded="true"] .menu-icon span:nth-child(1) {
-    transform: translateY(3.25px) rotate(45deg);
-  }
-  .menu-btn[aria-expanded="true"] .menu-icon span:nth-child(2) {
-    transform: translateY(-3.25px) rotate(-45deg);
-  }
-
-  /* Both sit below .site-header (z-index 1100), so the bar stays lit and the
-     button stays clickable to close. */
-  .navscrim {
-    position: fixed;
-    inset: 0;
-    z-index: 1090;
-    background: var(--sheet-scrim);
-    -webkit-backdrop-filter: blur(4px);
-    backdrop-filter: blur(4px);
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.32s ease, visibility 0s linear 0.32s;
-  }
-  .navsheet {
-    position: fixed;
-    /* The home bar is fixed so it can key off --nav-h; this one scrolls, so
-       JS writes --sheet-top from the bar's live position instead. */
-    top: var(--sheet-top, 64px);
-    left: var(--sheet-gap);
-    z-index: 1095;
-    width: calc(100% - (var(--sheet-gap) * 2));
-    /* svh, not vh: mobile browser chrome would otherwise clip the sheet. */
-    max-height: calc(100svh - var(--sheet-top, 64px) - var(--sheet-gap));
-    padding: 8px;
-    border-radius: var(--sheet-radius);
-    background: var(--sheet-bg);
-    color: var(--sheet-fg);
-    box-shadow: 0 24px 60px var(--sheet-shadow);
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-10px);
-    /* visibility/opacity rather than display:none - display can't animate. */
-    transition: opacity 0.32s cubic-bezier(.16, 1, .3, 1),
-                transform 0.32s cubic-bezier(.16, 1, .3, 1),
-                visibility 0s linear 0.32s;
-  }
-  html.sheet-open .navscrim,
-  html.sheet-open .navsheet {
-    opacity: 1;
-    visibility: visible;
-    transition-delay: 0s;
-  }
-  html.sheet-open .navsheet { transform: translateY(0); }
-  /* The scroll container is <html>; locking <body> alone will not hold it. */
-  html.sheet-open,
-  html.sheet-open body { overflow: hidden; }
-
-  .sheet-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    width: 100%;
-    min-height: 56px;
-    padding: 0 14px;
-    border: 0;
-    border-radius: 10px;
-    background: transparent;
-    color: inherit;
-    font-family: inherit;
-    font-size: 0.82rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    text-decoration: none;
-    text-align: left;
-    cursor: pointer;
-    transition: background-color 0.18s ease;
-  }
-  .sheet-row + .sheet-row,
-  .sheet-group + .sheet-row,
-  .sheet-row + .sheet-group,
-  .sheet-group + .sheet-group { border-top: 1px solid var(--sheet-line); }
-  .sheet-row:hover { background: var(--sheet-soft); }
-  .sheet-row:focus-visible {
-    outline: 2px solid var(--signal);
-    outline-offset: -2px;
-  }
-  .sheet-ind {
-    color: var(--sheet-dim);
-    font-size: 0.95rem;
-    line-height: 1;
-    transition: transform 0.3s cubic-bezier(.16, 1, .3, 1);
-  }
-  .sheet-disc[aria-expanded="true"] .sheet-ind { transform: rotate(45deg); }
-  /* 0fr -> 1fr animates to the content's real height, no magic numbers. */
-  .sheet-sub {
-    display: grid;
-    grid-template-rows: 0fr;
-    transition: grid-template-rows 0.34s cubic-bezier(.16, 1, .3, 1);
-  }
-  .sheet-disc[aria-expanded="true"] + .sheet-sub { grid-template-rows: 1fr; }
-  .sheet-sub-inner { overflow: hidden; }
-  .sheet-sub a {
-    display: flex;
-    align-items: center;
-    min-height: 46px;
-    padding: 0 14px 0 28px;
-    color: var(--sheet-dim);
-    font-size: 0.78rem;
-    letter-spacing: 0.04em;
-    text-decoration: none;
-    border-radius: 8px;
-  }
-  .sheet-sub a:hover { background: var(--sheet-soft); color: var(--sheet-fg); }
-  /* Not on the home page, where no dashboard is ever the current one. */
-  .sheet-sub a[aria-current="page"] {
-    color: var(--sheet-fg);
-    font-weight: 700;
-    box-shadow: inset 3px 0 0 var(--signal);
-  }
-  @media (min-width: 769px) {
-    /* Never leave the sheet stranded open on resize to desktop. */
-    .navsheet, .navscrim { display: none; }
-  }
-  @media print {
-    .navsheet, .navscrim { display: none !important; }
-  }
-
   .analytics-index {
     position: sticky;
     top: 0;
@@ -572,13 +201,6 @@
   }
 
   @media (max-width: 768px) {
-    .site-header-inner {
-      padding-top: 15px;
-      padding-bottom: 15px;
-      flex-wrap: wrap;
-    }
-    .menu-btn { display: grid; }
-    .nav { display: none; }
     .analytics-index-inner {
       gap: 22px;
       overflow-x: auto;
@@ -588,9 +210,6 @@
     .analytics-index-inner::-webkit-scrollbar { display: none; }
     .analytics-index-label { display: none; }
   }
-
-  .site-footer { text-align: center; padding: 24px var(--page-gutter); margin-top: 40px; border-top: 1px solid var(--border-primary); font-size: 0.82rem; color: var(--secondary-text); }
-  .site-footer a { color: inherit; }
 
   .container {
     max-width: 1480px;
@@ -756,11 +375,6 @@
   #res-table tbody tr.res-row td { border-bottom: none; }
   #res-table tbody tr.row-summary td { font-size: 0.74rem; color: var(--secondary-text); padding-top: 2px; padding-bottom: 11px; }
   #res-table tbody tr.row-summary b { color: var(--primary-text); }
-  /* collapsible technical detail inside an explainer */
-  .explain-more { margin-top: 8px; }
-  .explain-more > summary { cursor: pointer; font-weight: 600; font-size: 0.8rem; color: var(--secondary-text); }
-  .explain-more > summary:hover { color: var(--primary-text); }
-  .explain-more p { margin-top: 8px; }
 
   /* ---- Provenance grammar: measurements look factual, official thresholds look
      attributed, model outputs look visibly provisional, old data looks dated. ---- */
@@ -771,7 +385,6 @@
   }
   .prov-measured   { border: 1.5px solid #111;                 color: #111;     background: transparent; }
   .prov-official   { border: 1px solid #2c6a86;                color: #1f5a72;  background: rgba(58,134,168,0.10); }
-  .prov-estimate   { border: 1px dashed #9aa0a6;               color: #63696e;  background: transparent; font-style: italic; }
   .prov-historical { border: 1px solid rgba(150,110,80,0.6);   color: #7a5a3a;  background: rgba(150,110,80,0.10); }
 
   .layer-banner {
@@ -781,7 +394,6 @@
   }
   .layer-measured   { background: rgba(0,0,0,0.03); }
   .layer-official   { background: rgba(58,134,168,0.06); }
-  .layer-estimate   { background: rgba(154,160,166,0.12); }
   .layer-historical { background: rgba(150,110,80,0.07); }
 
   /* Dark-mode legibility: the provenance badges / layer banners above use hardcoded
@@ -789,33 +401,8 @@
      surface. Re-light them; these selectors outrank the plain .prov-* rules. */
   :root[data-theme="dark"] .prov-measured   { border-color: var(--primary-text); color: var(--primary-text); }
   :root[data-theme="dark"] .prov-official   { border-color: #4f93ad; color: #7fc4e0; }
-  :root[data-theme="dark"] .prov-estimate   { border-color: #6b7075; color: var(--secondary-text); }
   :root[data-theme="dark"] .prov-historical { border-color: rgba(190,150,110,0.6); color: #cba680; }
   :root[data-theme="dark"] .layer-measured  { background: rgba(255,255,255,0.04); }
-
-  /* "independent analysis" tag beside the logo */
-  .independent-tag {
-    font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
-    border: 1px solid #bbb; color: #666; border-radius: 4px; padding: 1px 6px;
-    margin-left: 10px; vertical-align: middle; white-space: nowrap;
-  }
-
-  /* "What this page shows" explainer, above the fold */
-  .page-explainer {
-    border: 2px solid var(--border-primary); border-radius: 10px;
-    padding: 18px 22px; margin-bottom: 22px; background: var(--accent-lighter);
-  }
-  .page-explainer .pe-title { font-weight: 700; font-size: 1.05rem; margin-bottom: 7px; }
-  .page-explainer p { font-size: 0.82rem; color: var(--secondary-text); margin-bottom: 9px; }
-  .page-explainer .pe-not { color: var(--primary-text); }
-  .page-explainer .pe-not b { border-bottom: 2px solid var(--warn); }
-  .ext-link-btn {
-    display: inline-flex; align-items: center; gap: 6px; margin-top: 2px;
-    padding: 8px 15px; border: 2px solid var(--border-primary); border-radius: 6px;
-    font-weight: 700; font-size: 0.78rem; text-decoration: none;
-    color: var(--primary-text); background: var(--primary-bg); transition: all 0.15s ease;
-  }
-  .ext-link-btn:hover { background: var(--primary-text); color: var(--primary-bg); }
 
   /* Band translation table */
   .band-table { width: 100%; border-collapse: collapse; font-size: 0.76rem; margin-top: 14px; }

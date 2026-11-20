@@ -22,7 +22,7 @@
         v_generation_metrics_history: { series: "generation/metrics_history", time: "observed_at" },
         v_generation_cost_history:    { series: "generation/cost_history", time: "observed_at" },
         v_reservoir_status:           { dataset: "reservoirs/status" },
-        v_reservoir_history:          { series: "reservoirs/history", time: "measured_at" },
+        v_reservoir_history:          { series: "reservoirs/history", compact: "reservoirs/history_compact", time: "measured_at" },
         v_grid_risk_tiers:            { dataset: "grid_risk/tiers" },
         v_grid_risk_meta:             { dataset: "grid_risk/meta" }
     };
@@ -45,16 +45,49 @@
         return manifestP;
     }
 
+    // A release's files never change, so each is downloaded and parsed once per release however
+    // many calls ask for it (the outages page asks for outages/live twice on load, and again on
+    // every refresh that lands inside the same release). Only the small files of the current
+    // release are kept; a new release empties the list.
+    var docs = {}, docsRelease = null;
     function dataset(name) {
         return manifest().then(function (m) {
             var e = m.datasets && m.datasets[name];
             if (!e) throw new Error("public-data: " + name + " is not published");
-            return getJSON(e.path);
+            if (!m.release) return getJSON(e.path);
+            if (m.release !== docsRelease) { docs = {}; docsRelease = m.release; }
+            var path = e.path;
+            if (!docs[path]) docs[path] = getJSON(path).catch(function (err) { delete docs[path]; throw err; });
+            return docs[path];
         });
     }
 
+    // A compact month file holds the same readings as that month's row file, as one pair of
+    // arrays per site instead of one object per reading: each time is a step of dt * unit_ms
+    // on from the one before, starting at t0. This turns it back into the rows the pages ask for.
+    // The rows come back in the row file's order (measured_at, then site_no), so a query without
+    // an explicit order (e.g. limit=1) gets the same row either way.
+    function expand(doc, rows) {
+        var unit = doc.unit_ms, sites = doc.sites || {}, out = [];
+        Object.keys(sites).forEach(function (site) {
+            var s = sites[site], t = s.t0;
+            for (var i = 0; i < s.dt.length; i++) {
+                t += s.dt[i];
+                out.push({ site_no: site, measured_at: new Date(t * unit).toISOString(), value: s.v[i] });
+            }
+        });
+        out.sort(function (a, b) {
+            return a.measured_at < b.measured_at ? -1 : a.measured_at > b.measured_at ? 1
+                 : a.site_no < b.site_no ? -1 : a.site_no > b.site_no ? 1 : 0;
+        });
+        for (var j = 0; j < out.length; j++) rows.push(out[j]);
+    }
+
     // Rows of a monthly series from `sinceMs` on (all months when null), oldest month first.
-    function series(name, sinceMs) {
+    // `compact` names the same series published in the compact shape. It is used when the
+    // manifest lists it, with the same row count, for every month asked for; otherwise the row
+    // files are used, so a page works the same before and after the publisher writes compact files.
+    function series(name, sinceMs, compact) {
         return manifest().then(function (m) {
             var months = (m.series && m.series[name]) || [];
             if (!months.length) throw new Error("public-data: " + name + " is not published");
@@ -62,10 +95,19 @@
                 var p = e.month.split("-");
                 return sinceMs == null || Date.UTC(+p[0], +p[1], 1) > sinceMs;   // month end > since
             });
+            var small = (compact && m.series[compact]) || [];
+            var swapped = wanted.map(function (e) {
+                for (var i = 0; i < small.length; i++) if (small[i].month === e.month && small[i].rows === e.rows) return small[i];
+                return null;
+            });
+            if (swapped.every(Boolean)) wanted = swapped;
             return Promise.all(wanted.map(function (e) { return getJSON(e.path); }));
         }).then(function (docs) {
             var rows = [];
-            docs.forEach(function (d) { for (var i = 0; i < d.rows.length; i++) rows.push(d.rows[i]); });
+            docs.forEach(function (d) {
+                if (d.sites) expand(d, rows);
+                else for (var i = 0; i < d.rows.length; i++) rows.push(d.rows[i]);
+            });
             return rows;
         });
     }
@@ -102,13 +144,15 @@
         // month files. The live file is published with an hour more than liveHours (25 h for
         // outages/live), so a few minutes of slack still lands inside what it holds.
         var LIVE_SLACK_MS = 5 * 60000;
+        // dataset() hands every caller the same parsed file, so each call gets its own array
+        function own(d) { return d.rows.slice(); }
         var rowsP;
-        if (src.dataset) rowsP = dataset(src.dataset).then(function (d) { return d.rows; });
+        if (src.dataset) rowsP = dataset(src.dataset).then(own);
         else if (src.live && since != null && since >= Date.now() - src.liveHours * 3600000 - LIVE_SLACK_MS)
-            rowsP = dataset(src.live).then(function (d) { return d.rows; });
+            rowsP = dataset(src.live).then(own);
         else if (src.live && since == null && q.get("limit") === "1" && /\.desc/.test(q.get("order") || ""))
-            rowsP = dataset(src.live).then(function (d) { return d.rows; });   // "the latest row"
-        else rowsP = series(src.series, since);
+            rowsP = dataset(src.live).then(own);   // "the latest row"
+        else rowsP = series(src.series, since, src.compact);
 
         return rowsP.then(function (rows) {
             if (filters.length) rows = rows.filter(function (r) {
