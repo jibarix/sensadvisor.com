@@ -25,10 +25,10 @@
 <meta property="og:type" content="website">
 <link rel="canonical" href="https://sensadvisor.com/generation/">
 <meta property="og:url" content="https://sensadvisor.com/generation/">
-<meta property="og:image" content="https://sensadvisor.com/assets/og.png">
+<meta property="og:image" content="https://sensadvisor.com/assets/og/generation.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Jorge A. Arroyo, Business Systems &amp; Analytics Architect, SENS ADVISOR">
+<meta property="og:image:alt" content="Puerto Rico Generation — SENS ADVISOR analytics card">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="PR Generation Status">
 <meta name="twitter:description" content="Grid-adequacy indicator for Puerto Rico — reserves, relevos-de-carga risk, hourly generation profile, and units online vs offline.">
@@ -54,7 +54,6 @@
     --chart-text: #333333;
     --chart-muted: #707070;
     --chart-grid: #dddddd;
-    --surface-muted: #f7f7f7;
   }
 
   /* ===== Dark theme (shared toggle; syncs via localStorage 'theme') ===== */
@@ -72,7 +71,6 @@
     --chart-text: #d7d9dc;
     --chart-muted: #9aa0a6;
     --chart-grid: #34373c;
-    --surface-muted: rgba(22, 23, 26, 0.9);
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -89,28 +87,12 @@
       --chart-text: #d7d9dc;
       --chart-muted: #9aa0a6;
       --chart-grid: #34373c;
-      --surface-muted: rgba(22, 23, 26, 0.9);
     }
   }
-  body, .site-header, .nav, .nav-dropdown-menu, .analytics-index, .panel { transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease; }
+  body, .analytics-index, .panel { transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease; }
   /* Charts carry baked-in light colors; float them on a light tile so they stay legible in dark mode. */
   :root[data-theme="dark"] canvas { background: #ffffff; }
   :root[data-theme="dark"] .panel img[src$=".png"] { background: #ffffff; }
-  /* Theme toggle button */
-  .theme-toggle {
-    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-    background: none; border: none; cursor: pointer; color: var(--primary-text);
-    padding: 6px; margin: 0; border-radius: 4px; transition: background 0.2s ease;
-  }
-  .theme-toggle:hover { background: var(--accent-light); }
-  .theme-toggle svg { width: 20px; height: 20px; display: block; }
-  .theme-toggle .ic-sun { display: none; }
-  :root[data-theme="dark"] .theme-toggle .ic-sun { display: block; }
-  :root[data-theme="dark"] .theme-toggle .ic-moon { display: none; }
-  .theme-toggle-label { display: none; }
-  .theme-toggle .lbl-light { display: none; }
-  :root[data-theme="dark"] .theme-toggle .lbl-light { display: inline; }
-  :root[data-theme="dark"] .theme-toggle .lbl-dark { display: none; }
 
   /* Scroll progress and quick return for a long analytical page. */
   .back-to-top {
@@ -181,353 +163,6 @@
     min-height: 100vh;
   }
 
-  /* ===== Shared site navigation - mirrors the sensadvisor.com home
-     menu (brand + top-level links + Analytics dropdown, collapsing to
-     a menu button + floating sheet on phones), plus a sticky per-page
-     section index. ===== */
-  .site-header {
-    position: relative;
-    z-index: 1100;
-    display: flex;
-    align-items: center;
-    height: var(--nav-h);
-    padding: 0 var(--page-gutter);
-    background: transparent;
-  }
-  .site-header-inner {
-    position: relative;
-    display: flex;
-    align-items: center;
-    /* Three slots, so space-between is what centres the link row. An auto
-       margin on .nav would collapse it against the actions instead. */
-    justify-content: space-between;
-    gap: clamp(16px, 3vw, 40px);
-    width: 100%;
-    max-width: 1480px;
-    margin: 0 auto;
-    padding: 0;
-  }
-  .logo {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    color: var(--primary-text);
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-decoration: none;
-    white-space: nowrap;
-  }
-  .nav { display: flex; align-items: center; gap: clamp(16px, 2vw, 30px); }
-  .nav a,
-  .nav-dropdown-trigger {
-    color: var(--primary-text);
-    font-size: 0.78rem;
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    text-decoration: none;
-    text-transform: uppercase;
-    padding: 8px 0;
-    border-bottom: 2px solid transparent;
-    transition: border-color 0.2s ease;
-    cursor: pointer;
-    user-select: none;
-    white-space: nowrap;
-  }
-  /* 85% of the ink, which is what the home bar's rgba(255,255,255,.85) comes
-     to once the blend has resolved it - not --border-primary, which is a hard
-     #000 here because it draws the 2px brutalist panel rules. */
-  .nav a:hover,
-  .nav-dropdown-trigger:hover,
-  .nav-dropdown-trigger[aria-expanded="true"] {
-    border-bottom-color: var(--nav-rule);
-  }
-  /* A real <button> now that JS drives it. Reset only the UA chrome: the type
-     comes from the shared rule above, so `font: inherit` here would desync its
-     size from the sibling links. */
-  .nav-dropdown-trigger {
-    background: none;
-    border: 0;
-    border-bottom: 2px solid transparent;
-    font-family: inherit;
-    line-height: inherit;
-  }
-  .nav-dropdown { position: relative; }
-  /* Same skin as the home panel: hairline rule, 12px radius, the sheet
-     surface, one deep soft shadow. It was a 2px hard-black box on a 4px
-     radius, which is the dashboards' data-panel treatment, not the menu's.
-     It can stay a child of its trigger here; on the home page it has to be a
-     fixed sibling of the bar, because an opaque panel inside a blended bar
-     paints |page - panel| and the page ghosts straight through it. */
-  .nav-dropdown-menu {
-    position: absolute;
-    top: calc(100% + 8px);
-    left: 0;
-    z-index: 1000;
-    min-width: 240px;
-    border: 1px solid var(--sheet-line);
-    border-radius: 12px;
-    background: var(--sheet-bg);
-    box-shadow: 0 18px 40px var(--sheet-shadow);
-    overflow: hidden;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-6px);
-    /* visibility/opacity rather than display:none - display cannot animate. */
-    transition: opacity 0.18s ease, transform 0.18s ease,
-                visibility 0s linear 0.18s;
-  }
-  .nav-dropdown.open .nav-dropdown-menu {
-    opacity: 1;
-    visibility: visible;
-    transform: none;
-    transition: opacity 0.18s ease, transform 0.18s ease;
-  }
-  .nav-dropdown-menu a {
-    display: block;
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--sheet-line);
-    color: var(--sheet-fg);
-    font-size: 0.82rem;
-    text-decoration: none;
-    transition: background 0.2s ease;
-  }
-  .nav-dropdown-menu a:last-child { border-bottom: none; }
-  .nav-dropdown-menu a:hover { background: var(--sheet-soft); }
-  /* No equivalent on the home page, where no dashboard is ever the current
-     one. Same marker the sheet's sub-list uses. */
-  .nav-dropdown-menu a[aria-current="page"] {
-    color: var(--sheet-fg);
-    font-weight: 700;
-    box-shadow: inset 3px 0 0 var(--signal);
-  }
-  /* Menu button + floating sheet. Replaces the old inline drawer, which
-     pushed the page down as it opened. The sheet is a fixed overlay so the
-     page stays put; the bar is not fixed, so JS parks the sheet under it.
-
-     Geometry, timings, structure AND palette are copied from the home page's
-     sheet, so the opened panel is the same object on both.
-
-     The bar chrome carries its own surface tokens rather than borrowing the
-     page's. The page tokens look like the right roles but are not:
-     --border-primary is #000 here (it draws the 2px brutalist panel rules), so
-     reusing it would rule the sheet in hard black where the home sheet uses a
-     13% hairline; --secondary-text is #333 against a 55%-alpha grey. Same
-     declarations, very different weight. */
-  :root {
-    --nav-h: 64px;
-    --nav-rule: rgba(19, 19, 21, 0.85);
-    --nav-wash: rgba(19, 19, 21, 0.14);
-    --sheet-gap: 6px;
-    --sheet-radius: 16px;
-    --sheet-bg: #f3f1ec;
-    --sheet-fg: #131315;
-    --sheet-line: rgba(19, 19, 21, 0.13);
-    --sheet-dim: rgba(19, 19, 21, 0.55);
-    --sheet-soft: rgba(19, 19, 21, 0.06);
-    --sheet-scrim: rgba(19, 19, 21, 0.34);
-    --sheet-shadow: rgba(0, 0, 0, 0.45);
-  }
-  :root[data-theme="dark"] {
-    --nav-rule: rgba(237, 237, 237, 0.85);
-    --nav-wash: rgba(255, 255, 255, 0.14);
-    --sheet-bg: #17181b;
-    --sheet-fg: #ededed;
-    --sheet-line: rgba(255, 255, 255, 0.13);
-    --sheet-dim: rgba(237, 237, 237, 0.55);
-    --sheet-soft: rgba(255, 255, 255, 0.05);
-    --sheet-scrim: rgba(0, 0, 0, 0.5);
-    --sheet-shadow: rgba(0, 0, 0, 0.5);
-  }
-  /* The head script always stamps data-theme, so this is only the no-JS net -
-     but every other token here is declared all three ways, so these are too. */
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --nav-rule: rgba(237, 237, 237, 0.85);
-      --nav-wash: rgba(255, 255, 255, 0.14);
-      --sheet-bg: #17181b;
-      --sheet-fg: #ededed;
-      --sheet-line: rgba(255, 255, 255, 0.13);
-      --sheet-dim: rgba(237, 237, 237, 0.55);
-      --sheet-soft: rgba(255, 255, 255, 0.05);
-      --sheet-scrim: rgba(0, 0, 0, 0.5);
-      --sheet-shadow: rgba(0, 0, 0, 0.5);
-    }
-  }
-
-  /* Action cluster: equal bounded slots, like a set of instrument keys. The
-     page's own .theme-toggle is a 6px pad on a 4px radius; inside the bar it
-     becomes a 40px key, the same one the home page uses. Scoped to
-     .site-header so any other toggle on the page keeps its own shape. */
-  .nav-actions {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    flex-shrink: 0;
-  }
-  .site-header .theme-toggle,
-  .menu-btn {
-    display: grid;
-    place-items: center;
-    width: 40px;
-    height: 40px;
-    padding: 0;
-    margin: 0;
-    border: 0;
-    border-radius: 10px;
-    background: transparent;
-    color: var(--primary-text);
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-  }
-  .site-header .theme-toggle:hover,
-  .menu-btn:hover { background: var(--nav-wash); }
-  .site-header .theme-toggle:focus-visible,
-  .menu-btn:focus-visible {
-    outline: 2px solid var(--signal);
-    outline-offset: 2px;
-  }
-  .site-header .theme-toggle svg { width: 18px; height: 18px; }
-  .site-header .theme-toggle-label { display: none; }
-  .menu-btn { display: none; }
-  .menu-icon { display: grid; gap: 5px; width: 18px; }
-  .menu-icon span {
-    display: block;
-    width: 100%;
-    height: 1.5px;
-    background: currentColor;
-    border-radius: 2px;
-    transition: transform 0.34s cubic-bezier(.16, 1, .3, 1),
-                opacity 0.2s ease;
-  }
-  .menu-btn[aria-expanded="true"] .menu-icon span:nth-child(1) {
-    transform: translateY(3.25px) rotate(45deg);
-  }
-  .menu-btn[aria-expanded="true"] .menu-icon span:nth-child(2) {
-    transform: translateY(-3.25px) rotate(-45deg);
-  }
-
-  /* Both sit below .site-header (z-index 1100), so the bar stays lit and the
-     button stays clickable to close. */
-  .navscrim {
-    position: fixed;
-    inset: 0;
-    z-index: 1090;
-    background: var(--sheet-scrim);
-    -webkit-backdrop-filter: blur(4px);
-    backdrop-filter: blur(4px);
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.32s ease, visibility 0s linear 0.32s;
-  }
-  .navsheet {
-    position: fixed;
-    /* The home bar is fixed so it can key off --nav-h; this one scrolls, so
-       JS writes --sheet-top from the bar's live position instead. */
-    top: var(--sheet-top, 64px);
-    left: var(--sheet-gap);
-    z-index: 1095;
-    width: calc(100% - (var(--sheet-gap) * 2));
-    /* svh, not vh: mobile browser chrome would otherwise clip the sheet. */
-    max-height: calc(100svh - var(--sheet-top, 64px) - var(--sheet-gap));
-    padding: 8px;
-    border-radius: var(--sheet-radius);
-    background: var(--sheet-bg);
-    color: var(--sheet-fg);
-    box-shadow: 0 24px 60px var(--sheet-shadow);
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-10px);
-    /* visibility/opacity rather than display:none - display can't animate. */
-    transition: opacity 0.32s cubic-bezier(.16, 1, .3, 1),
-                transform 0.32s cubic-bezier(.16, 1, .3, 1),
-                visibility 0s linear 0.32s;
-  }
-  html.sheet-open .navscrim,
-  html.sheet-open .navsheet {
-    opacity: 1;
-    visibility: visible;
-    transition-delay: 0s;
-  }
-  html.sheet-open .navsheet { transform: translateY(0); }
-  /* The scroll container is <html>; locking <body> alone will not hold it. */
-  html.sheet-open,
-  html.sheet-open body { overflow: hidden; }
-
-  .sheet-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    width: 100%;
-    min-height: 56px;
-    padding: 0 14px;
-    border: 0;
-    border-radius: 10px;
-    background: transparent;
-    color: inherit;
-    font-family: inherit;
-    font-size: 0.82rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    text-decoration: none;
-    text-align: left;
-    cursor: pointer;
-    transition: background-color 0.18s ease;
-  }
-  .sheet-row + .sheet-row,
-  .sheet-group + .sheet-row,
-  .sheet-row + .sheet-group,
-  .sheet-group + .sheet-group { border-top: 1px solid var(--sheet-line); }
-  .sheet-row:hover { background: var(--sheet-soft); }
-  .sheet-row:focus-visible {
-    outline: 2px solid var(--signal);
-    outline-offset: -2px;
-  }
-  .sheet-ind {
-    color: var(--sheet-dim);
-    font-size: 0.95rem;
-    line-height: 1;
-    transition: transform 0.3s cubic-bezier(.16, 1, .3, 1);
-  }
-  .sheet-disc[aria-expanded="true"] .sheet-ind { transform: rotate(45deg); }
-  /* 0fr -> 1fr animates to the content's real height, no magic numbers. */
-  .sheet-sub {
-    display: grid;
-    grid-template-rows: 0fr;
-    transition: grid-template-rows 0.34s cubic-bezier(.16, 1, .3, 1);
-  }
-  .sheet-disc[aria-expanded="true"] + .sheet-sub { grid-template-rows: 1fr; }
-  .sheet-sub-inner { overflow: hidden; }
-  .sheet-sub a {
-    display: flex;
-    align-items: center;
-    min-height: 46px;
-    padding: 0 14px 0 28px;
-    color: var(--sheet-dim);
-    font-size: 0.78rem;
-    letter-spacing: 0.04em;
-    text-decoration: none;
-    border-radius: 8px;
-  }
-  .sheet-sub a:hover { background: var(--sheet-soft); color: var(--sheet-fg); }
-  /* Not on the home page, where no dashboard is ever the current one. */
-  .sheet-sub a[aria-current="page"] {
-    color: var(--sheet-fg);
-    font-weight: 700;
-    box-shadow: inset 3px 0 0 var(--signal);
-  }
-  @media (min-width: 769px) {
-    /* Never leave the sheet stranded open on resize to desktop. */
-    .navsheet, .navscrim { display: none; }
-  }
-  @media print {
-    .navsheet, .navscrim { display: none !important; }
-  }
-
   .analytics-index {
     position: sticky;
     top: 0;
@@ -572,13 +207,6 @@
   }
 
   @media (max-width: 768px) {
-    .site-header-inner {
-      padding-top: 15px;
-      padding-bottom: 15px;
-      flex-wrap: wrap;
-    }
-    .menu-btn { display: grid; }
-    .nav { display: none; }
     .analytics-index-inner {
       gap: 22px;
       overflow-x: auto;
@@ -588,9 +216,6 @@
     .analytics-index-inner::-webkit-scrollbar { display: none; }
     .analytics-index-label { display: none; }
   }
-
-  .site-footer { text-align: center; padding: 24px var(--page-gutter); margin-top: 40px; border-top: 1px solid var(--border-primary); font-size: 0.82rem; color: var(--secondary-text); }
-  .site-footer a { color: inherit; }
 
   .container {
     max-width: 1480px;
@@ -670,6 +295,7 @@
   tr:hover { background: var(--accent-lighter); }
   th.sortable { cursor: pointer; user-select: none; }
   th.sortable:hover { color: var(--primary-text); }
+  th.sortable:focus-visible { outline: 2px solid var(--primary-text); outline-offset: -2px; color: var(--primary-text); }
   th.sortable::after { content: " \2195"; opacity: 0.3; }
   th.sortable.asc::after { content: " \2191"; opacity: 1; }
   th.sortable.desc::after { content: " \2193"; opacity: 1; }
@@ -681,6 +307,12 @@
   .badge-offline { background: rgba(180,180,180,0.18); color: #666; border: 1px solid rgba(160,160,160,0.5); }
   .badge-critical { background: rgba(250,167,42,0.18); color: #8a5a00; border: 1px solid rgba(250,167,42,0.6); margin-left: 5px; }
   .badge-critical-off { background: rgba(224,67,67,0.15); color: #b32020; border: 1px solid rgba(224,67,67,0.6); margin-left: 5px; }
+  /* The badge text colors above are dark shades picked for a white page; on the dark theme they
+     sit on a near-black tint, so each gets a light counterpart. */
+  :root[data-theme="dark"] .badge-online { color: #9bd14b; }
+  :root[data-theme="dark"] .badge-offline { color: #b0b4ba; }
+  :root[data-theme="dark"] .badge-critical { color: #f2c14e; }
+  :root[data-theme="dark"] .badge-critical-off { color: #ff8a8a; }
   tr.row-crit-off td { background: rgba(224,67,67,0.06); }
   tr.row-crit-off:hover td { background: rgba(224,67,67,0.11); }
   .units-summary .us-crit { color: var(--crit); font-weight: 700; }
@@ -1036,7 +668,6 @@
   .sb-win-txt { font-size: 0.82rem; color: var(--primary-text); }
   .sb-foot { margin-top: 14px; font-size: 0.68rem; line-height: 1.55; color: var(--secondary-text); }
   .sb-foot b { color: var(--primary-text); font-weight: 700; }
-  .sb-base { font-variant-numeric: tabular-nums; }
 </style>
 <!-- Microsoft Clarity Analytics -->
 <script type="text/javascript">
@@ -1101,14 +732,14 @@
     <p class="page-sub">A live view of supply adequacy, operating reserves, available capacity, generation mix, and unit availability.</p>
     <div class="monitor-meta">
       <span><strong>Monitor</strong><br>Live operational feed</span>
-      <span><strong>Refresh</strong><br>Approximately 15 minutes</span>
+      <span><strong>Refresh</strong><br>Approximately 10 minutes</span>
       <span><strong>Source</strong><br>Genera PR / PREPA</span>
     </div>
   </header>
 
   <span class="nav-anchor" id="now"></span>
   <div class="signal-readout">
-    <div class="status-hero" id="status-hero">
+    <div class="status-hero" id="status-hero" aria-live="polite">
       <div class="status-dot" id="status-dot"></div>
       <div class="status-label" id="status-label">Connecting&hellip;</div>
       <div class="status-reason" id="status-reason"></div>
@@ -1128,7 +759,7 @@
     <div class="explain"><p id="outlook-note" style="margin-bottom:14px"></p></div>
     <div class="oc-estimate">Sensadvisor model · not an official forecast</div>
     <div class="outlook-cards" id="outlook-cards"></div>
-    <div class="chart-container" style="height:300px;margin-top:22px"><canvas id="chart-outlook"></canvas></div>
+    <div class="chart-container" style="height:300px;margin-top:22px"><canvas id="chart-outlook" role="img" aria-label="Line chart of recent actual demand and the Sensadvisor 7-day demand projection in megawatts, with apparent temperature for context. Daily peaks are listed in the cards above."></canvas></div>
   </div>
 
   <span class="nav-anchor" id="accuracy"></span>
@@ -1147,11 +778,11 @@
     <h2>Hourly profile
       <span class="panel-note">
         Today vs. typical<br>
-        <button class="toggle-btn active" data-hmode="gen">Generation</button><button class="toggle-btn" data-hmode="reserve">Reserve</button>
+        <button class="toggle-btn active" data-hmode="gen" aria-pressed="true">Generation</button><button class="toggle-btn" data-hmode="reserve" aria-pressed="false">Reserve</button>
       </span>
     </h2>
     <div class="explain"><p id="hourly-note" style="margin-bottom:12px"></p></div>
-    <div class="chart-container"><canvas id="chart-hourly"></canvas></div>
+    <div class="chart-container"><canvas id="chart-hourly" role="img" aria-label="Line chart by hour of day in Atlantic Standard Time: today's generation or operating reserve against the typical range and median from recent days."></canvas></div>
   </div>
 
   <span class="nav-anchor" id="mix"></span>
@@ -1172,38 +803,38 @@
   <span class="nav-anchor" id="history"></span>
   <div class="panel">
     <h2>Generation, Capacity &amp; Reserve <span class="panel-note">MW over time</span></h2>
-    <div class="controls">
-      <button data-days="1" class="active">24h</button>
-      <button data-days="7">7d</button>
-      <button data-days="30">30d</button>
-      <button data-days="90">90d</button>
+    <div class="controls" role="group" aria-label="Time range">
+      <button data-days="1" class="active" aria-pressed="true">24h</button>
+      <button data-days="7" aria-pressed="false">7d</button>
+      <button data-days="30" aria-pressed="false">30d</button>
+      <button data-days="90" aria-pressed="false">90d</button>
     </div>
-    <div class="chart-container"><canvas id="chart-history"></canvas></div>
+    <div class="chart-container"><canvas id="chart-history" role="img" aria-label="Line chart of total generation, available capacity and operating reserve in megawatts over the selected time range."></canvas></div>
   </div>
 
   <span class="nav-anchor" id="cost"></span>
   <div class="panel" id="cost-panel" style="display:none">
     <h2>Blended Energy Cost <span class="panel-note">MW-weighted $/MWh over time</span></h2>
     <div class="explain"><p id="cost-note" style="margin-bottom:12px"></p></div>
-    <div class="controls">
-      <button data-costdays="1" class="active">24h</button>
-      <button data-costdays="7">7d</button>
-      <button data-costdays="30">30d</button>
-      <button data-costdays="90">90d</button>
+    <div class="controls" role="group" aria-label="Time range">
+      <button data-costdays="1" class="active" aria-pressed="true">24h</button>
+      <button data-costdays="7" aria-pressed="false">7d</button>
+      <button data-costdays="30" aria-pressed="false">30d</button>
+      <button data-costdays="90" aria-pressed="false">90d</button>
     </div>
-    <div class="chart-container"><canvas id="chart-cost"></canvas></div>
+    <div class="chart-container"><canvas id="chart-cost" role="img" aria-label="Line chart of the blended, megawatt-weighted energy cost in dollars per megawatt-hour over the selected time range."></canvas></div>
   </div>
 
   <span class="nav-anchor" id="plants"></span>
   <div class="panel">
     <h2>Units Online vs. Offline
       <span class="panel-note">
-        <button class="toggle-btn active" data-status="">All</button><button class="toggle-btn" data-status="online">Online</button><button class="toggle-btn" data-status="offline">Offline</button><button class="toggle-btn" data-status="critical">Critical</button>
+        <button class="toggle-btn active" data-status="" aria-pressed="true">All</button><button class="toggle-btn" data-status="online" aria-pressed="false">Online</button><button class="toggle-btn" data-status="offline" aria-pressed="false">Offline</button><button class="toggle-btn" data-status="critical" aria-pressed="false">Critical</button>
       </span>
     </h2>
     <div class="units-summary" id="units-summary"></div>
     <div class="panel-note" style="margin-bottom:14px">
-      <select id="type-filter" style="font-family:inherit;font-size:0.8rem;padding:2px 6px;border:2px solid var(--border-primary);border-radius:4px;background:var(--primary-bg);color:var(--primary-text)">
+      <select id="type-filter" aria-label="Filter units by plant type" style="font-family:inherit;font-size:0.8rem;padding:2px 6px;border:2px solid var(--border-primary);border-radius:4px;background:var(--primary-bg);color:var(--primary-text)">
         <option value="">All types</option>
       </select>
     </div>
@@ -1230,15 +861,15 @@
   <span class="nav-anchor" id="methodology"></span>
   <div class="panel explain">
     <h2>Methodology</h2>
-    <p><b>Source</b> — PREPA's operational generation feed (operated by Genera PR), the data behind <a href="https://genera-pr.com/data-generacion">genera-pr.com/data-generacion</a>. A snapshot is captured about every 15 minutes and stored. "Now" figures read the most recent snapshot; history and hourly baselines read the stored snapshots.</p>
-    <p><b>Grid adequacy indicator</b> — A supply-adequacy indicator computed from the feed, <i>not</i> an official PREPA/Genera declaration. It combines two tests: (1) <b>Forecast balance</b> — the feed's next-hour demand forecast vs. available capacity; a projected shortfall means load-shedding (<b>relevos de carga</b>) may be needed. (2) <b>N-1 reserve</b> — whether operating reserve covers the single largest online unit (the N-1 reserve benchmark). This is a reserve comparison, not a full contingency simulation. <b>Critical</b> = projected shortfall or near-zero reserve; <b>Tight</b> = reserve below the largest online unit; <b>Adequate</b> = reserve covers it.</p>
+    <p><b>Source</b> — PREPA's operational generation feed (operated by Genera PR), the data behind <a href="https://genera-pr.com/data-generacion">genera-pr.com/data-generacion</a>. A snapshot is captured about every 10 minutes and stored, and this page reloads its figures on the same cadence. "Now" figures read the most recent snapshot; history and hourly baselines read the stored snapshots.</p>
+    <p><b>Grid adequacy indicator</b> — A supply-adequacy indicator computed from the feed, <i>not</i> an official PREPA/Genera declaration. It combines two tests: (1) <b>Forecast balance</b> — the feed's next-hour demand forecast vs. available capacity; a projected shortfall means load-shedding (<b>relevos de carga</b>) may be needed. (2) <b>N-1 reserve</b> — whether operating reserve covers the single largest online unit (the N-1 reserve benchmark). This is a reserve comparison, not a full contingency simulation. <b>Critical</b> = projected shortfall or near-zero operating reserve (under 50 MW); <b>Tight</b> = operating reserve, <i>or</i> next-hour forecast headroom (available capacity minus the next-hour forecast), below the largest online unit; <b>Adequate</b> = both cover it. If the latest reading is more than an hour old or the core figures are missing, no level is shown.</p>
     <p><b>7-day outlook</b> — Sensadvisor's own projection of grid-supplied demand, since the feed itself forecasts only the next hour. A statistical model learns the typical daily <b>load shape</b> — a Fourier fit over hour-of-day plus a weekday/weekend term — from roughly the last few weeks of stored snapshots, and projects that shape forward to give a demand curve, a daily peak (the highest projected hour, which falls in the evening after rooftop solar fades), and projected daily energy. <b>Weather is shown as context, not yet as a model input.</b> The measured series is <i>net</i> of behind-the-meter rooftop solar, so over this short window apparent temperature correlates with solar output rather than clean demand and fits with the "wrong" (negative) sign; a calibrated weather sensitivity is being developed from the long monthly history and an explicit rooftop-solar adjustment before it drives the numbers. The apparent-temperature line and each day's high are therefore contextual. This is a model estimate, not an official forecast, and it sharpens as more history accumulates.</p>
-    <p><b>Hourly generation profile</b> — For each hour of the day (AST), the shaded band is the 10th–90th percentile of generation across stored days and the solid line is the median; today's actual is overlaid. This shows whether the system is running above or below its usual level for the time of day, and — in the <b>Reserve</b> view — <i>when</i> reserves are typically thinnest (usually the evening peak, as solar fades and demand rises). The baseline currently spans roughly two weeks of data and sharpens as more accumulate; today is excluded from the "typical" band.</p>
+    <p><b>Hourly generation profile</b> — For each hour of the day (AST), the shaded band is the 10th–90th percentile of generation across stored days and the solid line is the median; today's actual is overlaid. This shows whether the system is running above or below its usual level for the time of day, and — in the <b>Reserve</b> view — <i>when</i> reserves are typically thinnest (usually the evening peak, as solar fades and demand rises). The baseline is a rolling window of the most recent 45 days of stored snapshots (the note above the chart states how many days it actually holds); today is excluded from the "typical" band.</p>
     <p><b>Reserves</b> — <b>Spinning reserve</b> is synchronized capacity ready immediately; <b>operating reserve</b> is total reserve available. Both are the cushion between what is generating and what could be called on.</p>
     <p><b>Units online vs. offline</b> — The feed lists every generating unit each snapshot with its output. A unit is counted <b>online</b> when it is producing at least 1 MW and <b>offline</b> otherwise (idle, down, or — for solar — simply nighttime). The feed reports output, not the <i>reason</i> a unit is at zero, so "offline" does not distinguish a planned outage from a forced one from normal diurnal cycling.</p>
-    <p><b>◆ Critical units</b> — Units that historically carry meaningful, dispatchable load — so their being offline is a real loss of dispatchable output, not a normal daily cycle. A unit is flagged Critical when, across the stored history, it is non-renewable, averages at least 20 MW when running, and runs at least half the time. Intermittent solar and wind are deliberately excluded (a zero at night is expected, not a loss). When a Critical unit is currently offline, its row is highlighted and the summary tallies the typical MW absent. The <i>set</i> of Critical units is curated by hand, but each one's "usually ~N MW" — its average output when running — updates automatically from the stored per-unit history, so the typical figures stay current as units change.</p>
+    <p><b>◆ Critical units</b> — Units that carry meaningful, dispatchable load — so their being offline is a real loss of dispatchable output, not a normal daily cycle. Intermittent solar and wind are deliberately excluded (a zero at night is expected, not a loss), as are the other renewable and hydroelectric units; the feed marks these by plant type (<i>Renovable</i>, <i>Hidroelectricas</i>). When a Critical unit is currently offline, its row is highlighted and the summary tallies the typical MW absent. <span id="crit-method-live">A unit is flagged Critical when, in <b>any 30-day block of the last 90 days</b> (days 0–30, 30–60 or 60–90 back), it averaged at least 20&nbsp;MW while running and was running in at least half of the stored snapshots. The list is worked out again every time the data is published (about every 10 minutes), so it follows the fleet: a newly commissioned unit joins once it meets the rule in the latest block, and a unit on a long outage stays on the list — and in the "critical units offline" tally — for up to 90 days before it drops off.</span><span id="crit-method-fallback" hidden><b>The 30-day figures this list is normally worked out from could not be loaded, so the page is showing a fixed list as of July&nbsp;19,&nbsp;2026</b>: units that were non-renewable, averaged at least 20&nbsp;MW when running, and ran at least half the time over the 13 days of stored snapshots ending on that date. A unit whose role has changed since then (retired, newly commissioned, or now running much more or less often) can be flagged or left out wrongly.</span></p>
     <p><b>Plant &amp; unit dispatch</b> — Per unit: <b>MW now</b> (real power), <b>MVar</b> (reactive power; can be negative when a unit absorbs reactive power), and <b>Cost</b> ($/MWh). Where a running unit reports no price, the cost is shown in grey italics with a <b>~</b> prefix — imputed from the MW-weighted average of priced running units of the same plant type (the same method as the blended cost below). A unit whose type has no priced peer shows a dash.</p>
-    <p><b>Typical MW &amp; last online</b> — For each Critical unit the table shows its <b>Typical MW</b> (average output when running) beside its live output, and <b>Last online</b> — how long since it last produced at least 1 MW. A unit that is down then reads as a concrete loss against what it normally contributes, and the summary compares the typical output online now against the total the Critical fleet provides when fully in service. (Both Typical MW and Last online are read from a stored per-unit view that refreshes each snapshot; if it is unavailable, Typical MW falls back to a baked baseline and Last online shows a dash.)</p>
+    <p><b>Typical MW &amp; last online</b> — For each Critical unit the table shows its <b>Typical MW</b> beside its live output, and <b>Last online</b> — how long since it last produced at least 1 MW. A unit that is down then reads as a concrete loss against what it normally contributes, and the summary compares the typical output online now against the total the Critical fleet provides when fully in service. <span id="typical-method-live">Typical MW is the unit's average output while running in the most recent 30-day block it ran in, from the same stored per-unit figures as the Critical rule.</span><span id="typical-method-fallback" hidden>With the 30-day figures unavailable, Typical MW is the unit's average output while running over all stored history, or its July&nbsp;19,&nbsp;2026 figure if no per-unit history could be read at all, in which case Last online shows a dash.</span></p>
     <p><b>Blended energy cost</b> — The MW-weighted average price of everything generating at each snapshot: each unit's $/MWh weighted by its megawatts. A running unit that reports no price is imputed at the MW-weighted average price of other running units of the same plant type — so an unpriced gas turbine is valued like the gas turbines that do report a price, rather than being dropped and understating the figure. The small amount of fuel-free generation with no priced peer of its type is excluded. It rises when cheaper baseload is offline and pricier peaking units backfill, so it tracks the cost consequence of the same outages the units table shows.</p>
     <p><b>Times</b> shown in Atlantic Standard Time (AST, UTC−4).</p>
   </div>
@@ -1293,15 +924,51 @@
     + `&hourly=apparent_temperature&temperature_unit=fahrenheit`
     + `&past_days=3&forecast_days=8&timezone=America%2FPuerto_Rico`;
 
-  // "Critical" dispatchable units — ones that historically carry meaningful load,
-  // so their being offline is a real loss of dispatchable output (unlike solar/wind at
-  // night). Derived from 1,774 stored snapshots (~13 days, ending 2026-07-19):
-  // non-renewable, averaging >= 20 MW when online and online >= 50% of the time.
-  // Keyed "plant_type|plant|unit"; region = where it sits on the grid. baselineMw
-  // (avg output when running) is a FALLBACK — at runtime each unit's Typical MW is
-  // refreshed live from v_generation_unit_stats.avg_online_mw, so these numbers only
-  // apply if that view is unavailable. The set/regions are still curated by hand.
-  const CRITICAL_UNITS = {
+  // "Critical" dispatchable units — ones that carry meaningful load, so their being
+  // offline is a real loss of dispatchable output (unlike solar/wind at night).
+  //
+  // The set is derived on every load from the published generation/unit_stats file, which
+  // carries each unit's figures for the last three 30-day blocks (days 0-30, 30-60 and
+  // 60-90 back; recomputed by the database every 10 minutes and republished with the rest
+  // of the data). A unit is Critical when it is not renewable (see RENEWABLE_TYPES) and,
+  // in at least one of those blocks (CRITICAL_BLOCKS),
+  //   - average MW while running   >= CRITICAL_RULE.minAvgMw, and
+  //   - share of snapshots >= 1 MW >= CRITICAL_RULE.minOnlinePct.
+  // Looking back 90 days keeps a unit on a long outage on the list (and in the offline
+  // tally) instead of dropping it after ~15 days, and stops units near 50% online from
+  // flipping on and off. A unit leaves the set once it has missed the rule for 90 days.
+  const CRITICAL_RULE = { minAvgMw: 20, minOnlinePct: 50 };
+  // [online %, average MW while running] per block, most recent first
+  const CRITICAL_BLOCKS = [
+    ["online_pct_30d", "avg_online_mw_30d"],
+    ["online_pct_30_60d", "avg_online_mw_30_60d"],
+    ["online_pct_60_90d", "avg_online_mw_60_90d"],
+  ];
+  // How the feed marks renewables: by the site's plant type, the only classification a
+  // unit row carries (the fuel mix is reported system-wide, not per unit). "Renovable"
+  // holds the solar, wind and landfill-gas sites; "Hidroelectricas" the hydro plants. The
+  // other types (Vapor, Ciclo Combinado, COGEN, Turbina de Gas) are thermal. An unknown
+  // new type counts as dispatchable, so a new thermal plant is not silently left out.
+  const RENEWABLE_TYPES = new Set(["Renovable", "Hidroelectricas"]);
+  // Where a plant sits on the grid, for the badge tooltip only. "Estaciones GT" is a
+  // group of peaking turbines spread around the island, so those are placed per unit.
+  // A plant or unit missing here gets no region in the tooltip rather than a guess.
+  const PLANT_REGION = {
+    "Costa Sur": "South", "Aguirre": "South", "Aguirre Stag 1": "South", "Aguirre Stag 2": "South",
+    "AES": "South", "Ecoelectrica": "South",
+    "Palo Seco": "North", "San Juan": "North", "Cambalache": "North",
+  };
+  const UNIT_REGION = {
+    "Estaciones GT|FEMA GT SJ": "North", "Estaciones GT|Palo Seco": "North", "Estaciones GT|FEMA GT PS": "North",
+  };
+  const regionOf = (r) => UNIT_REGION[`${r.plant}|${r.unit}`] || PLANT_REGION[r.plant] || "";
+  // FALLBACK ONLY. Used when unit_stats could not be read or is an older file without the
+  // 30-day fields. This is the list the rule gave when applied once to the 1,774 stored
+  // snapshots (~13 days) ending 2026-07-19; it is stale, and the page says "as of July 19,
+  // 2026" whenever it is in use (see applyCritical). Keyed "plant_type|plant|unit".
+  // baselineMw is the average output when running as of that date; if unit_stats is
+  // readable it is replaced by the all-history avg_online_mw.
+  const CRITICAL_UNITS_FALLBACK = {
     "Vapor|Costa Sur|Unit 5":                  { baselineMw: 292, region: "South" },
     "Vapor|Costa Sur|Unit 6":                  { baselineMw: 273, region: "South" },
     "Vapor|Aguirre|Unit 2":                    { baselineMw: 248, region: "South" },
@@ -1431,6 +1098,30 @@
     return lo === hi ? sorted[lo] : sorted[lo] + (sorted[hi] - sorted[lo]) * (idx - lo);
   }
 
+  // Time-axis tick labels in AST, matching the tooltips and the day dividers. Chart.js
+  // formats ticks in the viewer's own zone by default, which put a different clock on the
+  // axis than in the tooltip for anyone outside Puerto Rico. The label detail follows the
+  // tick spacing; a date tick that does not fall on an AST midnight (ticks are placed on
+  // the viewer's local boundaries) also carries its AST hour so it is never ambiguous.
+  // Same function as on the Outages page (site/index.html).
+  function astTickLabel(value, index, ticks) {
+    const t = ticks[index] && ticks[index].value;
+    if (!Number.isFinite(t)) return value;
+    const DAY = 86400000, AST_MIDNIGHT_UTC = 4 * 3600000;
+    const step = ticks.length > 1 ? Math.abs(ticks[1].value - ticks[0].value) : 0;
+    const d = new Date(t);
+    if (step < DAY) {
+      return d.toLocaleTimeString("en-US", { timeZone: AST_TZ, hour: "numeric", minute: "2-digit" });
+    }
+    const onMidnight = (t - AST_MIDNIGHT_UTC) % DAY === 0;
+    if (step < 28 * DAY) {
+      return d.toLocaleString("en-US", onMidnight
+        ? { timeZone: AST_TZ, month: "short", day: "numeric" }
+        : { timeZone: AST_TZ, month: "short", day: "numeric", hour: "numeric" });
+    }
+    return d.toLocaleDateString("en-US", { timeZone: AST_TZ, month: "short", year: "numeric" });
+  }
+
   // Chart.js plugin: faint vertical dividers + date labels at AST midnights, so
   // multi-day time-axis charts stay readable (which day is which) without changing
   // the hourly axis. Line/label density adapts to the visible span.
@@ -1471,6 +1162,7 @@
   let allHistory = [], costHistory = [], weatherRaw = null;
   let adequacy = null, largestOnlineMw = null, hourly = null;
   let hourMode = "gen", statusFilter = "", historyDays = 1, costDays = 1;
+  let loadedOnce = false;   // set after the first successful load; refreshes never blank the page
 
   function showNoData(msg) {
     document.getElementById("status-label").textContent = "No data yet";
@@ -1490,9 +1182,9 @@
   // ================= 7-Day Demand Outlook =================
   // Sensadvisor's own forecast. Genera publishes nothing past the next hour, so
   // this is the page's only multi-day view of PR demand. We fit the daily load
-  // shape (Fourier over hour-of-day + weekend) plus an apparent-temperature term
-  // on the last ~35 days of snapshots, then project it forward on the Open-Meteo
-  // weather forecast. This mirrors the offline Python pipeline; peaks land in the
+  // shape (Fourier over hour-of-day + weekend) on the last ~35 days of snapshots
+  // and project that shape forward. Apparent temperature from Open-Meteo is drawn
+  // as context only, not fitted (see the OUTLOOK note). Peaks land in the
   // evening (after rooftop solar fades), which is where the heat sensitivity shows.
 
   // Householder QR least squares — stable for the mildly-collinear Fourier design
@@ -1715,7 +1407,7 @@
           },
         },
         scales: {
-          x: { type: "time", time: { unit: "day" }, ticks: { font: { ...chartFont, size: 10 }, color: chartTextColor() }, grid: { color: chartGridColor() } },
+          x: { type: "time", time: { unit: "day" }, ticks: { font: { ...chartFont, size: 10 }, color: chartTextColor(), callback: astTickLabel }, grid: { color: chartGridColor() } },
           y: { ticks: { font: { ...chartFont, size: 10 }, color: chartTextColor(), callback: (v) => v + " MW" }, grid: { color: chartGridColor() }, title: { display: true, text: "Demand (MW)", font: { ...chartFont, size: 10 }, color: chartTextColor() } },
           ...(o.appTline.length ? { y1: { position: "right", ticks: { font: { ...chartFont, size: 10 }, color: chartTextColor(), callback: (v) => v + "°" }, grid: { drawOnChartArea: false }, title: { display: true, text: "Apparent °F", font: { ...chartFont, size: 10 }, color: chartTextColor() } } } : {}),
         },
@@ -1724,8 +1416,8 @@
   }
 
   // ===== Forecast accuracy: Sensadvisor vs Genera (1-hour-ahead) =====
-  // The head-to-head is computed by the local daily job (read-only, server-side)
-  // and shipped as a static JSON — no live DB view exposes Genera's historical
+  // The head-to-head is computed by the daily scoreboard job in pr-data-pipeline
+  // (pipelines/generation_scoreboard.py, read-only) and shipped as a static JSON — no live DB view exposes Genera's historical
   // next-hour forecast, so nothing new is queried from the database here. When
   // served over http(s) the page fetches the freshest numbers; opened as a local
   // file it can't fetch a sibling, so it falls back to this embedded snapshot.
@@ -1778,12 +1470,13 @@
 
     const better = g.mape_pct > 0 ? Math.round((1 - s.mape_pct / g.mape_pct) * 100) : 0;
     document.getElementById("sb-lead").innerHTML =
-      `Every 15 minutes Genera publishes one forward-looking number — its <b>next-hour</b> demand forecast. `
-      + `In a rolling-origin backtest we reconstruct what our model would have called for that same hour, `
-      + `using only observations from dates before it, and score both against what actually happened. `
+      `About every 10 minutes Genera publishes one forward-looking number — its <b>next-hour</b> demand forecast. `
+      + `In a rolling-origin backtest we reconstruct what our model would have called for that same hour: `
+      + `the reading at the moment of the forecast, plus the change the typical daily load shape expects over the next hour, `
+      + `with that shape fit only on days before the one being forecast. Both are scored against what actually happened. `
       + `Head to head, Sensadvisor's error is <b>${better}% lower</b>.`;
 
-    // Days, not pairs. Pairs arrive every 10-15 minutes and overlap almost entirely, so a
+    // Days, not pairs. Pairs arrive about every 10 minutes and overlap almost entirely, so a
     // percentage-of-pairs headline implies far more independent evidence than exists.
     const days = d.scores.days || {};
     const nd = days.n_scored_days || d.n_scored_days;
@@ -1813,34 +1506,84 @@
       stale
       + `${nd ? `<b>${nd}</b> scored days` : ""}${span ? `, ${span}` : ""}. `
       + `This is a causal backtest, not a prospective record: forecasts are reconstructed after the fact from `
-      + `coefficients fit only on prior dates, which rules out look-ahead but is not the same as having archived `
+      + `the reading at issue time and shape coefficients fit only on prior dates, which rules out look-ahead but is not the same as having archived `
       + `each call when it was issued. `
-      + `It rests on <b>${fmt(d.n_pairs, 0)}</b> matched forecasts (one per snapshot, about every 10–15 minutes), `
+      + `It rests on <b>${fmt(d.n_pairs, 0)}</b> matched forecasts (one per snapshot, about every 10 minutes), `
       + `but those overlap heavily, so days — not the raw pair count — are the unit of evidence. `
       + vintage
       + `Comparison is 1-hour-ahead only — Genera publishes no longer-range forecast, so the 7-day outlook above has no utility number to compare against. `
       + `Independent Sensadvisor analysis; not affiliated with or endorsed by Genera PR.`;
   }
 
-  // Best-effort: render the embedded snapshot immediately (works offline / as a
-  // local file), then upgrade to the freshest numbers when actually served.
+  // Fetch the published numbers; the embedded snapshot (with its "could not be loaded"
+  // notice) is painted only if that fetch actually fails or returns nothing usable — it
+  // used to be painted first, so every load briefly showed the stale-data warning. Runs on
+  // its own, not at the end of init(), so it neither waits for nor depends on the live feed.
   function loadScoreboard() {
-    renderScoreboard(SCOREBOARD_FALLBACK);
-    fetch("data/scoreboard.json", { cache: "no-store" })
+    return fetch("data/scoreboard.json", { cache: "no-store" })
       .then(r => r.ok ? r.json() : null)
       .catch(() => null)
-      .then(d => { if (d && d.scores) renderScoreboard(d); });
+      .then(d => renderScoreboard(scoreboardUsable(d) ? d : SCOREBOARD_FALLBACK));
+  }
+
+  // The published file must carry both headline scores (with numeric MAPE) to replace the
+  // fallback; a partial file such as {"scores":{}} would otherwise render nothing at all.
+  function scoreboardUsable(d) {
+    const sc = d && d.scores;
+    return !!(sc && ["sensadvisor", "genera"].every(k => sc[k] && Number.isFinite(sc[k].mape_pct)));
   }
 
   // --- Load ---
+  // Flag the Critical units and set each one's Typical MW and Last online from the
+  // published per-unit stats (null when that file could not be read).
+  //   live     — the file has the 30-day block fields: apply CRITICAL_RULE to each block.
+  //              Typical MW is the unit's average output when running in the most recent
+  //              block it ran in (so a unit out all month still shows what it normally gives).
+  //   fallback — the file is missing or lacks any block's fields: use the July 19, 2026
+  //              list, and show the wording that says so. Typical MW is the all-history
+  //              average when the file has it, else the list's own number.
+  function applyCritical(stats) {
+    const sm = {};
+    for (const s of (stats || [])) sm[critKey(s)] = s;
+    // Live only when the file carries every block's fields (values may be null): a file with
+    // just the 30-day ones would otherwise be read as "never ran" in the older blocks.
+    const live = !!stats && stats.length > 0
+      && stats.every(s => CRITICAL_BLOCKS.every(([pk, ak]) => pk in s && ak in s))
+      && stats.some(s => num(s.online_pct_30d) !== null);
+    unitRows.forEach(r => {
+      const s = sm[critKey(r)];
+      r._lastOnline = s ? s.last_online_at : null;
+      r._crit = null;
+      if (live) {
+        const blocks = CRITICAL_BLOCKS.map(([pk, ak]) => s ? [num(s[pk]), num(s[ak])] : [null, null]);
+        const meets = blocks.some(([pct, avg]) => pct !== null && avg !== null
+          && avg >= CRITICAL_RULE.minAvgMw && pct >= CRITICAL_RULE.minOnlinePct);
+        if (!RENEWABLE_TYPES.has(r.plant_type) && meets) {
+          const typical = blocks.find(([, avg]) => avg !== null)[1];
+          r._crit = { baselineMw: Math.round(typical), region: regionOf(r) };
+        }
+      } else {
+        const c = CRITICAL_UNITS_FALLBACK[critKey(r)];
+        if (c) {
+          r._crit = { ...c };
+          if (s && num(s.avg_online_mw) > 0) r._crit.baselineMw = Math.round(num(s.avg_online_mw));
+        }
+      }
+    });
+    // The Methodology carries both wordings; show the one that matches what was used.
+    const show = (id, on) => { const el = document.getElementById(id); if (el) el.hidden = !on; };
+    show("crit-method-live", live);
+    show("crit-method-fallback", !live);
+    show("typical-method-live", live);
+    show("typical-method-fallback", !live);
+  }
+
   async function init() {
     const historySince = new Date(Date.now() - (HISTORY_MAX_DAYS + 2) * 86400000).toISOString();
-    // Fire every query concurrently. The two "optional enhancement" views
-    // (cost-history / unit-stats) may not be deployed yet, so a failed fetch
-    // resolves to null and the page still works without them — but firing them
-    // alongside the core queries keeps them off the critical path. They used to
-    // run serially *after* the main load, adding ~4 extra round-trips before
-    // anything rendered.
+    // Fire every query concurrently. These read the published JSON files, not the
+    // database. The two "optional enhancement" datasets (cost history / unit stats)
+    // can be missing from a release, so a failed read resolves to null and the page
+    // still works without them.
     const [latestRows, uRows, hist, costRes, statsRes, wxRes] = await Promise.all([
       sbQuery("v_generation_latest", "select=*"),
       sbQuery("v_generation_units", "select=*"),
@@ -1849,37 +1592,31 @@
       sbQuery("v_generation_cost_history",
         `select=observed_at,waec_per_mwh&observed_at=gte.${historySince}&order=observed_at.asc`).catch(() => null),
       sbQuery("v_generation_unit_stats",
-        "select=plant_type,plant,unit,avg_online_mw,last_online_at").catch(() => null),
+        "select=plant_type,plant,unit,avg_online_mw,last_online_at,samples_30d,online_pct_30d,avg_online_mw_30d,"
+        + "online_pct_30_60d,avg_online_mw_30_60d,online_pct_60_90d,avg_online_mw_60_90d").catch(() => null),
       // Keyless Open-Meteo forecast for the 7-day outlook. A failed fetch leaves
       // the outlook hidden; the rest of the page is unaffected.
       fetch(WEATHER_URL).then(r => r.ok ? r.json() : null).catch(() => null),
     ]);
-    if (!latestRows.length) { showNoData(); return; }
+    // On a 10-minute refresh an empty read keeps the figures already on screen
+    // instead of replacing them with "No data yet" (but re-ages the hero, see recheckStale).
+    if (!latestRows.length) { if (!loadedOnce) showNoData(); else recheckStale(); return; }
+    loadedOnce = true;
 
     const latest = latestRows[0];
     latestMetrics = { ...(latest.metrics || {}), observed_at: latest.observed_at, source_updated_at: latest.source_updated_at };
     const fuelMix = latest.fuel_mix || [];
     unitRows = (uRows || []).map(r => ({ ...r, _mw: num(r.mw) || 0 }));
-    unitRows.forEach(r => { r._online = r._mw >= ONLINE_MW; const c = CRITICAL_UNITS[critKey(r)]; r._crit = c ? { ...c } : null; });
+    unitRows.forEach(r => { r._online = r._mw >= ONLINE_MW; });
+    applyCritical(statsRes);
     imputeUnitCost();
     allHistory = hist || [];
     weatherRaw = wxRes || null;
 
-    // Optional enhancements — need the cost-history / unit-stats views deployed.
-    // A null result (fetch failed / view absent) leaves the feature hidden.
+    // Optional enhancement — the cost-history dataset. A null result (read failed /
+    // dataset not published) leaves the panel hidden. (Unit stats: see applyCritical.)
     costHistory = costRes || [];
     if (costHistory.length) document.getElementById("cost-panel").style.display = "";
-    if (statsRes) {
-      const sm = {};
-      for (const s of statsRes) sm[`${s.plant_type}|${s.plant}|${s.unit}`] = s;
-      unitRows.forEach(r => {
-        const s = sm[critKey(r)];
-        r._lastOnline = s ? s.last_online_at : null;
-        // Self-updating baseline: refresh each Critical unit's Typical MW from the
-        // stored-history average when the view has it; the baked value is the fallback.
-        if (r._crit && s && num(s.avg_online_mw) > 0) r._crit.baselineMw = Math.round(num(s.avg_online_mw));
-      });
-    }
 
     computeDerived();
     hourly = buildHourly(allHistory);
@@ -1895,7 +1632,6 @@
     renderHistory();
     renderCost();
     renderOutlook();
-    loadScoreboard();
   }
 
   // --- Derived: largest online unit + adequacy classification ---
@@ -1913,7 +1649,7 @@
     // do NOT default to a reassuring "Adequate" — surface the degraded state instead.
     const obsMs = m.observed_at ? new Date(m.observed_at).getTime() : null;
     const ageMs = obsMs != null ? Date.now() - obsMs : null;
-    const STALE_MS = 60 * 60 * 1000;   // feed refreshes ~15 min; >60 min old = degraded
+    const STALE_MS = 60 * 60 * 1000;   // feed refreshes ~10 min; >60 min old = degraded
     const coreMissing = cap == null || (opRes == null && marginNext == null);
 
     let level, label, reason;
@@ -1922,7 +1658,7 @@
       reason = "Live operating metrics are missing from the latest feed, so grid adequacy can't be assessed right now. Treat the readings below as unconfirmed.";
     } else if (ageMs > STALE_MS) {
       level = "unknown"; label = "Reading stale";
-      reason = `The latest operational reading is ${relTime(m.observed_at)} (the feed refreshes about every 15 minutes), so current adequacy can't be confirmed. Treat the readings below as unconfirmed.`;
+      reason = `The latest operational reading is ${relTime(m.observed_at)} (the feed refreshes about every 10 minutes), so current adequacy can't be confirmed. Treat the readings below as unconfirmed.`;
     } else if ((marginNext != null && marginNext < 0) || (opRes != null && opRes < 50)) {
       level = "critical"; label = "Reserves critically low";
       if (marginNext != null && marginNext < 0)
@@ -2182,7 +1918,7 @@
         interaction: { intersect: false, mode: "index" },
         plugins: { legend: { labels: { font: { ...chartFont, size: 11 } } }, tooltip: { titleFont: chartFont, bodyFont: chartFont, callbacks: { title: i => i.length ? new Date(i[0].parsed.x).toLocaleString("en-US", { timeZone: AST_TZ, dateStyle: "medium", timeStyle: "short" }) + " AST" : "" } } },
         scales: {
-          x: { type: "time", ticks: { font: { ...chartFont, size: 10 } }, grid: { color: chartGridColor() } },
+          x: { type: "time", ticks: { font: { ...chartFont, size: 10 }, callback: astTickLabel }, grid: { color: chartGridColor() } },
           y: { ticks: { font: { ...chartFont, size: 10 }, callback: v => v + " MW" }, grid: { color: chartGridColor() }, title: { display: true, text: "Generation / capacity", font: { ...chartFont, size: 10 } } },
           y1: { position: "right", beginAtZero: true, ticks: { font: { ...chartFont, size: 10 }, callback: v => v + " MW" }, grid: { drawOnChartArea: false }, title: { display: true, text: "Reserve", font: { ...chartFont, size: 10 } } },
         },
@@ -2224,7 +1960,7 @@
               label: c => ` ${c.dataset.label}: $${fmt(c.parsed.y, 2)}/MWh` } },
         },
         scales: {
-          x: { type: "time", ticks: { font: { ...chartFont, size: 10 } }, grid: { color: chartGridColor() } },
+          x: { type: "time", ticks: { font: { ...chartFont, size: 10 }, callback: astTickLabel }, grid: { color: chartGridColor() } },
           y: { ticks: { font: { ...chartFont, size: 10 }, callback: v => "$" + v }, grid: { color: chartGridColor() }, title: { display: true, text: "$/MWh", font: { ...chartFont, size: 10 } } },
         },
       },
@@ -2259,8 +1995,12 @@
     const types = [...new Set(unitRows.map(u => u.plant_type))].sort();
     const sel = document.getElementById("type-filter");
     sel.innerHTML = '<option value="">All types</option>' + types.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join("");
-    sel.addEventListener("change", () => { typeFilter = sel.value; renderUnitTable(); });
+    // Runs on every refresh: keep the reader's selection (or clear it if that type is gone).
+    if (typeFilter && !types.includes(typeFilter)) typeFilter = "";
+    sel.value = typeFilter;
   }
+  // Bound once, outside setupTypeFilter(), which re-runs on each refresh.
+  document.getElementById("type-filter").addEventListener("change", (e) => { typeFilter = e.target.value; renderUnitTable(); });
 
   // Impute a $/MWh for RUNNING units that report no price, using the MW-weighted
   // average cost of priced, running units of the SAME plant type — mirrors the blended
@@ -2313,27 +2053,27 @@
     const onlineCount = rows.filter(r => r._online).length;
     const typicalShown = rows.reduce((s, r) => s + (r._crit ? r._crit.baselineMw : 0), 0);
     const lastCell = (r) => {
-      if (r._online) return '<span style="color:#999">— now</span>';
+      if (r._online) return '<span style="color:var(--chart-muted)">— now</span>';
       if (!r._lastOnline) return "—";
       const abs = new Date(r._lastOnline).toLocaleString("en-US", { timeZone: AST_TZ, dateStyle: "medium", timeStyle: "short" });
       return `<span title="${abs} AST">${relTime(r._lastOnline)}</span>`;
     };
     const costCell = (r) => {
       if (r._costEff == null) return "—";
-      if (r._costImputed) return `<span style="color:#999;font-style:italic" title="No price reported — imputed from the ${esc(r.plant_type)} average">~${fmt(r._costEff, 2)}</span>`;
+      if (r._costImputed) return `<span style="color:var(--chart-muted);font-style:italic" title="No price reported — imputed from the ${esc(r.plant_type)} average">~${fmt(r._costEff, 2)}</span>`;
       return fmt(r._costEff, 2);
     };
     tbody.innerHTML = rows.map(r => `<tr class="${(r._crit && !r._online) ? "row-crit-off" : ""}">
         <td><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${TYPE_COLORS[r.plant_type] || OTHER_COLOR};margin-right:6px"></span>${esc(r.plant)}</td>
         <td>${esc(r.plant_type)}</td>
         <td>${esc(r.unit)}</td>
-        <td><span class="badge ${r._online ? "badge-online" : "badge-offline"}">${r._online ? "Online" : "Offline"}</span>${r._crit ? `<span class="badge ${r._online ? "badge-critical" : "badge-critical-off"}" title="Critical dispatchable unit — usually ~${r._crit.baselineMw} MW (${r._crit.region})">◆ Critical</span>` : ""}</td>
+        <td><span class="badge ${r._online ? "badge-online" : "badge-offline"}">${r._online ? "Online" : "Offline"}</span>${r._crit ? `<span class="badge ${r._online ? "badge-critical" : "badge-critical-off"}" title="Critical dispatchable unit — usually ~${r._crit.baselineMw} MW${r._crit.region ? ` (${esc(r._crit.region)})` : ""}">◆ Critical</span>` : ""}</td>
         <td class="num">${fmt(r.mw, 2)}</td>
         <td class="num">${r._crit ? "~" + fmt(r._crit.baselineMw) : "—"}</td>
         <td class="num">${fmt(r.mvar, 2)}</td>
         <td class="num">${costCell(r)}</td>
         <td>${lastCell(r)}</td>
-      </tr>`).join("") + `<tr style="font-weight:700;border-top:2px solid #000">
+      </tr>`).join("") + `<tr style="font-weight:700;border-top:2px solid var(--primary-text)">
         <td>Total${typeFilter ? " (" + esc(typeFilter) + ")" : ""}</td><td></td>
         <td class="num">${rows.length} units</td>
         <td>${onlineCount} online</td>
@@ -2343,22 +2083,41 @@
       </tr>`;
   }
 
+  // Arrow class + aria-sort on the header that currently orders the table.
+  function syncSortHeaders() {
+    document.querySelectorAll("#unit-table th.sortable").forEach(h => {
+      const on = parseInt(h.dataset.col) === sortCol;
+      h.classList.remove("asc", "desc");
+      if (on) h.classList.add(sortDir);
+      if (on) h.setAttribute("aria-sort", sortDir === "asc" ? "ascending" : "descending");
+      else h.removeAttribute("aria-sort");
+    });
+  }
+
   document.querySelectorAll("#unit-table th.sortable").forEach(th => {
-    th.addEventListener("click", () => {
+    const sortBy = () => {
       const col = parseInt(th.dataset.col);
       if (sortCol === col) sortDir = sortDir === "asc" ? "desc" : "asc";
       else { sortCol = col; sortDir = (col <= 3) ? "asc" : "desc"; }
-      document.querySelectorAll("#unit-table th.sortable").forEach(h => h.classList.remove("asc", "desc"));
-      th.classList.add(sortDir);
+      syncSortHeaders();
       renderUnitTable();
+    };
+    th.tabIndex = 0;
+    th.addEventListener("click", sortBy);
+    th.addEventListener("keydown", e => {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      e.preventDefault();
+      sortBy();
     });
   });
+  syncSortHeaders();
 
   // --- Toggles ---
   document.querySelectorAll("[data-costdays]").forEach(btn => {
     btn.addEventListener("click", () => {
-      document.querySelectorAll("[data-costdays]").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll("[data-costdays]").forEach(b => { b.classList.remove("active"); b.setAttribute("aria-pressed", "false"); });
       btn.classList.add("active");
+      btn.setAttribute("aria-pressed", "true");
       costDays = parseInt(btn.dataset.costdays);
       renderCost();
     });
@@ -2366,8 +2125,9 @@
 
   document.querySelectorAll("[data-hmode]").forEach(btn => {
     btn.addEventListener("click", () => {
-      document.querySelectorAll("[data-hmode]").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll("[data-hmode]").forEach(b => { b.classList.remove("active"); b.setAttribute("aria-pressed", "false"); });
       btn.classList.add("active");
+      btn.setAttribute("aria-pressed", "true");
       hourMode = btn.dataset.hmode;
       renderHourly();
     });
@@ -2375,8 +2135,9 @@
 
   document.querySelectorAll("[data-status]").forEach(btn => {
     btn.addEventListener("click", () => {
-      document.querySelectorAll("[data-status]").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll("[data-status]").forEach(b => { b.classList.remove("active"); b.setAttribute("aria-pressed", "false"); });
       btn.classList.add("active");
+      btn.setAttribute("aria-pressed", "true");
       statusFilter = btn.dataset.status;
       renderUnitTable();
     });
@@ -2384,15 +2145,28 @@
 
   document.querySelectorAll("[data-days]").forEach(btn => {
     btn.addEventListener("click", () => {
-      document.querySelectorAll("[data-days]").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll("[data-days]").forEach(b => { b.classList.remove("active"); b.setAttribute("aria-pressed", "false"); });
       btn.classList.add("active");
+      btn.setAttribute("aria-pressed", "true");
       historyDays = parseInt(btn.dataset.days);
       renderHistory();
     });
   });
 
+  // A refresh that fails or comes back empty keeps the figures on screen, but the hero
+  // must still age: re-run the adequacy check so an old reading flips to "Reading stale".
+  function recheckStale() {
+    if (!loadedOnce) return;
+    try { computeDerived(); renderHero(); } catch (e) { console.error("stale recheck failed", e); }
+  }
+
   // --- Init ---
-  init().catch(e => { console.error(e); showNoData("Could not load generation data: " + e.message); });
+  loadScoreboard();
+  init().catch(e => { console.error(e); if (!loadedOnce) showNoData("Could not load generation data: " + e.message); });
+  // Auto-refresh: re-read the published files every 10 minutes (the snapshot cadence) so
+  // the "live" view does not freeze at page-load time. A failed refresh keeps whatever is
+  // on screen — the stale check in computeDerived() flags a reading that stops advancing.
+  setInterval(() => { init().catch(e => { console.error("refresh failed", e); recheckStale(); }); }, 10 * 60 * 1000);
 </script>
 <script>
   // Scroll-progress back-to-top control.

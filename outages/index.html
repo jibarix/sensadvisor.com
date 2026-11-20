@@ -21,17 +21,17 @@
 
 <meta name="description" content="Real-time power grid monitoring for Puerto Rico. Track unplanned and planned outages by region.">
 <meta property="og:title" content="PR Outage Status">
-<meta property="og:description" content="Real-time power grid monitoring — unplanned and planned outages by region.">
+<meta property="og:description" content="Real-time power grid monitoring for Puerto Rico — unplanned and planned outages by region.">
 <meta property="og:type" content="website">
 <link rel="canonical" href="https://sensadvisor.com/outages/">
 <meta property="og:url" content="https://sensadvisor.com/outages/">
-<meta property="og:image" content="https://sensadvisor.com/assets/og.png">
+<meta property="og:image" content="https://sensadvisor.com/assets/og/outages.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Jorge A. Arroyo, Business Systems &amp; Analytics Architect, SENS ADVISOR">
+<meta property="og:image:alt" content="Puerto Rico Power Outages — SENS ADVISOR analytics card">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="PR Outage Status">
-<meta name="twitter:description" content="Real-time power grid monitoring — unplanned and planned outages by region.">
+<meta name="twitter:description" content="Real-time power grid monitoring for Puerto Rico — unplanned and planned outages by region.">
 
 <link rel="preload" href="/fonts/source-code-pro-latin.woff2" as="font" type="font/woff2" crossorigin>
 <style>@font-face{font-family:'Source Code Pro';font-style:normal;font-weight:300 700;font-display:swap;src:url(/fonts/source-code-pro-latin.woff2) format('woff2')}</style>
@@ -46,10 +46,8 @@
     --accent-lighter: #f9f9f9;
     --page-gutter: clamp(20px, 4vw, 64px);
     --signal: #008f43;
-    --signal-rgb: 0, 143, 67;
     --grid-dot: rgba(0, 0, 0, 0.065);
     --chart-text: #333333;
-    --chart-muted: #707070;
     --chart-grid: #dddddd;
     --surface-muted: #f7f7f7;
   }
@@ -64,10 +62,8 @@
     --accent-lighter: #16171a;
 
     --signal: #36e08a;
-    --signal-rgb: 54, 224, 138;
     --grid-dot: rgba(255, 255, 255, 0.055);
     --chart-text: #d7d9dc;
-    --chart-muted: #9aa0a6;
     --chart-grid: #34373c;
     --surface-muted: rgba(22, 23, 26, 0.9);
   }
@@ -81,33 +77,16 @@
       --accent-lighter: #16171a;
 
       --signal: #36e08a;
-      --signal-rgb: 54, 224, 138;
       --grid-dot: rgba(255, 255, 255, 0.055);
       --chart-text: #d7d9dc;
-      --chart-muted: #9aa0a6;
       --chart-grid: #34373c;
       --surface-muted: rgba(22, 23, 26, 0.9);
     }
   }
-  body, .site-header, .nav, .nav-dropdown-menu, .analytics-index, .panel { transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease; }
+  body, .analytics-index, .panel { transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease; }
   /* Charts carry baked-in light colors; float them on a light tile so they stay legible in dark mode. */
   :root[data-theme="dark"] canvas { background: #ffffff; }
   :root[data-theme="dark"] .panel img[src$=".png"] { background: #ffffff; }
-  /* Theme toggle button */
-  .theme-toggle {
-    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-    background: none; border: none; cursor: pointer; color: var(--primary-text);
-    padding: 6px; margin: 0; border-radius: 4px; transition: background 0.2s ease;
-  }
-  .theme-toggle:hover { background: var(--accent-light); }
-  .theme-toggle svg { width: 20px; height: 20px; display: block; }
-  .theme-toggle .ic-sun { display: none; }
-  :root[data-theme="dark"] .theme-toggle .ic-sun { display: block; }
-  :root[data-theme="dark"] .theme-toggle .ic-moon { display: none; }
-  .theme-toggle-label { display: none; }
-  .theme-toggle .lbl-light { display: none; }
-  :root[data-theme="dark"] .theme-toggle .lbl-light { display: inline; }
-  :root[data-theme="dark"] .theme-toggle .lbl-dark { display: none; }
 
   /* Scroll progress and quick return for a long analytical page. */
   .back-to-top {
@@ -178,353 +157,6 @@
     min-height: 100vh;
   }
 
-  /* ===== Shared site navigation - mirrors the sensadvisor.com home
-     menu (brand + top-level links + Analytics dropdown, collapsing to
-     a menu button + floating sheet on phones), plus a sticky per-page
-     section index. ===== */
-  .site-header {
-    position: relative;
-    z-index: 1100;
-    display: flex;
-    align-items: center;
-    height: var(--nav-h);
-    padding: 0 var(--page-gutter);
-    background: transparent;
-  }
-  .site-header-inner {
-    position: relative;
-    display: flex;
-    align-items: center;
-    /* Three slots, so space-between is what centres the link row. An auto
-       margin on .nav would collapse it against the actions instead. */
-    justify-content: space-between;
-    gap: clamp(16px, 3vw, 40px);
-    width: 100%;
-    max-width: 1480px;
-    margin: 0 auto;
-    padding: 0;
-  }
-  .logo {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    color: var(--primary-text);
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-decoration: none;
-    white-space: nowrap;
-  }
-  .nav { display: flex; align-items: center; gap: clamp(16px, 2vw, 30px); }
-  .nav a,
-  .nav-dropdown-trigger {
-    color: var(--primary-text);
-    font-size: 0.78rem;
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    text-decoration: none;
-    text-transform: uppercase;
-    padding: 8px 0;
-    border-bottom: 2px solid transparent;
-    transition: border-color 0.2s ease;
-    cursor: pointer;
-    user-select: none;
-    white-space: nowrap;
-  }
-  /* 85% of the ink, which is what the home bar's rgba(255,255,255,.85) comes
-     to once the blend has resolved it - not --border-primary, which is a hard
-     #000 here because it draws the 2px brutalist panel rules. */
-  .nav a:hover,
-  .nav-dropdown-trigger:hover,
-  .nav-dropdown-trigger[aria-expanded="true"] {
-    border-bottom-color: var(--nav-rule);
-  }
-  /* A real <button> now that JS drives it. Reset only the UA chrome: the type
-     comes from the shared rule above, so `font: inherit` here would desync its
-     size from the sibling links. */
-  .nav-dropdown-trigger {
-    background: none;
-    border: 0;
-    border-bottom: 2px solid transparent;
-    font-family: inherit;
-    line-height: inherit;
-  }
-  .nav-dropdown { position: relative; }
-  /* Same skin as the home panel: hairline rule, 12px radius, the sheet
-     surface, one deep soft shadow. It was a 2px hard-black box on a 4px
-     radius, which is the dashboards' data-panel treatment, not the menu's.
-     It can stay a child of its trigger here; on the home page it has to be a
-     fixed sibling of the bar, because an opaque panel inside a blended bar
-     paints |page - panel| and the page ghosts straight through it. */
-  .nav-dropdown-menu {
-    position: absolute;
-    top: calc(100% + 8px);
-    left: 0;
-    z-index: 1000;
-    min-width: 240px;
-    border: 1px solid var(--sheet-line);
-    border-radius: 12px;
-    background: var(--sheet-bg);
-    box-shadow: 0 18px 40px var(--sheet-shadow);
-    overflow: hidden;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-6px);
-    /* visibility/opacity rather than display:none - display cannot animate. */
-    transition: opacity 0.18s ease, transform 0.18s ease,
-                visibility 0s linear 0.18s;
-  }
-  .nav-dropdown.open .nav-dropdown-menu {
-    opacity: 1;
-    visibility: visible;
-    transform: none;
-    transition: opacity 0.18s ease, transform 0.18s ease;
-  }
-  .nav-dropdown-menu a {
-    display: block;
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--sheet-line);
-    color: var(--sheet-fg);
-    font-size: 0.82rem;
-    text-decoration: none;
-    transition: background 0.2s ease;
-  }
-  .nav-dropdown-menu a:last-child { border-bottom: none; }
-  .nav-dropdown-menu a:hover { background: var(--sheet-soft); }
-  /* No equivalent on the home page, where no dashboard is ever the current
-     one. Same marker the sheet's sub-list uses. */
-  .nav-dropdown-menu a[aria-current="page"] {
-    color: var(--sheet-fg);
-    font-weight: 700;
-    box-shadow: inset 3px 0 0 var(--signal);
-  }
-  /* Menu button + floating sheet. Replaces the old inline drawer, which
-     pushed the page down as it opened. The sheet is a fixed overlay so the
-     page stays put; the bar is not fixed, so JS parks the sheet under it.
-
-     Geometry, timings, structure AND palette are copied from the home page's
-     sheet, so the opened panel is the same object on both.
-
-     The bar chrome carries its own surface tokens rather than borrowing the
-     page's. The page tokens look like the right roles but are not:
-     --border-primary is #000 here (it draws the 2px brutalist panel rules), so
-     reusing it would rule the sheet in hard black where the home sheet uses a
-     13% hairline; --secondary-text is #333 against a 55%-alpha grey. Same
-     declarations, very different weight. */
-  :root {
-    --nav-h: 64px;
-    --nav-rule: rgba(19, 19, 21, 0.85);
-    --nav-wash: rgba(19, 19, 21, 0.14);
-    --sheet-gap: 6px;
-    --sheet-radius: 16px;
-    --sheet-bg: #f3f1ec;
-    --sheet-fg: #131315;
-    --sheet-line: rgba(19, 19, 21, 0.13);
-    --sheet-dim: rgba(19, 19, 21, 0.55);
-    --sheet-soft: rgba(19, 19, 21, 0.06);
-    --sheet-scrim: rgba(19, 19, 21, 0.34);
-    --sheet-shadow: rgba(0, 0, 0, 0.45);
-  }
-  :root[data-theme="dark"] {
-    --nav-rule: rgba(237, 237, 237, 0.85);
-    --nav-wash: rgba(255, 255, 255, 0.14);
-    --sheet-bg: #17181b;
-    --sheet-fg: #ededed;
-    --sheet-line: rgba(255, 255, 255, 0.13);
-    --sheet-dim: rgba(237, 237, 237, 0.55);
-    --sheet-soft: rgba(255, 255, 255, 0.05);
-    --sheet-scrim: rgba(0, 0, 0, 0.5);
-    --sheet-shadow: rgba(0, 0, 0, 0.5);
-  }
-  /* The head script always stamps data-theme, so this is only the no-JS net -
-     but every other token here is declared all three ways, so these are too. */
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --nav-rule: rgba(237, 237, 237, 0.85);
-      --nav-wash: rgba(255, 255, 255, 0.14);
-      --sheet-bg: #17181b;
-      --sheet-fg: #ededed;
-      --sheet-line: rgba(255, 255, 255, 0.13);
-      --sheet-dim: rgba(237, 237, 237, 0.55);
-      --sheet-soft: rgba(255, 255, 255, 0.05);
-      --sheet-scrim: rgba(0, 0, 0, 0.5);
-      --sheet-shadow: rgba(0, 0, 0, 0.5);
-    }
-  }
-
-  /* Action cluster: equal bounded slots, like a set of instrument keys. The
-     page's own .theme-toggle is a 6px pad on a 4px radius; inside the bar it
-     becomes a 40px key, the same one the home page uses. Scoped to
-     .site-header so any other toggle on the page keeps its own shape. */
-  .nav-actions {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    flex-shrink: 0;
-  }
-  .site-header .theme-toggle,
-  .menu-btn {
-    display: grid;
-    place-items: center;
-    width: 40px;
-    height: 40px;
-    padding: 0;
-    margin: 0;
-    border: 0;
-    border-radius: 10px;
-    background: transparent;
-    color: var(--primary-text);
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-  }
-  .site-header .theme-toggle:hover,
-  .menu-btn:hover { background: var(--nav-wash); }
-  .site-header .theme-toggle:focus-visible,
-  .menu-btn:focus-visible {
-    outline: 2px solid var(--signal);
-    outline-offset: 2px;
-  }
-  .site-header .theme-toggle svg { width: 18px; height: 18px; }
-  .site-header .theme-toggle-label { display: none; }
-  .menu-btn { display: none; }
-  .menu-icon { display: grid; gap: 5px; width: 18px; }
-  .menu-icon span {
-    display: block;
-    width: 100%;
-    height: 1.5px;
-    background: currentColor;
-    border-radius: 2px;
-    transition: transform 0.34s cubic-bezier(.16, 1, .3, 1),
-                opacity 0.2s ease;
-  }
-  .menu-btn[aria-expanded="true"] .menu-icon span:nth-child(1) {
-    transform: translateY(3.25px) rotate(45deg);
-  }
-  .menu-btn[aria-expanded="true"] .menu-icon span:nth-child(2) {
-    transform: translateY(-3.25px) rotate(-45deg);
-  }
-
-  /* Both sit below .site-header (z-index 1100), so the bar stays lit and the
-     button stays clickable to close. */
-  .navscrim {
-    position: fixed;
-    inset: 0;
-    z-index: 1090;
-    background: var(--sheet-scrim);
-    -webkit-backdrop-filter: blur(4px);
-    backdrop-filter: blur(4px);
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.32s ease, visibility 0s linear 0.32s;
-  }
-  .navsheet {
-    position: fixed;
-    /* The home bar is fixed so it can key off --nav-h; this one scrolls, so
-       JS writes --sheet-top from the bar's live position instead. */
-    top: var(--sheet-top, 64px);
-    left: var(--sheet-gap);
-    z-index: 1095;
-    width: calc(100% - (var(--sheet-gap) * 2));
-    /* svh, not vh: mobile browser chrome would otherwise clip the sheet. */
-    max-height: calc(100svh - var(--sheet-top, 64px) - var(--sheet-gap));
-    padding: 8px;
-    border-radius: var(--sheet-radius);
-    background: var(--sheet-bg);
-    color: var(--sheet-fg);
-    box-shadow: 0 24px 60px var(--sheet-shadow);
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-10px);
-    /* visibility/opacity rather than display:none - display can't animate. */
-    transition: opacity 0.32s cubic-bezier(.16, 1, .3, 1),
-                transform 0.32s cubic-bezier(.16, 1, .3, 1),
-                visibility 0s linear 0.32s;
-  }
-  html.sheet-open .navscrim,
-  html.sheet-open .navsheet {
-    opacity: 1;
-    visibility: visible;
-    transition-delay: 0s;
-  }
-  html.sheet-open .navsheet { transform: translateY(0); }
-  /* The scroll container is <html>; locking <body> alone will not hold it. */
-  html.sheet-open,
-  html.sheet-open body { overflow: hidden; }
-
-  .sheet-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    width: 100%;
-    min-height: 56px;
-    padding: 0 14px;
-    border: 0;
-    border-radius: 10px;
-    background: transparent;
-    color: inherit;
-    font-family: inherit;
-    font-size: 0.82rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    text-decoration: none;
-    text-align: left;
-    cursor: pointer;
-    transition: background-color 0.18s ease;
-  }
-  .sheet-row + .sheet-row,
-  .sheet-group + .sheet-row,
-  .sheet-row + .sheet-group,
-  .sheet-group + .sheet-group { border-top: 1px solid var(--sheet-line); }
-  .sheet-row:hover { background: var(--sheet-soft); }
-  .sheet-row:focus-visible {
-    outline: 2px solid var(--signal);
-    outline-offset: -2px;
-  }
-  .sheet-ind {
-    color: var(--sheet-dim);
-    font-size: 0.95rem;
-    line-height: 1;
-    transition: transform 0.3s cubic-bezier(.16, 1, .3, 1);
-  }
-  .sheet-disc[aria-expanded="true"] .sheet-ind { transform: rotate(45deg); }
-  /* 0fr -> 1fr animates to the content's real height, no magic numbers. */
-  .sheet-sub {
-    display: grid;
-    grid-template-rows: 0fr;
-    transition: grid-template-rows 0.34s cubic-bezier(.16, 1, .3, 1);
-  }
-  .sheet-disc[aria-expanded="true"] + .sheet-sub { grid-template-rows: 1fr; }
-  .sheet-sub-inner { overflow: hidden; }
-  .sheet-sub a {
-    display: flex;
-    align-items: center;
-    min-height: 46px;
-    padding: 0 14px 0 28px;
-    color: var(--sheet-dim);
-    font-size: 0.78rem;
-    letter-spacing: 0.04em;
-    text-decoration: none;
-    border-radius: 8px;
-  }
-  .sheet-sub a:hover { background: var(--sheet-soft); color: var(--sheet-fg); }
-  /* Not on the home page, where no dashboard is ever the current one. */
-  .sheet-sub a[aria-current="page"] {
-    color: var(--sheet-fg);
-    font-weight: 700;
-    box-shadow: inset 3px 0 0 var(--signal);
-  }
-  @media (min-width: 769px) {
-    /* Never leave the sheet stranded open on resize to desktop. */
-    .navsheet, .navscrim { display: none; }
-  }
-  @media print {
-    .navsheet, .navscrim { display: none !important; }
-  }
-
   .analytics-index {
     position: sticky;
     top: 0;
@@ -569,13 +201,6 @@
   }
 
   @media (max-width: 768px) {
-    .site-header-inner {
-      padding-top: 15px;
-      padding-bottom: 15px;
-      flex-wrap: wrap;
-    }
-    .menu-btn { display: grid; }
-    .nav { display: none; }
     .analytics-index-inner {
       gap: 22px;
       overflow-x: auto;
@@ -585,9 +210,6 @@
     .analytics-index-inner::-webkit-scrollbar { display: none; }
     .analytics-index-label { display: none; }
   }
-
-  .site-footer { text-align: center; padding: 24px var(--page-gutter); margin-top: 40px; border-top: 1px solid var(--border-primary); font-size: 0.82rem; color: var(--secondary-text); }
-  .site-footer a { color: inherit; }
 
   .container {
     max-width: 1480px;
@@ -668,6 +290,7 @@
   tr:hover { background: var(--accent-lighter); }
   th.sortable { cursor: pointer; user-select: none; }
   th.sortable:hover { color: var(--primary-text); }
+  th.sortable:focus-visible { outline: 2px solid var(--primary-text); outline-offset: -2px; color: var(--primary-text); }
   th.sortable::after { content: " \2195"; opacity: 0.3; }
   th.sortable.asc::after { content: " \2191"; opacity: 1; }
   th.sortable.desc::after { content: " \2193"; opacity: 1; }
@@ -738,6 +361,21 @@
   .uptime-status {
     font-size: 0.8rem; font-weight: 600; flex-shrink: 0;
   }
+  /* Status colors used as TEXT. The swatch colors (#76ad2a, #faa72a ...) are too light to
+     read on a white page, so text gets darker shades in light mode and the swatch colors
+     themselves in dark mode, where they already clear 4.5:1. */
+  :root {
+    --status-text-operational: #4a7a12;
+    --status-text-elevated: #8f5a00;
+    --status-text-partial: #b8441a;
+    --status-text-major: #c62828;
+  }
+  :root[data-theme="dark"] {
+    --status-text-operational: #76ad2a;
+    --status-text-elevated: #faa72a;
+    --status-text-partial: #e86235;
+    --status-text-major: #e04343;
+  }
   .uptime-bar {
     display: flex; gap: 2px; width: 100%;
   }
@@ -796,7 +434,6 @@
     .status-hero .status-label { font-size: 1.2rem; }
     .status-hero .status-summary { font-size: 0.85rem; }
     .status-hero .status-breakdown { gap: 14px; font-size: 0.8rem; }
-    .stats-grid { grid-template-columns: repeat(2, 1fr); }
     .chart-container { height: 250px; }
     .uptime-label { font-size: 0.8rem; }
     .uptime-status { font-size: 0.7rem; }
@@ -991,7 +628,7 @@
     <div class="monitor-meta">
       <span><strong>Monitor</strong><br>Live public feed</span>
       <span><strong>Refresh</strong><br>Automatic</span>
-      <span><strong>Source</strong><br>LUMA Energy</span>
+      <span><strong>Sources</strong><br>LUMA Energy &middot; Genera PR</span>
     </div>
   </header>
 
@@ -1026,6 +663,8 @@
   .grid-risk .gr-grid{display:grid; grid-template-columns:minmax(220px,1fr) 1.1fr; gap:26px; align-items:start}
   @media (max-width:720px){.grid-risk .gr-grid{grid-template-columns:1fr; gap:20px}}
   .grid-risk .gr-pill{display:inline-flex; align-items:center; gap:8px; font-weight:700; font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; padding:6px 12px; color:#fff}
+  /* The dark-theme state colors are light (amber, mint), so the pill label flips to dark there. */
+  :root[data-theme="dark"] .grid-risk .gr-pill{color:#0e0e10}
   .grid-risk .gr-big{font-size:clamp(2.6rem,8vw,4rem); font-weight:700; line-height:.92; letter-spacing:-.02em; margin:12px 0 0}
   .grid-risk .gr-big small{display:block; font-size:.22em; font-weight:500; color:var(--secondary-text); letter-spacing:0; margin-top:10px; line-height:1.5; max-width:42ch}
   .grid-risk .gr-ts{font-size:.7rem; color:var(--secondary-text); margin:12px 0 0; line-height:1.5}
@@ -1221,6 +860,15 @@
         'Read this as co-occurrence over '+esc(m.total_days)+' days, not as a rate that applies to now.';
 
       var thin=+m.days_excluded_thin;
+      // The 0% caveat only applies while some band actually shows 0%, and it quotes that
+      // band's own day count rather than a number frozen when this was written.
+      var zeroBands=(TIERS||[]).filter(function(t){return t.days>0 && t.k===0;});
+      var zeroNote= zeroBands.length
+        ? ', so a band showing 0% means no such day has turned up yet in the '+
+          (zeroBands.length===1? esc(zeroBands[0].days)+' day'+(zeroBands[0].days===1?'':'s')+' that band holds'
+                               : 'days that band holds')+
+          ', not that one cannot happen; read its interval. '
+        : '; read each interval alongside its point estimate. ';
       document.getElementById('gr-method').innerHTML=
         'Sources: LUMA&rsquo;s public outage feed and the Genera generation feed, both polled every '+
         '10&nbsp;min and averaged into local clock hours before anything is compared, so an hour '+
@@ -1231,9 +879,7 @@
                  'own minimum in a few hours.' : '.')+
         ' The independent unit is the <b>day</b>: 10-minute samples inside one outage are the same '+
         'event counted repeatedly, which is why the Wilson 95% intervals are wide &mdash; only '+
-        esc(m.days_any_50k)+' of '+esc(m.total_days)+' days had any 50k+ outage at all, so a band showing 0% '+
-        'means no such day has turned up yet in the handful of days that band holds, not that one '+
-        'cannot happen; read its interval. '+
+        esc(m.days_any_50k)+' of '+esc(m.total_days)+' days had any 50k+ outage at all'+zeroNote+
         '&ldquo;50,000+ clients&rdquo; is a deliberately lower bar than this page&rsquo;s &ldquo;major&rdquo; '+
         'grid status (&ge;10% of clients, &asymp;147k), and counts unplanned clients only &mdash; planned '+
         'work is scheduled, not a failure.';
@@ -1244,17 +890,24 @@
     // Standing summary of the offline feasibility check. Hardcoded on purpose: it is a
     // conclusion about a frozen analysis, not a live statistic, and dressing it as a live
     // number would be the same category error this panel is being cleaned up for.
+    // Because it is frozen, it carries its as-of date (the day it was written, 2026-08-03)
+    // and every count in it is in the past tense: the live sentence above keeps counting,
+    // this paragraph does not.
     function researchPara(){
-      return '<br><br>A separate offline check went further: 18,565 outage snapshots over 130 days, '+
+      return '<br><br>A separate offline check, run once and frozen as of August&nbsp;3,&nbsp;2026, went '+
+        'further: 18,565 outage snapshots over the 130 days to that date, '+
         'scored at 30, 60 and 120&nbsp;minutes ahead, with every predictor compared <i>only against '+
         'other moments sharing its hour of day</i>. That control matters because everything on this '+
         'grid follows one daily cycle &mdash; a plain hour-of-day lookup, which knows nothing about '+
         'the grid, scores 0.85 without it and exactly 0.50 with it. Reserve margin survives the '+
         'control and gets <i>stronger</i> under it; outage trend and acceleration are worthless at '+
-        'every horizon. But at a budget of one alert per day the best predictor catches 3 or 4 of 15 '+
-        'onsets, and the island has produced 15 independent onsets against the 25 this project '+
-        'requires before publishing even an experimental score. So: a real signal, deliberately not '+
-        'shipped. The check re-runs at ~25 onsets, expected around late November 2026.';
+        'every horizon. But at a budget of one alert per day the best predictor caught 3 or 4 of 15 '+
+        'onsets, and at that date the island had produced 15 independent onsets against the 25 this '+
+        'project requires before publishing even an experimental score. So: a real signal, deliberately '+
+        'not shipped. The figures in this paragraph are that August snapshot and do not update; the '+
+        'counts in the sentence above are live and use a different, hour-level definition, so the two '+
+        'need not match. The check has not been re-run; it will be once 25 independent onsets are on '+
+        'record.';
     }
 
     // ── The N−1 ladder ────────────────────────────────────────────────────────────────
@@ -1448,27 +1101,27 @@
   <div class="panel">
     <h2>Clients Without Power
       <span class="panel-note">
-        <button class="toggle-btn active" id="toggle-view-total">Total</button><button class="toggle-btn" id="toggle-view-region">Region</button>
+        <button class="toggle-btn active" id="toggle-view-total" aria-pressed="true">Total</button><button class="toggle-btn" id="toggle-view-region" aria-pressed="false">Region</button>
       </span>
     </h2>
-    <div class="controls">
-      <button data-days="1" class="active">24h</button>
-      <button data-days="7">7d</button>
-      <button data-days="30">30d</button>
-      <button data-days="90">90d</button>
-      <button data-days="365">1y</button>
+    <div class="controls" role="group" aria-label="Time range">
+      <button data-days="1" class="active" aria-pressed="true">24h</button>
+      <button data-days="7" aria-pressed="false">7d</button>
+      <button data-days="30" aria-pressed="false">30d</button>
+      <button data-days="90" aria-pressed="false">90d</button>
+      <button data-days="365" aria-pressed="false">1y</button>
     </div>
-    <div class="chart-container"><canvas id="chart-main"></canvas></div>
+    <div class="chart-container"><canvas id="chart-main" role="img" aria-label="Line chart of clients without power over the selected time range, unplanned and planned, or by region. Current figures are in the Region Breakdown table below."></canvas></div>
   </div>
 
   <div class="panel">
     <h2>Service Availability
       <span class="panel-note">
-        <button class="toggle-btn active" id="toggle-uptime-total">Total</button><button class="toggle-btn" id="toggle-uptime-region">Region</button>
+        <button class="toggle-btn active" id="toggle-uptime-total" aria-pressed="true">Total</button><button class="toggle-btn" id="toggle-uptime-region" aria-pressed="false">Region</button>
       </span>
     </h2>
-    <div class="panel-note" style="margin-bottom:12px">Share of clients with power at each snapshot (100% &minus; unplanned outage %). Unweighted — the 90-day figures in Grid Status History are time-weighted by severity.</div>
-    <div class="chart-container"><canvas id="chart-uptime"></canvas></div>
+    <div class="panel-note" style="margin-bottom:12px">Share of clients with power at each snapshot (100% &minus; unplanned outage %). Unweighted — the 90-day figures in Grid Status History are time-weighted by severity. The vertical axis is zoomed to the observed range and does not start at 0%, so dips look larger than their share of clients.</div>
+    <div class="chart-container"><canvas id="chart-uptime" role="img" aria-label="Line chart of the share of clients with power over the selected time range, island-wide or by region. The vertical axis does not start at zero."></canvas></div>
   </div>
 
   <span class="nav-anchor" id="regions"></span>
@@ -1508,7 +1161,7 @@
       </tbody>
     </table>
     <p><b>90-day grid history</b> — Each day is colored by weighted downtime: minutes spent at each severity level are weighted (Major &times; 1.0, Partial &times; 0.5, Degraded &times; 0.1) and mapped to a color gradient from green to red. Days with no recorded snapshots appear gray.</p>
-    <p><b>Uptime % (Grid Status History)</b> — Each row's 90-day figure is the weighted average across days with data: 100% minus the ratio of weighted downtime to total monitored time. Days with no recorded snapshots are excluded from the average, so each row also shows how many of the 90 days had data (e.g. <i>84/90 days</i>) — a high percentage built on few days is not the same as one built on ninety.</p>
+    <p><b>Uptime % (Grid Status History)</b> — Each row's 90-day figure is the simple average of the daily uptime percentages across days with data. A day's uptime is 100% minus its weighted downtime as a share of that day's monitored time, and every day with data counts equally however many minutes of it were monitored. Days with no recorded snapshots are excluded from the average, so each row also shows how many of the 90 days had data (e.g. <i>84/90 days</i>) — a high percentage built on few days is not the same as one built on ninety.</p>
     <p><b>Service Availability</b> — A separate, simpler chart: at each snapshot it plots the share of clients with power — 100% minus the unplanned-outage share — <i>unweighted</i>. It answers "how many clients are served right now," whereas the 90-day uptime above answers "how did the grid do over the day, weighted by severity."</p>
     <p><b>Recent notable outages</b> — The worst days of the last 90, ranked by weighted downtime (the same Major&nbsp;&times;&nbsp;1.0 / Partial&nbsp;&times;&nbsp;0.5 / Degraded&nbsp;&times;&nbsp;0.1 minutes used to color the grid history). <i>Peak</i> and <i>Avg unplanned</i> are the highest and mean share of clients out over that day; the Major / Partial / Degraded columns are minutes spent at each severity. Quiet days (under a minute of weighted downtime) are omitted.</p>
     <p><b>% Distribution</b> — Shows each region's share of the total clients without power, indicating where outages are concentrated.</p>
@@ -1532,7 +1185,7 @@
 
     <p><b>Reserve&ndash;outage co-occurrence (the historical table)</b> — Both feeds are averaged into AST clock hours before anything is compared, so an hour that happened to be polled more often does not weigh more. An hour enters the analysis only when both feeds reported in it. Each day is then summarized twice: by its <b>lowest hourly-average operating-reserve share of available capacity</b>, which places it in one of three bands, and by its <b>highest hourly-average unplanned clients without service</b>, which marks it as a 50,000+ day or not. A day is classified only if at least 20 of its hours have both feeds — a day cannot exhibit its own minimum in a handful of hours, and short days bias toward the safe end of the scale. Excluded days are counted on the panel rather than dropped silently.</p>
 
-    <p><b>Why the intervals are wide</b> — The independent unit is the <b>day</b>, not the 10-minute sample: samples taken during one outage are the same event recorded repeatedly, and treating them as independent observations would shrink the intervals by roughly the square root of the number of samples per event. Shares therefore carry Wilson 95% intervals on day-level counts. With only a few dozen days observed, a band showing 0% means "not seen yet in ten days", not "impossible" — its interval reaches well above zero and should be read alongside the point estimate.</p>
+    <p><b>Why the intervals are wide</b> — The independent unit is the <b>day</b>, not the 10-minute sample: samples taken during one outage are the same event recorded repeatedly, and treating them as independent observations would shrink the intervals by roughly the square root of the number of samples per event. Shares therefore carry Wilson 95% intervals on day-level counts. When a band holds only a handful of days, a 0% share means "not seen yet in the days that band holds" (the table lists that count), not "impossible" — its interval reaches well above zero and should be read alongside the point estimate.</p>
 
     <p><b>Association, not causation, and not a forecast</b> — A day's reserve minimum and its worst outage are not ordered in time; a day can hit its worst outage hours before its tightest reserve. Both can also follow a common cause — a storm raises outages and removes generation at once. The table therefore supports "these occur together" and nothing stronger. Separately, a lagged check does impose an order, pairing the reserve share in one hour against a 50,000+ outage beginning in the next and excluding hours already in one; that check finds onsets far more frequent below 10% reserve than at or above it. It is reported with both its numerators and its denominators because the rate contrast, not either count alone, is the finding — and with its total event count, because that count is what keeps it short of a publishable probability.</p>
 
@@ -1540,8 +1193,8 @@
   </div>
 
   <div class="source-note">
-    <p><b>Data source:</b> <a href="https://miluma.lumapr.com/">LUMA Energy</a></p>
-    <p>This is an independent public-interest monitor and is <b>not affiliated with, endorsed by, or operated by LUMA Energy</b>. Figures are derived from LUMA's public outage data and may differ from official reports.</p>
+    <p><b>Data sources:</b> <a href="https://miluma.lumapr.com/">LUMA Energy</a> (outages) and <a href="https://genera-pr.com/">Genera PR</a> (generation, capacity and reserves, used in Grid Supply Adequacy)</p>
+    <p>This is an independent public-interest monitor and is <b>not affiliated with, endorsed by, or operated by LUMA Energy or Genera PR</b>. Figures are derived from LUMA's public outage data and Genera's public generation data and may differ from official reports.</p>
   </div>
 
   <footer class="footer">
@@ -1558,15 +1211,28 @@
 
   const AST_TZ = "America/Puerto_Rico";
 
+  // Region colours per theme. Every colour is at least 3:1 against its page
+  // background (#ffffff light, #0e0e10 dark), so dots and chart lines stay visible.
+  // REGION_COLORS is the light set and the source of region names and their order;
+  // REGION_COLORS_DARK lists only the regions that need a different shade on dark.
+  // Read colours through regionColor(), never from the maps directly.
   const REGION_COLORS = {
     "San Juan": "#e63946",
-    "Bayamon": "#f4a261",
-    "Carolina": "#e9c46a",
+    "Bayamon": "#c96f1e",   // was #f4a261, 2.06:1 on white
+    "Carolina": "#a8861b",  // was #e9c46a, 1.67:1 on white
     "Caguas": "#2a9d8f",
     "Arecibo": "#264653",
     "Mayaguez": "#7209b7",
     "Ponce": "#3a86a8",
   };
+  const REGION_COLORS_DARK = {
+    "Bayamon": "#f4a261",
+    "Carolina": "#e9c46a",
+    "Arecibo": "#a9b8c0",   // #264653 is 1.91:1 on the dark background
+    "Mayaguez": "#b565f0",  // #7209b7 is 2.24:1 on the dark background
+  };
+  const isDarkTheme = () => document.documentElement.getAttribute("data-theme") === "dark";
+  const regionColor = name => (isDarkTheme() && REGION_COLORS_DARK[name]) || REGION_COLORS[name];
 
   const chartFont = { family: "'Source Code Pro', monospace" };
   const chartCss = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -1596,7 +1262,36 @@
     applyChartTheme();
     refreshChartTheme(chartMain);
     refreshChartTheme(chartUptime);
+    // Region colours differ by theme: redraw the charts, the region table and the
+    // calendar rows from the data already loaded.
+    if (outageData && outageData.length) {
+      renderAll();
+      renderCalendar();
+    }
   };
+
+  // Time-axis tick labels in AST, matching the tooltips and the day dividers. Chart.js
+  // formats ticks in the viewer's own zone by default, which put a different clock on the
+  // axis than in the tooltip for anyone outside Puerto Rico. The label detail follows the
+  // tick spacing; a date tick that does not fall on an AST midnight (ticks are placed on
+  // the viewer's local boundaries) also carries its AST hour so it is never ambiguous.
+  function astTickLabel(value, index, ticks) {
+    const t = ticks[index] && ticks[index].value;
+    if (!Number.isFinite(t)) return value;
+    const DAY = 86400000, AST_MIDNIGHT_UTC = 4 * 3600000;
+    const step = ticks.length > 1 ? Math.abs(ticks[1].value - ticks[0].value) : 0;
+    const d = new Date(t);
+    if (step < DAY) {
+      return d.toLocaleTimeString("en-US", { timeZone: AST_TZ, hour: "numeric", minute: "2-digit" });
+    }
+    const onMidnight = (t - AST_MIDNIGHT_UTC) % DAY === 0;
+    if (step < 28 * DAY) {
+      return d.toLocaleString("en-US", onMidnight
+        ? { timeZone: AST_TZ, month: "short", day: "numeric" }
+        : { timeZone: AST_TZ, month: "short", day: "numeric", hour: "numeric" });
+    }
+    return d.toLocaleDateString("en-US", { timeZone: AST_TZ, month: "short", year: "numeric" });
+  }
 
   const chartDefaults = {
     responsive: true,
@@ -1609,7 +1304,7 @@
     scales: {
       x: {
         type: "time",
-        ticks: { font: { ...chartFont, size: 10 } },
+        ticks: { font: { ...chartFont, size: 10 }, callback: astTickLabel },
         grid: { color: chartGridColor() },
       },
       y: {
@@ -1633,13 +1328,14 @@
                      : spanDays <= 100 ? 7 : spanDays <= 250 ? 14 : 30;
       const first = Math.ceil((x.min - AST_MIDNIGHT_UTC) / DAY) * DAY + AST_MIDNIGHT_UTC;
       const { ctx, chartArea } = chart;
+      const dark = document.documentElement.getAttribute("data-theme") === "dark";
       ctx.save();
       ctx.font = "10px 'Source Code Pro', monospace";
       ctx.textBaseline = "top";
       for (let t = first; t <= x.max; t += stepDays * DAY) {
         const px = x.getPixelForValue(t);
         if (px < chartArea.left || px > chartArea.right) continue;
-        ctx.strokeStyle = "rgba(0,0,0,0.10)";
+        ctx.strokeStyle = dark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.10)";
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(px, chartArea.top);
@@ -1661,6 +1357,8 @@
     { key: "elevated",    label: "Degraded Performance", minPct: 1,  color: "#faa72a", weight: 0.1 },
     { key: "operational", label: "Operational",      minPct: 0,  color: "#76ad2a", weight: 0   },
   ];
+  // `color` is for swatches, dots and borders. Text uses the theme-aware variant.
+  const statusTextColor = lvl => `var(--status-text-${lvl.key})`;
   const NO_DATA_COLOR = "#d5d3cd";
 
   function classifyUnplannedPct(pct) {
@@ -1809,8 +1507,9 @@
 
   // --- Load data ---
   // Cache longer ranges across clicks; always refetch 24h so "latest" stays live.
-  // On an auto-refresh tick (force=true) the active range refetches, and the 90-day
-  // set refreshes at most every ~25 min (it only changes at day granularity).
+  // On an auto-refresh tick (force=true) the 24h range refetches, a longer range adds
+  // only its newest snapshots (refreshRange), and the 90-day set refreshes at most
+  // every ~25 min (it only changes at day granularity).
   // Long-range pulls (the 90-day calendar and >7-day ranges) read the
   // materialized mirror (refreshed ~every 10 min) so they don't recompute JSON
   // over tens of thousands of rows on every load. Short/live ranges (<=7d) stay
@@ -1820,6 +1519,13 @@
   const OUTAGE_MV = "mv_outage_snapshots_slim";   // per-snapshot mirror, for the main chart's long ranges
   const OUTAGE_DAILY = "mv_outage_daily";         // per-(day,entity) rollup, for the 90-day calendar
   const rangeCache = {};
+  // A loaded range brought up to date: the snapshots still inside the window (from sinceMs on)
+  // followed by the recent ones that are newer than its last. Both lists are oldest first.
+  function mergeRecent(cached, recent, sinceMs) {
+    const lastMs = Date.parse(cached[cached.length - 1].timestamp);
+    return cached.filter(d => Date.parse(d.timestamp) >= sinceMs)
+      .concat(recent.filter(d => Date.parse(d.timestamp) > lastMs));
+  }
   let currentDays = 1;
   let ninetyFetchedAt = 0;
   async function loadData(days, force = false) {
@@ -1828,14 +1534,28 @@
     const sinceDay90 = new Date(Date.now() - 90 * 86400000).toLocaleDateString("en-CA", { timeZone: AST_TZ });
     const mainTable = days > 7 ? OUTAGE_MV : OUTAGE_VIEW;
 
-    const mainP = (days !== 1 && !force && rangeCache[days])
-      ? Promise.resolve(rangeCache[days])
-      : sbQuery(mainTable, `select=observed_at,snapshot&observed_at=gte.${since}&order=observed_at.asc`)
-          .then(rows => {
-            const parsed = rows.map(parseOutageRow);
-            if (days !== 1) rangeCache[days] = parsed;
-            return parsed;
-          });
+    const fetchRange = () =>
+      sbQuery(mainTable, `select=observed_at,snapshot&observed_at=gte.${since}&order=observed_at.asc`)
+        .then(rows => {
+          const parsed = rows.map(parseOutageRow);
+          if (days !== 1) rangeCache[days] = parsed;
+          return parsed;
+        });
+    // Refreshing a longer range that is already loaded: only its newest snapshots can be
+    // missing, and the 24h file has them, so that small file is read instead of the month
+    // files again. If the loaded range ends more than 24h back (the tab slept), the 24h file
+    // cannot fill the gap and the whole range is read again.
+    const refreshRange = () => {
+      const cached = rangeCache[days];
+      const dayAgo = Date.now() - 86400000;
+      if (!cached.length || Date.parse(cached[cached.length - 1].timestamp) < dayAgo) return fetchRange();
+      return sbQuery(OUTAGE_VIEW, `select=observed_at,snapshot&observed_at=gte.${new Date(dayAgo).toISOString()}&order=observed_at.asc`)
+        .then(rows => (rangeCache[days] = mergeRecent(cached, rows.map(parseOutageRow), Date.parse(since))));
+    };
+
+    const mainP = (days !== 1 && rangeCache[days])
+      ? (force ? refreshRange() : Promise.resolve(rangeCache[days]))
+      : fetchRange();
 
     // The 90-day calendar reads the pre-aggregated daily rollup — one row per
     // (day, entity), ~150 KB in a single request — instead of ~13k per-snapshot
@@ -1847,12 +1567,34 @@
           .then(rows => { ninetyFetchedAt = Date.now(); return buildRollupMaps(rows); })
       : Promise.resolve(dailyRollup);
 
-    const [main, ninety] = await Promise.all([mainP, ninetyP]);
+    let main, ninety;
+    try {
+      [main, ninety] = await Promise.all([mainP, ninetyP]);
+    } catch (err) {
+      console.error("Outage data load failed:", err);
+      showFeedError();
+      return;
+    }
     outageData = main;
     dailyRollup = ninety;
+    if (!main || main.length === 0) { showFeedError(); }
 
     renderAll();
     renderCalendar();
+  }
+
+  // A failed or empty load must not leave the hero on "Connecting…" forever. With nothing
+  // on screen yet, say the feed is unavailable; if an earlier reading is already showing,
+  // keep it and flag that the refresh failed (the next good load clears the notice).
+  function showFeedError() {
+    if (!outageData || outageData.length === 0) {
+      document.getElementById("status-label").textContent = "Live feed unavailable — try reloading";
+      document.getElementById("outage-primary-share").textContent = "Live feed unavailable";
+      return;
+    }
+    const staleEl = document.getElementById("status-stale");
+    staleEl.textContent = "⚠︎ The latest refresh failed — showing the last reading that loaded. Try reloading.";
+    staleEl.style.display = "";
   }
 
   // --- Render ---
@@ -1891,8 +1633,8 @@
       datasets = regionNames.map(name => ({
         label: name,
         data: data.map(d => d.regions[name]?.without || 0),
-        borderColor: REGION_COLORS[name],
-        backgroundColor: REGION_COLORS[name] + "22",
+        borderColor: regionColor(name),
+        backgroundColor: regionColor(name) + "22",
         fill: true, tension: 0.3,
         pointRadius: data.length > 100 ? 0 : 2,
       }));
@@ -1924,8 +1666,11 @@
         label: "Uptime %",
         data: uptimeData,
         borderColor: "#e63946",
-        backgroundColor: "rgba(230,57,70,0.15)",
-        fill: true, tension: 0.3, pointRadius: ptR,
+        backgroundColor: "#e63946",
+        // No area fill: the y-axis is zoomed to the observed range rather than starting at
+        // 0%, so a fill down to the axis floor would draw a dip of a point or two as a
+        // collapse.
+        fill: false, tension: 0.3, pointRadius: ptR,
       }];
     } else {
       uptimeDatasets = regionNames.map(name => ({
@@ -1936,7 +1681,7 @@
           const unplanned = Math.max(0, r.without - r.planned);
           return 100 - (unplanned / r.total * 100);
         }),
-        borderColor: REGION_COLORS[name],
+        borderColor: regionColor(name),
         fill: false, tension: 0.3, pointRadius: ptR,
       }));
     }
@@ -1968,7 +1713,7 @@
       const unplannedPct = (r.total || 0) > 0 ? (unplanned / r.total * 100) : 0;
       const distPct = latest.total.without > 0 ? ((r.without || 0) / latest.total.without * 100) : 0;
       return {
-        name, color: REGION_COLORS[name],
+        name, color: regionColor(name),
         clients: r.total || 0, without: r.without || 0,
         unplanned, planned: r.planned || 0,
         unplannedPct, totalPct: r.pct || 0, distPct,
@@ -2014,7 +1759,7 @@
         <td class="num">${r.planned.toLocaleString()}</td>
         <td class="num">${r.unplannedPct.toFixed(2)}%</td>
         <td class="num">${r.totalPct.toFixed(2)}%</td>
-      </tr>`).join("") + `<tr style="font-weight:700;border-top:2px solid #000">
+      </tr>`).join("") + `<tr style="font-weight:700;border-top:2px solid var(--primary-text)">
         <td>Total</td>
         <td class="num">${tableTotals.clients.toLocaleString()}</td>
         <td class="num">${tableTotals.without.toLocaleString()}</td>
@@ -2026,8 +1771,19 @@
       </tr>`;
   }
 
+  // Arrow class + aria-sort on the header that currently orders the table.
+  function syncSortHeaders() {
+    document.querySelectorAll("#region-table th.sortable").forEach(h => {
+      const on = parseInt(h.dataset.col) === sortCol;
+      h.classList.remove("asc", "desc");
+      if (on) h.classList.add(sortDir);
+      if (on) h.setAttribute("aria-sort", sortDir === "asc" ? "ascending" : "descending");
+      else h.removeAttribute("aria-sort");
+    });
+  }
+
   document.querySelectorAll("#region-table th.sortable").forEach(th => {
-    th.addEventListener("click", () => {
+    const sortBy = () => {
       const col = parseInt(th.dataset.col);
       if (sortCol === col) {
         sortDir = sortDir === "asc" ? "desc" : "asc";
@@ -2036,11 +1792,18 @@
         sortDir = col === 0 ? "asc" : "desc"; // text asc, numbers desc by default
       }
       applySort();
-      document.querySelectorAll("#region-table th.sortable").forEach(h => h.classList.remove("asc", "desc"));
-      th.classList.add(sortDir);
+      syncSortHeaders();
       renderTable();
+    };
+    th.tabIndex = 0;
+    th.addEventListener("click", sortBy);
+    th.addEventListener("keydown", e => {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      e.preventDefault();
+      sortBy();
     });
   });
+  syncSortHeaders();
 
   function relativeTime(date) {
     const sec = Math.round((Date.now() - date.getTime()) / 1000);
@@ -2214,7 +1977,7 @@
       const lvl = classifyUnplannedPct(r.peakPct);
       return `<tr>
         <td><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${r.color};margin-right:6px"></span>${astDayLabel(r.day)}</td>
-        <td class="num" style="color:${lvl.color};font-weight:700">${r.peakPct.toFixed(1)}%</td>
+        <td class="num" style="color:${statusTextColor(lvl)};font-weight:700">${r.peakPct.toFixed(1)}%</td>
         <td class="num">${r.avgPct.toFixed(1)}%</td>
         <td class="num">${r.majorMin} min</td>
         <td class="num">${r.partialMin} min</td>
@@ -2284,7 +2047,7 @@
         <div class="uptime-row">
           <div class="uptime-head">
             <div class="uptime-label">${colorDot}${label}</div>
-            <div class="uptime-status" style="color:${level.color}">${level.label}</div>
+            <div class="uptime-status" style="color:${statusTextColor(level)}">${level.label}</div>
           </div>
           <div class="uptime-bar">
             ${days.map(day => {
@@ -2308,7 +2071,7 @@
 
     let html = renderRow("Overall", overallDaily, null, currentLevelOverall());
     for (const name of regionNames) {
-      html += renderRow(name, regionDaily[name], REGION_COLORS[name], currentLevelRegion(name));
+      html += renderRow(name, regionDaily[name], regionColor(name), currentLevelRegion(name));
     }
     document.getElementById("uptime-calendar").innerHTML = html;
 
@@ -2325,7 +2088,12 @@
       ).join("") +
       `<div class="uptime-legend-item"><div class="uptime-legend-swatch" style="background:${NO_DATA_COLOR}"></div>No Data<span class="legend-tip">No snapshots recorded</span></div>`;
 
-    // Tooltip
+  }
+
+  // Calendar tooltip. Delegated on the container and bound once here, not inside
+  // renderCalendar(): that runs on every refresh and was stacking a new pair of
+  // listeners each time.
+  {
     const tooltip = document.getElementById("uptime-tooltip");
     document.getElementById("uptime-calendar").addEventListener("mouseover", e => {
       const el = e.target.closest(".uptime-day");
@@ -2370,18 +2138,13 @@
 
   // --- Toggle handlers ---
   function setupPair(btn1Id, btn2Id, setter) {
-    document.getElementById(btn1Id).addEventListener("click", () => {
-      setter(0);
-      document.getElementById(btn1Id).classList.add("active");
-      document.getElementById(btn2Id).classList.remove("active");
-      renderAll();
-    });
-    document.getElementById(btn2Id).addEventListener("click", () => {
-      setter(1);
-      document.getElementById(btn2Id).classList.add("active");
-      document.getElementById(btn1Id).classList.remove("active");
-      renderAll();
-    });
+    const b1 = document.getElementById(btn1Id), b2 = document.getElementById(btn2Id);
+    const mark = (on, off) => {
+      on.classList.add("active"); on.setAttribute("aria-pressed", "true");
+      off.classList.remove("active"); off.setAttribute("aria-pressed", "false");
+    };
+    b1.addEventListener("click", () => { setter(0); mark(b1, b2); renderAll(); });
+    b2.addEventListener("click", () => { setter(1); mark(b2, b1); renderAll(); });
   }
   setupPair("toggle-view-total", "toggle-view-region", v => { viewMode = v ? "region" : "total"; });
   setupPair("toggle-uptime-total", "toggle-uptime-region", v => { uptimeViewMode = v ? "region" : "total"; });
@@ -2389,8 +2152,10 @@
   // Time range buttons
   document.querySelectorAll(".controls button").forEach(btn => {
     btn.addEventListener("click", () => {
-      document.querySelectorAll(".controls button").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
+      document.querySelectorAll(".controls button").forEach(b => {
+        b.classList.remove("active"); b.setAttribute("aria-pressed", "false");
+      });
+      btn.classList.add("active"); btn.setAttribute("aria-pressed", "true");
       loadData(parseInt(btn.dataset.days));
     });
   });
