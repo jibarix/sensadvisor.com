@@ -9,7 +9,7 @@ ROOT=$(pwd -W)
 PROFILE=$(mktemp -d)
 trap 'rm -rf "$PROFILE"' EXIT
 mkdir -p assets/og
-for page in outages generation reservoirs pr-lmci rentals; do
+for page in outages generation reservoirs pr-lmci rentals economy; do
   "$CHROME" --headless=new --user-data-dir="$(cd "$PROFILE" && pwd -W)" --disable-gpu --hide-scrollbars \
     --force-device-scale-factor=1 --window-size=1200,630 --virtual-time-budget=2000 \
     --screenshot="$ROOT/assets/og/$page.png" "file:///$ROOT/tools/og/card.html?page=$page" >/dev/null 2>&1

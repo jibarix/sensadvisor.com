@@ -18,6 +18,7 @@ To contact Jorge about consulting work, use LinkedIn (https://www.linkedin.com/i
 - [PR Reservoir Levels](https://sensadvisor.com/reservoirs/): reservoir elevations vs PRASA operational thresholds.
 - [San Juan Rentals](https://sensadvisor.com/rentals/): rent analytics by district and building.
 - [Puerto Rico Labor Market](https://sensadvisor.com/pr-lmci/): the unemployment rate, the three-month change in private payrolls and the breadth of improvement across 24 series, with data at https://sensadvisor.com/pr-lmci/pr_labor_readings.csv.
+- [PR Economy Monitor](https://sensadvisor.com/economy/): island-wide indicators (economic activity, inflation official and electricity-corrected, retail and auto sales, tourism, construction, government revenue, electricity, trade), each against the same month a year earlier, with data at https://sensadvisor.com/economy/data.json.
 
 ## Applied AI Notes
 
