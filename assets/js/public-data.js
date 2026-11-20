@@ -97,9 +97,14 @@
             if (src.time === k && (op === "gte" || op === "gt") && typeof arg === "number") since = arg;
         });
 
+        // A caller asking for "the last liveHours" worked out `since` a moment before this runs,
+        // so an exact comparison misses by milliseconds and the request falls through to the
+        // month files. The live file is published with an hour more than liveHours (25 h for
+        // outages/live), so a few minutes of slack still lands inside what it holds.
+        var LIVE_SLACK_MS = 5 * 60000;
         var rowsP;
         if (src.dataset) rowsP = dataset(src.dataset).then(function (d) { return d.rows; });
-        else if (src.live && since != null && since >= Date.now() - src.liveHours * 3600000)
+        else if (src.live && since != null && since >= Date.now() - src.liveHours * 3600000 - LIVE_SLACK_MS)
             rowsP = dataset(src.live).then(function (d) { return d.rows; });
         else if (src.live && since == null && q.get("limit") === "1" && /\.desc/.test(q.get("order") || ""))
             rowsP = dataset(src.live).then(function (d) { return d.rows; });   // "the latest row"
