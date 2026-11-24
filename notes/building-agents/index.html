@@ -1,0 +1,142 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t!=='dark'&&t!=='light'){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.setAttribute('data-theme',t)}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Building Agents Is Still Mostly Software Engineering | Applied AI Notes | SENS ADVISOR</title>
+<meta name="description" content="Building agents is still mostly software engineering: a Carnegie Mellon program on agentic AI confirmed it, and I compared what it taught with 18 other university courses.">
+<link rel="canonical" href="https://sensadvisor.com/notes/building-agents/">
+<meta property="og:title" content="Building Agents Is Still Mostly Software Engineering | Applied AI Notes | SENS ADVISOR"><meta property="og:description" content="Building agents is still mostly software engineering: a Carnegie Mellon program on agentic AI confirmed it, and I compared what it taught with 18 other university courses.">
+<meta property="og:url" content="https://sensadvisor.com/notes/building-agents/"><meta property="og:type" content="article"><meta property="og:site_name" content="SENS ADVISOR">
+<meta property="og:image" content="https://sensadvisor.com/assets/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="article:published_time" content="2026-11-24"><meta name="author" content="Jorge A. Arroyo">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Building Agents Is Still Mostly Software Engineering | Applied AI Notes | SENS ADVISOR"><meta name="twitter:description" content="Building agents is still mostly software engineering: a Carnegie Mellon program on agentic AI confirmed it, and I compared what it taught with 18 other university courses.">
+<meta name="twitter:image" content="https://sensadvisor.com/assets/og.png">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Building Agents Is Still Mostly Software Engineering", "description": "Building agents is still mostly software engineering: a Carnegie Mellon program on agentic AI confirmed it, and I compared what it taught with 18 other university courses.", "url": "https://sensadvisor.com/notes/building-agents/", "datePublished": "2026-11-24", "inLanguage": "en", "image": "https://sensadvisor.com/assets/og.png", "author": {"@type": "Person", "name": "Jorge A. Arroyo", "url": "https://sensadvisor.com/"}, "publisher": {"@type": "Organization", "name": "SENS ADVISOR", "url": "https://sensadvisor.com/"}}</script>
+<link rel="preload" href="/fonts/source-code-pro-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:'Source Code Pro';font-style:normal;font-weight:300 700;font-display:swap;src:url(/fonts/source-code-pro-latin.woff2) format('woff2')}
+:root{--ink:#0e0e10;--paper:#fff;--green:#009646;--dim:#333;--rule:rgba(14,14,16,.16);--gutter:clamp(16px,2.2vw,36px);
+--sans:'Helvetica Neue','Inter','Segoe UI Variable Display','Segoe UI',Arial,sans-serif;
+--mono:'Source Code Pro',ui-monospace,'Cascadia Mono',Consolas,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.45 var(--sans);-webkit-font-smoothing:antialiased}
+:root{--heat:0,150,70}
+:root[data-theme="dark"]{--ink:#ededed;--paper:#0e0e10;--green:#36e08a;--dim:#9aa0a6;--rule:rgba(237,237,237,.16);color-scheme:dark}
+:root{--c-ink:#0e0e10;--c-green:#009646;--c-mid:#6b6b6b;--c-grey:#8a8a8a;--c-light:#a6a6a6;--c-pale:#e4e4e4;}:root[data-theme="dark"]{--c-ink:#ededed;--c-green:#36e08a;--c-mid:#9aa0a6;--c-grey:#6b6e73;--c-light:#55585d;--c-pale:#2a2c30;}
+article{max-width:1480px;margin:0 auto;padding:0 var(--gutter) 40px}
+article>header{margin:clamp(110px,10vw,150px) 0 clamp(56px,7vw,100px)}
+.kicker,th,.legend,.byline,figcaption,footer{font-family:var(--mono);font-weight:400;letter-spacing:.04em}
+.kicker{display:block;max-width:none;font-size:12px;text-transform:uppercase;margin:0 0 56px;padding-top:10px;border-top:1px solid var(--rule)}
+h1{font-weight:400;font-size:clamp(52px,6.4vw,120px);line-height:.92;letter-spacing:-.045em;margin:0;max-width:12ch}
+.sub{max-width:46ch;margin:26px 0 0;font-size:clamp(18px,1.5vw,24px);line-height:1.35;letter-spacing:-.01em}
+.byline{margin-top:44px;font-size:11px;text-transform:uppercase}
+h2{font-weight:400;font-size:clamp(26px,2.4vw,40px);line-height:1.05;letter-spacing:-.03em;
+margin:96px 0 28px;padding-top:10px;border-top:1px solid var(--rule)}
+h3{font-weight:400;font-size:20px;line-height:1.2;letter-spacing:-.01em;margin:44px 0 12px}
+p,ul,ol:not(.questions){max-width:72ch}p{margin:0 0 16px;font-size:17px}
+.lede{font-size:clamp(18px,1.5vw,22px);line-height:1.45;letter-spacing:-.005em}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0 var(--gutter);margin:48px 0}
+.kpi{padding:12px 0 18px;border-top:1px solid var(--rule)}
+.kpi b{display:block;font-size:clamp(44px,4.4vw,72px);font-weight:400;line-height:.92;letter-spacing:-.045em;font-variant-numeric:tabular-nums}
+.kpi span{display:block;font-size:14px;color:var(--dim);margin-top:12px;max-width:30ch}
+figure{margin:28px 0 36px;max-width:980px}figcaption{font-size:11px;text-transform:uppercase;color:var(--dim);margin-top:8px}
+.chart{width:100%;height:auto;display:block}.lbl{font:13.5px var(--sans);fill:var(--ink)}
+.val{font:13px var(--sans);fill:var(--ink)}
+.in{font:11px var(--mono);fill:var(--ink)}.in.dk{fill:var(--paper)}
+.legend{font-size:11px;text-transform:uppercase;color:var(--dim);margin:8px 0}.legend span{margin-right:16px;white-space:nowrap}
+.legend i{display:inline-block;width:10px;height:10px;margin-right:6px;vertical-align:-1px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:var(--gutter);max-width:980px}@media(max-width:720px){.row{grid-template-columns:1fr}}
+table{border-collapse:collapse;width:100%;max-width:980px;font-size:15px;border-top:1px solid var(--ink)}
+td,th{padding:9px 10px 9px 0;border-bottom:1px solid var(--rule);text-align:left;font-variant-numeric:tabular-nums}
+th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);vertical-align:bottom}
+td:not(:first-child),th:not(:first-child){text-align:right}
+.views td,.views th{text-align:left}
+.req thead th{white-space:normal}.req tbody th{font:15px var(--sans);letter-spacing:0;color:var(--ink);text-transform:none;white-space:nowrap}
+.req tr.all th,.req tr.all td{border-top:1px solid var(--ink)}
+.heat td.h{text-align:center;padding:9px 6px;border-bottom:2px solid var(--paper)}
+.scroll{overflow-x:auto;max-width:980px}
+.questions{counter-reset:q;list-style:none;padding:0;margin:28px 0;max-width:980px}
+.questions li{counter-increment:q;padding:14px 0 18px 64px;position:relative;border-top:1px solid var(--rule)}
+.questions li:before{content:counter(q,decimal-leading-zero);position:absolute;left:0;top:14px;font:12px var(--mono);letter-spacing:.04em;color:var(--green)}
+.questions b{display:block;font-weight:400;font-size:20px;line-height:1.2;letter-spacing:-.01em;margin-bottom:6px}
+.note{font-size:14px;line-height:1.55;color:var(--dim);max-width:78ch}
+details{max-width:980px;border-top:1px solid var(--rule);padding:12px 0;margin-top:56px}
+details summary{cursor:pointer;font:12px var(--mono);letter-spacing:.04em;text-transform:uppercase}
+footer{font-size:11px;text-transform:uppercase;border-top:1px solid var(--rule);padding:30px 0 6px;margin-top:96px}
+a{color:var(--green)}
+.draft{position:fixed;bottom:0;left:0;right:0;z-index:20;background:#b00020;color:#fff;font:12px var(--mono);text-align:center;padding:8px}
+
+.since{max-width:980px;border:1px solid var(--rule);padding:18px 22px 6px;margin:0 0 24px}
+.since h3{margin:0 0 10px;font-family:var(--mono);font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+.chart .grid{stroke:var(--rule);stroke-width:1}.chart .tick{font:10.5px var(--mono);fill:var(--dim)}
+.chart .link{stroke:var(--dim);stroke-width:2;opacity:.5}
+.chart .oct{fill:var(--paper);stroke:var(--c-grey);stroke-width:2}.chart .nov{fill:var(--green);stroke:var(--paper);stroke-width:2}
+.chart .lbl.mv{font-weight:600}.chart .hit{fill:transparent}.chart .dr:hover .hit{fill:var(--rule)}
+.legend i.ko{background:none;border:2px solid var(--c-grey);border-radius:50%}.legend i.kn{background:var(--green);border-radius:50%}
+details table{margin:18px 0}
+.kicker a{color:inherit}
+table.parts{margin:28px 0 40px}table.parts td,table.parts th{text-align:left!important;vertical-align:top}table.parts td:first-child{white-space:nowrap;padding-right:18px}ol,ul{margin:0 0 16px;font-size:17px}li{margin:0 0 6px}figure.dgf{overflow-x:auto;margin:32px 0 40px}figure.dgf svg{display:block;width:100%;min-width:640px;height:auto}.dg .bx{fill:none;stroke:var(--c-ink);stroke-width:1}.dg .fr{fill:none;stroke:var(--c-mid);stroke-width:1;stroke-dasharray:4 3}.dg .md{fill:none;stroke:var(--c-green);stroke-width:2}.dg .ln{fill:none;stroke:var(--c-ink);stroke-width:1.5}.dg .dl{fill:none;stroke:var(--c-mid);stroke-width:1;stroke-dasharray:3 3}.dg .ahd{fill:var(--c-ink)}.dg .sq{fill:var(--c-green)}.dg text{fill:var(--c-ink);font-family:var(--sans)}.dg .t1{font-size:16px}.dg .ti{font-size:14px}.dg .t3{font-size:12px;fill:var(--c-mid)}.dg .t2{font-size:12px;font-family:var(--mono);fill:var(--c-mid)}.dg .hd{font-size:11px;font-family:var(--mono);letter-spacing:.06em;fill:var(--c-mid)}.dg .num{font-family:var(--mono);font-size:14px;fill:var(--c-green)}</style>
+<link rel="stylesheet" href="/assets/dash.css"></head><body>
+<header class="sa-chrome">
+<a class="sa-chip" href="/" aria-label="SENS ADVISOR, home">SENS ADVISOR</a>
+<div class="sa-chrome-r">
+<button class="sa-menu-btn" type="button" aria-expanded="false" aria-controls="sa-menu">Menu</button>
+<button class="sa-icon-btn sa-theme" type="button" aria-label="Toggle dark mode" aria-pressed="false" title="Toggle dark mode"><span aria-hidden="true">&#9680;</span></button>
+</div>
+</header>
+<nav id="sa-menu" class="sa-menu" aria-label="Applied AI Notes" hidden>
+<div class="sa-menu-body">
+<a class="sa-menu-home" href="/">&larr; Main site</a>
+<p class="sa-menu-h">Applied AI Notes</p>
+<ol class="sa-menu-main"><li><a href="/notes/"><span>01</span>All notes</a></li>
+<li><a href="./" aria-current="page"><span>02</span>Building Agents Is Still Mostly Software Engineering</a></li>
+<li><a href="/notes/second-model/"><span>03</span>nouez: Claude Code Asks Codex for a Second Opinion</a></li>
+<li><a href="/notes/agent-harness/"><span>04</span>What Turns a Model into an Agent</a></li>
+<li><a href="/notes/ai-requirements/2026-11/"><span>05</span>What Businesses Are Asking AI to Do</a></li></ol>
+<p class="sa-menu-h">Live data</p>
+<ol class="sa-menu-main"><li><a href="/outages/"><span>06</span>PR Outage Status</a></li><li><a href="/generation/"><span>07</span>PR Generation Status</a></li><li><a href="/reservoirs/"><span>08</span>PR Reservoir Levels</a></li><li><a href="/rentals/"><span>09</span>San Juan Rentals</a></li><li><a href="/pr-lmci/"><span>10</span>PR Labor Market Readings</a></li><li><a href="/economy/"><span>11</span>PR Economy Monitor</a></li></ol>
+<a class="sa-menu-mail" href="mailto:consult@sensadvisor.com">consult@sensadvisor.com</a>
+</div>
+</nav>
+<article>
+<header>
+<p class="kicker"><a href="/notes/">Applied AI Notes</a> · November 2026</p>
+<h1>Building Agents Is Still Mostly Software Engineering</h1>
+<p class="sub">A Carnegie Mellon program on agentic AI confirmed it, and I compared what it taught with 18 other university courses.</p>
+<div class="byline">J. A. Arroyo · SENS ADVISOR</div>
+</header>
+<h2>The claim</h2>
+<p class="lede">Building an agent that works in production is still mostly software engineering. The model is one part. The hard work is the system around it, which has to stay reliable when the model isn’t.</p>
+<p>I recently finished Carnegie Mellon University’s <a href="https://execonline.cs.cmu.edu/agentic-ai-program">Agentic AI program, Building Autonomous Systems for Real-World Applications</a>, offered by its School of Computer Science Executive Education, and it confirmed that view. Applied AI is still engineering: the models keep getting better, but whether an agent works for a business depends on everything built around it.</p>
+
+<h2>What the program taught me</h2>
+<ul>
+<li><b>Design the safeguards in from the start.</b> Evaluation, guardrails, monitoring and human review are part of the design, not something added after deployment, and a good design sends only the right cases to a person.</li>
+<li><b>Check a model’s confidence before trusting it.</b> Before choosing a routing threshold, check how often the model is right at each confidence level.</li>
+<li><b>Weigh one agent against several.</b> One agent is simpler and easier to manage; several add coordination, latency and complexity, and they have to earn it.</li>
+<li><b>Keep what the model sees apart from what the system keeps.</b> The model works from selected history; the system keeps the full record, saves the state it needs to resume, and guards against duplicate effects when it retries a write.</li>
+<li><b>Choose what the model sees.</b> Decide when to retrieve and how much to pass to the model. Extra material can add noise and cost.</li>
+<li><b>Design tools for the model.</b> The model knows a tool only by its name, description, inputs and results, and every tool description costs context.</li>
+<li><b>Treat security as a system problem.</b> Threats run through memory, orchestration, the runtime and the inputs, so the answer is defence in depth, not a single fix.</li>
+<li><b>Don’t mistake a benchmark score for readiness.</b> Evaluation also covers calibration, robustness, cost and bias, and after a change of model you test the known failures again.</li>
+</ul>
+
+<h2>How it lines up with other courses</h2>
+<p>Alongside the program, I have been documenting how universities teach this. My guide, <a href="https://github.com/jibarix/agentic_training/blob/main/guide/agentic_guide.pdf"><i>Learning to Build Agentic Systems</i></a>, brings together the public materials of 18 university courses on AI agents and agentic systems from 2025 and 2026, from hands-on engineering courses to research seminars, at universities including Carnegie Mellon, Stanford, UC Berkeley, Michigan and Harvard. The program I took is not one of them, which makes the comparison useful.</p>
+<ul>
+<li><b>Choosing what the model sees</b> is taught in nearly every course.</li>
+<li><b>Security as a system problem</b> and <b>designing tools for the model</b> are taught in several, some in depth.</li>
+<li><b>Building evaluation and review into the system</b>, <b>tracking state and retries</b>, and <b>testing failures again after a change</b> are taught in parts across many courses. I didn’t find one that puts them together the way the program did.</li>
+<li><b>One agent or several</b> is an open question: some courses reward a single agent that matches a team at lower cost. Others report teams of agents doing better on long tasks, at a higher cost. The program also taught it as a trade-off.</li>
+<li><b>Checking a model’s confidence before routing on it</b> is where the program stood out: I didn’t find it taught as a practice in the other courses.</li>
+</ul>
+
+<h2>What made the program worth it</h2>
+<p>The best part was the people. The program had a lot of live interaction with the professor and the learning facilitators, an incredible group of intelligent people at the disposal of every participant, and the program’s support team was there in the sessions too, taking care of the logistics. Everything was clearly explained, not only in the extra time they gave to answering questions in the live sessions, labs and office hours, but also on the learning platform.</p>
+
+<h2>Would I recommend it?</h2>
+<p>Yes, highly. I recommend it to anyone who wants to learn how agents are built, to shape their own thinking about them, to get up to date, or simply to get real feedback from real professionals and academics.</p>
+
+<details><summary>Source and limits</summary><p>What the program taught is paraphrased from its course materials and sessions and from my own experience in it. The comparison with other courses comes from my guide’s course tables: a course counts as teaching a point when a lecture, lab, reading or stated objective teaches it, and where I say I didn’t find something, I mean in the tables I compiled. The guide is my own; no university has reviewed or endorsed it.</p></details>
+<details><summary>Use of AI tools</summary><p>Claude (Anthropic) checked these lessons against the program files and my guide’s course tables, and drafted this text under my direction; I checked the claims and the final wording.</p></details>
+<footer>SENS ADVISOR · consult@sensadvisor.com · November 2026</footer>
+</article>
+<script src="/assets/dash.js" defer></script></body></html>
