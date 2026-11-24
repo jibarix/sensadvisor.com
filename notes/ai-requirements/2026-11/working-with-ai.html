@@ -1,0 +1,248 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t!=='dark'&&t!=='light'){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.setAttribute('data-theme',t)}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>What Adopting Companies Report | What Businesses Are Asking AI to Do | SENS ADVISOR</title>
+<meta name="description" content="Anthropic interviewed people at 58 companies already deploying AI. What they report on value, jobs and bottlenecks, read beside the business requirements this series tracks.">
+<link rel="canonical" href="https://sensadvisor.com/notes/ai-requirements/2026-11/working-with-ai.html">
+<meta property="og:title" content="What Adopting Companies Report | What Businesses Are Asking AI to Do | SENS ADVISOR"><meta property="og:description" content="Anthropic interviewed people at 58 companies already deploying AI. What they report on value, jobs and bottlenecks, read beside the business requirements this series tracks.">
+<meta property="og:url" content="https://sensadvisor.com/notes/ai-requirements/2026-11/working-with-ai.html"><meta property="og:type" content="article"><meta property="og:site_name" content="SENS ADVISOR">
+<meta property="og:image" content="https://sensadvisor.com/assets/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="article:published_time" content="2026-11-24"><meta name="author" content="Jorge A. Arroyo">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="What Adopting Companies Report | What Businesses Are Asking AI to Do | SENS ADVISOR"><meta name="twitter:description" content="Anthropic interviewed people at 58 companies already deploying AI. What they report on value, jobs and bottlenecks, read beside the business requirements this series tracks.">
+<meta name="twitter:image" content="https://sensadvisor.com/assets/og.png">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "What Adopting Companies Report", "description": "Anthropic interviewed people at 58 companies already deploying AI. What they report on value, jobs and bottlenecks, read beside the business requirements this series tracks.", "url": "https://sensadvisor.com/notes/ai-requirements/2026-11/working-with-ai.html", "datePublished": "2026-11-24", "inLanguage": "en", "image": "https://sensadvisor.com/assets/og.png", "author": {"@type": "Person", "name": "Jorge A. Arroyo", "url": "https://sensadvisor.com/"}, "publisher": {"@type": "Organization", "name": "SENS ADVISOR", "url": "https://sensadvisor.com/"}, "isPartOf": {"@type": "CreativeWorkSeries", "name": "What Businesses Are Asking AI to Do", "url": "https://sensadvisor.com/notes/"}}</script>
+<link rel="preload" href="/fonts/source-code-pro-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:'Source Code Pro';font-style:normal;font-weight:300 700;font-display:swap;src:url(/fonts/source-code-pro-latin.woff2) format('woff2')}
+:root{--ink:#0e0e10;--paper:#fff;--green:#009646;--dim:#333;--rule:rgba(14,14,16,.16);--gutter:clamp(16px,2.2vw,36px);
+--sans:'Helvetica Neue','Inter','Segoe UI Variable Display','Segoe UI',Arial,sans-serif;
+--mono:'Source Code Pro',ui-monospace,'Cascadia Mono',Consolas,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.45 var(--sans);-webkit-font-smoothing:antialiased}
+:root{--heat:0,150,70}
+:root[data-theme="dark"]{--ink:#ededed;--paper:#0e0e10;--green:#36e08a;--dim:#9aa0a6;--rule:rgba(237,237,237,.16);color-scheme:dark}
+:root{--c-ink:#0e0e10;--c-green:#009646;--c-mid:#6b6b6b;--c-grey:#8a8a8a;--c-light:#a6a6a6;--c-pale:#e4e4e4;}:root[data-theme="dark"]{--c-ink:#ededed;--c-green:#36e08a;--c-mid:#9aa0a6;--c-grey:#6b6e73;--c-light:#55585d;--c-pale:#2a2c30;}
+article{max-width:1480px;margin:0 auto;padding:0 var(--gutter) 40px}
+article>header{margin:clamp(110px,10vw,150px) 0 clamp(56px,7vw,100px)}
+.kicker,th,.legend,.byline,figcaption,footer{font-family:var(--mono);font-weight:400;letter-spacing:.04em}
+.kicker{display:block;max-width:none;font-size:12px;text-transform:uppercase;margin:0 0 56px;padding-top:10px;border-top:1px solid var(--rule)}
+h1{font-weight:400;font-size:clamp(52px,6.4vw,120px);line-height:.92;letter-spacing:-.045em;margin:0;max-width:12ch}
+.sub{max-width:46ch;margin:26px 0 0;font-size:clamp(18px,1.5vw,24px);line-height:1.35;letter-spacing:-.01em}
+.byline{margin-top:44px;font-size:11px;text-transform:uppercase}
+h2{font-weight:400;font-size:clamp(26px,2.4vw,40px);line-height:1.05;letter-spacing:-.03em;
+margin:96px 0 28px;padding-top:10px;border-top:1px solid var(--rule)}
+h3{font-weight:400;font-size:20px;line-height:1.2;letter-spacing:-.01em;margin:44px 0 12px}
+p,ul,ol:not(.questions){max-width:72ch}p{margin:0 0 16px;font-size:17px}
+.lede{font-size:clamp(18px,1.5vw,22px);line-height:1.45;letter-spacing:-.005em}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0 var(--gutter);margin:48px 0}
+.kpi{padding:12px 0 18px;border-top:1px solid var(--rule)}
+.kpi b{display:block;font-size:clamp(44px,4.4vw,72px);font-weight:400;line-height:.92;letter-spacing:-.045em;font-variant-numeric:tabular-nums}
+.kpi span{display:block;font-size:14px;color:var(--dim);margin-top:12px;max-width:30ch}
+figure{margin:28px 0 36px;max-width:980px}figcaption{font-size:11px;text-transform:uppercase;color:var(--dim);margin-top:8px}
+.chart{width:100%;height:auto;display:block}.lbl{font:13.5px var(--sans);fill:var(--ink)}
+.val{font:13px var(--sans);fill:var(--ink)}
+.in{font:11px var(--mono);fill:var(--ink)}.in.dk{fill:var(--paper)}
+.legend{font-size:11px;text-transform:uppercase;color:var(--dim);margin:8px 0}.legend span{margin-right:16px;white-space:nowrap}
+.legend i{display:inline-block;width:10px;height:10px;margin-right:6px;vertical-align:-1px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:var(--gutter);max-width:980px}@media(max-width:720px){.row{grid-template-columns:1fr}}
+table{border-collapse:collapse;width:100%;max-width:980px;font-size:15px;border-top:1px solid var(--ink)}
+td,th{padding:9px 10px 9px 0;border-bottom:1px solid var(--rule);text-align:left;font-variant-numeric:tabular-nums}
+th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);vertical-align:bottom}
+td:not(:first-child),th:not(:first-child){text-align:right}
+.words td,.words th{text-align:left}
+.req thead th{white-space:normal}.req tbody th{font:15px var(--sans);letter-spacing:0;color:var(--ink);text-transform:none;white-space:nowrap}
+.req tr.all th,.req tr.all td{border-top:1px solid var(--ink)}
+.heat td.h{text-align:center;padding:9px 6px;border-bottom:2px solid var(--paper)}
+.scroll{overflow-x:auto;max-width:980px}
+.questions{counter-reset:q;list-style:none;padding:0;margin:28px 0;max-width:980px}
+.questions li{counter-increment:q;padding:14px 0 18px 64px;position:relative;border-top:1px solid var(--rule)}
+.questions li:before{content:counter(q,decimal-leading-zero);position:absolute;left:0;top:14px;font:12px var(--mono);letter-spacing:.04em;color:var(--green)}
+.questions b{display:block;font-weight:400;font-size:20px;line-height:1.2;letter-spacing:-.01em;margin-bottom:6px}
+.note{font-size:14px;line-height:1.55;color:var(--dim);max-width:78ch}
+details{max-width:980px;border-top:1px solid var(--rule);padding:12px 0;margin-top:56px}
+details summary{cursor:pointer;font:12px var(--mono);letter-spacing:.04em;text-transform:uppercase}
+footer{font-size:11px;text-transform:uppercase;border-top:1px solid var(--rule);padding:30px 0 6px;margin-top:96px}
+a{color:var(--green)}
+.draft{position:fixed;bottom:0;left:0;right:0;z-index:20;background:#b00020;color:#fff;font:12px var(--mono);text-align:center;padding:8px}
+
+.since{max-width:980px;border:1px solid var(--rule);padding:18px 22px 6px;margin:0 0 24px}
+.since h3{margin:0 0 10px;font-family:var(--mono);font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+.chart .grid{stroke:var(--rule);stroke-width:1}.chart .tick{font:10.5px var(--mono);fill:var(--dim)}
+.chart .link{stroke:var(--dim);stroke-width:2;opacity:.5}
+.chart .oct{fill:var(--paper);stroke:var(--c-grey);stroke-width:2}.chart .nov{fill:var(--green);stroke:var(--paper);stroke-width:2}
+.chart .lbl.mv{font-weight:600}.chart .hit{fill:transparent}.chart .dr:hover .hit{fill:var(--rule)}
+.legend i.ko{background:none;border:2px solid var(--c-grey);border-radius:50%}.legend i.kn{background:var(--green);border-radius:50%}
+details table{margin:18px 0}
+.kicker a{color:inherit}
+</style>
+<link rel="stylesheet" href="/assets/dash.css"></head><body>
+<header class="sa-chrome">
+<a class="sa-chip" href="/" aria-label="SENS ADVISOR, home">SENS ADVISOR</a>
+<div class="sa-chrome-r">
+<button class="sa-menu-btn" type="button" aria-expanded="false" aria-controls="sa-menu">Menu</button>
+<button class="sa-icon-btn sa-theme" type="button" aria-label="Toggle dark mode" aria-pressed="false" title="Toggle dark mode"><span aria-hidden="true">&#9680;</span></button>
+</div>
+</header>
+<nav id="sa-menu" class="sa-menu" aria-label="Applied AI Notes" hidden>
+<div class="sa-menu-body">
+<a class="sa-menu-home" href="/">&larr; Main site</a>
+<p class="sa-menu-h">Applied AI Notes · What Businesses Are Asking AI to Do</p>
+<ol class="sa-menu-main"><li><a href="/notes/"><span>01</span>All notes</a></li>
+<li><a href="./"><span>02</span>What Moved Since October</a></li>
+<li><a href="working-with-ai.html" aria-current="page"><span>03</span>What Adopting Companies Report</a></li>
+<li><a href="https://sensadvisor.com/notes/ai-requirements/2026-10/agents.html"><span>04</span>October edition</a></li></ol>
+<p class="sa-menu-h">Live data</p>
+<ol class="sa-menu-main"><li><a href="/outages/"><span>05</span>PR Outage Status</a></li><li><a href="/generation/"><span>06</span>PR Generation Status</a></li><li><a href="/reservoirs/"><span>07</span>PR Reservoir Levels</a></li><li><a href="/rentals/"><span>08</span>San Juan Rentals</a></li><li><a href="/pr-lmci/"><span>09</span>PR Labor Market Readings</a></li><li><a href="/economy/"><span>10</span>PR Economy Monitor</a></li></ol>
+<a class="sa-menu-mail" href="mailto:consult@sensadvisor.com">consult@sensadvisor.com</a>
+</div>
+</nav>
+<article>
+<header>
+<p class="kicker"><a href="/notes/">Applied AI Notes</a> · What Businesses Are Asking AI to Do · November 2026</p>
+<h1>What Adopting Companies Report</h1>
+<p class="sub">Anthropic's interviews with companies already using AI, read beside the requirements this series tracks.</p>
+<div class="byline">J. A. Arroyo · SENS ADVISOR</div>
+</header>
+<p class="lede">This series reads the requirements businesses publish when they ask for AI systems to be built, fixed or extended. On 23 November 2026, Anthropic's
+economics team published <a href="https://www.anthropic.com/research/working-with-ai">Working with AI</a>, by Nathan
+Wilmers, Maxim Massenkoff and Peter McCrory, which hears from the other end: 66 interviews with people at 58 US
+companies, all Anthropic enterprise customers, that are already deploying AI. Its findings on where value comes from,
+what happens to jobs and what holds deployments back say a good deal about what requirements should settle in
+advance. This note summarises the study and sets it beside the
+<a href="./">November edition</a>.</p>
+
+<div class="kpis">
+<div class="kpi"><b>2</b><span>of 58 companies had seen AI automation fully eliminate a position and lead to a job loss</span></div>
+<div class="kpi"><b>2/3</b><span>of companies reported hiring less because of AI</span></div>
+<div class="kpi"><b>9</b><span>companies cut contractors, many of them offshore</span></div>
+<div class="kpi"><b>80%</b><span>of 100 well-described pieces of AI-built software automated previously manual work</span></div>
+</div>
+
+<aside class="since">
+<h3>Reading the study</h3>
+<p class="note">These are interviews, not a survey. The companies were chosen for variety across industry, size and
+AI use, not to represent the US economy or even Anthropic's customers. The value of each use was the interviewee's own
+description, “not typically based on A/B tests or other quantitative assessments”, and an automated coder classified
+uses, software and bottlenecks from the transcripts. The authors present the work as patterns for later quantitative
+research to test.</p>
+</aside>
+
+<h2>Value comes mostly from more output</h2>
+<p>The authors coded nearly 300 applications, each a specific use of AI at a specific company. Among the applications
+whose benefits interviewees described, most added value by increasing output rather than by cutting costs. About half
+of those output-increasing applications accelerated or expanded existing work, and the other half improved products
+and services or created new ones: an
+up-front estimate of a patient's cost after insurance, an after-hours answering service at a dental company, mock-ups
+of vacant units fitted out in a prospective tenant's branding. In about a tenth of the applications for which interviewees
+described the benefits, employees captured the value directly, as more enjoyable work or simply less work.</p>
+<p>Light-touch uses such as ad hoc data analysis or slide design fit into existing structures, but interviewees often
+rated them as low value. The higher-value uses tended to require changes to processes or roles, such as AI review of
+every code commit, or a marketing manager who maintains branding guidelines for the AI instead of designing each
+document.</p>
+
+<h2>Few layoffs, less hiring, fewer contractors</h2>
+<p>People at five companies described pushing out employees who would not adopt AI, and only two companies had seen
+automation fully eliminate a position and lead to a job loss. Ten reported hiring more because of AI, mostly into
+implementation and IT support roles. Reduced hiring was far more widely reported: at two-thirds of the companies, people
+said they were hiring less because of AI. A third of those declines came from shrinking functions through attrition; most were hiring
+the company would otherwise have needed in order to grow. As one engineering leader put it, “We've added a lot of
+capacity by buying tokens instead of hiring people.”</p>
+<p>Nine companies cut contracted developers, customer service, legal counsel or back-office work, much of it already
+offshored; one finance company let go of well over 100 offshore data and developer contractors. The authors suggest
+these cuts may be an early warning for international business services. One company's document-review agent led it to
+cut the number of reviewers it expected to hire for the coming year by more than 90%. The six AI-native startups that
+gave an estimate said they would need, on average, four times as many employees without AI.</p>
+
+<h2>Top-down automations can be brittle</h2>
+<p>Many companies start by choosing a workflow and automating it from the top. Companies often attributed their
+contractor cuts to this kind of automation, and top-down deployments could also be fragile. Many were built by outside vendors as targeted products for one industry
+and function, and improving models soon left them out of date: “It'll be obsolete in three months.” A law firm ended up
+with lightly used “zombie” apps; a customer service scoring system ran on a two-year-old model that managers no longer
+took seriously.</p>
+<p>Expert work adds a further problem: the experts who must design the prompts and judge the outputs are being asked to
+build what could replace them. At the company with the review agent, management wanted reviewers to double their output and met
+resistance; some reviewers were down to two minutes per submission, others still took ten or more. At a law firm, an agent for
+conflict-of-interest checks shifted hard cases onto the conflicts staff, who pushed back, and the firm returned to its
+old process.</p>
+
+<h2>Bottom-up building stays in pockets</h2>
+<p>The alternative, handing out tools and waiting, produced some striking individual results. An accountant built an
+app to audit whether employers' 401(k) payments reach the right fund, work that had taken 80 hours; quality assurance
+supervisors at a chemical plant with no coding experience built an app to monitor filtration rates. Across all 140
+pieces of AI-built software that interviewees described, product features and infrastructure stayed with technical
+staff, while nontechnical staff built internal apps and dashboards. The authors infer that most software built by
+nondevelopers still depends on technical staff for support or infrastructure.</p>
+<p>Such projects stay local, need maintenance, and can create work elsewhere: the 401(k) prototype needed a third-party
+vendor to implement it and was still not in active use months later. Recurring bottlenecks across the interviews
+included reviewing AI output, uneven acceleration between tasks, uneven adoption between people, and missing context
+and infrastructure.
+Customer scepticism and regulation were rarely cited; most bottlenecks came from inside the organisation.</p>
+
+<h2>Reorganising around AI</h2>
+<p>The applications interviewees rated highest in value tended to involve substantial organisational change. The
+authors describe three ways some companies have reorganised.</p>
+<ul>
+<li><b>Broader roles.</b> One person or a small team owns a whole workflow or customer relationship, which cuts the
+handoffs and vetoes that slow everything else down; one executive described merging lead sourcing, account executive and customer
+success into a single role.</li>
+<li><b>Redeploying people to the bottleneck tasks.</b> Engineers move toward decisions, review and talking to users;
+project managers, freed from morning calls to site crews, spend the time with customers. Code review became a
+bottleneck in its own right.</li>
+<li><b>Common infrastructure.</b> Shared, consolidated data that agents and employees can query directly, and a safe
+place for nondevelopers' apps to run. A trucking company's agent-accessible data warehouse replaced queues for
+analysis that could run “a year or two”.</li>
+</ul>
+<p>The authors' conclusion is that, at current model capabilities, experts remain essential to building and reviewing
+AI workflows, and that employers who redeploy people and broaden roles may be best placed to gain from AI without
+displacing employees. They add that this guarantees nothing about job loss.</p>
+
+<h2>Beside the requirements</h2>
+<p>The two sources look at different populations at different stages, so neither tests the other. Read together, they
+suggest where requirements could do more.</p>
+<div class="scroll"><table class="words"><thead><tr><th></th><th>This series, November</th><th>Working with AI</th></tr></thead><tbody>
+<tr><td>Who</td><td>Businesses publishing requirements to build, fix or extend an AI system</td><td>Anthropic enterprise customers deploying AI</td></tr>
+<tr><td>Stage</td><td>When the work is specified</td><td>During and after deployment</td></tr>
+<tr><td>Size</td><td>About 200 projects</td><td>66 interviews at 58 companies</td></tr>
+<tr><td>Coded by</td><td>A language model, against a fixed codebook</td><td>An automated coder, from interview transcripts</td></tr>
+<tr><td>Representative</td><td>No: projects published in one place</td><td>No: companies chosen for variety</td></tr>
+</tbody></table></div>
+<p><b>Checks.</b> Interviewees usually described value qualitatively, and reviewing AI output came up repeatedly as a
+bottleneck. In the November edition, 46% of projects state no success check. For a project brief, I would agree
+representative cases and acceptance criteria before building, so that review becomes a defined check rather than
+open-ended reading.</p>
+<p><b>Maintenance and ownership.</b> The interviews show what ongoing maintenance can involve: one engineer read every
+transcript of his alert agent for two months and still sampled them every two weeks six months on. My recommendation
+is that requirements name who will do that work once the system is live, and who handles its exceptions.</p>
+<p><b>Model changes can date implementations.</b> Among projects in this series that ask for an “agent”, a fixed workflow is the most common
+design their requirements describe (41% in November), and where it meets the acceptance criteria it is often the right
+one. Some interviewees described systems they used becoming outdated as models improved. That suggests recording which steps are
+business requirements and which can be revisited when the model changes.</p>
+<p><b>The organisation is part of the scope.</b> Most bottlenecks the adopters named were inside their own
+organisations. The conflict-checking workflow shifted difficult cases from attorneys to the conflicts staff, who pushed
+back. For a brief, I would identify who inherits that kind of work and check with them that the transfer is
+workable.</p>
+
+<p>For the measures behind this comparison, see the <a href="./">November edition</a> and the October articles:
+<a href="https://sensadvisor.com/notes/ai-requirements/2026-10/agents.html">Called an agent, specified as a workflow</a>,
+<a href="https://sensadvisor.com/notes/ai-requirements/2026-10/acceptance.html">How will anyone know it works?</a> and
+<a href="https://sensadvisor.com/notes/ai-requirements/2026-10/commissioning.html">Before you commission an agent</a>.</p>
+
+<details><summary>Source and limits</summary>
+<p>Nathan Wilmers, Maxim Massenkoff and Peter McCrory, <a href="https://www.anthropic.com/research/working-with-ai">Working
+with AI</a>, Anthropic, 23 November 2026, with a
+<a href="https://assets.claude.com/0cb09418f04d09baf72922e53a3f17383ef838c9.pdf">PDF</a> that includes an appendix
+on method. Study numbers and quotations come from the report's text, and the
+comparison figures from the November edition. The company examples are as the interviewees described them, and the
+interviews were anonymous.</p>
+<p>All 66 interviews were single video calls of 25 to 40 minutes. Only some of the companies approached agreed to take
+part. Against AI-adopting firms in the Census Bureau's Business Trends and Outlook Survey, the authors report that their
+companies are larger, skew toward software and finance, and underrepresent retail and transportation. All the
+companies are customers of the company that published the study. This note quotes only numbers stated in the report's text, not
+values read from its charts.</p>
+</details>
+<details><summary>Use of AI tools</summary>
+<p>A language model helped to read the report and draft this text. I checked the figures against the report and am
+responsible for the summary and the comparison.</p>
+</details>
+<footer>SENS ADVISOR · consult@sensadvisor.com · November 2026 edition</footer>
+</article>
+<script src="/assets/dash.js" defer></script></body></html>
